@@ -1,6 +1,7 @@
 module NamedGraphs
   using AbstractBijections
   using Dictionaries
+  using MultiDimDictionaries
   using Graphs
 
   export set_vertices
@@ -100,7 +101,9 @@ module NamedGraphs
     if !allunique(vertices)
       throw(ArgumentError("Vertices have to be unique."))
     end
-    return NamedGraph(graph, inv(Bijection(vertices)))
+
+    vs = map(v -> CartesianKey(v), vertices)
+    return NamedGraph(graph, bijection(MultiDimDictionary, Dictionary, vs, 1:length(vs)))
   end
 
   function NamedGraph(graph::AbstractGraph, dims::Tuple{Vararg{Integer}})
@@ -196,6 +199,7 @@ module NamedGraphs
 
   is_directed(LG::Type{<:NamedGraph}) = is_directed(parent_graph_type(LG))
 
+  # Rename `disjoint_union`: https://networkx.org/documentation/stable/reference/algorithms/operators.html
   function blockdiag(graph1::NamedGraph, graph2::NamedGraph)
     new_parent_graph = blockdiag(parent_graph(graph1), parent_graph(graph2))
     new_vertices = vcat(vertices(graph1), vertices(graph2))
