@@ -26,7 +26,7 @@ import Graphs:
   blockdiag,
   edgetype
 
-import Base: show, eltype, copy, getindex
+import Base: show, eltype, copy, getindex, convert
 
 # abstractnamededge.jl
 import Base: Pair, Tuple, show, ==, hash, eltype

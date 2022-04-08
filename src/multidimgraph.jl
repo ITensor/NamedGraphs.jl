@@ -5,13 +5,17 @@ struct MultiDimGraph{V} <: AbstractNamedGraph{V}
 end
 
 function MultiDimGraph{V}(parent_graph::Graph, vertices::Vector) where {V}
+  graph_vertices = V.(vertices)
   return MultiDimGraph{V}(
-    parent_graph, vertices, MultiDimDictionary{V}(vertices, eachindex(vertices))
+    parent_graph, graph_vertices, MultiDimDictionary{V}(graph_vertices, eachindex(graph_vertices))
   )
 end
 
 function MultiDimGraph(parent_graph::Graph, vertices::Vector)
-  return MultiDimGraph{CartesianKey}(parent_graph, vertices)
+  # Could default to `eltype(vertices)`, but in general
+  # we want the flexibility of `Tuple` for mixed key lengths
+  # and types.
+  return MultiDimGraph{Tuple}(parent_graph, vertices)
 end
 
 # AbstractNamedGraph required interface.
@@ -19,6 +23,14 @@ parent_graph(graph::MultiDimGraph) = graph.parent_graph
 vertices(graph::MultiDimGraph) = graph.vertices
 function vertex_to_parent_vertex(graph::MultiDimGraph, vertex...)
   return graph.vertex_to_parent_vertex[vertex...]
+end
+
+function has_vertex(graph::MultiDimGraph{V}, v::Tuple) where {V}
+  return v in vertices(graph)
+end
+
+function has_vertex(graph::MultiDimGraph, v...)
+  return has_vertex(graph, tuple(v...))
 end
 
 # Customize obtaining subgraphs
