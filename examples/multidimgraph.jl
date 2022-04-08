@@ -1,6 +1,5 @@
 using Graphs
 using NamedGraphs
-using MultiDimDictionaries
 
 parent_graph = grid((2, 2))
 vertices = [
@@ -44,3 +43,12 @@ g_sub = g[:, 2]
 @show has_vertex(g_sub, "X", 2)
 @show !has_vertex(g_sub, "Y", 1)
 @show has_vertex(g_sub, "Y", 2)
+
+parent_graph = grid((2, 2))
+g1 = MultiDimGraph(parent_graph; dims=(2, 2))
+g2 = MultiDimGraph(parent_graph; dims=(2, 2))
+
+g_vcat = [g1; g2]
+g_hcat = [g1;; g2]
+g_disjoin_union = g1 ⊔ g2
+

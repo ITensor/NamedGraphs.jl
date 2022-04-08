@@ -7,6 +7,7 @@ abstract type AbstractNamedGraph{V} <: AbstractGraph{V} end
 vertices(graph::AbstractNamedGraph) = not_implemented()
 parent_graph(graph::AbstractNamedGraph) = not_implemented()
 vertex_to_parent_vertex(graph::AbstractNamedGraph, vertex...) = not_implemented()
+edgetype(graph::AbstractNamedGraph) = not_implemented()
 
 # Convert parent vertex to vertex.
 # Use `vertices`, assumes `vertices` is indexed by a parent vertex (a Vector for linear indexed parent vertices, a dictionary in general).
@@ -15,6 +16,8 @@ function parent_vertex_to_vertex(graph::AbstractNamedGraph, parent_vertex)
 end
 
 # This should be overloaded for multi-dimensional indexing.
+# Get the subset of vertices of the graph, for example
+# for an input slice `subvertices(graph, "X", :)`.
 function subvertices(graph::AbstractNamedGraph, vertices...)
   return not_implemented()
 end
@@ -23,14 +26,17 @@ function subvertices(graph::AbstractNamedGraph{V}, vertices::Vector{V}) where {V
   return vertices
 end
 
+# This is to handle `MultiDimGraph` where some of the dimensions
+# that are not slices get dropped.
+function sliced_subvertices(graph::AbstractNamedGraph, vertices...)
+  return subvertices(graph, vertices...)
+end
+
 function vertices_to_parent_vertices(
   graph::AbstractNamedGraph{V}, vertices::Vector{V}
 ) where {V}
   return [vertex_to_parent_vertex(graph, vertex) for vertex in vertices]
 end
-
-# This can be customized.
-edgetype(graph::AbstractNamedGraph{V}) where {V} = NamedEdge{V}
 
 eltype(g::AbstractNamedGraph{V}) where {V} = V
 
@@ -73,12 +79,12 @@ function all_neighbors(tn::AbstractNamedGraph, vertex::Integer)
   return all_neighbors(parent_graph(tn), vertex)
 end
 
-function add_edge!(graph::AbstractNamedGraph, edge::NamedEdge)
+function add_edge!(graph::AbstractNamedGraph, edge::AbstractNamedEdge)
   add_edge!(parent_graph(graph), edge_to_parent_edge(graph, edge))
   return graph
 end
 
-function has_edge(graph::AbstractNamedGraph, edge::NamedEdge)
+function has_edge(graph::AbstractNamedGraph, edge::AbstractNamedEdge)
   return has_edge(parent_graph(graph), edge_to_parent_edge(graph, edge))
 end
 
@@ -110,10 +116,11 @@ function add_vertices!(graph::AbstractNamedGraph, vertices::Vector)
 end
 
 function getindex(graph::AbstractNamedGraph, sub_vertices...)
-  subgraph_vertices = subvertices(graph, sub_vertices...)
-  parent_subgraph_vertices = vertices_to_parent_vertices(graph, subgraph_vertices)
+  graph_subvertices = subvertices(graph, sub_vertices...)
+  graph_sliced_subvertices = sliced_subvertices(graph, sub_vertices...)
+  parent_subgraph_vertices = vertices_to_parent_vertices(graph, graph_subvertices)
   parent_subgraph, _ = induced_subgraph(parent_graph(graph), parent_subgraph_vertices)
-  return typeof(graph)(parent_subgraph, subgraph_vertices)
+  return typeof(graph)(parent_subgraph, graph_sliced_subvertices)
 end
 
 is_directed(LG::Type{<:AbstractNamedGraph}) = is_directed(parent_graph_type(LG))

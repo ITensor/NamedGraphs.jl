@@ -16,3 +16,4 @@ end
 parent_graph(graph::NamedGraph) = graph.parent_graph
 vertices(graph::NamedGraph) = graph.vertices
 vertex_to_parent_vertex(graph::NamedGraph, vertex) = graph.vertex_to_parent_vertex[vertex]
+edgetype(graph::NamedGraph{V}) where {V} = NamedEdge{V}

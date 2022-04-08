@@ -26,21 +26,23 @@ import Graphs:
   blockdiag,
   edgetype
 
-import Base: show, eltype, copy, getindex, convert
+import Base: show, eltype, copy, getindex, convert, hcat, vcat, hvncat
 
 # abstractnamededge.jl
 import Base: Pair, Tuple, show, ==, hash, eltype
 import Graphs: AbstractEdge, src, dst, reverse
+import MultiDimDictionaries: disjoint_union, ⊔
 
 # General utility functions
 not_implemented() = error("Not implemented")
 
 include("abstractnamededge.jl")
 include("namededge.jl")
+include("multidimedge.jl")
 include("abstractnamedgraph.jl")
 include("namedgraph.jl")
 include("multidimgraph.jl")
 
-export NamedGraph, MultiDimGraph
+export NamedGraph, MultiDimGraph, disjoint_union, ⊔
 
 end # module AbstractNamedGraphs
