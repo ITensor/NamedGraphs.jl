@@ -11,7 +11,7 @@ MultiDimDictionaries = "87ff4268-a46e-478f-b30a-76b83dd64e3c"
 [compat]
 Dictionaries = "0.3"
 Graphs = "1"
-julia = "1.6"
+julia = "1.7"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
