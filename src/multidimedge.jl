@@ -3,24 +3,26 @@
 struct MultiDimEdge{V<:Tuple} <: AbstractNamedEdge{V}
   src::V
   dst::V
+  function MultiDimEdge{V}(src::V, dst::V) where {V<:Tuple}
+    return new{V}(src, dst)
+  end
 end
 
 src(e::MultiDimEdge) = e.src
 dst(e::MultiDimEdge) = e.dst
 
-MultiDimEdge{V}(e::MultiDimEdge{V}) where {V} = e
+MultiDimEdge(src, dst) = MultiDimEdge{Tuple}(_tuple(src), _tuple(dst))
+MultiDimEdge{V}(src, dst) where {V<:Tuple} = MultiDimEdge{V}(_tuple(src), _tuple(dst))
 
-MultiDimEdge{V}(e::AbstractNamedEdge) where {V} = MultiDimEdge{V}(V(e.src), V(e.dst))
+MultiDimEdge{V}(e::MultiDimEdge{V}) where {V<:Tuple} = e
+
+MultiDimEdge(e::AbstractEdge) = MultiDimEdge(src(e), dst(e))
+MultiDimEdge{V}(e::AbstractEdge) where {V<:Tuple} = MultiDimEdge{V}(src(e), dst(e))
 
 convert(E::Type{<:MultiDimEdge}, e::MultiDimEdge) = E(e)
 
-# Tuple constructor that either keeps
-# it as a Tuple or turns it into a Tuple.
-_tuple(t::Tuple) = t
-_tuple(x) = tuple(x)
-
-MultiDimEdge(p::Pair) = MultiDimEdge(_tuple(p.first), _tuple(p.second))
-MultiDimEdge{V}(p::Pair) where {V} = MultiDimEdge{V}(_tuple(p.first), _tuple(p.second))
+MultiDimEdge(p::Pair) = MultiDimEdge(p.first, p.second)
+MultiDimEdge{V}(p::Pair) where {V<:Tuple} = MultiDimEdge{V}(p.first, p.second)
 
 # XXX: Is this a good idea? It clashes with Tuple vertices of MultiDimGraphs.
 # MultiDimEdge(t::Tuple) = MultiDimEdge(t[1], t[2])

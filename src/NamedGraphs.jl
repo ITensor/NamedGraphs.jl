@@ -36,6 +36,8 @@ import MultiDimDictionaries: disjoint_union, ⊔
 # General utility functions
 not_implemented() = error("Not implemented")
 
+include("tuple_convert.jl")
+
 include("abstractnamededge.jl")
 include("namededge.jl")
 include("multidimedge.jl")
@@ -43,6 +45,6 @@ include("abstractnamedgraph.jl")
 include("namedgraph.jl")
 include("multidimgraph.jl")
 
-export NamedGraph, MultiDimGraph, disjoint_union, ⊔
+export NamedGraph, MultiDimGraph, disjoint_union, ⊔, NamedEdge, MultiDimEdge
 
 end # module AbstractNamedGraphs
