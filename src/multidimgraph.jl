@@ -11,7 +11,7 @@ function MultiDimGraph{V}(parent_graph::Graph, vertices::Vector{V}) where {V<:Tu
 end
 
 function MultiDimGraph{V}(parent_graph::Graph, vertices::Vector) where {V<:Tuple}
-  graph_vertices = _tuple.(vertices)
+  graph_vertices = tuple_convert.(vertices)
   return MultiDimGraph{V}(
     parent_graph, graph_vertices, MultiDimDictionary{Tuple}(graph_vertices, eachindex(graph_vertices))
   )
@@ -55,7 +55,7 @@ end
 # This version takes a list of vertices which are interpreted
 # as the subvertices.
 function subvertices(graph::MultiDimGraph{V}, vertices::Vector) where {V<:Tuple}
-  return convert(Vector{V}, _tuple.(vertices))
+  return convert(Vector{V}, tuple_convert.(vertices))
 end
 
 # A subset of the original vertices of `graph` based on a

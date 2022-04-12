@@ -3,6 +3,8 @@ using Dictionaries
 using MultiDimDictionaries
 using Graphs
 
+using MultiDimDictionaries: tuple_convert
+
 # abstractnamedgraph.jl
 import Graphs:
   src,
@@ -35,8 +37,6 @@ import MultiDimDictionaries: disjoint_union, ⊔
 
 # General utility functions
 not_implemented() = error("Not implemented")
-
-include("tuple_convert.jl")
 
 include("abstractnamededge.jl")
 include("namededge.jl")

@@ -11,8 +11,8 @@ end
 src(e::MultiDimEdge) = e.src
 dst(e::MultiDimEdge) = e.dst
 
-MultiDimEdge(src, dst) = MultiDimEdge{Tuple}(_tuple(src), _tuple(dst))
-MultiDimEdge{V}(src, dst) where {V<:Tuple} = MultiDimEdge{V}(_tuple(src), _tuple(dst))
+MultiDimEdge(src, dst) = MultiDimEdge{Tuple}(tuple_convert(src), tuple_convert(dst))
+MultiDimEdge{V}(src, dst) where {V<:Tuple} = MultiDimEdge{V}(tuple_convert(src), tuple_convert(dst))
 
 MultiDimEdge{V}(e::MultiDimEdge{V}) where {V<:Tuple} = e
 
