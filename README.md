@@ -35,7 +35,7 @@ This packages introduces graph types with named edges, which are built on top of
 
  
 There is a supertype `AbstractNamedGraph` that defines an interface and fallback implementations of standard
-Graphs.jl operations, and two implementations: `NamedGraph` and `MultiDimGraph`.
+Graphs.jl operations, and two implementations: `NamedGraph` and `NamedDimGraph`.
 
 
  
@@ -103,11 +103,11 @@ Graph operations are implemented by mapping back and forth between the generaliz
 
 
 
-## `MultiDimGraph`
+## `NamedDimGraph`
 
 
 
-`MultiDimGraph` is very similar to a `NamedGraph` but a bit more sophisticated. It has generalized
+`NamedDimGraph` is very similar to a `NamedGraph` but a bit more sophisticated. It has generalized
 multi-dimensional array indexing, mixed with named dimensions like [NamedDims.jl](https://github.com/invenia/NamedDims.jl).
 
 
@@ -120,8 +120,8 @@ We start out by making a multi-dimensional graph where we specify the dimensions
 assigns vertex labels based on cartesian coordinates:
 
 ```julia
-julia> g = MultiDimGraph(grid((2, 2)); dims=(2, 2))
-MultiDimGraph{Tuple} with 4 vertices:
+julia> g = NamedDimGraph(grid((2, 2)); dims=(2, 2))
+NamedDimGraph{Tuple} with 4 vertices:
 4-element Vector{Tuple}:
  (1, 1)
  (2, 1)
@@ -169,7 +169,7 @@ you can slice a dimension to get the [induced subgraph](https://juliagraphs.org/
 
 ```julia
 julia> g[1, :]
-MultiDimGraph{Tuple} with 2 vertices:
+NamedDimGraph{Tuple} with 2 vertices:
 2-element Vector{Tuple}:
  (1, 1)
  (1, 2)
@@ -179,7 +179,7 @@ and 1 edge(s):
 
 
 julia> g[:, 2]
-MultiDimGraph{Tuple} with 2 vertices:
+NamedDimGraph{Tuple} with 2 vertices:
 2-element Vector{Tuple}:
  (1, 2)
  (2, 2)
@@ -189,7 +189,7 @@ and 1 edge(s):
 
 
 julia> g[[(1, 1), (2, 2)]]
-MultiDimGraph{Tuple} with 2 vertices:
+NamedDimGraph{Tuple} with 2 vertices:
 2-element Vector{Tuple}:
  (1, 1)
  (2, 2)
@@ -219,7 +219,7 @@ Graphs can also take [disjoint unions](https://en.wikipedia.org/wiki/Disjoint_un
 
 ```julia
 julia> disjoint_union(g, g)
-MultiDimGraph{Tuple} with 8 vertices:
+NamedDimGraph{Tuple} with 8 vertices:
 8-element Vector{Tuple}:
  (1, 1, 1)
  (1, 2, 1)
@@ -242,7 +242,7 @@ and 8 edge(s):
 
 
 julia> g ⊔ g
-MultiDimGraph{Tuple} with 8 vertices:
+NamedDimGraph{Tuple} with 8 vertices:
 8-element Vector{Tuple}:
  (1, 1, 1)
  (1, 2, 1)
@@ -277,7 +277,7 @@ the original graphs by slicing and setting the first dimension:
 
 ```julia
 julia> (g ⊔ g)[1, :]
-MultiDimGraph{Tuple} with 4 vertices:
+NamedDimGraph{Tuple} with 4 vertices:
 4-element Vector{Tuple}:
  (1, 1, 1)
  (1, 2, 1)
@@ -292,7 +292,7 @@ and 4 edge(s):
 
 
 julia> (g ⊔ g)[2, :]
-MultiDimGraph{Tuple} with 4 vertices:
+NamedDimGraph{Tuple} with 4 vertices:
 4-element Vector{Tuple}:
  (2, 1, 1)
  (2, 2, 1)
@@ -312,7 +312,7 @@ or slice across the graphs that we disjoint unioned:
 
 ```julia
 julia> (g ⊔ g)[:, 1, :]
-MultiDimGraph{Tuple} with 4 vertices:
+NamedDimGraph{Tuple} with 4 vertices:
 4-element Vector{Tuple}:
  (1, 1, 1)
  (1, 1, 2)
@@ -330,7 +330,7 @@ Additionally, we can use standard array concatenation syntax, such as:
 
 ```julia
 julia> [g; g]
-MultiDimGraph{Tuple} with 8 vertices:
+NamedDimGraph{Tuple} with 8 vertices:
 8-element Vector{Tuple}:
  (1, 1)
  (2, 1)
@@ -358,7 +358,7 @@ which is equivalent to `vcat(g, g)` or:
 
 ```julia
 julia> [g;; g]
-MultiDimGraph{Tuple} with 8 vertices:
+NamedDimGraph{Tuple} with 8 vertices:
 8-element Vector{Tuple}:
  (1, 1)
  (2, 1)

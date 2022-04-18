@@ -45,6 +45,6 @@ include("abstractnamedgraph.jl")
 include("namedgraph.jl")
 include("multidimgraph.jl")
 
-export NamedGraph, MultiDimGraph, disjoint_union, ⊔, NamedEdge, MultiDimEdge
+export NamedGraph, NamedDimGraph, disjoint_union, ⊔, NamedEdge, NamedDimEdge
 
 end # module AbstractNamedGraphs

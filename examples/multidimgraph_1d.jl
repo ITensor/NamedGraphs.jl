@@ -3,7 +3,7 @@ using NamedGraphs
 
 parent_graph = grid((4,))
 vertices = ["A", "B", "C", "D"]
-g = MultiDimGraph(parent_graph, vertices)
+g = NamedDimGraph(parent_graph, vertices)
 
 @show has_vertex(g, "A")
 @show !has_vertex(g, "E")

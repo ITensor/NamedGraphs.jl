@@ -4,7 +4,7 @@ using NamedGraphs
 parent_graph = grid((2, 2))
 vertices = [("X", 1), ("X", 2), ("Y", 1), ("Y", 2)]
 
-g = MultiDimGraph(parent_graph, vertices)
+g = NamedDimGraph(parent_graph, vertices)
 
 @show has_vertex(g, "X", 1)
 @show has_edge(g, ("X", 1) => ("X", 2))
@@ -40,8 +40,8 @@ g_sub = g[:, 2]
 @show has_vertex(g_sub, "Y", 2)
 
 parent_graph = grid((2, 2))
-g1 = MultiDimGraph(parent_graph; dims=(2, 2))
-g2 = MultiDimGraph(parent_graph; dims=(2, 2))
+g1 = NamedDimGraph(parent_graph; dims=(2, 2))
+g2 = NamedDimGraph(parent_graph; dims=(2, 2))
 
 g_vcat = [g1; g2]
 

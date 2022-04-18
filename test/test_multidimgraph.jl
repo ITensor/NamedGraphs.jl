@@ -4,11 +4,11 @@ using NamedGraphs
 using Random
 using Test
 
-@testset "MultiDimGraph" begin
+@testset "NamedDimGraph" begin
   parent_graph = grid((2, 2))
   vertices = [("X", 1), ("X", 2), ("Y", 1), ("Y", 2)]
 
-  g = MultiDimGraph(parent_graph, vertices)
+  g = NamedDimGraph(parent_graph, vertices)
 
   @test has_vertex(g, "X", 1)
   @test has_edge(g, ("X", 1) => ("X", 2))
@@ -49,7 +49,7 @@ using Test
   @test !has_vertex(g_sub, "Y", 1)
   @test has_edge(g_sub, ("X", 2) => ("Y", 2))
 
-  g1 = MultiDimGraph(grid((2, 2)); dims=(2, 2))
+  g1 = NamedDimGraph(grid((2, 2)); dims=(2, 2))
 
   @test nv(g1) == 4
   @test ne(g1) == 4
@@ -63,7 +63,7 @@ using Test
   @test has_edge(g1, (2, 1) => (2, 2))
   @test !has_edge(g1, (1, 1) => (2, 2))
 
-  g2 = MultiDimGraph(grid((2, 2)); dims=(2, 2))
+  g2 = NamedDimGraph(grid((2, 2)); dims=(2, 2))
 
   g = ⊔(g1, g2; new_dim_names=("X", "Y"))
 

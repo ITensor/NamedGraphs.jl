@@ -21,7 +21,7 @@
 #' This packages introduces graph types with named edges, which are built on top of the `Graph`/`SimpleGraph` type in the [Graphs.jl](https://github.com/JuliaGraphs/Graphs.jl) package that only have contiguous integer edges (i.e. linear indexing).
 
 #' There is a supertype `AbstractNamedGraph` that defines an interface and fallback implementations of standard
-#' Graphs.jl operations, and two implementations: `NamedGraph` and `MultiDimGraph`.
+#' Graphs.jl operations, and two implementations: `NamedGraph` and `NamedDimGraph`.
 
 #' ## `NamedGraph`
 
@@ -45,9 +45,9 @@ g[["A", "B"]]
 
 #' Graph operations are implemented by mapping back and forth between the generalized named vertices and the linear index vertices of the `SimpleGraph`.
 
-#' ## `MultiDimGraph`
+#' ## `NamedDimGraph`
 
-#' `MultiDimGraph` is very similar to a `NamedGraph` but a bit more sophisticated. It has generalized
+#' `NamedDimGraph` is very similar to a `NamedGraph` but a bit more sophisticated. It has generalized
 #' multi-dimensional array indexing, mixed with named dimensions like [NamedDims.jl](https://github.com/invenia/NamedDims.jl).
 
 #' This allows for more sophisticated behavior, such as slicing dimensions and [disjoint unions](https://en.wikipedia.org/wiki/Disjoint_union) (generalizations of array concatenations).
@@ -56,7 +56,7 @@ g[["A", "B"]]
 #' assigns vertex labels based on cartesian coordinates:
 #+ term=true
 
-g = MultiDimGraph(grid((2, 2)); dims=(2, 2))
+g = NamedDimGraph(grid((2, 2)); dims=(2, 2))
 
 #' Internally the vertices are all stored as tuples with a label in each dimension.
 
