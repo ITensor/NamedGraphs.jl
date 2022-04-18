@@ -61,7 +61,7 @@ end
 # A subset of the original vertices of `graph` based on a
 # given slice of the vertices.
 function subvertices(graph::MultiDimGraph, vertex_slice...)
-  return collect(keys(MultiDimDictionaries.getindex_no_dropdims(MultiDimDictionaries.SliceIndex(), graph.vertex_to_parent_vertex, tuple(vertex_slice...))))
+  return collect(keys(MultiDimDictionaries.getindex(MultiDimDictionaries.SliceIndex(), graph.vertex_to_parent_vertex, tuple(vertex_slice...))))
 end
 
 # TODO: implement in terms of `subvertices` and a generic function

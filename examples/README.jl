@@ -6,6 +6,16 @@
 #' [![Coverage](https://codecov.io/gh/mtfishman/NamedGraphs.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/mtfishman/NamedGraphs.jl)
 #' [![Code Style: Blue](https://img.shields.io/badge/code%20style-blue-4495d1.svg)](https://github.com/invenia/BlueStyle)
 
+#' ## Installation
+
+#' The package is not currently registered. You can install it as follows:
+
+#' ```julia
+#' using Pkg
+#' Pkg.add(url="https://github.com/mtfishman/MultiDimDictionaries.jl.git")
+#' Pkg.add(url="https://github.com/mtfishman/NamedGraphs.jl.git")
+#' ```
+
 #' ## Introduction
  
 #' This packages introduces graph types with named edges, which are built on top of the `Graph`/`SimpleGraph` type in the [Graphs.jl](https://github.com/JuliaGraphs/Graphs.jl) package that only have contiguous integer edges (i.e. linear indexing).
@@ -124,4 +134,3 @@ g ⊔ g
 #' out_path = pkgdir(NamedGraphs)
 #' weave(filename; doctype = "github", out_path)
 #' ```
-#'

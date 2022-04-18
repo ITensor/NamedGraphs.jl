@@ -10,6 +10,22 @@
 
 
 
+## Installation
+
+
+
+The package is not currently registered. You can install it as follows:
+
+
+
+```julia
+using Pkg
+Pkg.add(url="https://github.com/mtfishman/MultiDimDictionaries.jl.git")
+Pkg.add(url="https://github.com/mtfishman/NamedGraphs.jl.git")
+```
+
+
+
 ## Introduction
 
 
@@ -155,21 +171,21 @@ you can slice a dimension to get the [induced subgraph](https://juliagraphs.org/
 julia> g[1, :]
 MultiDimGraph{Tuple} with 2 vertices:
 2-element Vector{Tuple}:
- (1,)
- (2,)
+ (1, 1)
+ (1, 2)
 
 and 1 edge(s):
-(1,) => (2,)
+(1, 1) => (1, 2)
 
 
 julia> g[:, 2]
 MultiDimGraph{Tuple} with 2 vertices:
 2-element Vector{Tuple}:
- (1,)
- (2,)
+ (1, 2)
+ (2, 2)
 
 and 1 edge(s):
-(1,) => (2,)
+(1, 2) => (2, 2)
 
 
 julia> g[[(1, 1), (2, 2)]]
@@ -263,31 +279,31 @@ the original graphs by slicing and setting the first dimension:
 julia> (g ⊔ g)[1, :]
 MultiDimGraph{Tuple} with 4 vertices:
 4-element Vector{Tuple}:
- (1, 1)
- (2, 1)
- (1, 2)
- (2, 2)
+ (1, 1, 1)
+ (1, 2, 1)
+ (1, 1, 2)
+ (1, 2, 2)
 
 and 4 edge(s):
-(1, 1) => (2, 1)
-(1, 1) => (1, 2)
-(2, 1) => (2, 2)
-(1, 2) => (2, 2)
+(1, 1, 1) => (1, 2, 1)
+(1, 1, 1) => (1, 1, 2)
+(1, 2, 1) => (1, 2, 2)
+(1, 1, 2) => (1, 2, 2)
 
 
 julia> (g ⊔ g)[2, :]
 MultiDimGraph{Tuple} with 4 vertices:
 4-element Vector{Tuple}:
- (1, 1)
- (2, 1)
- (1, 2)
- (2, 2)
+ (2, 1, 1)
+ (2, 2, 1)
+ (2, 1, 2)
+ (2, 2, 2)
 
 and 4 edge(s):
-(1, 1) => (2, 1)
-(1, 1) => (1, 2)
-(2, 1) => (2, 2)
-(1, 2) => (2, 2)
+(2, 1, 1) => (2, 2, 1)
+(2, 1, 1) => (2, 1, 2)
+(2, 2, 1) => (2, 2, 2)
+(2, 1, 2) => (2, 2, 2)
 
 ```
 
@@ -298,14 +314,14 @@ or slice across the graphs that we disjoint unioned:
 julia> (g ⊔ g)[:, 1, :]
 MultiDimGraph{Tuple} with 4 vertices:
 4-element Vector{Tuple}:
- (1, 1)
- (1, 2)
- (2, 1)
- (2, 2)
+ (1, 1, 1)
+ (1, 1, 2)
+ (2, 1, 1)
+ (2, 1, 2)
 
 and 2 edge(s):
-(1, 1) => (1, 2)
-(2, 1) => (2, 2)
+(1, 1, 1) => (1, 1, 2)
+(2, 1, 1) => (2, 1, 2)
 
 ```
 
@@ -372,18 +388,14 @@ which is the same as `hcat(g, g)`.
 
 ## Generating this README
 
-
-
-This file was generated with [weave.jl](https://github.com/JunoLab/Weave.jl) with the following commands:
 ```julia
-using Weave
-using NamedGraphs
-filename = joinpath(pkgdir(NamedGraphs), "examples", "README.jl")
-out_path = pkgdir(NamedGraphs)
-weave(filename; doctype = "github", out_path)
-```
-
-
-```julia
+# This file was generated with [weave.jl](https://github.com/JunoLab/Weave.jl) with the following commands:
+# ```julia
+# using Weave
+# using NamedGraphs
+# filename = joinpath(pkgdir(NamedGraphs), "examples", "README.jl")
+# out_path = pkgdir(NamedGraphs)
+# weave(filename; doctype = "github", out_path)
+# ```
 ```
 
