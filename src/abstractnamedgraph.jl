@@ -55,7 +55,7 @@ has_vertex(g::AbstractNamedGraph, v) = v in vertices(g)
 
 function edges(graph::AbstractNamedGraph)
   vertex(parent_vertex) = vertices(graph)[parent_vertex]
-  edge(parent_edge) = NamedEdge(vertex(src(parent_edge)), vertex(dst(parent_edge)))
+  edge(parent_edge) = edgetype(graph)(vertex(src(parent_edge)), vertex(dst(parent_edge)))
   return map(edge, parent_edges(graph))
 end
 
