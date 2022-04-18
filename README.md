@@ -1,7 +1,7 @@
 # NamedGraphs
 
 
- 
+
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://mtfishman.github.io/NamedGraphs.jl/stable)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://mtfishman.github.io/NamedGraphs.jl/dev)
 [![Build Status](https://github.com/mtfishman/NamedGraphs.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/mtfishman/NamedGraphs.jl/actions/workflows/CI.yml?query=branch%3Amain)
@@ -16,8 +16,6 @@
 
 The package is not currently registered. You can install it as follows:
 
-
-
 ```julia
 using Pkg
 Pkg.add(url="https://github.com/mtfishman/MultiDimDictionaries.jl.git")
@@ -25,24 +23,23 @@ Pkg.add(url="https://github.com/mtfishman/NamedGraphs.jl.git")
 ```
 
 
-
 ## Introduction
 
 
- 
+
 This packages introduces graph types with named edges, which are built on top of the `Graph`/`SimpleGraph` type in the [Graphs.jl](https://github.com/JuliaGraphs/Graphs.jl) package that only have contiguous integer edges (i.e. linear indexing).
 
 
- 
+
 There is a supertype `AbstractNamedGraph` that defines an interface and fallback implementations of standard
 Graphs.jl operations, and two implementations: `NamedGraph` and `NamedDimGraph`.
 
 
- 
+
 ## `NamedGraph`
 
 
- 
+
 `NamedGraph` simply takes a set of names for the vertices of the graph. For example:
 
 ```julia
@@ -98,7 +95,7 @@ and 1 edge(s):
 Internally, this type wraps a `SimpleGraph`, and stores a `Dictionary` from the [Dictionaries.jl](https://github.com/andyferris/Dictionaries.jl) package that maps the vertex names to the linear indices of the underlying `SimpleGraph`.
 
 
- 
+
 Graph operations are implemented by mapping back and forth between the generalized named vertices and the linear index vertices of the `SimpleGraph`.
 
 
@@ -111,7 +108,7 @@ Graph operations are implemented by mapping back and forth between the generaliz
 multi-dimensional array indexing, mixed with named dimensions like [NamedDims.jl](https://github.com/invenia/NamedDims.jl).
 
 
- 
+
 This allows for more sophisticated behavior, such as slicing dimensions and [disjoint unions](https://en.wikipedia.org/wiki/Disjoint_union) (generalizations of array concatenations).
 
 
@@ -388,14 +385,14 @@ which is the same as `hcat(g, g)`.
 
 ## Generating this README
 
-```julia
-# This file was generated with [weave.jl](https://github.com/JunoLab/Weave.jl) with the following commands:
-# ```julia
-# using Weave
-# using NamedGraphs
-# filename = joinpath(pkgdir(NamedGraphs), "examples", "README.jl")
-# out_path = pkgdir(NamedGraphs)
-# weave(filename; doctype = "github", out_path)
-# ```
-```
 
+
+This file was generated with [weave.jl](https://github.com/JunoLab/Weave.jl) with the following commands:
+
+```julia
+using Weave
+using NamedGraphs
+filename = joinpath(pkgdir(NamedGraphs), "examples", "README.jl")
+out_path = pkgdir(NamedGraphs)
+weave(filename; doctype = "github", out_path)
+```
