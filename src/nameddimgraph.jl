@@ -4,6 +4,10 @@ struct NamedDimGraph{V<:Tuple} <: AbstractNamedGraph{V}
   vertex_to_parent_vertex::MultiDimDictionary{V,Int}
 end
 
+function copy(graph::NamedDimGraph)
+  return NamedDimGraph(copy(graph.parent_graph), copy(graph.vertices), copy(graph.vertex_to_parent_vertex))
+end
+
 function NamedDimGraph{V}(parent_graph::Graph, vertices::Vector{V}) where {V<:Tuple}
   return NamedDimGraph{V}(
     parent_graph, vertices, MultiDimDictionary{V}(vertices, eachindex(vertices))
@@ -19,6 +23,10 @@ function NamedDimGraph{V}(parent_graph::Graph, vertices::Vector) where {V<:Tuple
   )
 end
 
+function NamedDimGraph{V}(parent_graph::Graph, vertices) where {V<:Tuple}
+  return NamedDimGraph{V}(parent_graph, collect(vertices))
+end
+
 function NamedDimGraph{V}(parent_graph::Graph, vertices::Array) where {V<:Tuple}
   return NamedDimGraph{V}(parent_graph, vec(vertices))
 end
@@ -28,6 +36,10 @@ function NamedDimGraph(parent_graph::Graph, vertices::Array)
   # we want the flexibility of `Tuple` for mixed key lengths
   # and types.
   return NamedDimGraph{Tuple}(parent_graph, vertices)
+end
+
+function NamedDimGraph(parent_graph::Graph, vertices)
+  return NamedDimGraph(parent_graph, collect(vertices))
 end
 
 function NamedDimGraph(parent_graph::Graph; dims)

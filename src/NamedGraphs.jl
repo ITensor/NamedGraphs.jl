@@ -40,10 +40,10 @@ not_implemented() = error("Not implemented")
 
 include("abstractnamededge.jl")
 include("namededge.jl")
-include("multidimedge.jl")
+include("nameddimedge.jl")
 include("abstractnamedgraph.jl")
 include("namedgraph.jl")
-include("multidimgraph.jl")
+include("nameddimgraph.jl")
 
 export NamedGraph, NamedDimGraph, disjoint_union, ⊔, NamedEdge, NamedDimEdge
 
