@@ -2,12 +2,7 @@ using Graphs
 using NamedGraphs
 
 parent_graph = grid((2, 2))
-vertices = [
-  ("X", 1),
-  ("X", 2),
-  ("Y", 1),
-  ("Y", 2),
-]
+vertices = [("X", 1), ("X", 2), ("Y", 1), ("Y", 2)]
 
 g = MultiDimGraph(parent_graph, vertices)
 

@@ -13,7 +13,9 @@ end
 function MultiDimGraph{V}(parent_graph::Graph, vertices::Vector) where {V<:Tuple}
   graph_vertices = tuple_convert.(vertices)
   return MultiDimGraph{V}(
-    parent_graph, graph_vertices, MultiDimDictionary{Tuple}(graph_vertices, eachindex(graph_vertices))
+    parent_graph,
+    graph_vertices,
+    MultiDimDictionary{Tuple}(graph_vertices, eachindex(graph_vertices)),
   )
 end
 
@@ -61,7 +63,15 @@ end
 # A subset of the original vertices of `graph` based on a
 # given slice of the vertices.
 function subvertices(graph::MultiDimGraph, vertex_slice...)
-  return collect(keys(MultiDimDictionaries.getindex(MultiDimDictionaries.SliceIndex(), graph.vertex_to_parent_vertex, tuple(vertex_slice...))))
+  return collect(
+    keys(
+      MultiDimDictionaries.getindex(
+        MultiDimDictionaries.SliceIndex(),
+        graph.vertex_to_parent_vertex,
+        tuple(vertex_slice...),
+      ),
+    ),
+  )
 end
 
 # TODO: implement in terms of `subvertices` and a generic function
@@ -74,9 +84,16 @@ end
 # TODO: rename `subvertices_drop_nonslice_dims`.
 sliced_subvertices(graph::MultiDimGraph, vertices::Vector) = subvertices(graph, vertices)
 
-function hvncat(dim::Int, graph1::MultiDimGraph, graph2::MultiDimGraph; new_dim_names=(1, 2))
+function hvncat(
+  dim::Int, graph1::MultiDimGraph, graph2::MultiDimGraph; new_dim_names=(1, 2)
+)
   graph_parent_graph = blockdiag(parent_graph(graph1), parent_graph(graph2))
-  graph_vertex_to_parent_vertex = hvncat(dim, graph1.vertex_to_parent_vertex, graph2.vertex_to_parent_vertex; new_dim_keys=new_dim_names)
+  graph_vertex_to_parent_vertex = hvncat(
+    dim,
+    graph1.vertex_to_parent_vertex,
+    graph2.vertex_to_parent_vertex;
+    new_dim_keys=new_dim_names,
+  )
   graph_vertices = collect(keys(graph_vertex_to_parent_vertex))
   return MultiDimGraph(graph_parent_graph, graph_vertices)
 end
