@@ -3,7 +3,7 @@ using Dictionaries
 using MultiDimDictionaries
 using Graphs
 
-using MultiDimDictionaries: tuple_convert
+using MultiDimDictionaries: tuple_convert, IndexType, SliceIndex, ElementIndex
 
 # abstractnamedgraph.jl
 import Graphs:

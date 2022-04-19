@@ -77,8 +77,8 @@ end
 function subvertices(graph::NamedDimGraph, vertex_slice...)
   return collect(
     keys(
-      MultiDimDictionaries.getindex(
-        MultiDimDictionaries.SliceIndex(),
+      getindex(
+        SliceIndex(),
         graph.vertex_to_parent_vertex,
         tuple(vertex_slice...),
       ),
