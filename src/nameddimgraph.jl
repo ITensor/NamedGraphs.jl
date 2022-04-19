@@ -42,7 +42,7 @@ function NamedDimGraph(parent_graph::Graph, vertices)
   return NamedDimGraph(parent_graph, collect(vertices))
 end
 
-function NamedDimGraph(parent_graph::Graph; dims)
+function NamedDimGraph(parent_graph::Graph; dims=tuple(nv(parent_graph)))
   @assert prod(dims) == nv(parent_graph)
   vertices = Tuple.(CartesianIndices(dims))
   return NamedDimGraph(parent_graph, vertices)

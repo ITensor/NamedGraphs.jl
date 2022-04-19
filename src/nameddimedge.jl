@@ -23,6 +23,9 @@ NamedDimEdge{V}(e::AbstractEdge) where {V<:Tuple} = NamedDimEdge{V}(src(e), dst(
 
 convert(E::Type{<:NamedDimEdge}, e::NamedDimEdge) = E(e)
 
+# Allows syntax like `dictionary[1 => 2]`.
+convert(E::Type{<:NamedDimEdge}, e::Pair) = E(e)
+
 NamedDimEdge(p::Pair) = NamedDimEdge(p.first, p.second)
 NamedDimEdge{V}(p::Pair) where {V<:Tuple} = NamedDimEdge{V}(p.first, p.second)
 
