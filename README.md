@@ -15,12 +15,12 @@
 
 
 The package is not currently registered. You can install it as follows:
-
 ```julia
 using Pkg
 Pkg.add(url="https://github.com/mtfishman/MultiDimDictionaries.jl.git")
 Pkg.add(url="https://github.com/mtfishman/NamedGraphs.jl.git")
 ```
+
 
 
 ## Introduction
@@ -388,7 +388,6 @@ which is the same as `hcat(g, g)`.
 
 
 This file was generated with [weave.jl](https://github.com/JunoLab/Weave.jl) with the following commands:
-
 ```julia
 using Weave
 using NamedGraphs
@@ -396,3 +395,7 @@ filename = joinpath(pkgdir(NamedGraphs), "examples", "README.jl")
 out_path = pkgdir(NamedGraphs)
 weave(filename; doctype = "github", out_path)
 ```
+
+```julia
+```
+
