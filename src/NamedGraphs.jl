@@ -38,6 +38,7 @@ import MultiDimDictionaries: disjoint_union, ⊔
 # General utility functions
 not_implemented() = error("Not implemented")
 
+include("to_vertex.jl")
 include("abstractnamededge.jl")
 include("namededge.jl")
 include("nameddimedge.jl")

@@ -31,6 +31,8 @@ function NamedDimGraph{V}(parent_graph::Graph, vertices::Array) where {V<:Tuple}
   return NamedDimGraph{V}(parent_graph, vec(vertices))
 end
 
+NamedDimGraph{V}() where {V} = NamedDimGraph{V}(Graph())
+
 function NamedDimGraph(parent_graph::Graph, vertices::Array)
   # Could default to `eltype(vertices)`, but in general
   # we want the flexibility of `Tuple` for mixed key lengths
@@ -41,6 +43,18 @@ end
 function NamedDimGraph(parent_graph::Graph, vertices)
   return NamedDimGraph(parent_graph, collect(vertices))
 end
+
+# Convert to a vertex of the graph type
+# For example, for MultiDimNamedGraph, this does:
+#
+# to_vertex(graph, "X") # ("X",)
+# to_vertex(graph, "X", 1) # ("X", 1)
+# to_vertex(graph, ("X", 1)) # ("X", 1)
+#
+# For general graph types it is:
+#
+# to_vertex(graph, "X") # "X"
+to_vertex(::Type{<:NamedDimGraph}, v...) = tuple_convert(v...)
 
 default_vertices(graph::Graph) = collect(1:nv(graph))
 
@@ -58,13 +72,12 @@ function NamedDimGraph(parent_graph::Graph; dims=nothing, vertices=nothing)
   return NamedDimGraph(parent_graph, vertices)
 end
 
+NamedDimGraph() = NamedDimGraph(Graph())
+
 # AbstractNamedGraph required interface.
 parent_graph(graph::NamedDimGraph) = graph.parent_graph
 vertices(graph::NamedDimGraph) = graph.vertices
-function vertex_to_parent_vertex(graph::NamedDimGraph, vertex...)
-  return graph.vertex_to_parent_vertex[vertex...]
-end
-
+vertex_to_parent_vertex(graph::NamedDimGraph) = graph.vertex_to_parent_vertex
 edgetype(graph::NamedDimGraph{V}) where {V<:Tuple} = NamedDimEdge{V}
 
 function has_vertex(graph::NamedDimGraph{V}, v::Tuple) where {V<:Tuple}

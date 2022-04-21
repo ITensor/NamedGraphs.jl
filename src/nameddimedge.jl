@@ -8,12 +8,30 @@ struct NamedDimEdge{V<:Tuple} <: AbstractNamedEdge{V}
   end
 end
 
+# Convert to a vertex of the graph type
+# For example, for MultiDimNamedGraph, this does:
+#
+# to_vertex(graph, "X") # ("X",)
+# to_vertex(graph, "X", 1) # ("X", 1)
+# to_vertex(graph, ("X", 1)) # ("X", 1)
+#
+# For general graph types it is:
+#
+# to_vertex(graph, "X") # "X"
+#
+# TODO: Rename `tuple_convert` to `to_tuple`.
+to_vertex(::Type{<:NamedDimEdge}, v...) = tuple_convert(v...)
+to_vertex(e::NamedDimEdge, v...) = to_vertex(typeof(e), v...)
+
 src(e::NamedDimEdge) = e.src
 dst(e::NamedDimEdge) = e.dst
 
-NamedDimEdge(src, dst) = NamedDimEdge{Tuple}(tuple_convert(src), tuple_convert(dst))
+function NamedDimEdge(src, dst)
+  return NamedDimEdge{Tuple}(to_vertex(NamedDimEdge, src), tuple_convert(NamedDimEdge, dst))
+end
+
 function NamedDimEdge{V}(src, dst) where {V<:Tuple}
-  return NamedDimEdge{V}(tuple_convert(src), tuple_convert(dst))
+  return NamedDimEdge{V}(to_vertex(NamedDimEdge, src), to_vertex(NamedDimEdge, dst))
 end
 
 NamedDimEdge{V}(e::NamedDimEdge{V}) where {V<:Tuple} = e

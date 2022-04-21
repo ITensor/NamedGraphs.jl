@@ -78,3 +78,25 @@ using Test
   #@test issetequal(Graphs.vertices(g1), Graphs.vertices(g["Y", :]))
   #@test issetequal(edges(g1), edges(g["Y", :]))
 end
+
+@testset "NamedDimGraph add vertices" begin
+  parent_graph = grid((2, 2))
+  vertices = [("X", 1), ("X", 2), ("Y", 1), ("Y", 2)]
+  g = NamedDimGraph()
+  add_vertex!(g, "X", 1)
+  add_vertex!(g, "X", 2)
+  add_vertex!(g, ("Y", 1))
+  add_vertex!(g, "Y", 2)
+
+  @test nv(g) == 4
+  @test ne(g) == 0
+  @test has_vertex(g, "X", 1)
+  @test has_vertex(g, "X", 2)
+  @test has_vertex(g, "Y", 1)
+  @test has_vertex(g, "Y", 2)
+
+  add_edge!(g, ("X", 1) => ("Y", 2))
+
+  @test ne(g) == 1
+  @test has_edge(g, ("X", 1) => ("Y", 2))
+end

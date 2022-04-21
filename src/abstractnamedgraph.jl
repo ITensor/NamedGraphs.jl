@@ -6,8 +6,15 @@ abstract type AbstractNamedGraph{V} <: AbstractGraph{V} end
 
 vertices(graph::AbstractNamedGraph) = not_implemented()
 parent_graph(graph::AbstractNamedGraph) = not_implemented()
-vertex_to_parent_vertex(graph::AbstractNamedGraph, vertex...) = not_implemented()
+vertex_to_parent_vertex(graph::AbstractNamedGraph) = not_implemented()
 edgetype(graph::AbstractNamedGraph) = not_implemented()
+
+# By default, assume `vertex_to_parent_vertex(graph)`
+# returns a data structure that you index into to map
+# from a vertex to a parent vertex.
+function vertex_to_parent_vertex(graph::AbstractNamedGraph, vertex...)
+  return vertex_to_parent_vertex(graph)[vertex...]
+end
 
 # Convert parent vertex to vertex.
 # Use `vertices`, assumes `vertices` is indexed by a parent vertex (a Vector for linear indexed parent vertices, a dictionary in general).
@@ -96,20 +103,31 @@ add_edge!(g::AbstractNamedGraph, x) = add_edge!(g, edgetype(g)(x))
 has_edge(g::AbstractNamedGraph, x, y) = has_edge(g, edgetype(g)(x, y))
 add_edge!(g::AbstractNamedGraph, x, y) = add_edge!(g, edgetype(g)(x, y))
 
-function add_vertex!(graph::AbstractNamedGraph, v)
-  if v ∈ vertices(graph)
+function add_vertex!(graph::AbstractNamedGraph, v...)
+  # Convert to a vertex of the graph type
+  # For example, for MultiDimNamedGraph, this does:
+  #
+  # to_vertex(graph, "X") # ("X",)
+  # to_vertex(graph, "X", 1) # ("X", 1)
+  # to_vertex(graph, ("X", 1)) # ("X", 1)
+  #
+  # For general graph types it is:
+  #
+  # to_vertex(graph, "X") # "X"
+  vertex = to_vertex(graph, v...)
+  if vertex ∈ vertices(graph)
     throw(ArgumentError("Duplicate vertices are not allowed"))
   end
   add_vertex!(parent_graph(graph))
-  insert!(vertex_to_parent_vertex(graph), v, last(parent_vertices(graph)))
+  # Update the vertex list
+  push!(vertices(graph), vertex)
+  # Update the reverse map
+  insert!(vertex_to_parent_vertex(graph), vertex, last(parent_vertices(graph)))
   return graph
 end
 
-function add_vertices!(graph::AbstractNamedGraph, vertices::Vector)
-  if any(v ∈ vertices(graph) for v in vertices)
-    throw(ArgumentError("Duplicate vertices are not allowed"))
-  end
-  for vertex in vertices
+function add_vertices!(graph::AbstractNamedGraph, vs::Vector)
+  for vertex in vs
     add_vertex!(graph, vertex)
   end
   return graph
