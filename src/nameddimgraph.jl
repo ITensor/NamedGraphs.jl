@@ -42,9 +42,19 @@ function NamedDimGraph(parent_graph::Graph, vertices)
   return NamedDimGraph(parent_graph, collect(vertices))
 end
 
-function NamedDimGraph(parent_graph::Graph; dims=tuple(nv(parent_graph)))
-  @assert prod(dims) == nv(parent_graph)
-  vertices = Tuple.(CartesianIndices(dims))
+default_vertices(graph::Graph) = collect(1:nv(graph))
+
+function NamedDimGraph(parent_graph::Graph; dims=nothing, vertices=nothing)
+  if !isnothing(dims) && !isnothing(vertices)
+    println("dims = ", dims)
+    println("vertices = ", vertices)
+    error("Must specify `dims` or `vertices` but not both.")
+  elseif isnothing(dims) && isnothing(vertices)
+    vertices = default_vertices(parent_graph)
+  elseif !isnothing(dims) # && isnothing(vertices)
+    vertices = Tuple.(CartesianIndices(dims))
+    @assert prod(dims) == nv(parent_graph)
+  end
   return NamedDimGraph(parent_graph, vertices)
 end
 

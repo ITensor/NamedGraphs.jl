@@ -62,8 +62,8 @@ end
 # TODO: write in terms of a generic function.
 for f in [:outneighbors, :inneighbors, :all_neighbors, :neighbors]
   @eval begin
-    function $f(graph::AbstractNamedGraph, v)
-      parent_vertices = $f(parent_graph(graph), vertex_to_parent_vertex(graph, v))
+    function $f(graph::AbstractNamedGraph, v...)
+      parent_vertices = $f(parent_graph(graph), vertex_to_parent_vertex(graph, v...))
       return [parent_vertex_to_vertex(graph, u) for u in parent_vertices]
     end
   end
