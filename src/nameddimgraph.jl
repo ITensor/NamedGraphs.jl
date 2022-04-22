@@ -1,5 +1,5 @@
 struct NamedDimGraph{V<:Tuple} <: AbstractNamedGraph{V}
-  parent_graph::Graph{Int}
+  parent_graph::SimpleGraph{Int}
   vertices::Vector{V}
   vertex_to_parent_vertex::MultiDimDictionary{V,Int}
 end
@@ -131,22 +131,4 @@ function hvncat(
   )
   graph_vertices = collect(keys(graph_vertex_to_parent_vertex))
   return NamedDimGraph(graph_parent_graph, graph_vertices)
-end
-
-function vcat(graph1::AbstractGraph, graph2::AbstractGraph; kwargs...)
-  return hvncat(1, graph1, graph2; kwargs...)
-end
-
-function hcat(graph1::AbstractGraph, graph2::AbstractGraph; kwargs...)
-  return hvncat(2, graph1, graph2; kwargs...)
-end
-
-# TODO: define `disjoint_union(graphs...; dim::Int, new_dim_names)` to do a disjoint union
-# of a number of graphs.
-function disjoint_union(graph1::AbstractGraph, graph2::AbstractGraph; dim::Int=0, kwargs...)
-  return hvncat(dim, graph1, graph2; kwargs...)
-end
-
-function ⊔(graph1::AbstractGraph, graph2::AbstractGraph; kwargs...)
-  return disjoint_union(graph1, graph2; kwargs...)
 end

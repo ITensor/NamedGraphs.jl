@@ -156,6 +156,28 @@ function adjacency_matrix(graph::AbstractNamedGraph, args...)
   return adjacency_matrix(parent_graph(graph), args...)
 end
 
+# 
+# Graph traversals
+#
+
+bfs_tree(g::AbstractNamedGraph, s...; kwargs...) = tree(g, bfs_parents(g, s...; kwargs...))
+
+function bfs_parents(graph::AbstractNamedGraph, s...; kwargs...)
+  parent_bfs_parents = bfs_parents(parent_graph(graph), vertex_to_parent_vertex(graph)[s...]; kwargs...)
+  return [vertices(graph)[parent_vertex] for parent_vertex in parent_bfs_parents]
+end
+
+dfs_tree(g::AbstractNamedGraph, s...; kwargs...) = tree(g, dfs_parents(g, s...; kwargs...))
+
+function dfs_parents(graph::AbstractNamedGraph, s...; kwargs...)
+  parent_dfs_parents = dfs_parents(parent_graph(graph), vertex_to_parent_vertex(graph)[s...]; kwargs...)
+  return [vertices(graph)[parent_vertex] for parent_vertex in parent_dfs_parents]
+end
+
+#
+# Printing
+#
+
 function show(io::IO, mime::MIME"text/plain", graph::AbstractNamedGraph)
   println(io, "$(typeof(graph)) with $(nv(graph)) vertices:")
   show(io, mime, vertices(graph))
