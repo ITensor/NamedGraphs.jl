@@ -1,3 +1,5 @@
+default_vertices(graph::DiGraph) = [tuple(v) for v in 1:nv(graph)]
+
 struct NamedDimDiGraph{V<:Tuple} <: AbstractNamedGraph{V}
   parent_graph::SimpleDiGraph{Int}
   vertices::Vector{V}
@@ -7,8 +9,6 @@ end
 function copy(graph::NamedDimDiGraph)
   return NamedDimDiGraph(copy(graph.parent_graph), copy(graph.vertices), copy(graph.vertex_to_parent_vertex))
 end
-
-default_vertices(graph::DiGraph) = [tuple(v) for v in 1:nv(graph)]
 
 function NamedDimDiGraph{V}(parent_graph::DiGraph, vertices::Vector{V}=default_vertices(parent_graph)) where {V<:Tuple}
   return NamedDimDiGraph{V}(
@@ -46,20 +46,6 @@ function NamedDimDiGraph(parent_graph::DiGraph, vertices)
   return NamedDimDiGraph(parent_graph, collect(vertices))
 end
 
-# Convert to a vertex of the graph type
-# For example, for MultiDimNamedGraph, this does:
-#
-# to_vertex(graph, "X") # ("X",)
-# to_vertex(graph, "X", 1) # ("X", 1)
-# to_vertex(graph, ("X", 1)) # ("X", 1)
-#
-# For general graph types it is:
-#
-# to_vertex(graph, "X") # "X"
-to_vertex(::Type{<:NamedDimDiGraph}, v...) = tuple_convert(v...)
-
-default_vertices(graph::DiGraph) = collect(1:nv(graph))
-
 function NamedDimDiGraph(parent_graph::DiGraph; dims=nothing, vertices=nothing)
   if !isnothing(dims) && !isnothing(vertices)
     println("dims = ", dims)
@@ -82,12 +68,24 @@ vertices(graph::NamedDimDiGraph) = graph.vertices
 vertex_to_parent_vertex(graph::NamedDimDiGraph) = graph.vertex_to_parent_vertex
 edgetype(graph::NamedDimDiGraph{V}) where {V<:Tuple} = NamedDimEdge{V}
 
+# Convert to a vertex of the graph type
+# For example, for MultiDimNamedGraph, this does:
+#
+# to_vertex(graph, "X") # ("X",)
+# to_vertex(graph, "X", 1) # ("X", 1)
+# to_vertex(graph, ("X", 1)) # ("X", 1)
+#
+# For general graph types it is:
+#
+# to_vertex(graph, "X") # "X"
+to_vertex(::Type{<:NamedDimDiGraph}, v...) = tuple_convert(v...)
+
 function has_vertex(graph::NamedDimDiGraph{V}, v::Tuple) where {V<:Tuple}
   return v in vertices(graph)
 end
 
 function has_vertex(graph::NamedDimDiGraph, v...)
-  return has_vertex(graph, tuple(v...))
+  return has_vertex(graph, to_vertex(graph, v...))
 end
 
 # Customize obtaining subgraphs
@@ -139,7 +137,7 @@ end
 # traversal algorithms.
 function tree(graph::NamedDimGraph, parents::AbstractVector{T}) where {T<:Tuple}
   n = length(parents)
-  t = NamedDimDiGraph{T}(DiGraph(n))
+  t = NamedDimDiGraph{Tuple}(DiGraph(n))
   for (parent_v, u) in enumerate(parents)
     v = vertices(graph)[parent_v]
     if u != v

@@ -9,6 +9,8 @@ parent_graph(graph::AbstractNamedGraph) = not_implemented()
 vertex_to_parent_vertex(graph::AbstractNamedGraph) = not_implemented()
 edgetype(graph::AbstractNamedGraph) = not_implemented()
 
+parent_eltype(graph::AbstractNamedGraph) = eltype(parent_graph(graph))
+
 # By default, assume `vertex_to_parent_vertex(graph)`
 # returns a data structure that you index into to map
 # from a vertex to a parent vertex.
@@ -42,7 +44,7 @@ end
 function vertices_to_parent_vertices(
   graph::AbstractNamedGraph{V}, vertices::Vector{V}
 ) where {V}
-  return [vertex_to_parent_vertex(graph, vertex) for vertex in vertices]
+  return parent_eltype(graph)[vertex_to_parent_vertex(graph, vertex) for vertex in vertices]
 end
 
 eltype(g::AbstractNamedGraph{V}) where {V} = V
@@ -162,12 +164,18 @@ end
 
 bfs_tree(g::AbstractNamedGraph, s...; kwargs...) = tree(g, bfs_parents(g, s...; kwargs...))
 
+# Disambiguation from Graphs.bfs_tree
+bfs_tree(g::AbstractNamedGraph, s::Integer; kwargs...) = bfs_tree(g, tuple(s); kwargs...)
+
 function bfs_parents(graph::AbstractNamedGraph, s...; kwargs...)
   parent_bfs_parents = bfs_parents(parent_graph(graph), vertex_to_parent_vertex(graph)[s...]; kwargs...)
   return [vertices(graph)[parent_vertex] for parent_vertex in parent_bfs_parents]
 end
 
 dfs_tree(g::AbstractNamedGraph, s...; kwargs...) = tree(g, dfs_parents(g, s...; kwargs...))
+
+# Disambiguation from Graphs.dfs_tree
+dfs_tree(g::AbstractNamedGraph, s::Integer; kwargs...) = dfs_tree(g, tuple(s); kwargs...)
 
 function dfs_parents(graph::AbstractNamedGraph, s...; kwargs...)
   parent_dfs_parents = dfs_parents(parent_graph(graph), vertex_to_parent_vertex(graph)[s...]; kwargs...)
