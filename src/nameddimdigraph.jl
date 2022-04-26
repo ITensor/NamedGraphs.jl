@@ -137,7 +137,15 @@ end
 # traversal algorithms.
 function tree(graph::NamedDimGraph, parents::AbstractVector{T}) where {T<:Tuple}
   n = length(parents)
-  t = NamedDimDiGraph{Tuple}(DiGraph(n))
+
+  # TODO: change to:
+  #
+  # NamedDimDiGraph(DiGraph(n); vertices=vertices(graph))
+  #
+  # or:
+  #
+  # NamedDimDiGraph(vertices(graph))
+  t = NamedDimDiGraph{Tuple}(DiGraph(n), vertices(graph))
   for (parent_v, u) in enumerate(parents)
     v = vertices(graph)[parent_v]
     if u != v
