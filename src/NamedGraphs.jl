@@ -57,7 +57,8 @@ include("namedgraph.jl")
 #include("abstractnameddimgraph.jl") ## TODO
 include("nameddimgraph.jl")
 include("nameddimdigraph.jl")
+include(joinpath("generators", "named_staticgraphs.jl"))
 
-export NamedGraph, NamedDimGraph, NamedDimDiGraph, disjoint_union, ⊔, NamedEdge, NamedDimEdge
+export NamedGraph, NamedDimGraph, NamedDimDiGraph, disjoint_union, ⊔, NamedEdge, NamedDimEdge, named_binary_tree, named_grid
 
 end # module AbstractNamedGraphs
