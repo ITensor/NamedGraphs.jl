@@ -4,6 +4,8 @@ struct NamedGraph{V} <: AbstractNamedGraph{V}
   vertex_to_parent_vertex::Dictionary{V,Int}
 end
 
+is_directed(::Type{<:NamedGraph}) = false
+
 function NamedGraph{V}(parent_graph::Graph, vertices::Vector{V}) where {V}
   return NamedGraph{V}(parent_graph, vertices, Dictionary(vertices, eachindex(vertices)))
 end

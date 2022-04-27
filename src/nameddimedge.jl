@@ -27,7 +27,7 @@ src(e::NamedDimEdge) = e.src
 dst(e::NamedDimEdge) = e.dst
 
 function NamedDimEdge(src, dst)
-  return NamedDimEdge{Tuple}(to_vertex(NamedDimEdge, src), tuple_convert(NamedDimEdge, dst))
+  return NamedDimEdge{Tuple}(to_vertex(NamedDimEdge, src), to_vertex(NamedDimEdge, dst))
 end
 
 function NamedDimEdge{V}(src, dst) where {V<:Tuple}

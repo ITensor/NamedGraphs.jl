@@ -3,6 +3,8 @@ using Dictionaries
 using MultiDimDictionaries
 using Graphs
 
+using Graphs.SimpleTraits
+
 using MultiDimDictionaries: tuple_convert, IndexType, SliceIndex, ElementIndex
 
 # abstractnamedgraph.jl
@@ -33,6 +35,8 @@ import Graphs:
   neighbors,
   nv,
   outneighbors,
+  rem_vertex!,
+  rem_edge!,
   src,
   tree,
   vertices
@@ -59,6 +63,16 @@ include("nameddimgraph.jl")
 include("nameddimdigraph.jl")
 include(joinpath("generators", "named_staticgraphs.jl"))
 
-export NamedGraph, NamedDimGraph, NamedDimDiGraph, disjoint_union, ⊔, NamedEdge, NamedDimEdge, named_binary_tree, named_grid
+export NamedGraph,
+  NamedDimDiGraph,
+  NamedDimGraph,
+  NamedDimEdge,
+  NamedEdge,
+  ⊔,
+  disjoint_union,
+  incident_edges,
+  is_tree,
+  named_binary_tree,
+  named_grid
 
 end # module AbstractNamedGraphs

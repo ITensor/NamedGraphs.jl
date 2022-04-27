@@ -8,7 +8,9 @@ vertices(graph::AbstractNamedGraph) = not_implemented()
 parent_graph(graph::AbstractNamedGraph) = not_implemented()
 vertex_to_parent_vertex(graph::AbstractNamedGraph) = not_implemented()
 edgetype(graph::AbstractNamedGraph) = not_implemented()
+is_directed(::Type{<:AbstractNamedGraph}) = not_implemented()
 
+parent_graph_type(graph::AbstractNamedGraph) = typeof(parent_graph(graph))
 parent_eltype(graph::AbstractNamedGraph) = eltype(parent_graph(graph))
 
 # By default, assume `vertex_to_parent_vertex(graph)`
@@ -128,6 +130,14 @@ function add_vertex!(graph::AbstractNamedGraph, v...)
   return graph
 end
 
+function rem_vertex!(graph::AbstractNamedGraph, v...)
+  vertex = to_vertex(graph, v...)
+  rem_vertex!(parent_graph(graph), vertex_to_parent_vertex(graph, vertex))
+  deleteat!(vertices(graph), findfirst(==(vertex), vertices(graph)))
+  delete!(vertex_to_parent_vertex(graph), vertex)
+  return graph
+end
+
 function add_vertices!(graph::AbstractNamedGraph, vs::Vector)
   for vertex in vs
     add_vertex!(graph, vertex)
@@ -143,7 +153,11 @@ function getindex(graph::AbstractNamedGraph, sub_vertices...)
   return typeof(graph)(parent_subgraph, graph_sliced_subvertices)
 end
 
-is_directed(LG::Type{<:AbstractNamedGraph}) = is_directed(parent_graph_type(LG))
+is_directed(graph::AbstractNamedGraph) = is_directed(parent_graph(graph))
+
+is_connected(graph::AbstractNamedGraph) = is_connected(parent_graph(graph))
+
+is_cyclic(graph::AbstractNamedGraph) = is_cyclic(parent_graph(graph))
 
 # Rename `disjoint_union`: https://networkx.org/documentation/stable/reference/algorithms/operators.html
 function blockdiag(graph1::AbstractNamedGraph, graph2::AbstractNamedGraph)

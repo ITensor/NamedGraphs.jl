@@ -4,6 +4,8 @@ struct NamedDimGraph{V<:Tuple} <: AbstractNamedGraph{V}
   vertex_to_parent_vertex::MultiDimDictionary{V,Int}
 end
 
+is_directed(::Type{<:NamedDimGraph}) = false
+
 function copy(graph::NamedDimGraph)
   return NamedDimGraph(copy(graph.parent_graph), copy(graph.vertices), copy(graph.vertex_to_parent_vertex))
 end
