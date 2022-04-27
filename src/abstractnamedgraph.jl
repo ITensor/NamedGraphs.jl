@@ -140,6 +140,11 @@ function rem_vertex!(graph::AbstractNamedGraph, v...)
   rem_vertex!(parent_graph(graph), vertex_to_parent_vertex(graph, vertex))
   deleteat!(vertices(graph), findfirst(==(vertex), vertices(graph)))
   delete!(vertex_to_parent_vertex(graph), vertex)
+  # Fix the parent vertices to be contiguous
+  for parent_vertex in eachindex(vertices(graph))
+    vertex = vertices(graph)[parent_vertex]
+    vertex_to_parent_vertex(graph)[vertex] = parent_vertex
+  end
   return graph
 end
 
