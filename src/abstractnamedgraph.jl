@@ -55,10 +55,14 @@ parent_vertices(graph::AbstractNamedGraph) = vertices(parent_graph(graph))
 parent_edges(graph::AbstractNamedGraph) = edges(parent_graph(graph))
 parent_edgetype(graph::AbstractNamedGraph) = edgetype(parent_graph(graph))
 
-function edge_to_parent_edge(graph::AbstractNamedGraph, edge)
+function edge_to_parent_edge(graph::AbstractNamedGraph, edge::AbstractEdge)
   parent_src = vertex_to_parent_vertex(graph, src(edge))
   parent_dst = vertex_to_parent_vertex(graph, dst(edge))
   return parent_edgetype(graph)(parent_src, parent_dst)
+end
+
+function edge_to_parent_edge(graph::AbstractNamedGraph, edge)
+  return edge_to_parent_edge(graph, edgetype(graph)(edge))
 end
 
 # TODO: This is `O(nv(g))`, use `haskey(vertex_to_parent_vertex(g), v)` instead?
@@ -73,25 +77,26 @@ end
 # TODO: write in terms of a generic function.
 for f in [:outneighbors, :inneighbors, :all_neighbors, :neighbors]
   @eval begin
-    function $f(graph::AbstractNamedGraph, v...)
-      parent_vertices = $f(parent_graph(graph), vertex_to_parent_vertex(graph, v...))
-      return [parent_vertex_to_vertex(graph, u) for u in parent_vertices]
+    function $f(graph::AbstractNamedGraph, vertex...)
+      parent_vertices = $f(parent_graph(graph), vertex_to_parent_vertex(graph, vertex...))
+      return [parent_vertex_to_vertex(graph, parent_vertex) for parent_vertex in parent_vertices]
+    end
+
+    # Ambiguity errors with Graphs.jl
+    function $f(graph::AbstractNamedGraph, vertex::Integer)
+      parent_vertices = $f(parent_graph(graph), vertex_to_parent_vertex(graph, vertex))
+      return [parent_vertex_to_vertex(graph, parent_vertex) for parent_vertex in parent_vertices]
     end
   end
 end
 
-# Ambiguity errors with Graphs.jl
-neighbors(tn::AbstractNamedGraph, vertex::Integer) = neighbors(parent_graph(tn), vertex)
-inneighbors(tn::AbstractNamedGraph, vertex::Integer) = inneighbors(parent_graph(tn), vertex)
-function outneighbors(tn::AbstractNamedGraph, vertex::Integer)
-  return outneighbors(parent_graph(tn), vertex)
-end
-function all_neighbors(tn::AbstractNamedGraph, vertex::Integer)
-  return all_neighbors(parent_graph(tn), vertex)
+function add_edge!(graph::AbstractNamedGraph, edge)
+  add_edge!(parent_graph(graph), edge_to_parent_edge(graph, edge))
+  return graph
 end
 
-function add_edge!(graph::AbstractNamedGraph, edge::AbstractNamedEdge)
-  add_edge!(parent_graph(graph), edge_to_parent_edge(graph, edge))
+function rem_edge!(graph::AbstractNamedGraph, edge)
+  rem_edge!(parent_graph(graph), edge_to_parent_edge(graph, edge))
   return graph
 end
 
