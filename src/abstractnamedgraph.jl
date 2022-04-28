@@ -90,10 +90,14 @@ for f in [:outneighbors, :inneighbors, :all_neighbors, :neighbors]
   end
 end
 
-function add_edge!(graph::AbstractNamedGraph, edge)
+function add_edge!(graph::AbstractNamedGraph, edge::AbstractEdge)
   add_edge!(parent_graph(graph), edge_to_parent_edge(graph, edge))
   return graph
 end
+
+# handles single-argument edge constructors such as pairs and tuples
+add_edge!(g::AbstractNamedGraph, edge) = add_edge!(g, edgetype(g)(edge))
+add_edge!(g::AbstractNamedGraph, src, dst) = add_edge!(g, edgetype(g)(src, dst))
 
 function rem_edge!(graph::AbstractNamedGraph, edge)
   rem_edge!(parent_graph(graph), edge_to_parent_edge(graph, edge))
@@ -104,13 +108,9 @@ function has_edge(graph::AbstractNamedGraph, edge::AbstractNamedEdge)
   return has_edge(parent_graph(graph), edge_to_parent_edge(graph, edge))
 end
 
-# handles single-argument edge constructors such as pairs and tuples
-has_edge(g::AbstractNamedGraph, x) = has_edge(g, edgetype(g)(x))
-add_edge!(g::AbstractNamedGraph, x) = add_edge!(g, edgetype(g)(x))
-
 # handles two-argument edge constructors like src,dst
-has_edge(g::AbstractNamedGraph, x, y) = has_edge(g, edgetype(g)(x, y))
-add_edge!(g::AbstractNamedGraph, x, y) = add_edge!(g, edgetype(g)(x, y))
+has_edge(g::AbstractNamedGraph, edge) = has_edge(g, edgetype(g)(edge))
+has_edge(g::AbstractNamedGraph, src, dst) = has_edge(g, edgetype(g)(src, dst))
 
 function add_vertex!(graph::AbstractNamedGraph, v...)
   # Convert to a vertex of the graph type
@@ -137,14 +137,20 @@ end
 
 function rem_vertex!(graph::AbstractNamedGraph, v...)
   vertex = to_vertex(graph, v...)
+  parent_vertex = vertex_to_parent_vertex(graph, vertex)
   rem_vertex!(parent_graph(graph), vertex_to_parent_vertex(graph, vertex))
-  deleteat!(vertices(graph), findfirst(==(vertex), vertices(graph)))
+
+  # Insert the last vertex into the position of the vertex
+  # that is being deleted, then remove the last vertex.
+  last_vertex = last(vertices(graph))
+  vertices(graph)[parent_vertex] = last_vertex
+  last_vertex = pop!(vertices(graph))
+
+  # Insert the last vertex into the position of the vertex
+  # that is being deleted, then remove the last vertex.
+  vertex_to_parent_vertex(graph)[last_vertex] = parent_vertex
   delete!(vertex_to_parent_vertex(graph), vertex)
-  # Fix the parent vertices to be contiguous
-  for parent_vertex in eachindex(vertices(graph))
-    vertex = vertices(graph)[parent_vertex]
-    vertex_to_parent_vertex(graph)[vertex] = parent_vertex
-  end
+
   return graph
 end
 
