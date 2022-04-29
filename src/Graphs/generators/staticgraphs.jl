@@ -4,9 +4,8 @@ function comb_tree(dims)
   graph = grid(dims)
   # TODO: rem_vertex!
   for I in CartesianIndices((nx, ny))
-    @show I
     jx, jy = Tuple(I)
-    j = @show LinearIndices((nx, ny))[I]
+    j = LinearIndices((nx, ny))[I]
     if jy > 1 && jx < nx
       println("Remove $j => $(j + 1)")
       rem_edge!(graph, Edge(j, j + 1))
