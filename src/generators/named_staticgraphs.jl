@@ -56,5 +56,6 @@ function named_grid(dims; periodic=false)
 end
 
 function named_comb_tree(dims)
-  error("Not implemented")
+  simple_graph = comb_tree(dims)
+  return NamedDimGraph(simple_graph; dims=dims)
 end
