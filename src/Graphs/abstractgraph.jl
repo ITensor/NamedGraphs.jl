@@ -1,3 +1,18 @@
+# Used for tree iteration.
+# Assumes the graph is a [rooted directed tree](https://en.wikipedia.org/wiki/Tree_(graph_theory)#Rooted_tree).
+struct TreeGraph{G,V}
+  graph::G
+  vertex::V
+end
+function AbstractTrees.children(t::TreeGraph)
+  return [TreeGraph(t.graph, vertex) for vertex in child_vertices(t.graph, t.vertex)]
+end
+AbstractTrees.printnode(io::IO, t::TreeGraph) = print(io, t.vertex)
+
+#
+# Graph unions
+#
+
 function vcat(graph1::AbstractGraph, graph2::AbstractGraph; kwargs...)
   return hvncat(1, graph1, graph2; kwargs...)
 end
@@ -28,29 +43,18 @@ function incident_edges(graph::AbstractGraph, vertex...)
   ]
 end
 
-# Used for tree iteration.
-# Assumes the graph is a [rooted directed tree](https://en.wikipedia.org/wiki/Tree_(graph_theory)#Rooted_tree).
-struct TreeGraph{G,V}
-  graph::G
-  vertex::V
-end
-function AbstractTrees.children(t::TreeGraph)
-  return [TreeGraph(t.graph, vertex) for vertex in child_vertices(t.graph, t.vertex)]
-end
-AbstractTrees.printnode(io::IO, t::TreeGraph) = print(io, t.vertex)
+#
+# Graph iteration
+#
 
-function post_order_dfs_vertices(graph::AbstractGraph, source_index1, source_index...)
-  source_vertex = to_vertex(graph, source_index1, source_index...)
-  # Outputs a rooted directed tree (https://en.wikipedia.org/wiki/Arborescence_(graph_theory))
-  tree = dfs_tree(graph, source_vertex)
-  return [node.vertex for node in PostOrderDFS(TreeGraph(tree, source_vertex))]
+@traitfn function post_order_dfs_vertices(graph::::(!IsDirected), root_vertex...)
+  dfs_tree_graph = dfs_tree(graph, root_vertex...)
+  return post_order_dfs_vertices(dfs_tree_graph, root_vertex...)
 end
 
-function post_order_dfs_edges(graph::AbstractGraph, source_index...)
-  vertices = post_order_dfs_vertices(graph, source_index...)
-  # Remove the root vertex
-  pop!(vertices)
-  return [edgetype(graph)(vertex => parent_vertex(tree, vertex)) for vertex in vertices]
+@traitfn function post_order_dfs_edges(graph::::(!IsDirected), root_vertex...)
+  dfs_tree_graph = dfs_tree(graph, root_vertex...)
+  return post_order_dfs_edges(dfs_tree_graph, root_vertex...)
 end
 
 @traitfn function is_leaf(graph::::(!IsDirected), vertex...)
@@ -76,6 +80,12 @@ end
   return only(inneighbors(graph, vertex...))
 end
 
+# Returns the edge directed **towards the parent/root vertex**!
+@traitfn function parent_edge(graph::::IsDirected, vertex...)
+  # @assert is_tree(graph)
+  return edgetype(graph)(vertex..., parent_vertex(graph, vertex...))
+end
+
 # Get the children of a vertex.
 # Assumes the graph is a [rooted directed tree](https://en.wikipedia.org/wiki/Tree_(graph_theory)#Rooted_tree)
 @traitfn function child_vertices(graph::::IsDirected, vertex...)
@@ -83,6 +93,14 @@ end
   return outneighbors(graph, vertex...)
 end
 
+# Get the edges from the input vertex towards the child vertices.
+@traitfn function child_edges(graph::::IsDirected, vertex...)
+  # @assert is_tree(graph)
+  return [edgetype(graph)(vertex..., child_vertex) for child_vertex in child_vertices(graph, vertex...)]
+end
+
+# Check if a vertex is a leaf.
+# Assumes the graph is a [rooted directed tree](https://en.wikipedia.org/wiki/Tree_(graph_theory)#Rooted_tree)
 @traitfn function is_leaf(graph::::IsDirected, vertex...)
   # @assert is_tree(graph)
   return isone(length(inneighbors(vertex...)))
@@ -96,9 +114,29 @@ end
 #
 # root_index = findfirst(vertex -> length(outneighbors(vertex)) == length(neighbors(vertex)), vertices(graph))
 # root = vertices(graph)[root_index]
-# [node.vertex for node in Leaves(TreeGraph(tree, root))]
+# [node.vertex for node in Leaves(TreeGraph(graph, root))]
 #
 @traitfn function leaf_vertices(graph::::IsDirected)
   # @assert is_tree(graph)
   return [vertex for vertex in vertices(graph) if isone(length(inneighbors(vertex)))]
+end
+
+# Traverse the tree using a [post-order depth-first search](https://en.wikipedia.org/wiki/Tree_traversal#Depth-first_search), returning the vertices.
+# Assumes the graph is a [rooted directed tree](https://en.wikipedia.org/wiki/Tree_(graph_theory)#Rooted_tree)
+@traitfn function post_order_dfs_vertices(graph::::IsDirected, root_index1, root_index...)
+  # @assert is_tree(graph)
+  root_vertex = to_vertex(graph, root_index1, root_index...)
+  # Outputs a rooted directed tree (https://en.wikipedia.org/wiki/Arborescence_(graph_theory))
+  return [node.vertex for node in PostOrderDFS(TreeGraph(graph, root_vertex))]
+end
+
+# Traverse the tree using a [post-order depth-first search](https://en.wikipedia.org/wiki/Tree_traversal#Depth-first_search), returning the edges where the source is the current vertex and the destination is the parent vertex.
+# Assumes the graph is a [rooted directed tree](https://en.wikipedia.org/wiki/Tree_(graph_theory)#Rooted_tree).
+# Returns a list of edges directed **towards the root vertex**!
+@traitfn function post_order_dfs_edges(graph::::IsDirected, root_vertex...)
+  # @assert is_tree(graph)
+  vertices = post_order_dfs_vertices(graph, root_vertex...)
+  # Remove the root vertex
+  pop!(vertices)
+  return [parent_edge(graph, vertex) for vertex in vertices]
 end
