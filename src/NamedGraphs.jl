@@ -84,6 +84,6 @@ export NamedGraph,
   is_tree,
   parent_vertex,
   child_vertices,
-  leaves
+  leaf_vertices
 
 end # module AbstractNamedGraphs

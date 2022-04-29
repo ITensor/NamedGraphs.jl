@@ -59,7 +59,7 @@ end
 end
 
 # Get the leaf vertices of an undirected tree-like graph
-@traitfn function leaves(graph::::(!IsDirected))
+@traitfn function leaf_vertices(graph::::(!IsDirected))
   # @assert is_tree(graph)
   return [vertex for vertex in vertices(graph) if isone(length(neighbors(graph, vertex)))]
 end
@@ -98,7 +98,7 @@ end
 # root = vertices(graph)[root_index]
 # [node.vertex for node in Leaves(TreeGraph(tree, root))]
 #
-@traitfn function leaves(graph::::IsDirected)
+@traitfn function leaf_vertices(graph::::IsDirected)
   # @assert is_tree(graph)
   return [vertex for vertex in vertices(graph) if isone(length(inneighbors(vertex)))]
 end
