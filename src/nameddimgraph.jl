@@ -125,12 +125,25 @@ function hvncat(
   dim::Int, graph1::NamedDimGraph, graph2::NamedDimGraph; new_dim_names=(1, 2)
 )
   graph_parent_graph = blockdiag(parent_graph(graph1), parent_graph(graph2))
+
+  vertex_to_parent_vertex_1 = vertex_to_parent_vertex(graph1)
+  vertex_to_parent_vertex_2 = vertex_to_parent_vertex(graph2)
+  # Shift the vertices
+  vertex_to_parent_vertex_2 = MultiDimDictionary(vertex_to_parent_vertex_2 .+ nv(graph1))
+
   graph_vertex_to_parent_vertex = hvncat(
     dim,
-    graph1.vertex_to_parent_vertex,
-    graph2.vertex_to_parent_vertex;
+    vertex_to_parent_vertex_1,
+    vertex_to_parent_vertex_2;
     new_dim_keys=new_dim_names,
   )
-  graph_vertices = collect(keys(graph_vertex_to_parent_vertex))
+
+  # Sort the vertices
+  graph_vertices = Vector{Tuple}(undef, nv(graph_parent_graph))
+  for graph_vertex in keys(graph_vertex_to_parent_vertex)
+    parent_vertex = graph_vertex_to_parent_vertex[graph_vertex]
+    graph_vertices[parent_vertex] = graph_vertex
+  end
+
   return NamedDimGraph(graph_parent_graph, graph_vertices)
 end

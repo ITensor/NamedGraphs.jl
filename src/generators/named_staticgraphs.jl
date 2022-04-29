@@ -1,6 +1,3 @@
-using Graphs
-using NamedGraphs
-
 function parent(tree::SimpleDiGraph, v::Integer)
   return only(inneighbors(tree, v))
 end
@@ -56,4 +53,8 @@ end
 function named_grid(dims; periodic=false)
   simple_graph = grid(dims; periodic)
   return NamedDimGraph(simple_graph; dims=dims)
+end
+
+function named_comb_tree(dims)
+  error("Not implemented")
 end

@@ -1,4 +1,5 @@
 module NamedGraphs
+using AbstractTrees
 using Dictionaries
 using MultiDimDictionaries
 using Graphs
@@ -52,7 +53,8 @@ import MultiDimDictionaries: disjoint_union, ⊔
 not_implemented() = error("Not implemented")
 
 include("to_vertex.jl")
-include("abstractgraph.jl")
+include(joinpath("Graphs", "abstractgraph.jl"))
+include(joinpath("Graphs", "generators", "staticgraphs.jl"))
 include("abstractnamededge.jl")
 include("namededge.jl")
 include("nameddimedge.jl")
@@ -73,6 +75,13 @@ export NamedGraph,
   incident_edges,
   is_tree,
   named_binary_tree,
-  named_grid
+  named_grid,
+  comb_tree,
+  named_comb_tree,
+  post_order_dfs_edges,
+  parent_vertex,
+  child_vertices,
+  post_order_dfs_edges,
+  leaf_vertices
 
 end # module AbstractNamedGraphs
