@@ -9,10 +9,14 @@ end
 is_directed(::Type{<:NamedDimDiGraph}) = true
 
 function copy(graph::NamedDimDiGraph)
-  return NamedDimDiGraph(copy(graph.parent_graph), copy(graph.vertices), copy(graph.vertex_to_parent_vertex))
+  return NamedDimDiGraph(
+    copy(graph.parent_graph), copy(graph.vertices), copy(graph.vertex_to_parent_vertex)
+  )
 end
 
-function NamedDimDiGraph{V}(parent_graph::DiGraph, vertices::Vector{V}=default_vertices(parent_graph)) where {V<:Tuple}
+function NamedDimDiGraph{V}(
+  parent_graph::DiGraph, vertices::Vector{V}=default_vertices(parent_graph)
+) where {V<:Tuple}
   return NamedDimDiGraph{V}(
     parent_graph, vertices, MultiDimDictionary{V}(vertices, eachindex(vertices))
   )
@@ -101,13 +105,7 @@ end
 # given slice of the vertices.
 function subvertices(graph::NamedDimDiGraph, vertex_slice...)
   return collect(
-    keys(
-      getindex(
-        SliceIndex(),
-        graph.vertex_to_parent_vertex,
-        tuple(vertex_slice...),
-      ),
-    ),
+    keys(getindex(SliceIndex(), graph.vertex_to_parent_vertex, tuple(vertex_slice...)))
   )
 end
 

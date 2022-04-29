@@ -79,13 +79,17 @@ for f in [:outneighbors, :inneighbors, :all_neighbors, :neighbors]
   @eval begin
     function $f(graph::AbstractNamedGraph, vertex...)
       parent_vertices = $f(parent_graph(graph), vertex_to_parent_vertex(graph, vertex...))
-      return [parent_vertex_to_vertex(graph, parent_vertex) for parent_vertex in parent_vertices]
+      return [
+        parent_vertex_to_vertex(graph, parent_vertex) for parent_vertex in parent_vertices
+      ]
     end
 
     # Ambiguity errors with Graphs.jl
     function $f(graph::AbstractNamedGraph, vertex::Integer)
       parent_vertices = $f(parent_graph(graph), vertex_to_parent_vertex(graph, vertex))
-      return [parent_vertex_to_vertex(graph, parent_vertex) for parent_vertex in parent_vertices]
+      return [
+        parent_vertex_to_vertex(graph, parent_vertex) for parent_vertex in parent_vertices
+      ]
     end
   end
 end
@@ -198,7 +202,9 @@ bfs_tree(g::AbstractNamedGraph, s...; kwargs...) = tree(g, bfs_parents(g, s...; 
 bfs_tree(g::AbstractNamedGraph, s::Integer; kwargs...) = bfs_tree(g, tuple(s); kwargs...)
 
 function bfs_parents(graph::AbstractNamedGraph, s...; kwargs...)
-  parent_bfs_parents = bfs_parents(parent_graph(graph), vertex_to_parent_vertex(graph)[s...]; kwargs...)
+  parent_bfs_parents = bfs_parents(
+    parent_graph(graph), vertex_to_parent_vertex(graph)[s...]; kwargs...
+  )
   return [vertices(graph)[parent_vertex] for parent_vertex in parent_bfs_parents]
 end
 
@@ -208,7 +214,9 @@ dfs_tree(g::AbstractNamedGraph, s...; kwargs...) = tree(g, dfs_parents(g, s...; 
 dfs_tree(g::AbstractNamedGraph, s::Integer; kwargs...) = dfs_tree(g, tuple(s); kwargs...)
 
 function dfs_parents(graph::AbstractNamedGraph, s...; kwargs...)
-  parent_dfs_parents = dfs_parents(parent_graph(graph), vertex_to_parent_vertex(graph)[s...]; kwargs...)
+  parent_dfs_parents = dfs_parents(
+    parent_graph(graph), vertex_to_parent_vertex(graph)[s...]; kwargs...
+  )
   return [vertices(graph)[parent_vertex] for parent_vertex in parent_dfs_parents]
 end
 

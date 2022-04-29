@@ -7,7 +7,9 @@ end
 is_directed(::Type{<:NamedDimGraph}) = false
 
 function copy(graph::NamedDimGraph)
-  return NamedDimGraph(copy(graph.parent_graph), copy(graph.vertices), copy(graph.vertex_to_parent_vertex))
+  return NamedDimGraph(
+    copy(graph.parent_graph), copy(graph.vertices), copy(graph.vertex_to_parent_vertex)
+  )
 end
 
 function NamedDimGraph{V}(parent_graph::Graph, vertices::Vector{V}) where {V<:Tuple}
@@ -101,13 +103,7 @@ end
 # given slice of the vertices.
 function subvertices(graph::NamedDimGraph, vertex_slice...)
   return collect(
-    keys(
-      getindex(
-        SliceIndex(),
-        graph.vertex_to_parent_vertex,
-        tuple(vertex_slice...),
-      ),
-    ),
+    keys(getindex(SliceIndex(), graph.vertex_to_parent_vertex, tuple(vertex_slice...)))
   )
 end
 
@@ -132,10 +128,7 @@ function hvncat(
   vertex_to_parent_vertex_2 = MultiDimDictionary(vertex_to_parent_vertex_2 .+ nv(graph1))
 
   graph_vertex_to_parent_vertex = hvncat(
-    dim,
-    vertex_to_parent_vertex_1,
-    vertex_to_parent_vertex_2;
-    new_dim_keys=new_dim_names,
+    dim, vertex_to_parent_vertex_1, vertex_to_parent_vertex_2; new_dim_keys=new_dim_names
   )
 
   # Sort the vertices

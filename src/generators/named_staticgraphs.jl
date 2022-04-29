@@ -31,7 +31,9 @@ end
 # 5 => (1, 1, 2)
 # 6 => (1, 2, 1)
 # 7 => (1, 2, 2)
-function named_bfs_tree_vertices(simple_graph::SimpleGraph, source::Integer=1; source_name=1, child_name=identity)
+function named_bfs_tree_vertices(
+  simple_graph::SimpleGraph, source::Integer=1; source_name=1, child_name=identity
+)
   tree = bfs_tree(simple_graph, source)
   named_vertices = Vector{Tuple}(undef, nv(simple_graph))
   named_source = (source_name,)
@@ -40,12 +42,16 @@ function named_bfs_tree_vertices(simple_graph::SimpleGraph, source::Integer=1; s
   return named_vertices
 end
 
-function named_bfs_tree(simple_graph::SimpleGraph, source::Integer=1; source_name=1, child_name=identity)
+function named_bfs_tree(
+  simple_graph::SimpleGraph, source::Integer=1; source_name=1, child_name=identity
+)
   named_vertices = named_bfs_tree_vertices(simple_graph, source; source_name, child_name)
   return NamedDimGraph(simple_graph; vertices=named_vertices)
 end
 
-function named_binary_tree(k::Integer, source::Integer=1; source_name=1, child_name=identity)
+function named_binary_tree(
+  k::Integer, source::Integer=1; source_name=1, child_name=identity
+)
   simple_graph = binary_tree(k)
   return named_bfs_tree(simple_graph, source; source_name, child_name)
 end

@@ -96,7 +96,10 @@ end
 # Get the edges from the input vertex towards the child vertices.
 @traitfn function child_edges(graph::::IsDirected, vertex...)
   # @assert is_tree(graph)
-  return [edgetype(graph)(vertex..., child_vertex) for child_vertex in child_vertices(graph, vertex...)]
+  return [
+    edgetype(graph)(vertex..., child_vertex) for
+    child_vertex in child_vertices(graph, vertex...)
+  ]
 end
 
 # Check if a vertex is a leaf.
