@@ -17,12 +17,8 @@ function ⊔(graph1::AbstractGraph, graph2::AbstractGraph; kwargs...)
 end
 
 # https://github.com/JuliaGraphs/Graphs.jl/issues/34
-@traitfn function is_tree(graph::::(!IsDirected))
+function is_tree(graph::AbstractGraph)
   return (ne(graph) == nv(graph) - 1) && is_connected(graph)
-end
-
-@traitfn function is_tree(graph::::IsDirected)
-  return !is_cyclic(graph)
 end
 
 function incident_edges(graph::AbstractGraph, vertex...)
@@ -32,19 +28,8 @@ function incident_edges(graph::AbstractGraph, vertex...)
   ]
 end
 
-# Get the parent vertex of a vertex.
-# Assumes the graph is locally tree-like (the vertex has only
-# one incoming edge).
-function parent_vertex(graph::AbstractGraph, vertex...)
-  return only(inneighbors(graph, vertex...))
-end
-
-function child_vertices(graph::AbstractGraph, vertex...)
-  return outneighbors(graph, vertex...)
-end
-
 # Used for tree iteration.
-# Assume that `graph` represents a rooted directed tree (https://en.wikipedia.org/wiki/Arborescence_(graph_theory))
+# Assumes the graph is a [rooted directed tree](https://en.wikipedia.org/wiki/Tree_(graph_theory)#Rooted_tree).
 struct TreeGraph{G,V}
   graph::G
   vertex::V
@@ -54,19 +39,66 @@ function AbstractTrees.children(t::TreeGraph)
 end
 AbstractTrees.printnode(io::IO, t::TreeGraph) = print(io, t.vertex)
 
-function post_order_dfs_edges(graph::AbstractGraph, source_index...)
-  source_vertex = to_vertex(graph, source_index...)
+function post_order_dfs_vertices(graph::AbstractGraph, source_index1, source_index...)
+  source_vertex = to_vertex(graph, source_index1, source_index...)
   # Outputs a rooted directed tree (https://en.wikipedia.org/wiki/Arborescence_(graph_theory))
   tree = dfs_tree(graph, source_vertex)
-  vertices = [node.vertex for node in PostOrderDFS(TreeGraph(tree, source_vertex))]
-  # Remove the source node
+  return [node.vertex for node in PostOrderDFS(TreeGraph(tree, source_vertex))]
+end
+
+function post_order_dfs_edges(graph::AbstractGraph, source_index...)
+  vertices = post_order_dfs_vertices(graph, source_index...)
+  # Remove the root vertex
   pop!(vertices)
   return [edgetype(graph)(vertex => parent_vertex(tree, vertex)) for vertex in vertices]
 end
 
-function leaf_vertices(graph::AbstractGraph, source_index...)
-  source_vertex = to_vertex(graph, source_index...)
-  # Outputs a rooted directed tree (https://en.wikipedia.org/wiki/Arborescence_(graph_theory))
-  tree = dfs_tree(graph, source_vertex)
-  return [node.vertex for node in Leaves(TreeGraph(tree, source_vertex))]
+@traitfn function is_leaf(graph::::(!IsDirected), vertex...)
+  # @assert is_tree(graph)
+  return isone(length(neighbors(graph, vertex...)))
+end
+
+# Get the leaf vertices of an undirected tree-like graph
+@traitfn function leaves(graph::::(!IsDirected))
+  # @assert is_tree(graph)
+  return [vertex for vertex in vertices(graph) if isone(length(neighbors(graph, vertex)))]
+end
+
+#
+# Rooted directed tree functions.
+# [Rooted directed tree](https://en.wikipedia.org/wiki/Tree_(graph_theory)#Rooted_tree)
+#
+
+# Get the parent vertex of a vertex.
+# Assumes the graph is a [rooted directed tree](https://en.wikipedia.org/wiki/Tree_(graph_theory)#Rooted_tree)
+@traitfn function parent_vertex(graph::::IsDirected, vertex...)
+  # @assert is_tree(graph)
+  return only(inneighbors(graph, vertex...))
+end
+
+# Get the children of a vertex.
+# Assumes the graph is a [rooted directed tree](https://en.wikipedia.org/wiki/Tree_(graph_theory)#Rooted_tree)
+@traitfn function child_vertices(graph::::IsDirected, vertex...)
+  # @assert is_tree(graph)
+  return outneighbors(graph, vertex...)
+end
+
+@traitfn function is_leaf(graph::::IsDirected, vertex...)
+  # @assert is_tree(graph)
+  return isone(length(inneighbors(vertex...)))
+end
+
+# Get the leaf vertices of a directed tree-like graph.
+# Assumes it is a [rooted directed tree](https://en.wikipedia.org/wiki/Tree_(graph_theory)#Rooted_tree)
+# with edges pointed away from the root. The root is the only vertex with out edges.
+#
+# Could also use `AbstractTrees` for this:
+#
+# root_index = findfirst(vertex -> length(outneighbors(vertex)) == length(neighbors(vertex)), vertices(graph))
+# root = vertices(graph)[root_index]
+# [node.vertex for node in Leaves(TreeGraph(tree, root))]
+#
+@traitfn function leaves(graph::::IsDirected)
+  # @assert is_tree(graph)
+  return [vertex for vertex in vertices(graph) if isone(length(inneighbors(vertex)))]
 end

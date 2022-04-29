@@ -73,15 +73,17 @@ export NamedGraph,
   ⊔,
   disjoint_union,
   incident_edges,
-  is_tree,
   named_binary_tree,
   named_grid,
   comb_tree,
   named_comb_tree,
+  post_order_dfs_vertices,
   post_order_dfs_edges,
+  # Operations for tree-like graphs
+  is_leaf,
+  is_tree,
   parent_vertex,
   child_vertices,
-  post_order_dfs_edges,
-  leaf_vertices
+  leaves
 
 end # module AbstractNamedGraphs
