@@ -76,6 +76,10 @@ function NamedDimGraph(parent_graph::Graph; dims=nothing, vertices=nothing)
   return NamedDimGraph(parent_graph, vertices)
 end
 
+function NamedDimGraph(vertices::Array)
+  return NamedDimGraph(Graph(length(vertices)); vertices)
+end
+
 NamedDimGraph() = NamedDimGraph(Graph())
 
 # AbstractNamedGraph required interface.

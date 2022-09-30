@@ -14,6 +14,10 @@ function NamedGraph(parent_graph::Graph, vertices::Vector{V}) where {V}
   return NamedGraph{V}(parent_graph, vertices)
 end
 
+function NamedGraph(vertices::Vector)
+  return NamedGraph(Graph(length(vertices)), vertices)
+end
+
 # AbstractNamedGraph required interface.
 parent_graph(graph::NamedGraph) = graph.parent_graph
 vertices(graph::NamedGraph) = graph.vertices

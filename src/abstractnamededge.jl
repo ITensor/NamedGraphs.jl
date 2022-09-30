@@ -24,3 +24,9 @@ function ==(e1::AbstractNamedEdge, e2::AbstractNamedEdge)
   return (src(e1) == src(e2) && dst(e1) == dst(e2))
 end
 hash(e::AbstractNamedEdge, h::UInt) = hash(src(e), hash(dst(e), h))
+
+function rename_vertices(e::ET, name_map::Dictionary) where {ET<:AbstractNamedEdge}
+  # strip type parameter to allow renaming to change the vertex type
+  base_edge_type = Base.typename(ET).wrapper
+  return base_edge_type(name_map[src(e)], name_map[dst(e)])
+end
