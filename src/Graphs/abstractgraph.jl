@@ -68,6 +68,17 @@ end
   return [vertex for vertex in vertices(graph) if isone(length(neighbors(graph, vertex)))]
 end
 
+# Paths for undirected tree-like graphs
+@traitfn function vertex_path(graph::::(!IsDirected), s, t)
+  dfs_tree_graph = dfs_tree(graph, t...)
+  return vertex_path(dfs_tree_graph, s, t)
+end
+
+@traitfn function edge_path(graph::::(!IsDirected), s, t)
+  dfs_tree_graph = dfs_tree(graph, t...)
+  return edge_path(dfs_tree_graph, s, t)
+end
+
 #
 # Rooted directed tree functions.
 # [Rooted directed tree](https://en.wikipedia.org/wiki/Tree_(graph_theory)#Rooted_tree)
@@ -77,13 +88,17 @@ end
 # Assumes the graph is a [rooted directed tree](https://en.wikipedia.org/wiki/Tree_(graph_theory)#Rooted_tree)
 @traitfn function parent_vertex(graph::::IsDirected, vertex...)
   # @assert is_tree(graph)
-  return only(inneighbors(graph, vertex...))
+  in_neighbors = inneighbors(graph, vertex...)
+  isempty(in_neighbors) && return nothing
+  return only(in_neighbors)
 end
 
 # Returns the edge directed **towards the parent/root vertex**!
 @traitfn function parent_edge(graph::::IsDirected, vertex...)
   # @assert is_tree(graph)
-  return edgetype(graph)(vertex..., parent_vertex(graph, vertex...))
+  parent = parent_vertex(graph, vertex...)
+  isnothing(parent) && return nothing
+  return edgetype(graph)(vertex..., parent)
 end
 
 # Get the children of a vertex.
@@ -106,7 +121,7 @@ end
 # Assumes the graph is a [rooted directed tree](https://en.wikipedia.org/wiki/Tree_(graph_theory)#Rooted_tree)
 @traitfn function is_leaf(graph::::IsDirected, vertex...)
   # @assert is_tree(graph)
-  return isone(length(inneighbors(vertex...)))
+  return isempty(outneighbors(graph, vertex...))
 end
 
 # Get the leaf vertices of a directed tree-like graph.
@@ -121,7 +136,7 @@ end
 #
 @traitfn function leaf_vertices(graph::::IsDirected)
   # @assert is_tree(graph)
-  return [vertex for vertex in vertices(graph) if isone(length(inneighbors(vertex)))]
+  return [vertex for vertex in vertices(graph) if isempty(outneighbors(graph, vertex))]
 end
 
 # Traverse the tree using a [post-order depth-first search](https://en.wikipedia.org/wiki/Tree_traversal#Depth-first_search), returning the vertices.
@@ -142,4 +157,22 @@ end
   # Remove the root vertex
   pop!(vertices)
   return [parent_edge(graph, vertex) for vertex in vertices]
+end
+
+# Paths for directed tree-like graphs
+@traitfn function vertex_path(graph::::IsDirected, s, t)
+  vertices = eltype(graph)[s]
+  while vertices[end] != t
+    parent = parent_vertex(graph, vertices[end]...)
+    isnothing(parent) && return nothing
+    push!(vertices, parent)
+  end
+  return vertices
+end
+
+@traitfn function edge_path(graph::::IsDirected, s, t)
+  vertices = vertex_path(graph, s, t)
+  isnothing(vertices) && return nothing
+  pop!(vertices)
+  return [edgetype(graph)(vertex, parent_vertex(graph, vertex...)) for vertex in vertices]
 end
