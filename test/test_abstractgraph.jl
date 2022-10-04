@@ -40,7 +40,7 @@ using NamedGraphs
   @test edge_path(ng2, (1, 1, 2), (1, 1, 1)) ==
     [net2((1, 1, 2), (1, 1)), net2((1, 1), (1, 1, 1))]
 
-  # undirected trees
+  # directed trees
   dg1 = dfs_tree(g1, 5)
   # same behavior if path exists
   @test vertex_path(dg1, 4, 5) == [4, 1, 2, 5]
@@ -55,4 +55,25 @@ using NamedGraphs
     [net1((1, 2), (1, 1)), net1((1, 1), (2, 1)), net1((2, 1), (2, 2))]
   @test isnothing(vertex_path(dng1, (1, 2), (3, 2)))
   @test isnothing(edge_path(dng1, (1, 2), (3, 2)))
+end
+
+@testset "Tree graph leaf vertices" begin
+  # undirected trees
+  g = comb_tree((3, 2))
+  @test is_leaf(g, 4)
+  @test !is_leaf(g, 1)
+  @test issetequal(leaf_vertices(g), [4, 5, 6])
+
+  ng = named_comb_tree((3, 2))
+  @test is_leaf(ng, 1, 2)
+  @test is_leaf(ng, 2, 2)
+  @test !is_leaf(ng, (1, 1))
+  @test issetequal(leaf_vertices(ng), [(1, 2), (2, 2), (3, 2)])
+
+  # directed trees
+  dng = dfs_tree(ng, (2, 2))
+  @test is_leaf(dng, 1, 2)
+  @test !is_leaf(dng, 2, 2)
+  @test !is_leaf(dng, (1, 1))
+  @test issetequal(leaf_vertices(dng), [(1, 2), (3, 2)])
 end
