@@ -61,7 +61,18 @@ function named_grid(dims; periodic=false)
   return NamedDimGraph(simple_graph; dims=dims)
 end
 
-function named_comb_tree(dims)
+function named_comb_tree(dims::Tuple)
   simple_graph = comb_tree(dims)
   return NamedDimGraph(simple_graph; dims=dims)
+end
+
+function named_comb_tree(tooth_lengths::Vector{<:Integer})
+  @assert all(>(0), tooth_lengths)
+  simple_graph = comb_tree(tooth_lengths)
+  nx = length(tooth_lengths)
+  ny = maximum(tooth_lengths)
+  vertices = filter(Tuple.(CartesianIndices((nx, ny)))) do (jx, jy)
+    jy <= tooth_lengths[jx]
+  end
+  return NamedDimGraph(simple_graph; vertices)
 end
