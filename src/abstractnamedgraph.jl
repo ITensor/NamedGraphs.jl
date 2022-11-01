@@ -252,9 +252,9 @@ function Base.:(==)(g1::GT, g2::GT) where {GT<:AbstractNamedGraph}
 end
 
 function rename_vertices(f::Function, g::AbstractNamedGraph)
-  return set_vertices(g::AbstractNamedGraph, f.(vertices(g)))
+  return set_vertices(g, f.(vertices(g)))
 end
 
-function rename_vertices(g::AbstractNamedGraph, name_map::Dictionary)
+function rename_vertices(g::AbstractNamedGraph, name_map)
   return rename_vertices(v -> name_map[v], g)
 end
