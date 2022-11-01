@@ -144,3 +144,7 @@ function hvncat(
 
   return NamedDimGraph(graph_parent_graph, graph_vertices)
 end
+
+function set_vertices(graph::NamedDimGraph, vertices)
+  return NamedDimGraph(parent_graph(graph), vertices)
+end

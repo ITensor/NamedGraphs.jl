@@ -72,7 +72,7 @@ end
   @test has_edge(ng_tuple, ("X", 1) => ("X", 2))
   @test has_edge(ng_tuple, ("X", 2) => ("Y", 2))
   # rename with name map function
-  ng_function = rename_vertices(ng_tuple, function_name)
+  ng_function = rename_vertices(function_name, ng_tuple)
   @test isa(ng_function, NamedGraph{Tuple{Int,String}})
   @test has_vertex(ng_function, (1, "X"))
   @test has_edge(ng_function, (1, "X") => (2, "X"))
@@ -102,7 +102,7 @@ end
   @test has_edge(ndg_tuple, ("X", 1) => ("X", 2))
   @test has_edge(ndg_tuple, ("X", 2) => ("Y", 2))
   # rename with name map function
-  ndg_function = rename_vertices(ndg_tuple, function_name)
+  ndg_function = rename_vertices(function_name, ndg_tuple)
   @test isa(ndg_function, NamedDimGraph{Tuple})
   @test has_vertex(ndg_function, 1, "X")
   @test has_edge(ndg_function, (1, "X") => (2, "X"))
@@ -133,7 +133,7 @@ end
   @test has_edge(nddg_tuple, ("X", 1) => ("X", 2))
   @test !has_edge(nddg_tuple, ("Y", 2) => ("X", 2))
   # rename with name map function
-  nddg_function = rename_vertices(nddg_tuple, function_name)
+  nddg_function = rename_vertices(function_name, nddg_tuple)
   @test isa(nddg_function, NamedDimDiGraph{Tuple})
   @test has_vertex(nddg_function, 1, "X")
   @test has_edge(nddg_function, (1, "X") => (2, "X"))

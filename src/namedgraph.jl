@@ -23,3 +23,7 @@ parent_graph(graph::NamedGraph) = graph.parent_graph
 vertices(graph::NamedGraph) = graph.vertices
 vertex_to_parent_vertex(graph::NamedGraph) = graph.vertex_to_parent_vertex
 edgetype(graph::NamedGraph{V}) where {V} = NamedEdge{V}
+
+function set_vertices(graph::NamedGraph, vertices)
+  return NamedGraph(parent_graph(graph), vertices)
+end

@@ -50,3 +50,5 @@ NamedDimEdge{V}(p::Pair) where {V<:Tuple} = NamedDimEdge{V}(p.first, p.second)
 # XXX: Is this a good idea? It clashes with Tuple vertices of NamedDimGraphs.
 # NamedDimEdge(t::Tuple) = NamedDimEdge(t[1], t[2])
 # NamedDimEdge{V}(t::Tuple) where {V} = NamedDimEdge(V(t[1]), V(t[2]))
+
+set_vertices(e::NamedDimEdge, src, dst) = NamedDimEdge(src, dst)

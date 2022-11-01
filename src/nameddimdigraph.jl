@@ -158,3 +158,7 @@ function tree(graph::NamedDimGraph, parents::AbstractVector{T}) where {T<:Tuple}
   end
   return t
 end
+
+function set_vertices(graph::NamedDimDiGraph, vertices)
+  return NamedDimDiGraph(parent_graph(graph), vertices)
+end

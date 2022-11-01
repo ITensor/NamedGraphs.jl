@@ -251,19 +251,10 @@ function Base.:(==)(g1::GT, g2::GT) where {GT<:AbstractNamedGraph}
   return true
 end
 
-function rename_vertices(g::GT, name_map::Dictionary) where {GT<:AbstractNamedGraph}
-  original_vertices = vertices(g)
-  new_vertices = getindices(name_map, original_vertices)
-  # strip type parameter to allow renaming to change the vertex type
-  base_graph_type = Base.typename(GT).wrapper
-  new_g = base_graph_type(new_vertices)
-  for e in edges(g)
-    add_edge!(new_g, rename_vertices(e, name_map))
-  end
-  return new_g
+function rename_vertices(f::Function, g::AbstractNamedGraph)
+  return set_vertices(g::AbstractNamedGraph, f.(vertices(g)))
 end
 
-function rename_vertices(g::AbstractNamedGraph, name_map::Function)
-  original_vertices = vertices(g)
-  return rename_vertices(g, Dictionary(original_vertices, name_map.(original_vertices)))
+function rename_vertices(g::AbstractNamedGraph, name_map::Dictionary)
+  return rename_vertices(v -> name_map[v], g)
 end
