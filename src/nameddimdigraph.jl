@@ -66,6 +66,10 @@ function NamedDimDiGraph(parent_graph::DiGraph; dims=nothing, vertices=nothing)
   return NamedDimDiGraph(parent_graph, vertices)
 end
 
+function NamedDimDiGraph(vertices::Array)
+  return NamedDimDiGraph(DiGraph(length(vertices)); vertices)
+end
+
 NamedDimDiGraph() = NamedDimDiGraph(DiGraph())
 
 # AbstractNamedGraph required interface.
@@ -153,4 +157,8 @@ function tree(graph::NamedDimGraph, parents::AbstractVector{T}) where {T<:Tuple}
     end
   end
   return t
+end
+
+function set_vertices(graph::NamedDimDiGraph, vertices)
+  return NamedDimDiGraph(parent_graph(graph), vertices)
 end

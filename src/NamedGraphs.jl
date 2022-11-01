@@ -79,6 +79,7 @@ export NamedGraph,
   named_comb_tree,
   post_order_dfs_vertices,
   post_order_dfs_edges,
+  rename_vertices,
   # Operations for tree-like graphs
   is_leaf,
   is_tree,

@@ -24,3 +24,12 @@ function ==(e1::AbstractNamedEdge, e2::AbstractNamedEdge)
   return (src(e1) == src(e2) && dst(e1) == dst(e2))
 end
 hash(e::AbstractNamedEdge, h::UInt) = hash(src(e), hash(dst(e), h))
+
+set_src(e::AbstractNamedEdge, src) = set_vertices(e, src, dst(e))
+set_dst(e::AbstractNamedEdge, dst) = set_vertices(e, src(e), dst)
+
+rename_vertices(f::Function, e::AbstractNamedEdge) = set_vertices(e, f(src(e)), f(dst(e)))
+
+function rename_vertices(e::AbstractNamedEdge, name_map)
+  return rename_vertices(v -> name_map[v], e)
+end

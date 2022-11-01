@@ -12,7 +12,6 @@ using Random
   @test nv(ct1) == prod(dim)
   @test ne(ct1) == prod(dim) - 1
   nct1 = named_comb_tree(dim)
-  @show vertices
   for v in Graphs.vertices(nct1) # naming collising with other test
     for n in neighbors(nct1, v)
       if v[2] == 1

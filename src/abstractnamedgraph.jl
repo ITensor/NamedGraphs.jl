@@ -237,3 +237,24 @@ function show(io::IO, mime::MIME"text/plain", graph::AbstractNamedGraph)
 end
 
 show(io::IO, graph::AbstractNamedGraph) = show(io, MIME"text/plain"(), graph)
+
+# 
+# Convenience functions
+#
+
+function Base.:(==)(g1::GT, g2::GT) where {GT<:AbstractNamedGraph}
+  issetequal(vertices(g1), vertices(g2)) || return false
+  for v in vertices(g1)
+    issetequal(inneighbors(g1, v), inneighbors(g2, v)) || return false
+    issetequal(outneighbors(g1, v), outneighbors(g2, v)) || return false
+  end
+  return true
+end
+
+function rename_vertices(f::Function, g::AbstractNamedGraph)
+  return set_vertices(g, f.(vertices(g)))
+end
+
+function rename_vertices(g::AbstractNamedGraph, name_map)
+  return rename_vertices(v -> name_map[v], g)
+end

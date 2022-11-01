@@ -76,6 +76,10 @@ function NamedDimGraph(parent_graph::Graph; dims=nothing, vertices=nothing)
   return NamedDimGraph(parent_graph, vertices)
 end
 
+function NamedDimGraph(vertices::Array)
+  return NamedDimGraph(Graph(length(vertices)); vertices)
+end
+
 NamedDimGraph() = NamedDimGraph(Graph())
 
 # AbstractNamedGraph required interface.
@@ -139,4 +143,8 @@ function hvncat(
   end
 
   return NamedDimGraph(graph_parent_graph, graph_vertices)
+end
+
+function set_vertices(graph::NamedDimGraph, vertices)
+  return NamedDimGraph(parent_graph(graph), vertices)
 end

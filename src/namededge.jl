@@ -16,3 +16,5 @@ NamedEdge(t::Tuple) = NamedEdge(t[1], t[2])
 NamedEdge(p::Pair) = NamedEdge(p.first, p.second)
 NamedEdge{V}(p::Pair) where {V} = NamedEdge(V(p.first), V(p.second))
 NamedEdge{V}(t::Tuple) where {V} = NamedEdge(V(t[1]), V(t[2]))
+
+set_vertices(e::NamedEdge, src, dst) = NamedEdge(src, dst)
