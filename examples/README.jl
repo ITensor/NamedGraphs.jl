@@ -11,7 +11,6 @@
 #' The package is not currently registered. You can install it as follows:
 #' ```julia
 #' using Pkg
-#' Pkg.add(url="https://github.com/mtfishman/MultiDimDictionaries.jl.git")
 #' Pkg.add(url="https://github.com/mtfishman/NamedGraphs.jl.git")
 #' ```
 
