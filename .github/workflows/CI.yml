@@ -35,6 +35,11 @@ jobs:
       #- uses: julia-actions/cache@v1
       #- uses: julia-actions/julia-buildpkg@v1
       #- uses: julia-actions/julia-runtest@v1
+      - name: Install Julia dependencies
+        shell: julia --project=dev {0}
+        run: |
+          using Pkg;
+          pkg"dev ."
       - name: Run the tests
         shell: julia --project=dev {0}
         run: |
@@ -53,6 +58,11 @@ jobs:
         with:
           version: '1'
       #- uses: julia-actions/julia-buildpkg@v1
+      - name: Install Julia dependencies
+        shell: julia --project=dev {0}
+        run: |
+          using Pkg;
+          pkg"dev ."
       - uses: julia-actions/julia-docdeploy@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
