@@ -14,10 +14,9 @@
 
 
 
-The package is not currently registered. You can install it as follows:
+You can install the package using Julia's package manager:
 ```julia
-using Pkg
-Pkg.add(url="https://github.com/mtfishman/NamedGraphs.jl.git")
+julia> ] add NamedGraphs
 ```
 
 
