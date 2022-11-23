@@ -46,7 +46,7 @@ function named_bfs_tree(
   simple_graph::SimpleGraph, source::Integer=1; source_name=1, child_name=identity
 )
   named_vertices = named_bfs_tree_vertices(simple_graph, source; source_name, child_name)
-  return NamedDimGraph(simple_graph; vertices=named_vertices)
+  return NamedGraph(simple_graph; vertices=named_vertices)
 end
 
 function named_binary_tree(
@@ -58,12 +58,12 @@ end
 
 function named_grid(dims; periodic=false)
   simple_graph = grid(dims; periodic)
-  return NamedDimGraph(simple_graph; dims=dims)
+  return NamedGraph(simple_graph; dims=dims)
 end
 
 function named_comb_tree(dims::Tuple)
   simple_graph = comb_tree(dims)
-  return NamedDimGraph(simple_graph; dims=dims)
+  return NamedGraph(simple_graph; dims=dims)
 end
 
 function named_comb_tree(tooth_lengths::Vector{<:Integer})
@@ -74,5 +74,5 @@ function named_comb_tree(tooth_lengths::Vector{<:Integer})
   vertices = filter(Tuple.(CartesianIndices((nx, ny)))) do (jx, jy)
     jy <= tooth_lengths[jx]
   end
-  return NamedDimGraph(simple_graph; vertices)
+  return NamedGraph(simple_graph; vertices)
 end
