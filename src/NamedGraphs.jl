@@ -1,13 +1,10 @@
 module NamedGraphs
 using AbstractTrees
 using Dictionaries
-# using MultiDimDictionaries
+using SimpleTraits
 using Graphs
 
 using Graphs.SimpleGraphs
-
-# TODO: Depend on SimpleTraits directly
-using Graphs.SimpleTraits
 
 # General utility functions
 not_implemented() = error("Not implemented")
