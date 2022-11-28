@@ -4,6 +4,9 @@ using Dictionaries
 # using MultiDimDictionaries
 using Graphs
 
+using Graphs.SimpleGraphs
+
+# TODO: Depend on SimpleTraits directly
 using Graphs.SimpleTraits
 
 # General utility functions
@@ -91,6 +94,7 @@ export NamedGraph,
   child_vertices,
   leaf_vertices,
   vertex_path,
-  edge_path
+  edge_path,
+  subgraph
 
 end # module AbstractNamedGraphs

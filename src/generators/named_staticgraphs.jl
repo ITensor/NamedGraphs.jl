@@ -23,6 +23,7 @@ function set_named_vertices!(
   return named_vertices
 end
 
+# TODO: Use vectors as vertex names?
 # k = 3:
 # 1 => (1,)
 # 2 => (1, 1)
@@ -56,14 +57,19 @@ function named_binary_tree(
   return named_bfs_tree(simple_graph, source; source_name, child_name)
 end
 
-function named_grid(dims; periodic=false)
-  simple_graph = grid(dims; periodic)
-  return NamedGraph(simple_graph; dims=dims)
+function named_grid(dim::Int; kwargs...)
+  simple_graph = grid((dim,); kwargs...)
+  return NamedGraph(simple_graph)
+end
+
+function named_grid(dims; kwargs...)
+  simple_graph = grid(dims; kwargs...)
+  return NamedGraph(simple_graph; vertices=dims)
 end
 
 function named_comb_tree(dims::Tuple)
   simple_graph = comb_tree(dims)
-  return NamedGraph(simple_graph; dims=dims)
+  return NamedGraph(simple_graph; vertices=dims)
 end
 
 function named_comb_tree(tooth_lengths::Vector{<:Integer})

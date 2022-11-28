@@ -6,18 +6,35 @@ abstract type AbstractNamedGraph{V} <: AbstractGraph{V} end
 
 vertices(graph::AbstractNamedGraph) = not_implemented()
 parent_graph(graph::AbstractNamedGraph) = not_implemented()
+
+# TODO: Require this for the interface, or implement as:
+# typeof(parent_graph(graph))
+# ?
+parent_graph_type(graph::AbstractNamedGraph) = not_implemented()
 vertex_to_parent_vertex(graph::AbstractNamedGraph) = not_implemented()
+
 # TODO: rename `edge_type`?
 edgetype(graph::AbstractNamedGraph) = not_implemented()
-is_directed(::Type{<:AbstractNamedGraph}) = not_implemented()
 directed_graph(G::Type{<:AbstractNamedGraph}) = not_implemented()
 undirected_graph(G::Type{<:AbstractNamedGraph}) = not_implemented()
 
+# In terms of `parent_graph_type`
+# is_directed(::Type{<:AbstractNamedGraph}) = not_implemented()
+
 # TODO: implement as:
+#
 # graph = set_parent_graph(graph, copy(parent_graph(graph)))
 # graph = set_vertices(graph, copy(vertices(graph)))
+#
+# or:
+#
+# graph_copy = similar(typeof(graph))(vertices(graph))
+# for e in edges(graph)
+#   add_edge!(graph_copy, e)
+# end
 copy(graph::AbstractNamedGraph) = not_implemented()
 
+# TODO: Implement using `copyto!`?
 function directed_graph(graph::AbstractNamedGraph)
   digraph = directed_graph(typeof(graph))(vertices(graph))
   for e in edges(graph)
@@ -31,7 +48,6 @@ end
 # vertex_type(graph::AbstractNamedGraph) = eltype(vertices(graph))
 eltype(graph::AbstractNamedGraph) = eltype(vertices(graph))
 
-parent_graph_type(graph::AbstractNamedGraph) = typeof(parent_graph(graph))
 parent_eltype(graph::AbstractNamedGraph) = eltype(parent_graph(graph))
 
 # By default, assume `vertex_to_parent_vertex(graph)`
@@ -206,17 +222,20 @@ end
 #   return typeof(graph)(parent_subgraph, graph_sliced_subvertices)
 # end
 
+is_directed(G::Type{<:AbstractNamedGraph}) = is_directed(parent_graph_type(G))
+
 is_directed(graph::AbstractNamedGraph) = is_directed(parent_graph(graph))
 
 is_connected(graph::AbstractNamedGraph) = is_connected(parent_graph(graph))
 
 is_cyclic(graph::AbstractNamedGraph) = is_cyclic(parent_graph(graph))
 
-# Rename `disjoint_union`: https://networkx.org/documentation/stable/reference/algorithms/operators.html
+# TODO: Move to namedgraph.jl, or make the output generic?
 function blockdiag(graph1::AbstractNamedGraph, graph2::AbstractNamedGraph)
   new_parent_graph = blockdiag(parent_graph(graph1), parent_graph(graph2))
   new_vertices = vcat(vertices(graph1), vertices(graph2))
-  return AbstractNamedGraph(new_parent_graph, new_vertices)
+  @assert allunique(new_vertices)
+  return GenericNamedGraph(new_parent_graph, new_vertices)
 end
 
 # TODO: What `args` are needed?
@@ -300,7 +319,7 @@ show(io::IO, graph::AbstractNamedGraph) = show(io, MIME"text/plain"(), graph)
 # Convenience functions
 #
 
-function Base.:(==)(g1::GT, g2::GT) where {GT<:AbstractNamedGraph}
+function Base.:(==)(g1::AbstractNamedGraph, g2::AbstractNamedGraph)
   issetequal(vertices(g1), vertices(g2)) || return false
   for v in vertices(g1)
     issetequal(inneighbors(g1, v), inneighbors(g2, v)) || return false
@@ -309,13 +328,13 @@ function Base.:(==)(g1::GT, g2::GT) where {GT<:AbstractNamedGraph}
   return true
 end
 
-# Function `f` maps original vertices `vᵢ` of `g`
-# to new vertices `f(vᵢ)` of the output graph.
-function rename_vertices(f::Function, g::AbstractNamedGraph)
-  return set_vertices(g, f.(vertices(g)))
-end
-
-# TODO: Move to `Graphs/abstractgraph.jl`
-function rename_vertices(g::AbstractGraph, name_map)
-  return rename_vertices(v -> name_map[v], g)
-end
+## # Function `f` maps original vertices `vᵢ` of `g`
+## # to new vertices `f(vᵢ)` of the output graph.
+## function rename_vertices(f::Function, g::AbstractGraph)
+##   return set_vertices(g, f.(vertices(g)))
+## end
+## 
+## # TODO: Move to `Graphs/abstractgraph.jl`
+## function rename_vertices(g::AbstractGraph, name_map)
+##   return rename_vertices(v -> name_map[v], g)
+## end

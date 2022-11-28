@@ -21,18 +21,37 @@ end
 @traitfn undirected_graph(graph::::(!IsDirected)) = graph
 
 # TODO: Handle metadata in a generic way
-@traitfn function undirected_graph(digraph::::IsDirected)
-  graph = undirected_graph(typeof(digraph))(vertices(digraph))
-  for e in edges(digraph)
+# Must have the same argument name as:
+# @traitfn undirected_graph(graph::::(!IsDirected))
+# to avoid method overwrite warnings, see:
+# https://github.com/mauro3/SimpleTraits.jl#method-overwritten-warnings
+@traitfn function undirected_graph(graph::::IsDirected)
+  undigraph = undirected_graph(typeof(graph))(vertices(graph))
+  for e in edges(graph)
     # TODO: Check for repeated edges?
-    add_edge!(graph, e)
+    add_edge!(undigraph, e)
   end
-  return graph
+  return undigraph
 end
 
 # Similar to `eltype`, but `eltype` doesn't work on types
 vertextype(::Type{<:AbstractGraph{V}}) where {V} = V
 vertextype(graph::AbstractGraph) = vertextype(typeof(graph))
+
+# Function `f` maps original vertices `vᵢ` of `g`
+# to new vertices `f(vᵢ)` of the output graph.
+function rename_vertices(f::Function, g::AbstractGraph)
+  return set_vertices(g, f.(vertices(g)))
+end
+
+function rename_vertices(g::AbstractGraph, name_map)
+  return rename_vertices(v -> name_map[v], g)
+end
+
+# Alternative syntax to `getindex` for getting a subgraph
+subgraph(graph::AbstractGraph, subvertices::Vector) = induced_subgraph(graph, subvertices)[1]
+
+subgraph(f::Function, graph::AbstractGraph) = induced_subgraph(graph, filter(f, vertices(graph)))[1]
 
 # Used for tree iteration.
 # Assumes the graph is a [rooted directed tree](https://en.wikipedia.org/wiki/Tree_(graph_theory)#Rooted_tree).
@@ -74,12 +93,18 @@ function disjoint_union(graphs::Vector{<:AbstractGraph})
   return disjoint_union(Dictionary(graphs))
 end
 
+disjoint_union(graph::AbstractGraph) = graph
+
 function disjoint_union(graph1::AbstractGraph, graphs_tail::AbstractGraph...)
   return disjoint_union(Dictionary([graph1, graphs_tail...]))
 end
 
-function disjoint_union(indices::Vector, graphs::Vector{<:AbstractGraph})
-  return disjoint_union(Dictionary(indices, graphs))
+function disjoint_union(pairs::Pair...)
+  return disjoint_union([pairs...])
+end
+
+function disjoint_union(iter::Vector{<:Pair})
+  return disjoint_union(dictionary(iter))
 end
 
 # function disjoint_union(graph1::AbstractGraph, graph2::AbstractGraph; kwargs...)
@@ -248,3 +273,5 @@ directed_graph(G::Type{<:SimpleGraph}) = SimpleDiGraph{vertextype(G)}
 undirected_graph(G::Type{<:SimpleGraph}) = G
 directed_graph(G::Type{<:SimpleDiGraph}) = G
 undirected_graph(G::Type{<:SimpleDiGraph}) = SimpleGraph{vertextype(G)}
+
+set_vertices(graph::AbstractSimpleGraph, vertices::Vector) = GenericNamedGraph(graph, vertices)
