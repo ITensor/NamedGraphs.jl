@@ -1,12 +1,13 @@
 module NamedGraphs
 using AbstractTrees
 using Dictionaries
-using MultiDimDictionaries
+using SimpleTraits
 using Graphs
 
-using Graphs.SimpleTraits
+using Graphs.SimpleGraphs
 
-using MultiDimDictionaries: tuple_convert, IndexType, SliceIndex, ElementIndex
+# General utility functions
+not_implemented() = error("Not implemented")
 
 # abstractnamedgraph.jl
 import Graphs:
@@ -42,34 +43,26 @@ import Graphs:
   tree,
   vertices
 
-import Base: show, eltype, copy, getindex, convert, hcat, vcat, hvncat
+import Base: show, eltype, copy, getindex, convert, hcat, vcat, hvncat, union
 
 # abstractnamededge.jl
 import Base: Pair, Tuple, show, ==, hash, eltype
 import Graphs: AbstractEdge, src, dst, reverse
-import MultiDimDictionaries: disjoint_union, ⊔
 
-# General utility functions
-not_implemented() = error("Not implemented")
-
-include("to_vertex.jl")
 include(joinpath("Graphs", "abstractgraph.jl"))
 include(joinpath("Graphs", "generators", "staticgraphs.jl"))
 include("abstractnamededge.jl")
 include("namededge.jl")
-include("nameddimedge.jl")
 include("abstractnamedgraph.jl")
 include("namedgraph.jl")
-#include("abstractnameddimgraph.jl") ## TODO
-include("nameddimgraph.jl")
-include("nameddimdigraph.jl")
 include(joinpath("generators", "named_staticgraphs.jl"))
 
 export NamedGraph,
-  NamedDimDiGraph,
-  NamedDimGraph,
-  NamedDimEdge,
+  NamedDiGraph,
   NamedEdge,
+  vertextype,
+  directed_graph,
+  undirected_graph,
   ⊔,
   disjoint_union,
   incident_edges,
@@ -87,6 +80,7 @@ export NamedGraph,
   child_vertices,
   leaf_vertices,
   vertex_path,
-  edge_path
+  edge_path,
+  subgraph
 
 end # module AbstractNamedGraphs

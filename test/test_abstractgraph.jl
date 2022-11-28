@@ -65,15 +65,15 @@ end
   @test issetequal(leaf_vertices(g), [4, 5, 6])
 
   ng = named_comb_tree((3, 2))
-  @test is_leaf(ng, 1, 2)
-  @test is_leaf(ng, 2, 2)
+  @test is_leaf(ng, (1, 2))
+  @test is_leaf(ng, (2, 2))
   @test !is_leaf(ng, (1, 1))
   @test issetequal(leaf_vertices(ng), [(1, 2), (2, 2), (3, 2)])
 
   # directed trees
   dng = dfs_tree(ng, (2, 2))
-  @test is_leaf(dng, 1, 2)
-  @test !is_leaf(dng, 2, 2)
+  @test is_leaf(dng, (1, 2))
+  @test !is_leaf(dng, (2, 2))
   @test !is_leaf(dng, (1, 1))
   @test issetequal(leaf_vertices(dng), [(1, 2), (3, 2)])
 end

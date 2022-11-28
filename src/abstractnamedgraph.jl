@@ -6,18 +6,54 @@ abstract type AbstractNamedGraph{V} <: AbstractGraph{V} end
 
 vertices(graph::AbstractNamedGraph) = not_implemented()
 parent_graph(graph::AbstractNamedGraph) = not_implemented()
-vertex_to_parent_vertex(graph::AbstractNamedGraph) = not_implemented()
-edgetype(graph::AbstractNamedGraph) = not_implemented()
-is_directed(::Type{<:AbstractNamedGraph}) = not_implemented()
 
-parent_graph_type(graph::AbstractNamedGraph) = typeof(parent_graph(graph))
+# TODO: Require this for the interface, or implement as:
+# typeof(parent_graph(graph))
+# ?
+parent_graph_type(graph::AbstractNamedGraph) = not_implemented()
+vertex_to_parent_vertex(graph::AbstractNamedGraph) = not_implemented()
+
+# TODO: rename `edge_type`?
+edgetype(graph::AbstractNamedGraph) = not_implemented()
+directed_graph(G::Type{<:AbstractNamedGraph}) = not_implemented()
+undirected_graph(G::Type{<:AbstractNamedGraph}) = not_implemented()
+
+# In terms of `parent_graph_type`
+# is_directed(::Type{<:AbstractNamedGraph}) = not_implemented()
+
+# TODO: implement as:
+#
+# graph = set_parent_graph(graph, copy(parent_graph(graph)))
+# graph = set_vertices(graph, copy(vertices(graph)))
+#
+# or:
+#
+# graph_copy = similar(typeof(graph))(vertices(graph))
+# for e in edges(graph)
+#   add_edge!(graph_copy, e)
+# end
+copy(graph::AbstractNamedGraph) = not_implemented()
+
+# TODO: Implement using `copyto!`?
+function directed_graph(graph::AbstractNamedGraph)
+  digraph = directed_graph(typeof(graph))(vertices(graph))
+  for e in edges(graph)
+    add_edge!(digraph, e)
+    add_edge!(digraph, reverse(e))
+  end
+  return digraph
+end
+
+# Default, can overload
+eltype(graph::AbstractNamedGraph) = eltype(vertices(graph))
+
 parent_eltype(graph::AbstractNamedGraph) = eltype(parent_graph(graph))
 
 # By default, assume `vertex_to_parent_vertex(graph)`
 # returns a data structure that you index into to map
 # from a vertex to a parent vertex.
-function vertex_to_parent_vertex(graph::AbstractNamedGraph, vertex...)
-  return vertex_to_parent_vertex(graph)[vertex...]
+function vertex_to_parent_vertex(graph::AbstractNamedGraph, vertex)
+  return vertex_to_parent_vertex(graph)[vertex]
 end
 
 # Convert parent vertex to vertex.
@@ -29,7 +65,7 @@ end
 # This should be overloaded for multi-dimensional indexing.
 # Get the subset of vertices of the graph, for example
 # for an input slice `subvertices(graph, "X", :)`.
-function subvertices(graph::AbstractNamedGraph, vertices...)
+function subvertices(graph::AbstractNamedGraph, vertices)
   return not_implemented()
 end
 
@@ -39,8 +75,8 @@ end
 
 # This is to handle `NamedDimGraph` where some of the dimensions
 # that are not slices get dropped.
-function sliced_subvertices(graph::AbstractNamedGraph, vertices...)
-  return subvertices(graph, vertices...)
+function sliced_subvertices(graph::AbstractNamedGraph, vertices)
+  return subvertices(graph, vertices)
 end
 
 function vertices_to_parent_vertices(
@@ -48,8 +84,6 @@ function vertices_to_parent_vertices(
 ) where {V}
   return parent_eltype(graph)[vertex_to_parent_vertex(graph, vertex) for vertex in vertices]
 end
-
-eltype(g::AbstractNamedGraph{V}) where {V} = V
 
 parent_vertices(graph::AbstractNamedGraph) = vertices(parent_graph(graph))
 parent_edges(graph::AbstractNamedGraph) = edges(parent_graph(graph))
@@ -77,8 +111,8 @@ end
 # TODO: write in terms of a generic function.
 for f in [:outneighbors, :inneighbors, :all_neighbors, :neighbors]
   @eval begin
-    function $f(graph::AbstractNamedGraph, vertex...)
-      parent_vertices = $f(parent_graph(graph), vertex_to_parent_vertex(graph, vertex...))
+    function $f(graph::AbstractNamedGraph, vertex)
+      parent_vertices = $f(parent_graph(graph), vertex_to_parent_vertex(graph, vertex))
       return [
         parent_vertex_to_vertex(graph, parent_vertex) for parent_vertex in parent_vertices
       ]
@@ -116,18 +150,22 @@ end
 has_edge(g::AbstractNamedGraph, edge) = has_edge(g, edgetype(g)(edge))
 has_edge(g::AbstractNamedGraph, src, dst) = has_edge(g, edgetype(g)(src, dst))
 
-function add_vertex!(graph::AbstractNamedGraph, v...)
-  # Convert to a vertex of the graph type
-  # For example, for MultiDimNamedGraph, this does:
-  #
-  # to_vertex(graph, "X") # ("X",)
-  # to_vertex(graph, "X", 1) # ("X", 1)
-  # to_vertex(graph, ("X", 1)) # ("X", 1)
-  #
-  # For general graph types it is:
-  #
-  # to_vertex(graph, "X") # "X"
-  vertex = to_vertex(graph, v...)
+function union(graph1::AbstractNamedGraph, graph2::AbstractNamedGraph)
+  union_graph = promote_type(typeof(graph1), typeof(graph2))()
+  union_vertices = union(vertices(graph1), vertices(graph2))
+  for v in union_vertices
+    add_vertex!(union_graph, v)
+  end
+  for e in edges(graph1)
+    add_edge!(union_graph, e)
+  end
+  for e in edges(graph2)
+    add_edge!(union_graph, e)
+  end
+  return union_graph
+end
+
+function add_vertex!(graph::AbstractNamedGraph, vertex)
   if vertex ∈ vertices(graph)
     throw(ArgumentError("Duplicate vertices are not allowed"))
   end
@@ -139,10 +177,9 @@ function add_vertex!(graph::AbstractNamedGraph, v...)
   return graph
 end
 
-function rem_vertex!(graph::AbstractNamedGraph, v...)
-  vertex = to_vertex(graph, v...)
+function rem_vertex!(graph::AbstractNamedGraph, vertex)
   parent_vertex = vertex_to_parent_vertex(graph, vertex)
-  rem_vertex!(parent_graph(graph), vertex_to_parent_vertex(graph, vertex))
+  rem_vertex!(parent_graph(graph), parent_vertex)
 
   # Insert the last vertex into the position of the vertex
   # that is being deleted, then remove the last vertex.
@@ -165,13 +202,7 @@ function add_vertices!(graph::AbstractNamedGraph, vs::Vector)
   return graph
 end
 
-function getindex(graph::AbstractNamedGraph, sub_vertices...)
-  graph_subvertices = subvertices(graph, sub_vertices...)
-  graph_sliced_subvertices = sliced_subvertices(graph, sub_vertices...)
-  parent_subgraph_vertices = vertices_to_parent_vertices(graph, graph_subvertices)
-  parent_subgraph, _ = induced_subgraph(parent_graph(graph), parent_subgraph_vertices)
-  return typeof(graph)(parent_subgraph, graph_sliced_subvertices)
-end
+is_directed(G::Type{<:AbstractNamedGraph}) = is_directed(parent_graph_type(G))
 
 is_directed(graph::AbstractNamedGraph) = is_directed(parent_graph(graph))
 
@@ -179,15 +210,19 @@ is_connected(graph::AbstractNamedGraph) = is_connected(parent_graph(graph))
 
 is_cyclic(graph::AbstractNamedGraph) = is_cyclic(parent_graph(graph))
 
-# Rename `disjoint_union`: https://networkx.org/documentation/stable/reference/algorithms/operators.html
+# TODO: Move to namedgraph.jl, or make the output generic?
 function blockdiag(graph1::AbstractNamedGraph, graph2::AbstractNamedGraph)
   new_parent_graph = blockdiag(parent_graph(graph1), parent_graph(graph2))
   new_vertices = vcat(vertices(graph1), vertices(graph2))
-  return AbstractNamedGraph(new_parent_graph, new_vertices)
+  @assert allunique(new_vertices)
+  return GenericNamedGraph(new_parent_graph, new_vertices)
 end
 
+# TODO: What `args` are needed?
 nv(graph::AbstractNamedGraph, args...) = nv(parent_graph(graph), args...)
+# TODO: What `args` are needed?
 ne(graph::AbstractNamedGraph, args...) = ne(parent_graph(graph), args...)
+# TODO: What `args` are needed?
 function adjacency_matrix(graph::AbstractNamedGraph, args...)
   return adjacency_matrix(parent_graph(graph), args...)
 end
@@ -196,26 +231,41 @@ end
 # Graph traversals
 #
 
-bfs_tree(g::AbstractNamedGraph, s...; kwargs...) = tree(g, bfs_parents(g, s...; kwargs...))
+# Overload Graphs.tree. Used for bfs_tree and dfs_tree
+# traversal algorithms.
+function tree(graph::AbstractNamedGraph, parents::AbstractVector)
+  n = length(parents)
+  # TODO: Use `directed_graph` here to make more generic?
+  t = GenericNamedGraph(DiGraph(n), vertices(graph))
+  for (parent_v, u) in enumerate(parents)
+    v = vertices(graph)[parent_v]
+    if u != v
+      add_edge!(t, u, v)
+    end
+  end
+  return t
+end
+
+bfs_tree(g::AbstractNamedGraph, s; kwargs...) = tree(g, bfs_parents(g, s; kwargs...))
 
 # Disambiguation from Graphs.bfs_tree
 bfs_tree(g::AbstractNamedGraph, s::Integer; kwargs...) = bfs_tree(g, tuple(s); kwargs...)
 
-function bfs_parents(graph::AbstractNamedGraph, s...; kwargs...)
+function bfs_parents(graph::AbstractNamedGraph, s; kwargs...)
   parent_bfs_parents = bfs_parents(
-    parent_graph(graph), vertex_to_parent_vertex(graph)[s...]; kwargs...
+    parent_graph(graph), vertex_to_parent_vertex(graph)[s]; kwargs...
   )
   return [vertices(graph)[parent_vertex] for parent_vertex in parent_bfs_parents]
 end
 
-dfs_tree(g::AbstractNamedGraph, s...; kwargs...) = tree(g, dfs_parents(g, s...; kwargs...))
+dfs_tree(g::AbstractNamedGraph, s; kwargs...) = tree(g, dfs_parents(g, s; kwargs...))
 
 # Disambiguation from Graphs.dfs_tree
 dfs_tree(g::AbstractNamedGraph, s::Integer; kwargs...) = dfs_tree(g, tuple(s); kwargs...)
 
-function dfs_parents(graph::AbstractNamedGraph, s...; kwargs...)
+function dfs_parents(graph::AbstractNamedGraph, s; kwargs...)
   parent_dfs_parents = dfs_parents(
-    parent_graph(graph), vertex_to_parent_vertex(graph)[s...]; kwargs...
+    parent_graph(graph), vertex_to_parent_vertex(graph)[s]; kwargs...
   )
   return [vertices(graph)[parent_vertex] for parent_vertex in parent_dfs_parents]
 end
@@ -242,19 +292,11 @@ show(io::IO, graph::AbstractNamedGraph) = show(io, MIME"text/plain"(), graph)
 # Convenience functions
 #
 
-function Base.:(==)(g1::GT, g2::GT) where {GT<:AbstractNamedGraph}
+function Base.:(==)(g1::AbstractNamedGraph, g2::AbstractNamedGraph)
   issetequal(vertices(g1), vertices(g2)) || return false
   for v in vertices(g1)
     issetequal(inneighbors(g1, v), inneighbors(g2, v)) || return false
     issetequal(outneighbors(g1, v), outneighbors(g2, v)) || return false
   end
   return true
-end
-
-function rename_vertices(f::Function, g::AbstractNamedGraph)
-  return set_vertices(g, f.(vertices(g)))
-end
-
-function rename_vertices(g::AbstractNamedGraph, name_map)
-  return rename_vertices(v -> name_map[v], g)
 end

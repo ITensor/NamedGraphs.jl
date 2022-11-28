@@ -22,3 +22,4 @@ g_sub = g[["A", "B"]]
 @show has_vertex(g_sub, "B")
 @show !has_vertex(g_sub, "C")
 @show !has_vertex(g_sub, "D")
+@show has_edge(g_sub, "A" => "B")
