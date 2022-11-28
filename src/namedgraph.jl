@@ -108,9 +108,6 @@ parent_graph(graph::GenericNamedGraph) = graph.parent_graph
 vertices(graph::GenericNamedGraph) = graph.vertices
 vertex_to_parent_vertex(graph::GenericNamedGraph) = graph.vertex_to_parent_vertex
 
-# TODO: Delete, implemented for AbstractGraph{V}
-# vertextype(::Type{<:GenericNamedGraph{V}}) where {V} = V
-
 # TODO: implement as:
 # graph = set_parent_graph(graph, copy(parent_graph(graph)))
 # graph = set_vertices(graph, copy(vertices(graph)))
@@ -143,36 +140,8 @@ function induced_subgraph(graph::AbstractNamedGraph, subvertices::Vector)
 end
 
 #
-# Non-generic convenient constructors
-#
-
-# TODO: Make `GenericNamedGraph` generic constructors
-## function GenericNamedGraph{V}(parent_graph::AbstractSimpleGraph, vertices::Vector{V}) where {V}
-##   return GenericNamedGraph{V}(parent_graph, vertices, Dictionary(vertices, eachindex(vertices)))
-## end
-## 
-## function GenericNamedGraph{V}(parent_graph::AbstractSimpleGraph, vertices) where {V}
-##   return GenericNamedGraph{V}(parent_graph, convert(Vector{V}, vertices))
-## end
-## 
-## function GenericNamedGraph(parent_graph::AbstractSimpleGraph, vertices)
-##   return GenericNamedGraph{eltype(vertices)}(parent_graph, vertices)
-## end
-
-## function GenericNamedGraph(f::Function, parent_graph::AbstractSimpleGraph)
-##   return GenericNamedGraph(parent_graph, f.(vertices(parent_graph)))
-## end
-
-## function GenericNamedGraph(vertices::Vector)
-##   return GenericNamedGraph(SimpleGraph(length(vertices)), vertices)
-## end
-
-#
 # Type aliases
 #
 
 const NamedGraph{V} = GenericNamedGraph{V,SimpleGraph{Int}}
 const NamedDiGraph{V} = GenericNamedGraph{V,SimpleDiGraph{Int}}
-
-## NamedGraphs.GenericNamedGraph{Tuple{String, Int64}, SimpleDiGraph{Int64}}
-

@@ -45,7 +45,6 @@ function directed_graph(graph::AbstractNamedGraph)
 end
 
 # Default, can overload
-# vertex_type(graph::AbstractNamedGraph) = eltype(vertices(graph))
 eltype(graph::AbstractNamedGraph) = eltype(vertices(graph))
 
 parent_eltype(graph::AbstractNamedGraph) = eltype(parent_graph(graph))
@@ -167,17 +166,6 @@ function union(graph1::AbstractNamedGraph, graph2::AbstractNamedGraph)
 end
 
 function add_vertex!(graph::AbstractNamedGraph, vertex)
-  # Convert to a vertex of the graph type
-  # For example, for MultiDimNamedGraph, this does:
-  #
-  # to_vertex(graph, "X") # ("X",)
-  # to_vertex(graph, "X", 1) # ("X", 1)
-  # to_vertex(graph, ("X", 1)) # ("X", 1)
-  #
-  # For general graph types it is:
-  #
-  # to_vertex(graph, "X") # "X"
-  # vertex = to_vertex(graph, v...)
   if vertex ∈ vertices(graph)
     throw(ArgumentError("Duplicate vertices are not allowed"))
   end
@@ -214,14 +202,6 @@ function add_vertices!(graph::AbstractNamedGraph, vs::Vector)
   return graph
 end
 
-# function getindex(graph::AbstractNamedGraph, sub_vertices...)
-#   graph_subvertices = subvertices(graph, sub_vertices...)
-#   graph_sliced_subvertices = sliced_subvertices(graph, sub_vertices...)
-#   parent_subgraph_vertices = vertices_to_parent_vertices(graph, graph_subvertices)
-#   parent_subgraph, _ = induced_subgraph(parent_graph(graph), parent_subgraph_vertices)
-#   return typeof(graph)(parent_subgraph, graph_sliced_subvertices)
-# end
-
 is_directed(G::Type{<:AbstractNamedGraph}) = is_directed(parent_graph_type(G))
 
 is_directed(graph::AbstractNamedGraph) = is_directed(parent_graph(graph))
@@ -255,14 +235,7 @@ end
 # traversal algorithms.
 function tree(graph::AbstractNamedGraph, parents::AbstractVector)
   n = length(parents)
-
-  # TODO: change to:
-  #
-  # NamedDimDiGraph(DiGraph(n); vertices=vertices(graph))
-  #
-  # or:
-  #
-  # NamedDimDiGraph(vertices(graph))
+  # TODO: Use `directed_graph` here to make more generic?
   t = GenericNamedGraph(DiGraph(n), vertices(graph))
   for (parent_v, u) in enumerate(parents)
     v = vertices(graph)[parent_v]
@@ -327,14 +300,3 @@ function Base.:(==)(g1::AbstractNamedGraph, g2::AbstractNamedGraph)
   end
   return true
 end
-
-## # Function `f` maps original vertices `vᵢ` of `g`
-## # to new vertices `f(vᵢ)` of the output graph.
-## function rename_vertices(f::Function, g::AbstractGraph)
-##   return set_vertices(g, f.(vertices(g)))
-## end
-## 
-## # TODO: Move to `Graphs/abstractgraph.jl`
-## function rename_vertices(g::AbstractGraph, name_map)
-##   return rename_vertices(v -> name_map[v], g)
-## end

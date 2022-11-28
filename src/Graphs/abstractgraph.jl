@@ -68,20 +68,6 @@ AbstractTrees.printnode(io::IO, t::TreeGraph) = print(io, t.vertex)
 # Graph unions
 #
 
-# function vcat(graph1::AbstractGraph, graph2::AbstractGraph; kwargs...)
-#   return hvncat(1, graph1, graph2; kwargs...)
-# end
-# 
-# function hcat(graph1::AbstractGraph, graph2::AbstractGraph; kwargs...)
-#   return hvncat(2, graph1, graph2; kwargs...)
-# end
-# 
-# # TODO: define `disjoint_union(graphs...; dim::Int, new_dim_names)` to do a disjoint union
-# # of a number of graphs.
-# function disjoint_union(graph1::AbstractGraph, graph2::AbstractGraph; dim::Int=0, kwargs...)
-#   return hvncat(dim, graph1, graph2; kwargs...)
-# end
-
 # https://en.wikipedia.org/wiki/Disjoint_union
 # Input maps the new index being appended to the vertices
 # to the associated graph.
@@ -107,13 +93,24 @@ function disjoint_union(iter::Vector{<:Pair})
   return disjoint_union(dictionary(iter))
 end
 
-# function disjoint_union(graph1::AbstractGraph, graph2::AbstractGraph; kwargs...)
-#   return not_implemented()
-# end
-
 function ⊔(graphs...; kwargs...)
   return disjoint_union(graphs...; kwargs...)
 end
+
+# vcat, hcat, hvncat
+# function vcat(graph1::AbstractGraph, graph2::AbstractGraph; kwargs...)
+#   return hvncat(1, graph1, graph2; kwargs...)
+# end
+# 
+# function hcat(graph1::AbstractGraph, graph2::AbstractGraph; kwargs...)
+#   return hvncat(2, graph1, graph2; kwargs...)
+# end
+# 
+# # TODO: define `disjoint_union(graphs...; dim::Int, new_dim_names)` to do a disjoint union
+# # of a number of graphs.
+# function disjoint_union(graph1::AbstractGraph, graph2::AbstractGraph; dim::Int=0, kwargs...)
+#   return hvncat(dim, graph1, graph2; kwargs...)
+# end
 
 # https://github.com/JuliaGraphs/Graphs.jl/issues/34
 function is_tree(graph::AbstractGraph)
@@ -217,20 +214,8 @@ end
 
 # Traverse the tree using a [post-order depth-first search](https://en.wikipedia.org/wiki/Tree_traversal#Depth-first_search), returning the vertices.
 # Assumes the graph is a [rooted directed tree](https://en.wikipedia.org/wiki/Tree_(graph_theory)#Rooted_tree)
-# @traitfn function post_order_dfs_vertices(graph::::IsDirected, root_index1, root_index)
-#   println("TEST")
-# 
-#   # @assert is_tree(graph)
-#   # TODO: How to remove `to_vertex` here?
-#   root_vertex = to_vertex(graph, root_index1, root_index)
-#   # Outputs a rooted directed tree (https://en.wikipedia.org/wiki/Arborescence_(graph_theory))
-#   return [node.vertex for node in PostOrderDFS(TreeGraph(graph, root_vertex))]
-# end
-
 @traitfn function post_order_dfs_vertices(graph::::IsDirected, root_vertex)
   # @assert is_tree(graph)
-  # TODO: How to remove `to_vertex` here?
-  # root_vertex = to_vertex(graph, root_index1, root_index)
   # Outputs a rooted directed tree (https://en.wikipedia.org/wiki/Arborescence_(graph_theory))
   return [node.vertex for node in PostOrderDFS(TreeGraph(graph, root_vertex))]
 end
