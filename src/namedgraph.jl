@@ -9,16 +9,22 @@ end
 #
 
 # Inner constructor
-function GenericNamedGraph{V,G}(parent_graph::AbstractSimpleGraph, vertices::Vector) where {V,G}
+function GenericNamedGraph{V,G}(
+  parent_graph::AbstractSimpleGraph, vertices::Vector
+) where {V,G}
   # Need to copy the vertices here, otherwise the Dictionary uses a view of the vertices
-  return GenericNamedGraph{V,G}(parent_graph, vertices, Dictionary(copy(vertices), eachindex(vertices)))
+  return GenericNamedGraph{V,G}(
+    parent_graph, vertices, Dictionary(copy(vertices), eachindex(vertices))
+  )
 end
 
 function GenericNamedGraph{V}(parent_graph::AbstractSimpleGraph, vertices::Vector) where {V}
   return GenericNamedGraph{V,typeof(parent_graph)}(parent_graph, vertices)
 end
 
-function GenericNamedGraph{<:Any,G}(parent_graph::AbstractSimpleGraph, vertices::Vector) where {G}
+function GenericNamedGraph{<:Any,G}(
+  parent_graph::AbstractSimpleGraph, vertices::Vector
+) where {G}
   return GenericNamedGraph{eltype(vertices),G}(parent_graph, vertices)
 end
 
@@ -63,19 +69,27 @@ GenericNamedGraph() = GenericNamedGraph(Any[])
 # Keyword argument constructor syntax
 #
 
-function GenericNamedGraph{V,G}(parent_graph::AbstractSimpleGraph; vertices=vertices(parent_graph)) where {V,G}
+function GenericNamedGraph{V,G}(
+  parent_graph::AbstractSimpleGraph; vertices=vertices(parent_graph)
+) where {V,G}
   return GenericNamedGraph{V,G}(parent_graph, vertices)
 end
 
-function GenericNamedGraph{V}(parent_graph::AbstractSimpleGraph; vertices=vertices(parent_graph)) where {V}
+function GenericNamedGraph{V}(
+  parent_graph::AbstractSimpleGraph; vertices=vertices(parent_graph)
+) where {V}
   return GenericNamedGraph{V}(parent_graph, vertices)
 end
 
-function GenericNamedGraph{<:Any,G}(parent_graph::AbstractSimpleGraph; vertices=vertices(parent_graph)) where {G}
+function GenericNamedGraph{<:Any,G}(
+  parent_graph::AbstractSimpleGraph; vertices=vertices(parent_graph)
+) where {G}
   return GenericNamedGraph{<:Any,G}(parent_graph, vertices)
 end
 
-function GenericNamedGraph(parent_graph::AbstractSimpleGraph; vertices=vertices(parent_graph))
+function GenericNamedGraph(
+  parent_graph::AbstractSimpleGraph; vertices=vertices(parent_graph)
+)
   return GenericNamedGraph(parent_graph, vertices)
 end
 
@@ -83,17 +97,23 @@ end
 # Convenient cartesian index constructor
 #
 
-function GenericNamedGraph{V,G}(parent_graph::AbstractSimpleGraph, grid_size::Tuple{Vararg{Int}}) where {V,G}
+function GenericNamedGraph{V,G}(
+  parent_graph::AbstractSimpleGraph, grid_size::Tuple{Vararg{Int}}
+) where {V,G}
   vertices = Tuple.(CartesianIndices(grid_size))
   @assert prod(grid_size) == nv(parent_graph)
   return GenericNamedGraph{V,G}(parent_graph, vec(vertices))
 end
 
-function GenericNamedGraph{V}(parent_graph::AbstractSimpleGraph, grid_size::Tuple{Vararg{Int}}) where {V}
+function GenericNamedGraph{V}(
+  parent_graph::AbstractSimpleGraph, grid_size::Tuple{Vararg{Int}}
+) where {V}
   return GenericNamedGraph{V,typeof(parent_graph)}(parent_graph, grid_size)
 end
 
-function GenericNamedGraph{<:Any,G}(parent_graph::AbstractSimpleGraph, grid_size::Tuple{Vararg{Int}}) where {G}
+function GenericNamedGraph{<:Any,G}(
+  parent_graph::AbstractSimpleGraph, grid_size::Tuple{Vararg{Int}}
+) where {G}
   return GenericNamedGraph{typeof(grid_size),G}(parent_graph, grid_size)
 end
 
@@ -111,7 +131,9 @@ vertex_to_parent_vertex(graph::GenericNamedGraph) = graph.vertex_to_parent_verte
 # TODO: implement as:
 # graph = set_parent_graph(graph, copy(parent_graph(graph)))
 # graph = set_vertices(graph, copy(vertices(graph)))
-copy(graph::GenericNamedGraph) = GenericNamedGraph(copy(parent_graph(graph)), copy(vertices(graph)))
+function copy(graph::GenericNamedGraph)
+  return GenericNamedGraph(copy(parent_graph(graph)), copy(vertices(graph)))
+end
 
 edgetype(G::Type{<:GenericNamedGraph}) = NamedEdge{vertextype(G)}
 edgetype(graph::GenericNamedGraph) = edgetype(typeof(graph))
@@ -120,8 +142,12 @@ function set_vertices(graph::GenericNamedGraph, vertices)
   return GenericNamedGraph(parent_graph(graph), vertices)
 end
 
-directed_graph(G::Type{<:GenericNamedGraph}) = GenericNamedGraph{vertextype(G),directed_graph(parent_graph_type(G))}
-undirected_graph(G::Type{<:GenericNamedGraph}) = GenericNamedGraph{vertextype(G),undirected_graph(parent_graph_type(G))}
+function directed_graph(G::Type{<:GenericNamedGraph})
+  return GenericNamedGraph{vertextype(G),directed_graph(parent_graph_type(G))}
+end
+function undirected_graph(G::Type{<:GenericNamedGraph})
+  return GenericNamedGraph{vertextype(G),undirected_graph(parent_graph_type(G))}
+end
 
 is_directed(G::Type{<:GenericNamedGraph}) = is_directed(parent_graph_type(G))
 

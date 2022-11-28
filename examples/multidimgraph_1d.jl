@@ -51,4 +51,3 @@ g_union = g ⊔ g
 ## @show ne(g_hcat) == 6
 ## 
 ## @show has_vertex(g_hcat, ("A", 1))
-

@@ -49,9 +49,13 @@ function rename_vertices(g::AbstractGraph, name_map)
 end
 
 # Alternative syntax to `getindex` for getting a subgraph
-subgraph(graph::AbstractGraph, subvertices::Vector) = induced_subgraph(graph, subvertices)[1]
+function subgraph(graph::AbstractGraph, subvertices::Vector)
+  return induced_subgraph(graph, subvertices)[1]
+end
 
-subgraph(f::Function, graph::AbstractGraph) = induced_subgraph(graph, filter(f, vertices(graph)))[1]
+function subgraph(f::Function, graph::AbstractGraph)
+  return induced_subgraph(graph, filter(f, vertices(graph)))[1]
+end
 
 # Used for tree iteration.
 # Assumes the graph is a [rooted directed tree](https://en.wikipedia.org/wiki/Tree_(graph_theory)#Rooted_tree).
@@ -119,8 +123,7 @@ end
 
 function incident_edges(graph::AbstractGraph, vertex)
   return [
-    edgetype(graph)(vertex, neighbor_vertex) for
-    neighbor_vertex in neighbors(graph, vertex)
+    edgetype(graph)(vertex, neighbor_vertex) for neighbor_vertex in neighbors(graph, vertex)
   ]
 end
 
@@ -200,8 +203,7 @@ end
 @traitfn function child_edges(graph::::IsDirected, vertex)
   # @assert is_tree(graph)
   return [
-    edgetype(graph)(vertex, child_vertex) for
-    child_vertex in child_vertices(graph, vertex)
+    edgetype(graph)(vertex, child_vertex) for child_vertex in child_vertices(graph, vertex)
   ]
 end
 
@@ -259,4 +261,6 @@ undirected_graph(G::Type{<:SimpleGraph}) = G
 directed_graph(G::Type{<:SimpleDiGraph}) = G
 undirected_graph(G::Type{<:SimpleDiGraph}) = SimpleGraph{vertextype(G)}
 
-set_vertices(graph::AbstractSimpleGraph, vertices::Vector) = GenericNamedGraph(graph, vertices)
+function set_vertices(graph::AbstractSimpleGraph, vertices::Vector)
+  return GenericNamedGraph(graph, vertices)
+end
