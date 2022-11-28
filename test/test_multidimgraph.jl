@@ -1,5 +1,4 @@
 using Graphs
-using MultiDimDictionaries
 using NamedGraphs
 using Random
 using Test
