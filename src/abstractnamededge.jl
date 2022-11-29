@@ -1,9 +1,12 @@
 abstract type AbstractNamedEdge{V} <: AbstractEdge{V} end
 
-eltype(::Type{<:ET}) where {ET<:AbstractNamedEdge{T}} where {T} = T
+eltype(::Type{<:AbstractNamedEdge{V}}) where {V} = V
 
 src(e::AbstractNamedEdge) = not_implemented()
 dst(e::AbstractNamedEdge) = not_implemented()
+
+convert_vertextype(::Type{V}, E::Type{<:AbstractNamedEdge{V}}) where {V} = E
+convert_vertextype(::Type, E::Type{<:AbstractNamedEdge}) = not_implemented()
 
 function show(io::IO, mime::MIME"text/plain", e::AbstractNamedEdge)
   show(io, src(e))
@@ -19,7 +22,7 @@ Pair(e::AbstractNamedEdge) = Pair(src(e), dst(e))
 Tuple(e::AbstractNamedEdge) = (src(e), dst(e))
 
 # Convenience functions
-reverse(e::T) where {T<:AbstractNamedEdge} = T(dst(e), src(e))
+reverse(e::AbstractNamedEdge) = typeof(e)(dst(e), src(e))
 function ==(e1::AbstractNamedEdge, e2::AbstractNamedEdge)
   return (src(e1) == src(e2) && dst(e1) == dst(e2))
 end

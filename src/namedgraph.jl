@@ -4,6 +4,27 @@ struct GenericNamedGraph{V,G<:AbstractSimpleGraph{Int}} <: AbstractNamedGraph{V}
   vertex_to_parent_vertex::Dictionary{V,Int}
 end
 
+function convert_vertextype(V::Type, graph::GenericNamedGraph)
+  return GenericNamedGraph(parent_graph(graph), convert(Vector{V}, vertices(graph)))
+end
+
+#
+# Convert inputs to vertex list
+#
+
+function to_vertices(vertices)
+  return Vector(vertices)
+end
+to_vertices(vertices::Vector) = vertices
+to_vertices(vertices::Array) = vec(vertices)
+# Treat tuple inputs as cartesian grid sizes
+function to_vertices(vertices::Tuple{Vararg{Integer}})
+  return vec(Tuple.(CartesianIndices(vertices)))
+end
+function to_vertices(V::Type, vertices)
+  return convert(Vector{V}, to_vertices(vertices))
+end
+
 #
 # Constructors from `AbstractSimpleGraph`
 #
@@ -12,13 +33,20 @@ end
 function GenericNamedGraph{V,G}(
   parent_graph::AbstractSimpleGraph, vertices::Vector
 ) where {V,G}
+  @assert length(vertices) == nv(parent_graph)
   # Need to copy the vertices here, otherwise the Dictionary uses a view of the vertices
   return GenericNamedGraph{V,G}(
     parent_graph, vertices, Dictionary(copy(vertices), eachindex(vertices))
   )
 end
 
-function GenericNamedGraph{V}(parent_graph::AbstractSimpleGraph, vertices::Vector) where {V}
+function GenericNamedGraph{V,G}(
+  parent_graph::AbstractSimpleGraph, vertices
+) where {V,G}
+  return GenericNamedGraph{V,G}(parent_graph, to_vertices(V, vertices))
+end
+
+function GenericNamedGraph{V}(parent_graph::AbstractSimpleGraph, vertices) where {V}
   return GenericNamedGraph{V,typeof(parent_graph)}(parent_graph, vertices)
 end
 
@@ -28,28 +56,37 @@ function GenericNamedGraph{<:Any,G}(
   return GenericNamedGraph{eltype(vertices),G}(parent_graph, vertices)
 end
 
+function GenericNamedGraph{<:Any,G}(
+  parent_graph::AbstractSimpleGraph, vertices
+) where {G}
+  return GenericNamedGraph{<:Any,G}(parent_graph, to_vertices(vertices))
+end
+
 function GenericNamedGraph(parent_graph::AbstractSimpleGraph, vertices::Vector)
-  # Need to copy the vertices here, otherwise the Dictionary uses a view of the vertices
   return GenericNamedGraph{eltype(vertices)}(parent_graph, vertices)
+end
+
+function GenericNamedGraph(parent_graph::AbstractSimpleGraph, vertices)
+  return GenericNamedGraph(parent_graph, to_vertices(vertices))
 end
 
 #
 # Constructors from vertex names
 #
 
-function GenericNamedGraph{V,G}(vertices::Vector) where {V,G}
+function GenericNamedGraph{V,G}(vertices) where {V,G}
   return GenericNamedGraph(G(length(vertices)), vertices)
 end
 
-function GenericNamedGraph{V}(vertices::Vector) where {V}
+function GenericNamedGraph{V}(vertices) where {V}
   return GenericNamedGraph{V,SimpleGraph{Int}}(vertices)
 end
 
-function GenericNamedGraph{<:Any,G}(vertices::Vector) where {G}
+function GenericNamedGraph{<:Any,G}(vertices) where {G}
   return GenericNamedGraph{Any,G}(vertices)
 end
 
-function GenericNamedGraph(vertices::Vector)
+function GenericNamedGraph(vertices)
   return GenericNamedGraph{eltype(vertices)}(vertices)
 end
 
@@ -91,34 +128,6 @@ function GenericNamedGraph(
   parent_graph::AbstractSimpleGraph; vertices=vertices(parent_graph)
 )
   return GenericNamedGraph(parent_graph, vertices)
-end
-
-#
-# Convenient cartesian index constructor
-#
-
-function GenericNamedGraph{V,G}(
-  parent_graph::AbstractSimpleGraph, grid_size::Tuple{Vararg{Int}}
-) where {V,G}
-  vertices = Tuple.(CartesianIndices(grid_size))
-  @assert prod(grid_size) == nv(parent_graph)
-  return GenericNamedGraph{V,G}(parent_graph, vec(vertices))
-end
-
-function GenericNamedGraph{V}(
-  parent_graph::AbstractSimpleGraph, grid_size::Tuple{Vararg{Int}}
-) where {V}
-  return GenericNamedGraph{V,typeof(parent_graph)}(parent_graph, grid_size)
-end
-
-function GenericNamedGraph{<:Any,G}(
-  parent_graph::AbstractSimpleGraph, grid_size::Tuple{Vararg{Int}}
-) where {G}
-  return GenericNamedGraph{typeof(grid_size),G}(parent_graph, grid_size)
-end
-
-function GenericNamedGraph(parent_graph::AbstractSimpleGraph, grid_size::Tuple{Vararg{Int}})
-  return GenericNamedGraph{typeof(grid_size),typeof(parent_graph)}(parent_graph, grid_size)
 end
 
 # AbstractNamedGraph required interface.

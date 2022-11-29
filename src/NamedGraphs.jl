@@ -46,10 +46,12 @@ import Graphs:
 import Base: show, eltype, copy, getindex, convert, hcat, vcat, hvncat, union
 
 # abstractnamededge.jl
-import Base: Pair, Tuple, show, ==, hash, eltype
+import Base: Pair, Tuple, show, ==, hash, eltype, convert
 import Graphs: AbstractEdge, src, dst, reverse
 
+include(joinpath("Dictionaries", "dictionary.jl"))
 include(joinpath("Graphs", "abstractgraph.jl"))
+include(joinpath("Graphs", "simplegraph.jl"))
 include(joinpath("Graphs", "generators", "staticgraphs.jl"))
 include("abstractnamededge.jl")
 include("namededge.jl")

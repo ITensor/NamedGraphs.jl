@@ -5,6 +5,11 @@ undirected_graph(::Type{<:AbstractGraph}) = error("Not implemented")
 
 @traitfn directed_graph(graph::::IsDirected) = graph
 
+convert_vertextype(::Type{V}, graph::AbstractGraph{V}) where {V} = graph
+function convert_vertextype(V::Type, graph::AbstractGraph)
+  return not_implemented()
+end
+
 # TODO: Handle metadata in a generic way
 @traitfn function directed_graph(graph::::(!IsDirected))
   digraph = directed_graph(typeof(graph))()
@@ -46,6 +51,18 @@ end
 
 function rename_vertices(g::AbstractGraph, name_map)
   return rename_vertices(v -> name_map[v], g)
+end
+
+# Returns just the edges of a directed graph,
+# but both edge directions of an undirected graph.
+# TODO: Move to NamedGraphs.jl
+@traitfn function all_edges(g::::IsDirected)
+  return edges(g)
+end
+
+@traitfn function all_edges(g::::(!IsDirected))
+  e = edges(g)
+  return Iterators.flatten(zip(e, reverse.(e)))
 end
 
 # Alternative syntax to `getindex` for getting a subgraph
@@ -249,18 +266,4 @@ end
   isnothing(vertices) && return nothing
   pop!(vertices)
   return [edgetype(graph)(vertex, parent_vertex(graph, vertex)) for vertex in vertices]
-end
-
-########################################################################
-# Graphs.SimpleGraphs extensions
-
-# TODO: Move to `SimpleGraph` file
-# TODO: Use trait dispatch to do no-ops when appropriate
-directed_graph(G::Type{<:SimpleGraph}) = SimpleDiGraph{vertextype(G)}
-undirected_graph(G::Type{<:SimpleGraph}) = G
-directed_graph(G::Type{<:SimpleDiGraph}) = G
-undirected_graph(G::Type{<:SimpleDiGraph}) = SimpleGraph{vertextype(G)}
-
-function set_vertices(graph::AbstractSimpleGraph, vertices::Vector)
-  return GenericNamedGraph(graph, vertices)
 end
