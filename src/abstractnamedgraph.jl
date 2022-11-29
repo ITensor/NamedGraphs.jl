@@ -21,6 +21,8 @@ undirected_graph(G::Type{<:AbstractNamedGraph}) = not_implemented()
 # In terms of `parent_graph_type`
 # is_directed(::Type{<:AbstractNamedGraph}) = not_implemented()
 
+convert_vertextype(::Type, ::AbstractNamedGraph) = not_implemented()
+
 # TODO: implement as:
 #
 # graph = set_parent_graph(graph, copy(parent_graph(graph)))
@@ -292,7 +294,7 @@ show(io::IO, graph::AbstractNamedGraph) = show(io, MIME"text/plain"(), graph)
 # Convenience functions
 #
 
-function Base.:(==)(g1::AbstractNamedGraph, g2::AbstractNamedGraph)
+function (g1::AbstractNamedGraph == g2::AbstractNamedGraph)
   issetequal(vertices(g1), vertices(g2)) || return false
   for v in vertices(g1)
     issetequal(inneighbors(g1, v), inneighbors(g2, v)) || return false

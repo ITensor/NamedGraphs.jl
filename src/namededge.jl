@@ -6,6 +6,8 @@ end
 NamedEdge(src::V, dst::V) where {V} = NamedEdge{V}(src, dst)
 NamedEdge(src::S, dst::D) where {S,D} = NamedEdge{promote_type(S, D)}(src, dst)
 
+convert_vertextype(V::Type, ::Type{<:NamedEdge}) = NamedEdge{V}
+
 src(e::NamedEdge) = e.src
 dst(e::NamedEdge) = e.dst
 
