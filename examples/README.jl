@@ -106,10 +106,7 @@ rename_vertices(v -> v[1], subgraph(v -> v[2] == 2, g₁ ⊔ g₂))
 #' ## Generating this README
 
 #' This file was generated with [weave.jl](https://github.com/JunoLab/Weave.jl) with the following commands:
-#' ```julia
-#' using Weave
-#' using NamedGraphs
-#' filename = joinpath(pkgdir(NamedGraphs), "examples", "README.jl")
-#' out_path = pkgdir(NamedGraphs)
-#' weave(filename; doctype = "github", out_path)
-#' ```
+#+ eval=false
+
+using NamedGraphs, Weave
+weave(joinpath(pkgdir(NamedGraphs), "examples", "README.jl"); doctype="github", out_path=pkgdir(NamedGraphs))

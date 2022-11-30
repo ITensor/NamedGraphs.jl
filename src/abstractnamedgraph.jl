@@ -75,12 +75,6 @@ function subvertices(graph::AbstractNamedGraph{V}, vertices::Vector{V}) where {V
   return vertices
 end
 
-# This is to handle `NamedDimGraph` where some of the dimensions
-# that are not slices get dropped.
-function sliced_subvertices(graph::AbstractNamedGraph, vertices)
-  return subvertices(graph, vertices)
-end
-
 function vertices_to_parent_vertices(
   graph::AbstractNamedGraph{V}, vertices::Vector{V}
 ) where {V}

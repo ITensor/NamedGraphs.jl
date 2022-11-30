@@ -4,6 +4,12 @@ struct GenericNamedGraph{V,G<:AbstractSimpleGraph{Int}} <: AbstractNamedGraph{V}
   vertex_to_parent_vertex::Dictionary{V,Int}
 end
 
+# AbstractNamedGraph required interface.
+parent_graph_type(G::Type{<:GenericNamedGraph}) = fieldtype(G, :parent_graph)
+parent_graph(graph::GenericNamedGraph) = getfield(graph, :parent_graph)
+vertices(graph::GenericNamedGraph) = getfield(graph, :vertices)
+vertex_to_parent_vertex(graph::GenericNamedGraph) = getfield(graph, :vertex_to_parent_vertex)
+
 function convert_vertextype(V::Type, graph::GenericNamedGraph)
   return GenericNamedGraph(parent_graph(graph), convert(Vector{V}, vertices(graph)))
 end
@@ -129,13 +135,6 @@ function GenericNamedGraph(
 )
   return GenericNamedGraph(parent_graph, vertices)
 end
-
-# AbstractNamedGraph required interface.
-# TODO: rename `parent_graph` (type is implied by input)
-parent_graph_type(::Type{<:GenericNamedGraph{V,G}}) where {V,G} = G
-parent_graph(graph::GenericNamedGraph) = graph.parent_graph
-vertices(graph::GenericNamedGraph) = graph.vertices
-vertex_to_parent_vertex(graph::GenericNamedGraph) = graph.vertex_to_parent_vertex
 
 # TODO: implement as:
 # graph = set_parent_graph(graph, copy(parent_graph(graph)))
