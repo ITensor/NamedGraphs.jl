@@ -27,6 +27,7 @@ to_vertices(vertices::Array) = vec(vertices)
 function to_vertices(vertices::Tuple{Vararg{Integer}})
   return vec(Tuple.(CartesianIndices(vertices)))
 end
+to_vertices(vertices::Integer) = to_vertices(Base.OneTo(vertices))
 function to_vertices(V::Type, vertices)
   return convert(Vector{V}, to_vertices(vertices))
 end
@@ -37,7 +38,7 @@ end
 
 # Inner constructor
 function GenericNamedGraph{V,G}(
-  parent_graph::AbstractSimpleGraph, vertices::Vector
+  parent_graph::AbstractSimpleGraph, vertices::Vector{V}
 ) where {V,G}
   @assert length(vertices) == nv(parent_graph)
   # Need to copy the vertices here, otherwise the Dictionary uses a view of the vertices
@@ -80,8 +81,12 @@ end
 # Constructors from vertex names
 #
 
-function GenericNamedGraph{V,G}(vertices) where {V,G}
+function GenericNamedGraph{V,G}(vertices::Vector{V}) where {V,G}
   return GenericNamedGraph(G(length(vertices)), vertices)
+end
+
+function GenericNamedGraph{V,G}(vertices) where {V,G}
+  return GenericNamedGraph{V,G}(to_vertices(V, vertices))
 end
 
 function GenericNamedGraph{V}(vertices) where {V}
@@ -89,7 +94,7 @@ function GenericNamedGraph{V}(vertices) where {V}
 end
 
 function GenericNamedGraph{<:Any,G}(vertices) where {G}
-  return GenericNamedGraph{Any,G}(vertices)
+  return GenericNamedGraph{eltype(vertices),G}(vertices)
 end
 
 function GenericNamedGraph(vertices)
