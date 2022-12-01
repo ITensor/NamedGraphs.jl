@@ -19,7 +19,7 @@ end
 #
 
 function to_vertices(vertices)
-  return Vector(vertices)
+  return vec(collect(vertices))
 end
 to_vertices(vertices::Vector) = vertices
 to_vertices(vertices::Array) = vec(vertices)
