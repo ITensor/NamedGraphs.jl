@@ -19,13 +19,18 @@ import Graphs:
   bfs_parents,
   bfs_tree,
   blockdiag,
+  common_neighbors,
+  degree,
+  degree_histogram,
   dst,
   dfs_parents,
   dfs_tree,
   edges,
   edgetype,
   has_edge,
+  has_path,
   has_vertex,
+  indegree,
   induced_subgraph,
   inneighbors,
   is_connected,
@@ -35,6 +40,21 @@ import Graphs:
   is_weakly_connected,
   ne,
   neighbors,
+  neighborhood,
+  neighborhood_dists,
+  outdegree,
+  a_star,
+  bellman_ford_shortest_paths,
+  enumerate_paths,
+  desopo_pape_shortest_paths,
+  dijkstra_shortest_paths,
+  floyd_warshall_shortest_paths,
+  johnson_shortest_paths,
+  spfa_shortest_paths,
+  yen_k_shortest_paths,
+  boruvka_mst,
+  kruskal_mst,
+  prim_mst,
   nv,
   outneighbors,
   rem_vertex!,
@@ -43,11 +63,11 @@ import Graphs:
   tree,
   vertices
 
-import Base: show, eltype, copy, getindex, convert, hcat, vcat, hvncat, union
+import Base: show, eltype, copy, getindex, convert, hcat, vcat, hvncat, union, zero
 
 # abstractnamededge.jl
 import Base: Pair, Tuple, show, ==, hash, eltype, convert
-import Graphs: AbstractEdge, src, dst, reverse
+import Graphs: AbstractEdge, src, dst, reverse, reverse!
 
 include(joinpath("Dictionaries", "dictionary.jl"))
 include(joinpath("Graphs", "abstractgraph.jl"))
@@ -75,6 +95,12 @@ export NamedGraph,
   post_order_dfs_vertices,
   post_order_dfs_edges,
   rename_vertices,
+  degree,
+  degrees,
+  indegree,
+  indegrees,
+  outdegree,
+  outdegrees,
   # Operations for tree-like graphs
   is_leaf,
   is_tree,

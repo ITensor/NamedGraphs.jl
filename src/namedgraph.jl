@@ -8,7 +8,7 @@ end
 parent_graph_type(G::Type{<:GenericNamedGraph}) = fieldtype(G, :parent_graph)
 parent_graph(graph::GenericNamedGraph) = getfield(graph, :parent_graph)
 vertices(graph::GenericNamedGraph) = getfield(graph, :vertices)
-vertex_to_parent_vertex(graph::GenericNamedGraph) = getfield(graph, :vertex_to_parent_vertex)
+vertex_to_parent_vertex(graph::GenericNamedGraph, vertex) = graph.vertex_to_parent_vertex[vertex]
 
 function convert_vertextype(V::Type, graph::GenericNamedGraph)
   return GenericNamedGraph(parent_graph(graph), convert(Vector{V}, vertices(graph)))

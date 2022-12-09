@@ -74,6 +74,18 @@ function subgraph(f::Function, graph::AbstractGraph)
   return induced_subgraph(graph, filter(f, vertices(graph)))[1]
 end
 
+function degrees(graph::AbstractGraph, vertices=vertices(graph))
+  return map(vertex -> degree(graph, vertex), vertices)
+end
+
+function indegrees(graph::AbstractGraph, vertices=vertices(graph))
+  return map(vertex -> indegree(graph, vertex), vertices)
+end
+
+function outdegrees(graph::AbstractGraph, vertices=vertices(graph))
+  return map(vertex -> outdegree(graph, vertex), vertices)
+end
+
 # Used for tree iteration.
 # Assumes the graph is a [rooted directed tree](https://en.wikipedia.org/wiki/Tree_(graph_theory)#Rooted_tree).
 struct TreeGraph{G,V}
