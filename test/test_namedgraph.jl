@@ -221,8 +221,9 @@ end
     @test length(ps) == 100
     @test ps[(8, 1)] == 7
 
-    es = boruvka_mst(g)
+    es, weights = boruvka_mst(g)
     @test length(es) == 99
+    @test weights == 99
     @test es isa Vector{NamedEdge{Tuple{Int,Int}}}
 
     es = kruskal_mst(g)

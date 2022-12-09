@@ -221,8 +221,8 @@ function boruvka_mst(
   distmx::AbstractMatrix{<:Real}=weights(g);
   minimize=true,
 ) 
-  parent_mst = boruvka_mst(parent_graph(g), distmx; minimize)
-  return parent_edges_to_edges(g, parent_mst)
+  parent_mst, weights = boruvka_mst(parent_graph(g), distmx; minimize)
+  return parent_edges_to_edges(g, parent_mst), weights
 end
 
 function kruskal_mst(
