@@ -85,6 +85,12 @@ function AbstractTrees.children(t::TreeGraph)
 end
 AbstractTrees.printnode(io::IO, t::TreeGraph) = print(io, t.vertex)
 
+# Patch Graphs.degree for non-integer vertex types
+indegree(g::AbstractGraph, v) = length(inneighbors(g, v))
+outdegree(g::AbstractGraph, v) = length(outneighbors(g, v))
+@traitfn degree(g::::IsDirected, v) = indegree(g, v) + outdegree(g, v)
+@traitfn degree(g::::(!IsDirected), v) = indegree(g, v)
+
 #
 # Graph unions
 #
