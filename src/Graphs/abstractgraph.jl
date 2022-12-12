@@ -150,10 +150,42 @@ function is_tree(graph::AbstractGraph)
   return (ne(graph) == nv(graph) - 1) && is_connected(graph)
 end
 
-function incident_edges(graph::AbstractGraph, vertex)
+function out_incident_edges(graph::AbstractGraph, vertex)
   return [
-    edgetype(graph)(vertex, neighbor_vertex) for neighbor_vertex in neighbors(graph, vertex)
+    edgetype(graph)(vertex, neighbor_vertex) for neighbor_vertex in outneighbors(graph, vertex)
   ]
+end
+
+function in_incident_edges(graph::AbstractGraph, vertex)
+  return [
+    edgetype(graph)(neighbor_vertex, vertex) for neighbor_vertex in inneighbors(graph, vertex)
+  ]
+end
+
+function all_incident_edges(graph::AbstractGraph, vertex)
+  return out_incident_edges(graph, vertex) ∪ in_incident_edges(graph, vertex)
+end
+
+"""
+    incident_edges(graph::AbstractGraph, vertex; dir=:out)
+
+Edges incident to the vertex `vertex`.
+
+`dir ∈ (:in, :out, :both)`, defaults to `:out`.
+
+For undirected graphs, returns all incident edges.
+
+Like: https://juliagraphs.org/Graphs.jl/v1.7/algorithms/linalg/#Graphs.LinAlg.adjacency_matrix
+"""
+function incident_edges(graph::AbstractGraph, vertex; dir=:out)
+  if dir == :out
+    return out_incident_edges(graph, vertex)
+  elseif dir == :in
+    return in_incident_edges(graph, vertex)
+  elseif dir == :both
+    return all_incident_edges(graph, vertex)
+  end
+  return error("dir = $dir not supported.")
 end
 
 # Get the leaf vertices of a tree-like graph
