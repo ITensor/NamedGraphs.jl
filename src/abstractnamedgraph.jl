@@ -12,6 +12,8 @@ parent_graph(graph::AbstractNamedGraph) = not_implemented()
 # ?
 parent_graph_type(graph::AbstractNamedGraph) = not_implemented()
 
+parent_vertextype(graph::AbstractNamedGraph) = vertextype(parent_graph(graph))
+
 # Convert vertex to parent vertex
 # Inverse map of `parent_vertex_to_vertex`.
 vertex_to_parent_vertex(graph::AbstractNamedGraph, vertex) = not_implemented()
@@ -83,10 +85,18 @@ function vertices_to_parent_vertices(
   return map(vertex_to_parent_vertex(graph), vertices)
 end
 
+function vertices_to_parent_vertices(graph::AbstractNamedGraph)
+  return Base.Fix1(vertices_to_parent_vertices, graph)
+end
+
 function parent_vertices_to_vertices(
   graph::AbstractNamedGraph, parent_vertices
 )
   return map(parent_vertex_to_vertex(graph), parent_vertices)
+end
+
+function parent_vertices_to_vertices(graph::AbstractNamedGraph)
+  return Base.Fix1(parent_vertices_to_vertices, graph)
 end
 
 parent_vertices(graph::AbstractNamedGraph) = vertices(parent_graph(graph))
@@ -376,6 +386,36 @@ ne(graph::AbstractNamedGraph, args...) = ne(parent_graph(graph), args...)
 # TODO: What `args` are needed?
 function adjacency_matrix(graph::AbstractNamedGraph, args...)
   return adjacency_matrix(parent_graph(graph), args...)
+end
+
+function connected_components(graph::AbstractNamedGraph)
+  parent_connected_components = connected_components(parent_graph(graph))
+  return map(parent_vertices_to_vertices(graph), parent_connected_components)
+end
+
+function merge_vertices!(graph::AbstractNamedGraph, merge_vertices; merged_vertex=first(merge_vertices))
+  not_implemented()
+end
+
+function merge_vertices(graph::AbstractNamedGraph, merge_vertices; merged_vertex=first(merge_vertices))
+  merged_graph = copy(graph)
+  if !has_vertex(graph, merged_vertex)
+    add_vertex!(merged_graph, merged_vertex)
+  end
+  for vertex in merge_vertices
+    for e in incident_edges(graph, vertex; dir=:both)
+      merged_edge = rename_vertices(v -> v == vertex ? merged_vertex : v, e)
+      if src(merged_edge) ≠ dst(merged_edge)
+        add_edge!(merged_graph, merged_edge)
+      end
+    end
+  end
+  for vertex in merge_vertices
+    if vertex ≠ merged_vertex
+      rem_vertex!(merged_graph, vertex)
+    end
+  end
+  return merged_graph
 end
 
 # 

@@ -63,6 +63,82 @@ end
     @test has_path(g, "D", "E")
     @test !has_path(g, "A", "E")
   end
+  @testset "neighborhood" begin
+    g = named_grid((4, 4))
+    @test issetequal(neighborhood(g, (1, 1), nv(g)), vertices(g))
+    @test issetequal(neighborhood(g, (1, 1), 0), [(1, 1)])
+    @test issetequal(neighborhood(g, (1, 1), 1), [(1, 1), (2, 1), (1, 2)])
+    ns = [
+      (1, 1),
+      (2, 1),
+      (1, 2),
+      (3, 1),
+      (2, 2),
+      (1, 3),
+    ]
+    @test issetequal(neighborhood(g, (1, 1), 2), ns)
+    ns = [
+      (1, 1),
+      (2, 1),
+      (1, 2),
+      (3, 1),
+      (2, 2),
+      (1, 3),
+      (4, 1),
+      (3, 2),
+      (2, 3),
+      (1, 4),
+    ]
+    @test issetequal(neighborhood(g, (1, 1), 3), ns)
+    ns = [
+      (1, 1),
+      (2, 1),
+      (1, 2),
+      (3, 1),
+      (2, 2),
+      (1, 3),
+      (4, 1),
+      (3, 2),
+      (2, 3),
+      (1, 4),
+      (4, 2),
+      (3, 3),
+      (2, 4),
+    ]
+    @test issetequal(neighborhood(g, (1, 1), 4), ns)
+    ns = [
+      (1, 1),
+      (2, 1),
+      (1, 2),
+      (3, 1),
+      (2, 2),
+      (1, 3),
+      (4, 1),
+      (3, 2),
+      (2, 3),
+      (1, 4),
+      (4, 2),
+      (3, 3),
+      (2, 4),
+      (4, 3),
+      (3, 4),
+    ]
+    @test issetequal(neighborhood(g, (1, 1), 5), ns)
+    @test issetequal(neighborhood(g, (1, 1), 6), vertices(g))
+    ns_ds = [
+      ((1, 1), 0),
+      ((2, 1), 1),
+      ((1, 2), 1),
+      ((3, 1), 2),
+      ((2, 2), 2),
+      ((1, 3), 2),
+      ((4, 1), 3),
+      ((3, 2), 3),
+      ((2, 3), 3),
+      ((1, 4), 3),
+    ]
+    @test issetequal(neighborhood_dists(g, (1, 1), 3), ns_ds)
+  end
   @testset "Basics (directed)" begin
     g = NamedDiGraph(["A", "B", "C", "D"])
     add_edge!(g, "A" => "B")
@@ -244,13 +320,123 @@ end
     )
       @test_broken f(g, "A")
     end
-  @testset "has_self_loops" begin
+  end
+  @testset "Graph connectivity" begin
     g = NamedGraph(2)
     @test g isa NamedGraph{Int}
     add_edge!(g, 1, 2)
     @test !has_self_loops(g)
     add_edge!(g, 1, 1)
     @test has_self_loops(g)
+
+    g1 = named_grid((2, 2))
+    g2 = named_grid((2, 2))
+    g = g1 ⊔ g2
+    t = named_binary_tree(3)
+
+    @test is_cyclic(g1)
+    @test is_cyclic(g2)
+    @test is_cyclic(g)
+    @test !is_cyclic(t)
+
+    @test is_connected(g1)
+    @test is_connected(g2)
+    @test !is_connected(g)
+    @test is_connected(t)
+
+    cc = connected_components(g1)
+    @test length(cc) == 1
+    @test length(only(cc)) == nv(g1)
+    @test issetequal(only(cc), vertices(g1))
+
+    cc = connected_components(g)
+    @test length(cc) == 2
+    @test length(cc[1]) == nv(g1)
+    @test length(cc[2]) == nv(g2)
+    @test issetequal(cc[1], map(v -> (v, 1), vertices(g1)))
+    @test issetequal(cc[2], map(v -> (v, 2), vertices(g2)))
   end
+  @testset "incident_edges" begin
+    g = grid((3, 3))
+    inc_edges = Edge.([2 => 1, 2 => 3, 2 => 5])
+    @test issetequal(incident_edges(g, 2), inc_edges)
+    @test issetequal(incident_edges(g, 2; dir=:in), reverse.(inc_edges))
+    @test issetequal(incident_edges(g, 2; dir=:out), inc_edges)
+    @test issetequal(incident_edges(g, 2; dir=:both), inc_edges ∪ reverse.(inc_edges))
+
+    g = named_grid((3, 3))
+    inc_edges = NamedEdge.([
+      (2, 1) => (1, 1),
+      (2, 1) => (3, 1),
+      (2, 1) => (2, 2),
+    ])
+    @test issetequal(incident_edges(g, (2, 1)), inc_edges)
+    @test issetequal(incident_edges(g, (2, 1); dir=:in), reverse.(inc_edges))
+    @test issetequal(incident_edges(g, (2, 1); dir=:out), inc_edges)
+    @test issetequal(incident_edges(g, (2, 1); dir=:both), inc_edges ∪ reverse.(inc_edges))
+
+    g = path_digraph(4)
+    @test issetequal(incident_edges(g, 3), Edge.([3 => 4]))
+    @test issetequal(incident_edges(g, 3; dir=:in), Edge.([2 => 3]))
+    @test issetequal(incident_edges(g, 3; dir=:out), Edge.([3 => 4]))
+    @test issetequal(incident_edges(g, 3; dir=:both), Edge.([2 => 3, 3 => 4]))
+
+    g = NamedDiGraph(path_digraph(4), ["A", "B", "C", "D"])
+    @test issetequal(incident_edges(g, "C"), NamedEdge.(["C" => "D"]))
+    @test issetequal(incident_edges(g, "C"; dir=:in), NamedEdge.(["B" => "C"]))
+    @test issetequal(incident_edges(g, "C"; dir=:out), NamedEdge.(["C" => "D"]))
+    @test issetequal(incident_edges(g, "C"; dir=:both), NamedEdge.(["B" => "C", "C" => "D"]))
+  end
+  @testset "merge_vertices" begin
+    g = named_grid((3, 3))
+    mg = merge_vertices(g, [(2, 2), (2, 3), (3, 3)])
+    @test nv(mg) == 7
+    @test ne(mg) == 9
+    merged_vertices = [
+      (1, 1),
+      (2, 1),
+      (3, 1),
+      (1, 2),
+      (2, 2),
+      (3, 2),
+      (1, 3),
+    ]
+    for v in merged_vertices
+      @test has_vertex(mg, v)
+    end
+    merged_edges = [
+      (1, 1) => (2, 1),
+      (1, 1) => (1, 2),
+      (2, 1) => (3, 1),
+      (2, 1) => (2, 2),
+      (3, 1) => (3, 2),
+      (1, 2) => (2, 2),
+      (1, 2) => (1, 3),
+      (2, 2) => (3, 2),
+      (2, 2) => (1, 3),
+    ]
+    for e in merged_edges
+      @test has_edge(mg, e)
+    end
+
+    sg = SimpleDiGraph(4)
+    g = NamedDiGraph(sg, ["A", "B", "C", "D"])
+    add_edge!(g, "A" => "B")
+    add_edge!(g, "B" => "C")
+    add_edge!(g, "C" => "D")
+    mg = merge_vertices(g, ["B", "C"])
+    @test ne(mg) == 2
+    @test has_edge(mg, "A" => "B")
+    @test has_edge(mg, "B" => "D")
+
+    sg = SimpleDiGraph(4)
+    g = NamedDiGraph(sg, ["A", "B", "C", "D"])
+    add_edge!(g, "B" => "A")
+    add_edge!(g, "C" => "B")
+    add_edge!(g, "D" => "C")
+    mg = merge_vertices(g, ["B", "C"])
+    @test ne(mg) == 2
+    @test has_edge(mg, "B" => "A")
+    @test has_edge(mg, "D" => "B")
   end
 end
