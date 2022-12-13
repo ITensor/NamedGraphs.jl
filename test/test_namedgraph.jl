@@ -1,4 +1,5 @@
 using Graphs
+using GraphsFlows
 using NamedGraphs
 using NamedGraphs.Dictionaries
 using Test
@@ -438,5 +439,39 @@ end
     @test ne(mg) == 2
     @test has_edge(mg, "B" => "A")
     @test has_edge(mg, "D" => "B")
+  end
+  @testset "mincut" begin
+    g = NamedGraph(path_graph(4), ["A", "B", "C", "D"])
+
+    part1, part2, flow = GraphsFlows.mincut(g, "A", "D")
+    @test issetequal(part1, ["A"])
+    @test issetequal(part2, ["B", "C", "D"])
+    @test flow == 1
+
+    part1, part2 = mincut_partitions(g, "A", "D")
+    @test issetequal(part1, ["A"])
+    @test issetequal(part2, ["B", "C", "D"])
+
+    part1, part2 = mincut_partitions(g)
+    @test issetequal(part1, ["B", "C", "D"])
+    @test issetequal(part2, ["A"])
+
+    weights = Dict{Tuple{String,String},Float64}()
+    weights["A", "B"] = 3
+    weights["B", "C"] = 2
+    weights["C", "D"] = 3
+
+    part1, part2, flow = GraphsFlows.mincut(g, "A", "D", weights)
+    @test issetequal(part1, ["A", "B"])
+    @test issetequal(part2, ["C", "D"])
+    @test flow == 2
+
+    part1, part2 = mincut_partitions(g, "A", "D", weights)
+    @test issetequal(part1, ["A", "B"])
+    @test issetequal(part2, ["C", "D"])
+
+    part1, part2 = mincut_partitions(g, weights)
+    @test issetequal(part1, ["C", "D"])
+    @test issetequal(part2, ["A", "B"])
   end
 end

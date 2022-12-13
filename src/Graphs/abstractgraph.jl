@@ -23,6 +23,18 @@ end
   return digraph
 end
 
+@traitfn function directed_graph(graph::AbstractSimpleGraph::(!IsDirected))
+  digraph = directed_graph(typeof(graph))()
+  for v in vertices(graph)
+    add_vertex!(digraph)
+  end
+  for e in edges(graph)
+    add_edge!(digraph, e)
+    add_edge!(digraph, reverse(e))
+  end
+  return digraph
+end
+
 @traitfn undirected_graph(graph::::(!IsDirected)) = graph
 
 # TODO: Handle metadata in a generic way
@@ -310,4 +322,12 @@ end
   isnothing(vertices) && return nothing
   pop!(vertices)
   return [edgetype(graph)(vertex, parent_vertex(graph, vertex)) for vertex in vertices]
+end
+
+function mincut_partitions(
+  graph::AbstractGraph,
+  distmx=weights(graph),
+)
+  parts = groupfind(first(mincut(graph, distmx)))
+  return parts[1], parts[2]
 end

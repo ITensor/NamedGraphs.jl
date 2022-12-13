@@ -78,6 +78,12 @@ function GenericNamedGraph(parent_graph::AbstractSimpleGraph, vertices)
 end
 
 #
+# Tautological constructors
+#
+
+GenericNamedGraph{V,G}(graph::GenericNamedGraph{V,G}) where {V,G} = copy(graph)
+
+#
 # Constructors from vertex names
 #
 

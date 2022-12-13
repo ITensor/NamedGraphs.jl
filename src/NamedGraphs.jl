@@ -1,8 +1,12 @@
 module NamedGraphs
 using AbstractTrees
 using Dictionaries
-using SimpleTraits
 using Graphs
+using GraphsFlows
+using LinearAlgebra
+using SimpleTraits
+using SparseArrays
+using SplitApplyCombine
 
 using Graphs.SimpleGraphs
 
@@ -42,6 +46,7 @@ import Graphs:
   is_weakly_connected,
   merge_vertices,
   merge_vertices!,
+  mincut,
   ne,
   neighbors,
   neighborhood,
@@ -80,9 +85,11 @@ include(joinpath("Graphs", "generators", "staticgraphs.jl"))
 include("abstractnamededge.jl")
 include("namededge.jl")
 include("abstractnamedgraph.jl")
+include("distances_and_capacities.jl")
 include("namedgraph.jl")
 include(joinpath("generators", "named_staticgraphs.jl"))
 
+# TODO: reexport Graphs.jl (except for `Graphs.contract`)
 export NamedGraph,
   NamedDiGraph,
   NamedEdge,
@@ -94,6 +101,8 @@ export NamedGraph,
   incident_edges,
   named_binary_tree,
   named_grid,
+  named_path_graph,
+  named_path_digraph,
   comb_tree,
   named_comb_tree,
   post_order_dfs_vertices,
@@ -105,6 +114,7 @@ export NamedGraph,
   indegrees,
   outdegree,
   outdegrees,
+  mincut_partitions,
   # Operations for tree-like graphs
   is_leaf,
   is_tree,
@@ -113,6 +123,9 @@ export NamedGraph,
   leaf_vertices,
   vertex_path,
   edge_path,
-  subgraph
+  subgraph,
+  # Graphs.jl
+  path_digraph,
+  path_graph
 
 end # module AbstractNamedGraphs
