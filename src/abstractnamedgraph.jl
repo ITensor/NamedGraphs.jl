@@ -309,21 +309,6 @@ function prim_mst(
   return parent_edges_to_edges(g, parent_mst)
 end
 
-for f in [
-  :bellman_ford_shortest_paths,
-  :desopo_pape_shortest_paths,
-  :dijkstra_shortest_paths,
-  :floyd_warshall_shortest_paths,
-  :johnson_shortest_paths,
-  :yen_k_shortest_paths,
-]
-  @eval begin
-    function $f(graph::AbstractNamedGraph, args...; kwargs...)
-      return not_implemented()
-    end
-  end
-end
-
 function add_edge!(graph::AbstractNamedGraph, edge::AbstractEdge)
   add_edge!(parent_graph(graph), edge_to_parent_edge(graph, edge))
   return graph

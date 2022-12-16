@@ -10,6 +10,9 @@ function _symmetrize(dist)
   return symmetrized_dist
 end
 
+getindex_dist_matrix(dist_matrix, I...) = dist_matrix[I...]
+getindex_dist_matrix(dist_matrix::AbstractDictionary, I...) = dist_matrix[I]
+
 function _dist_matrix_to_parent_dist_matrix(
   graph::AbstractNamedGraph,
   dist_matrix,
@@ -17,7 +20,7 @@ function _dist_matrix_to_parent_dist_matrix(
   parent_dist_matrix = spzeros(valtype(dist_matrix), nv(graph), nv(graph))
   for e in edges(graph)
     parent_e = edge_to_parent_edge(graph, e)
-    parent_dist_matrix[src(parent_e), dst(parent_e)] = dist_matrix[src(e), dst(e)]
+    parent_dist_matrix[src(parent_e), dst(parent_e)] = getindex_dist_matrix(dist_matrix, src(e), dst(e))
   end
   return parent_dist_matrix
 end

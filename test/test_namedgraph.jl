@@ -474,4 +474,17 @@ end
     @test issetequal(part1, ["C", "D"])
     @test issetequal(part2, ["A", "B"])
   end
+  @testset "dijkstra" begin
+    ## dijkstra_shortest_paths
+    ## dijkstra_tree
+    ## dijkstra_parents
+    ## dijkstra_mst
+  end
+  @testset "shortestpaths" begin
+    ## center
+    ## diameter
+    ## eccentricity
+    ## periphery
+    ## radius
+  end
 end
