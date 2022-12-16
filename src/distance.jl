@@ -35,12 +35,14 @@ end
 
 # function eccentricity(graph::AbstractNamedGraph, ::AbstractMatrix)
 
+eccentricities(graph::AbstractGraph) = eccentricities(graph, Indices(vertices(graph)))
+
 function eccentricities(
   graph::AbstractGraph,
-  vs=vertices(graph),
+  vs,
   distmx=weights(graph),
 )
-  return [eccentricity(graph, vertex, distmx) for vertex in vs]
+  return map(vertex -> eccentricity(graph, vertex, distmx), vs)
 end
 
 function _center(graph::AbstractNamedGraph, distmx)
@@ -58,8 +60,7 @@ function center(graph::AbstractNamedGraph, distmx::AbstractMatrix)
 end
 
 function _radius(graph::AbstractNamedGraph, distmx)
-  # TODO: Why does this return the parent vertices?
-  return parent_vertices_to_vertices(graph, radius(eccentricities(graph, vertices(graph), distmx)))
+  return radius(eccentricities(graph, vertices(graph), distmx))
 end
 
 function radius(graph::AbstractNamedGraph, distmx=weights(graph))
@@ -72,8 +73,7 @@ function radius(graph::AbstractNamedGraph, distmx::AbstractMatrix)
 end
 
 function _diameter(graph::AbstractNamedGraph, distmx)
-  # TODO: Why does this return the parent vertices?
-  return parent_vertices_to_vertices(graph, diameter(eccentricities(graph, vertices(graph), distmx)))
+  return diameter(eccentricities(graph, vertices(graph), distmx))
 end
 
 function diameter(graph::AbstractNamedGraph, distmx=weights(graph))

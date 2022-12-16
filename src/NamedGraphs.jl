@@ -7,12 +7,14 @@ using LinearAlgebra
 using SimpleTraits
 using SparseArrays
 using SplitApplyCombine
+using SymRCM
 
 using Graphs.SimpleGraphs
 
 # General utility functions
 not_implemented() = error("Not implemented")
 
+import Base: show, eltype, copy, getindex, convert, hcat, vcat, hvncat, union, zero
 # abstractnamedgraph.jl
 import Graphs:
   add_edge!,
@@ -76,8 +78,7 @@ import Graphs:
   src,
   tree,
   vertices
-
-import Base: show, eltype, copy, getindex, convert, hcat, vcat, hvncat, union, zero
+import SymRCM: symrcm
 
 # abstractnamededge.jl
 import Base: Pair, Tuple, show, ==, hash, eltype, convert
@@ -110,9 +111,14 @@ export NamedGraph,
   dijkstra_mst,
   dijkstra_parents,
   directed_graph,
+  permute_vertices,
+  symrcm,
+  symrcm_permute,
   undirected_graph,
   vertextype,
   # Graphs.jl
+  a_star,
+  adjacency_matrix,
   center,
   diameter,
   dijkstra_shortest_paths,

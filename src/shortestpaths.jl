@@ -1,18 +1,18 @@
 """
-    struct NamedDijkstraState{T,U}
+    struct NamedDijkstraState{V,T}
 
 An [`AbstractPathState`](@ref) designed for Dijkstra shortest-paths calculations.
 """
-struct NamedDijkstraState{T<:Real,U} <: Graphs.AbstractPathState
-  parents::Dictionary{U,U}
-  dists::Vector{T}
-  predecessors::Vector{Vector{U}}
-  pathcounts::Vector{Float64}
-  closest_vertices::Vector{U}
+struct NamedDijkstraState{V,T<:Real} <: Graphs.AbstractPathState
+  parents::Dictionary{V,V}
+  dists::Dictionary{V,T}
+  predecessors::Vector{Vector{V}}
+  pathcounts::Dictionary{V,Float64}
+  closest_vertices::Vector{V}
 end
 
 function NamedDijkstraState(parents, dists, predecessors, pathcounts, closest_vertices)
-  return NamedDijkstraState(
+  return NamedDijkstraState{eltype(dists),eltype(parents)}(
     parents,
     dists,
     convert.(Vector{eltype(parents)}, predecessors),
@@ -31,9 +31,9 @@ function parent_path_state_to_path_state(
   end
   return NamedDijkstraState(
     Dictionary(vertices(graph), parent_vertices_to_vertices(graph, parent_path_state_parents)),
-    parent_path_state.dists,
+    Dictionary(vertices(graph), parent_path_state.dists),
     map(x -> parent_vertices_to_vertices(graph, x), parent_path_state.predecessors),
-    parent_path_state.pathcounts,
+    Dictionary(vertices(graph), parent_path_state.pathcounts),
     parent_vertices_to_vertices(graph, parent_path_state.closest_vertices),
   )
 end

@@ -65,6 +65,19 @@ function rename_vertices(g::AbstractGraph, name_map)
   return rename_vertices(v -> name_map[v], g)
 end
 
+function permute_vertices(graph::AbstractGraph, permutation::Vector)
+  return subgraph(graph, vertices(graph)[permutation])
+end
+
+# SymRCM.symrcm overload
+function symrcm(graph::AbstractGraph)
+  return symrcm(adjacency_matrix(graph))
+end
+
+function symrcm_permute(graph::AbstractGraph)
+  return permute_vertices(graph, symrcm(graph))
+end
+
 # Returns just the edges of a directed graph,
 # but both edge directions of an undirected graph.
 # TODO: Move to NamedGraphs.jl

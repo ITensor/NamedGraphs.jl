@@ -475,16 +475,48 @@ end
     @test issetequal(part2, ["A", "B"])
   end
   @testset "dijkstra" begin
-    ## dijkstra_shortest_paths
-    ## dijkstra_tree
-    ## dijkstra_parents
-    ## dijkstra_mst
+    g = named_grid((3, 3))
+
+    srcs = [(1, 1), (2, 1), (3, 1), (1, 2), (2, 2), (3, 2), (1, 3), (2, 3), (3, 3)]
+    dsts = [(2, 1), (2, 2), (2, 1), (2, 2), (2, 2), (2, 2), (2, 3), (2, 2), (2, 3)]
+    parents = Dictionary(srcs, dsts)
+
+    d = dijkstra_shortest_paths(g, [(2, 2)])
+    @test d.dists == Dictionary(vertices(g), [2, 1, 2, 1, 0, 1, 2, 1, 2])
+    @test d.parents == parents
+    @test d.pathcounts == Dictionary(vertices(g), [2.0, 1.0, 2.0, 1.0, 1.0, 1.0, 2.0, 1.0, 2.0])
+
+    t = dijkstra_tree(g, (2, 2))
+    @test nv(t) == 9
+    @test ne(t) == 8
+    @test issetequal(vertices(t), vertices(g))
+    for v in vertices(g)
+      if parents[v] ≠ v
+        @test has_edge(t, parents[v] => v)
+      end
+    end
+
+    p = dijkstra_parents(g, (2, 2))
+    @test p == parents
+
+    mst = dijkstra_mst(g, (2, 2))
+    @test length(mst) == 8
+    for e in mst
+      @test parents[src(e)] == dst(e)
+    end
   end
-  @testset "shortestpaths" begin
-    ## center
-    ## diameter
-    ## eccentricity
-    ## periphery
-    ## radius
+  @testset "distances" begin
+    g = named_grid((3, 3))
+    @test eccentricity(g, (1, 1)) == 4
+    @test eccentricities(g, [(1, 2), (2, 2)]) == [3, 2]
+    @test eccentricities(g, Indices([(1, 2), (2, 2)])) == Dictionary([(1, 2), (2, 2)], [3, 2])
+    @test eccentricities(g) == Dictionary(vertices(g), [4, 3, 4, 3, 2, 3, 4, 3, 4])
+    @test center(g) == [(2, 2)]
+    @test radius(g) == 2
+    @test diameter(g) == 4
+    @test issetequal(periphery(g), [(1, 1), (3, 1), (1, 3), (3, 3)])
+  end
+  @test "Bandwidth minimization" begin
+    error("Not implemented")
   end
 end
