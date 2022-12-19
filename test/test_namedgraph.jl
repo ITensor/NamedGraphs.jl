@@ -516,7 +516,59 @@ end
     @test diameter(g) == 4
     @test issetequal(periphery(g), [(1, 1), (3, 1), (1, 3), (3, 3)])
   end
-  @test "Bandwidth minimization" begin
-    error("Not implemented")
+  @testset "Bandwidth minimization" begin
+    g₀ = NamedGraph(path_graph(5), ["A", "B", "C", "D", "E"])
+    p = [3, 1, 5, 4, 2]
+    g = permute_vertices(g₀, p)
+    @test g == g₀
+
+    gp = symrcm_permute(g)
+    @test g == gp
+
+    pp = symrcm(g)
+    @test pp == reverse(invperm(p))
+
+    gp′ = permute_vertices(g, pp)
+    @test g == gp′
+
+    A = adjacency_matrix(gp)
+    for i in 1:nv(g)
+      for j in 1:nv(g)
+        if abs(i - j) == 1
+          @test A[i, j] == A[j, i] == 1
+        else
+          @test A[i, j] == 0
+        end
+      end
+    end
+  end
+  @testset "boundary" begin
+    g = named_grid((5, 5))
+    subgraph_vertices = [
+      (2, 2),
+      (2, 3),
+      (2, 4),
+      (3, 2),
+      (3, 3),
+      (3, 4),
+      (4, 2),
+      (4, 3),
+      (4, 4),
+    ]
+    inner_vertices = setdiff(subgraph_vertices, [(3, 3)])
+    outer_vertices = setdiff(vertices(g), subgraph_vertices, periphery(g))
+    @test issetequal(boundary_vertices(g, subgraph_vertices), inner_vertices)
+    @test issetequal(inner_boundary_vertices(g, subgraph_vertices), inner_vertices)
+    @test issetequal(outer_boundary_vertices(g, subgraph_vertices), outer_vertices)
+    es = boundary_edges(g, subgraph_vertices)
+    @test length(es) == 12
+    @test eltype(es) <: NamedEdge
+    for v1 in inner_vertices
+      for v2 in outer_vertices
+        if has_edge(g, v1 => v2)
+          @test edgetype(g)(v1, v2) ∈ es
+        end
+      end
+    end
   end
 end

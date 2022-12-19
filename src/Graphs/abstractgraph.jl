@@ -69,13 +69,16 @@ function permute_vertices(graph::AbstractGraph, permutation::Vector)
   return subgraph(graph, vertices(graph)[permutation])
 end
 
-# SymRCM.symrcm overload
-function symrcm(graph::AbstractGraph)
-  return symrcm(adjacency_matrix(graph))
-end
-
-function symrcm_permute(graph::AbstractGraph)
-  return permute_vertices(graph, symrcm(graph))
+# Uniform interface for `outneighbors`, `inneighbors`, and `all_neighbors`
+function _neighbors(graph::AbstractGraph, vertex; dir=:out)
+  if dir == :out
+    return outneighbors(graph, vertex)
+  elseif dir == :in
+    return inneighbors(graph, vertex)
+  elseif dir == :both
+    return all_neighbors(graph, vertex)
+  end
+  return error("`_neighbors(graph::AbstractGraph, vertex; dir)` with `dir = $(dir) not implemented. Use either `dir = :out`, `dir = :in`, or `dir = :both`.")
 end
 
 # Returns just the edges of a directed graph,
@@ -187,10 +190,13 @@ function in_incident_edges(graph::AbstractGraph, vertex)
   ]
 end
 
+# TODO: Only return one set of `:out` edges for undirected graphs if `dir=:both`.
 function all_incident_edges(graph::AbstractGraph, vertex)
   return out_incident_edges(graph, vertex) ∪ in_incident_edges(graph, vertex)
 end
 
+# TODO: Same as `edges(subgraph(graph, [vertex; neighbors(graph, vertex)]))`.
+# TODO: Only return one set of `:out` edges for undirected graphs if `dir=:both`.
 """
     incident_edges(graph::AbstractGraph, vertex; dir=:out)
 
@@ -246,11 +252,13 @@ end
 end
 
 # Paths for undirected tree-like graphs
+# TODO: Use `a_star`.
 @traitfn function vertex_path(graph::::(!IsDirected), s, t)
   dfs_tree_graph = dfs_tree(graph, t)
   return vertex_path(dfs_tree_graph, s, t)
 end
 
+# TODO: Use `a_star`.
 @traitfn function edge_path(graph::::(!IsDirected), s, t)
   dfs_tree_graph = dfs_tree(graph, t)
   return edge_path(dfs_tree_graph, s, t)
@@ -320,7 +328,12 @@ end
 end
 
 # Paths for directed tree-like graphs
+# TODO: Use `a_star`, make specialized versions:
+# `vertex_path(graph::::IsTree, ...)`
+# or
+# `tree_vertex_path(graph, ...)`
 @traitfn function vertex_path(graph::::IsDirected, s, t)
+  # @assert is_tree(graph)
   vertices = eltype(graph)[s]
   while vertices[end] != t
     parent = parent_vertex(graph, vertices[end])
@@ -330,7 +343,12 @@ end
   return vertices
 end
 
+# TODO: Use `a_star`, make specialized versions:
+# `vertex_path(graph::::IsTree, ...)`
+# or
+# `tree_vertex_path(graph, ...)`
 @traitfn function edge_path(graph::::IsDirected, s, t)
+  # @assert is_tree(graph)
   vertices = vertex_path(graph, s, t)
   isnothing(vertices) && return nothing
   pop!(vertices)

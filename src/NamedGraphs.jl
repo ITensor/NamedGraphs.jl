@@ -87,6 +87,8 @@ import Graphs: AbstractEdge, src, dst, reverse, reverse!
 include(joinpath("Dictionaries", "dictionary.jl"))
 include(joinpath("Graphs", "abstractgraph.jl"))
 include(joinpath("Graphs", "shortestpaths.jl"))
+include(joinpath("Graphs", "boundary.jl"))
+include(joinpath("Graphs", "symrcm.jl"))
 include(joinpath("Graphs", "simplegraph.jl"))
 include(joinpath("Graphs", "generators", "staticgraphs.jl"))
 include("abstractnamededge.jl")
@@ -108,9 +110,13 @@ export NamedGraph,
   named_path_graph,
   named_path_digraph,
   # AbstractGraph
+  boundary_edges,
+  boundary_vertices,
   dijkstra_mst,
   dijkstra_parents,
   directed_graph,
+  inner_boundary_vertices,
+  outer_boundary_vertices,
   permute_vertices,
   symrcm,
   symrcm_permute,
