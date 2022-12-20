@@ -571,4 +571,20 @@ end
       end
     end
   end
+  @testset "steiner_tree" begin
+    g = named_grid((3, 5))
+    terminal_vertices = [(1, 2), (1, 4), (3, 4)]
+    st = steiner_tree(g, terminal_vertices)
+    es = [
+      (1, 2) => (1, 3),
+      (1, 3) => (1, 4),
+      (1, 4) => (2, 4),
+      (2, 4) => (3, 4),
+    ]
+    @test ne(st) == 4
+    @test nv(st) == 12
+    for e in es
+      @test has_edge(st, e)
+    end
+  end
 end

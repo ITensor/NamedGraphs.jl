@@ -17,20 +17,24 @@ not_implemented() = error("Not implemented")
 import Base: show, eltype, copy, getindex, convert, hcat, vcat, hvncat, union, zero
 # abstractnamedgraph.jl
 import Graphs:
+  a_star,
   add_edge!,
   add_vertex!,
   add_vertices!,
   adjacency_matrix,
   all_neighbors,
+  bellman_ford_shortest_paths,
   bfs_parents,
   bfs_tree,
   blockdiag,
+  boruvka_mst,
   center,
   common_neighbors,
   connected_components,
   connected_components!,
   degree,
   degree_histogram,
+  desopo_pape_shortest_paths,
   diameter,
   dijkstra_shortest_paths,
   dst,
@@ -39,6 +43,8 @@ import Graphs:
   eccentricity,
   edges,
   edgetype,
+  enumerate_paths,
+  floyd_warshall_shortest_paths,
   has_edge,
   has_path,
   has_vertex,
@@ -50,6 +56,8 @@ import Graphs:
   is_directed,
   is_strongly_connected,
   is_weakly_connected,
+  johnson_shortest_paths,
+  kruskal_mst,
   merge_vertices,
   merge_vertices!,
   mincut,
@@ -57,27 +65,20 @@ import Graphs:
   neighbors,
   neighborhood,
   neighborhood_dists,
-  outdegree,
-  a_star,
-  bellman_ford_shortest_paths,
-  enumerate_paths,
-  desopo_pape_shortest_paths,
-  floyd_warshall_shortest_paths,
-  johnson_shortest_paths,
-  spfa_shortest_paths,
-  yen_k_shortest_paths,
-  boruvka_mst,
-  kruskal_mst,
-  prim_mst,
   nv,
+  outdegree,
   outneighbors,
+  prim_mst,
   periphery,
   radius,
   rem_vertex!,
   rem_edge!,
+  spfa_shortest_paths,
   src,
+  steiner_tree,
   tree,
-  vertices
+  vertices,
+  yen_k_shortest_paths
 import SymRCM: symrcm
 
 # abstractnamededge.jl
@@ -97,6 +98,7 @@ include("abstractnamedgraph.jl")
 include("shortestpaths.jl")
 include("distance.jl")
 include("distances_and_capacities.jl")
+include(joinpath("steiner_tree", "steiner_tree.jl"))
 include("namedgraph.jl")
 include(joinpath("generators", "named_staticgraphs.jl"))
 
@@ -112,15 +114,23 @@ export NamedGraph,
   # AbstractGraph
   boundary_edges,
   boundary_vertices,
+  child_vertices,
   dijkstra_mst,
   dijkstra_parents,
   directed_graph,
+  edge_path,
   inner_boundary_vertices,
+  is_leaf,
+  is_tree,
+  leaf_vertices,
   outer_boundary_vertices,
   permute_vertices,
+  parent_vertex,
+  subgraph,
   symrcm,
   symrcm_permute,
   undirected_graph,
+  vertex_path,
   vertextype,
   # Graphs.jl
   a_star,
@@ -152,15 +162,7 @@ export NamedGraph,
   outdegree,
   outdegrees,
   mincut_partitions,
-  weights,
-  # Operations for tree-like graphs
-  is_leaf,
-  is_tree,
-  parent_vertex,
-  child_vertices,
-  leaf_vertices,
-  vertex_path,
-  edge_path,
-  subgraph
+  steiner_tree,
+  weights
 
 end # module AbstractNamedGraphs
