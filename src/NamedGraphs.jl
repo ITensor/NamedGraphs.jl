@@ -76,6 +76,7 @@ import Graphs:
   spfa_shortest_paths,
   src,
   steiner_tree,
+  topological_sort_by_dfs,
   tree,
   vertices,
   yen_k_shortest_paths
@@ -99,6 +100,7 @@ include("shortestpaths.jl")
 include("distance.jl")
 include("distances_and_capacities.jl")
 include(joinpath("steiner_tree", "steiner_tree.jl"))
+include(joinpath("traversals", "dfs.jl"))
 include("namedgraph.jl")
 include(joinpath("generators", "named_staticgraphs.jl"))
 

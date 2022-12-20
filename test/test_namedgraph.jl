@@ -587,4 +587,16 @@ end
       @test has_edge(st, e)
     end
   end
+  @testset "topological_sort_by_dfs" begin
+    g = NamedDiGraph(["A", "B", "C", "D", "E", "F", "G"])
+    add_edge!(g, "A" => "D")
+    add_edge!(g, "B" => "D")
+    add_edge!(g, "B" => "E")
+    add_edge!(g, "C" => "E")
+    add_edge!(g, "D" => "F")
+    add_edge!(g, "D" => "G")
+    add_edge!(g, "E" => "G")
+    t = topological_sort_by_dfs(g)
+    @test t == ["C", "B", "E", "A", "D", "G", "F"]
+  end
 end
