@@ -1,4 +1,5 @@
 using Graphs
+using GraphsFlows
 using NamedGraphs
 using NamedGraphs.Dictionaries
 using Test
@@ -438,5 +439,164 @@ end
     @test ne(mg) == 2
     @test has_edge(mg, "B" => "A")
     @test has_edge(mg, "D" => "B")
+  end
+  @testset "mincut" begin
+    g = NamedGraph(path_graph(4), ["A", "B", "C", "D"])
+
+    part1, part2, flow = GraphsFlows.mincut(g, "A", "D")
+    @test issetequal(part1, ["A"])
+    @test issetequal(part2, ["B", "C", "D"])
+    @test flow == 1
+
+    part1, part2 = mincut_partitions(g, "A", "D")
+    @test issetequal(part1, ["A"])
+    @test issetequal(part2, ["B", "C", "D"])
+
+    part1, part2 = mincut_partitions(g)
+    @test issetequal(part1, ["B", "C", "D"])
+    @test issetequal(part2, ["A"])
+
+    weights = Dict{Tuple{String,String},Float64}()
+    weights["A", "B"] = 3
+    weights["B", "C"] = 2
+    weights["C", "D"] = 3
+
+    part1, part2, flow = GraphsFlows.mincut(g, "A", "D", weights)
+    @test issetequal(part1, ["A", "B"])
+    @test issetequal(part2, ["C", "D"])
+    @test flow == 2
+
+    part1, part2 = mincut_partitions(g, "A", "D", weights)
+    @test issetequal(part1, ["A", "B"])
+    @test issetequal(part2, ["C", "D"])
+
+    part1, part2 = mincut_partitions(g, weights)
+    @test issetequal(part1, ["C", "D"])
+    @test issetequal(part2, ["A", "B"])
+  end
+  @testset "dijkstra" begin
+    g = named_grid((3, 3))
+
+    srcs = [(1, 1), (2, 1), (3, 1), (1, 2), (2, 2), (3, 2), (1, 3), (2, 3), (3, 3)]
+    dsts = [(2, 1), (2, 2), (2, 1), (2, 2), (2, 2), (2, 2), (2, 3), (2, 2), (2, 3)]
+    parents = Dictionary(srcs, dsts)
+
+    d = dijkstra_shortest_paths(g, [(2, 2)])
+    @test d.dists == Dictionary(vertices(g), [2, 1, 2, 1, 0, 1, 2, 1, 2])
+    @test d.parents == parents
+    @test d.pathcounts == Dictionary(vertices(g), [2.0, 1.0, 2.0, 1.0, 1.0, 1.0, 2.0, 1.0, 2.0])
+
+    t = dijkstra_tree(g, (2, 2))
+    @test nv(t) == 9
+    @test ne(t) == 8
+    @test issetequal(vertices(t), vertices(g))
+    for v in vertices(g)
+      if parents[v] ≠ v
+        @test has_edge(t, parents[v] => v)
+      end
+    end
+
+    p = dijkstra_parents(g, (2, 2))
+    @test p == parents
+
+    mst = dijkstra_mst(g, (2, 2))
+    @test length(mst) == 8
+    for e in mst
+      @test parents[src(e)] == dst(e)
+    end
+  end
+  @testset "distances" begin
+    g = named_grid((3, 3))
+    @test eccentricity(g, (1, 1)) == 4
+    @test eccentricities(g, [(1, 2), (2, 2)]) == [3, 2]
+    @test eccentricities(g, Indices([(1, 2), (2, 2)])) == Dictionary([(1, 2), (2, 2)], [3, 2])
+    @test eccentricities(g) == Dictionary(vertices(g), [4, 3, 4, 3, 2, 3, 4, 3, 4])
+    @test center(g) == [(2, 2)]
+    @test radius(g) == 2
+    @test diameter(g) == 4
+    @test issetequal(periphery(g), [(1, 1), (3, 1), (1, 3), (3, 3)])
+  end
+  @testset "Bandwidth minimization" begin
+    g₀ = NamedGraph(path_graph(5), ["A", "B", "C", "D", "E"])
+    p = [3, 1, 5, 4, 2]
+    g = permute_vertices(g₀, p)
+    @test g == g₀
+
+    gp = symrcm_permute(g)
+    @test g == gp
+
+    pp = symrcm(g)
+    @test pp == reverse(invperm(p))
+
+    gp′ = permute_vertices(g, pp)
+    @test g == gp′
+
+    A = adjacency_matrix(gp)
+    for i in 1:nv(g)
+      for j in 1:nv(g)
+        if abs(i - j) == 1
+          @test A[i, j] == A[j, i] == 1
+        else
+          @test A[i, j] == 0
+        end
+      end
+    end
+  end
+  @testset "boundary" begin
+    g = named_grid((5, 5))
+    subgraph_vertices = [
+      (2, 2),
+      (2, 3),
+      (2, 4),
+      (3, 2),
+      (3, 3),
+      (3, 4),
+      (4, 2),
+      (4, 3),
+      (4, 4),
+    ]
+    inner_vertices = setdiff(subgraph_vertices, [(3, 3)])
+    outer_vertices = setdiff(vertices(g), subgraph_vertices, periphery(g))
+    @test issetequal(boundary_vertices(g, subgraph_vertices), inner_vertices)
+    @test issetequal(inner_boundary_vertices(g, subgraph_vertices), inner_vertices)
+    @test issetequal(outer_boundary_vertices(g, subgraph_vertices), outer_vertices)
+    es = boundary_edges(g, subgraph_vertices)
+    @test length(es) == 12
+    @test eltype(es) <: NamedEdge
+    for v1 in inner_vertices
+      for v2 in outer_vertices
+        if has_edge(g, v1 => v2)
+          @test edgetype(g)(v1, v2) ∈ es
+        end
+      end
+    end
+  end
+  @testset "steiner_tree" begin
+    g = named_grid((3, 5))
+    terminal_vertices = [(1, 2), (1, 4), (3, 4)]
+    st = steiner_tree(g, terminal_vertices)
+    es = [
+      (1, 2) => (1, 3),
+      (1, 3) => (1, 4),
+      (1, 4) => (2, 4),
+      (2, 4) => (3, 4),
+    ]
+    @test ne(st) == 4
+    @test nv(st) == 12
+    for e in es
+      @test has_edge(st, e)
+    end
+  end
+  @testset "topological_sort_by_dfs" begin
+    g = NamedDiGraph(["A", "B", "C", "D", "E", "F", "G"])
+    add_edge!(g, "A" => "D")
+    add_edge!(g, "B" => "D")
+    add_edge!(g, "B" => "E")
+    add_edge!(g, "C" => "E")
+    add_edge!(g, "D" => "F")
+    add_edge!(g, "D" => "G")
+    add_edge!(g, "E" => "G")
+    t = topological_sort_by_dfs(g)
+    @test t == ["C", "B", "E", "A", "D", "G", "F"]
   end
 end

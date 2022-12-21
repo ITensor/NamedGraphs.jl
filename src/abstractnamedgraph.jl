@@ -24,6 +24,8 @@ function parent_vertex_to_vertex(graph::AbstractNamedGraph, parent_vertex)
   return vertices(graph)[parent_vertex]
 end
 
+Graphs.SimpleDiGraph(graph::AbstractNamedGraph) = SimpleDiGraph(parent_graph(graph))
+
 # Convenient shorthands for using in higher order functions like `map`.
 vertex_to_parent_vertex(graph::AbstractNamedGraph) = Base.Fix1(vertex_to_parent_vertex, graph)
 parent_vertex_to_vertex(graph::AbstractNamedGraph) = Base.Fix1(parent_vertex_to_vertex, graph)
@@ -176,14 +178,6 @@ function degree_histogram(g::AbstractNamedGraph, degfn=degree)
   return hist
 end
 
-function dist_matrix_to_parent_dist_matrix(graph::AbstractNamedGraph, distmx)
-  not_implemented()
-end
-
-function dist_matrix_to_parent_dist_matrix(graph::AbstractNamedGraph, distmx::Graphs.DefaultDistance)
-  return distmx
-end
-
 function neighborhood(graph::AbstractNamedGraph, vertex, d, distmx=weights(graph); dir=:out)
   parent_distmx = dist_matrix_to_parent_dist_matrix(graph, distmx)
   parent_vertices = neighborhood(parent_graph(graph), vertex_to_parent_vertex(graph, vertex), d, parent_distmx; dir)
@@ -198,6 +192,69 @@ function neighborhood_dists(graph::AbstractNamedGraph, vertex, d, distmx=weights
   return [
     (parent_vertex_to_vertex(graph, parent_vertex), dist) for (parent_vertex, dist) in parent_vertices_and_dists
   ]
+end
+
+function _mincut(
+  graph::AbstractNamedGraph,
+  distmx,
+)
+  parent_distmx = dist_matrix_to_parent_dist_matrix(graph, distmx)
+  parent_parity, bestcut = mincut(parent_graph(graph), parent_distmx)
+  return Dictionary(vertices(graph), parent_parity), bestcut
+end
+
+function mincut(
+  graph::AbstractNamedGraph,
+  distmx=weights(graph),
+)
+  return _mincut(graph, distmx)
+end
+
+function mincut(
+  graph::AbstractNamedGraph,
+  distmx::AbstractMatrix{<:Real},
+)
+  return _mincut(graph, distmx)
+end
+
+@traitfn function GraphsFlows.mincut(
+  graph::AbstractNamedGraph::IsDirected,
+  source,
+  target,
+  capacity_matrix=DefaultNamedCapacity(graph),
+  algorithm::GraphsFlows.AbstractFlowAlgorithm=PushRelabelAlgorithm(),
+)
+  parent_part1, parent_part2, flow = GraphsFlows.mincut(
+    directed_graph(parent_graph(graph)),
+    vertex_to_parent_vertex(graph, source),
+    vertex_to_parent_vertex(graph, target),
+    dist_matrix_to_parent_dist_matrix(graph, capacity_matrix),
+    algorithm,
+  )
+  part1 = parent_vertices_to_vertices(graph, parent_part1)
+  part2 = parent_vertices_to_vertices(graph, parent_part2)
+  return (part1, part2, flow)
+end
+
+@traitfn function GraphsFlows.mincut(
+  graph::AbstractNamedGraph::(!IsDirected),
+  source,
+  target,
+  capacity_matrix=DefaultNamedCapacity(graph),
+  algorithm::GraphsFlows.AbstractFlowAlgorithm=PushRelabelAlgorithm(),
+)
+  return GraphsFlows.mincut(directed_graph(graph), source, target, _symmetrize(capacity_matrix), algorithm)
+end
+
+function mincut_partitions(
+  graph::AbstractGraph,
+  source,
+  target,
+  capacity_matrix=DefaultNamedCapacity(graph),
+  algorithm::GraphsFlows.AbstractFlowAlgorithm=PushRelabelAlgorithm(),
+)
+  part1, part2, flow = GraphsFlows.mincut(graph, source, target, capacity_matrix, algorithm)
+  return part1, part2
 end
 
 function a_star(
@@ -250,21 +307,6 @@ function prim_mst(
 )
   parent_mst = prim_mst(parent_graph(g), distmx)
   return parent_edges_to_edges(g, parent_mst)
-end
-
-for f in [
-  :bellman_ford_shortest_paths,
-  :desopo_pape_shortest_paths,
-  :dijkstra_shortest_paths,
-  :floyd_warshall_shortest_paths,
-  :johnson_shortest_paths,
-  :yen_k_shortest_paths,
-]
-  @eval begin
-    function $f(graph::AbstractNamedGraph, args...; kwargs...)
-      return not_implemented()
-    end
-  end
 end
 
 function add_edge!(graph::AbstractNamedGraph, edge::AbstractEdge)
@@ -454,22 +496,6 @@ end
 # Disambiguation from Graphs.bfs_tree
 bfs_parents(graph::AbstractNamedGraph, vertex::Integer; kwargs...) = _bfs_parents(graph, vertex; kwargs...)
 bfs_parents(graph::AbstractNamedGraph, vertex; kwargs...) = _bfs_parents(graph, vertex; kwargs...)
-
-_dfs_tree(graph::AbstractNamedGraph, vertex; kwargs...) = tree(graph, dfs_parents(graph, vertex; kwargs...))
-dfs_tree(graph::AbstractNamedGraph, vertex::Integer; kwargs...) = _dfs_tree(graph, vertex; kwargs...)
-dfs_tree(graph::AbstractNamedGraph, vertex; kwargs...) = _dfs_tree(graph, vertex; kwargs...)
-
-# Returns a Dictionary mapping a vertex to it's parent
-# vertex in the traversal/spanning tree.
-function _dfs_parents(graph::AbstractNamedGraph, vertex; kwargs...)
-  parent_dfs_parents = dfs_parents(
-    parent_graph(graph), vertex_to_parent_vertex(graph, vertex); kwargs...
-  )
-  return Dictionary(vertices(graph), parent_vertices_to_vertices(graph, parent_dfs_parents))
-end
-# Disambiguation from Graphs.dfs_tree
-dfs_parents(graph::AbstractNamedGraph, vertex::Integer; kwargs...) = _dfs_parents(graph, vertex; kwargs...)
-dfs_parents(graph::AbstractNamedGraph, vertex; kwargs...) = _dfs_parents(graph, vertex; kwargs...)
 
 #
 # Printing

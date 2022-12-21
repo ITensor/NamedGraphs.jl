@@ -57,7 +57,15 @@ function named_binary_tree(
   return named_bfs_tree(simple_graph, source; source_name, child_name)
 end
 
-function named_grid(dim::Int; kwargs...)
+function named_path_graph(dim::Integer)
+  return NamedGraph(path_graph(dim))
+end
+
+function named_path_digraph(dim::Integer)
+  return NamedDiGraph(path_digraph(dim))
+end
+
+function named_grid(dim::Integer; kwargs...)
   simple_graph = grid((dim,); kwargs...)
   return NamedGraph(simple_graph)
 end
