@@ -504,6 +504,17 @@ end
     for e in mst
       @test parents[src(e)] == dst(e)
     end
+
+    g = named_grid(4)
+
+    srcs = [1, 2, 3, 4]
+    dsts = [2, 2, 2, 3]
+    parents = Dictionary(srcs, dsts)
+
+    d = dijkstra_shortest_paths(g, [2])
+    @test d.dists == Dictionary(vertices(g), [1, 0, 1, 2])
+    @test d.parents == parents
+    @test d.pathcounts == Dictionary(vertices(g), [1.0, 1.0, 1.0, 1.0])
   end
   @testset "distances" begin
     g = named_grid((3, 3))

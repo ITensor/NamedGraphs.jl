@@ -64,6 +64,16 @@ function dijkstra_shortest_paths(
   return _dijkstra_shortest_paths(graph, srcs, distmx; kwargs...)
 end
 
+# Fix ambiguity error with `AbstractGraph` version
+function dijkstra_shortest_paths(
+  graph::AbstractNamedGraph,
+  srcs::Vector{<:Integer},
+  distmx::AbstractMatrix{<:Real}=weights(graph);
+  kwargs...,
+)
+  return _dijkstra_shortest_paths(graph, srcs, distmx; kwargs...)
+end
+
 function dijkstra_shortest_paths(
   graph::AbstractNamedGraph,
   vertex::Integer,
