@@ -392,23 +392,27 @@ end
     @test issetequal(part1, ["B", "C", "D"])
     @test issetequal(part2, ["A"])
 
-    weights = Dict{Tuple{String,String},Float64}()
-    weights["A", "B"] = 3
-    weights["B", "C"] = 2
-    weights["C", "D"] = 3
+    weights_dict = Dict{Tuple{String,String},Float64}()
+    weights_dict["A", "B"] = 3
+    weights_dict["B", "C"] = 2
+    weights_dict["C", "D"] = 3
 
-    part1, part2, flow = GraphsFlows.mincut(g, "A", "D", weights)
-    @test issetequal(part1, ["A", "B"])
-    @test issetequal(part2, ["C", "D"])
-    @test flow == 2
+    weights_dictionary = Dictionary(keys(weights_dict), values(weights_dict))
 
-    part1, part2 = mincut_partitions(g, "A", "D", weights)
-    @test issetequal(part1, ["A", "B"])
-    @test issetequal(part2, ["C", "D"])
+    for weights in (weights_dict, weights_dictionary)
+      part1, part2, flow = GraphsFlows.mincut(g, "A", "D", weights)
+      @test issetequal(part1, ["A", "B"])
+      @test issetequal(part2, ["C", "D"])
+      @test flow == 2
 
-    part1, part2 = mincut_partitions(g, weights)
-    @test issetequal(part1, ["C", "D"])
-    @test issetequal(part2, ["A", "B"])
+      part1, part2 = mincut_partitions(g, "A", "D", weights)
+      @test issetequal(part1, ["A", "B"])
+      @test issetequal(part2, ["C", "D"])
+
+      part1, part2 = mincut_partitions(g, weights)
+      @test issetequal(part1, ["C", "D"])
+      @test issetequal(part2, ["A", "B"])
+    end
   end
   @testset "dijkstra" begin
     g = named_grid((3, 3))

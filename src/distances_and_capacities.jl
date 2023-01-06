@@ -10,6 +10,14 @@ function _symmetrize(dist)
   return symmetrized_dist
 end
 
+function _symmetrize(dist::AbstractDictionary)
+  symmetrized_dist = copy_keys_values(dist)
+  for k in keys(dist)
+    insert!(symmetrized_dist, reverse(k), dist[k])
+  end
+  return symmetrized_dist
+end
+
 getindex_dist_matrix(dist_matrix, I...) = dist_matrix[I...]
 getindex_dist_matrix(dist_matrix::AbstractDictionary, I...) = dist_matrix[I]
 
