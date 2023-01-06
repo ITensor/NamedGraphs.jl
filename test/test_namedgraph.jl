@@ -69,27 +69,9 @@ end
     @test issetequal(neighborhood(g, (1, 1), nv(g)), vertices(g))
     @test issetequal(neighborhood(g, (1, 1), 0), [(1, 1)])
     @test issetequal(neighborhood(g, (1, 1), 1), [(1, 1), (2, 1), (1, 2)])
-    ns = [
-      (1, 1),
-      (2, 1),
-      (1, 2),
-      (3, 1),
-      (2, 2),
-      (1, 3),
-    ]
+    ns = [(1, 1), (2, 1), (1, 2), (3, 1), (2, 2), (1, 3)]
     @test issetequal(neighborhood(g, (1, 1), 2), ns)
-    ns = [
-      (1, 1),
-      (2, 1),
-      (1, 2),
-      (3, 1),
-      (2, 2),
-      (1, 3),
-      (4, 1),
-      (3, 2),
-      (2, 3),
-      (1, 4),
-    ]
+    ns = [(1, 1), (2, 1), (1, 2), (3, 1), (2, 2), (1, 3), (4, 1), (3, 2), (2, 3), (1, 4)]
     @test issetequal(neighborhood(g, (1, 1), 3), ns)
     ns = [
       (1, 1),
@@ -194,27 +176,9 @@ end
 
     p = bfs_parents(g, (1, 1))
     @test length(p) == 9
-    vertices_g = [
-      (1, 1),
-      (2, 1),
-      (3, 1),
-      (1, 2),
-      (2, 2),
-      (3, 2),
-      (1, 3),
-      (2, 3),
-      (3, 3),
-    ]
+    vertices_g = [(1, 1), (2, 1), (3, 1), (1, 2), (2, 2), (3, 2), (1, 3), (2, 3), (3, 3)]
     parent_vertices = [
-      (1, 1),
-      (1, 1),
-      (2, 1),
-      (1, 1),
-      (2, 1),
-      (3, 1),
-      (1, 2),
-      (2, 2),
-      (3, 2),
+      (1, 1), (1, 1), (2, 1), (1, 1), (2, 1), (3, 1), (1, 2), (2, 2), (3, 2)
     ]
     d = Dictionary(vertices_g, parent_vertices)
     for v in vertices(g)
@@ -251,27 +215,9 @@ end
 
     p = dfs_parents(g, (1, 1))
     @test length(p) == 9
-    vertices_g = [
-      (1, 1),
-      (2, 1),
-      (3, 1),
-      (1, 2),
-      (2, 2),
-      (3, 2),
-      (1, 3),
-      (2, 3),
-      (3, 3),
-    ]
+    vertices_g = [(1, 1), (2, 1), (3, 1), (1, 2), (2, 2), (3, 2), (1, 3), (2, 3), (3, 3)]
     parent_vertices = [
-      (1, 1),
-      (1, 1),
-      (2, 1),
-      (2, 2),
-      (3, 2),
-      (3, 1),
-      (1, 2),
-      (1, 3),
-      (2, 3),
+      (1, 1), (1, 1), (2, 1), (2, 2), (3, 2), (3, 1), (1, 2), (1, 3), (2, 3)
     ]
     d = Dictionary(vertices_g, parent_vertices)
     for v in vertices(g)
@@ -312,12 +258,12 @@ end
     @test es isa Vector{NamedEdge{Tuple{Int,Int}}}
 
     for f in (
-     bellman_ford_shortest_paths,
-     desopo_pape_shortest_paths,
-     dijkstra_shortest_paths,
-     floyd_warshall_shortest_paths,
-     johnson_shortest_paths,
-     yen_k_shortest_paths,
+      bellman_ford_shortest_paths,
+      desopo_pape_shortest_paths,
+      dijkstra_shortest_paths,
+      floyd_warshall_shortest_paths,
+      johnson_shortest_paths,
+      yen_k_shortest_paths,
     )
       @test_broken f(g, "A")
     end
@@ -366,11 +312,7 @@ end
     @test issetequal(incident_edges(g, 2; dir=:both), inc_edges ∪ reverse.(inc_edges))
 
     g = named_grid((3, 3))
-    inc_edges = NamedEdge.([
-      (2, 1) => (1, 1),
-      (2, 1) => (3, 1),
-      (2, 1) => (2, 2),
-    ])
+    inc_edges = NamedEdge.([(2, 1) => (1, 1), (2, 1) => (3, 1), (2, 1) => (2, 2)])
     @test issetequal(incident_edges(g, (2, 1)), inc_edges)
     @test issetequal(incident_edges(g, (2, 1); dir=:in), reverse.(inc_edges))
     @test issetequal(incident_edges(g, (2, 1); dir=:out), inc_edges)
@@ -386,22 +328,16 @@ end
     @test issetequal(incident_edges(g, "C"), NamedEdge.(["C" => "D"]))
     @test issetequal(incident_edges(g, "C"; dir=:in), NamedEdge.(["B" => "C"]))
     @test issetequal(incident_edges(g, "C"; dir=:out), NamedEdge.(["C" => "D"]))
-    @test issetequal(incident_edges(g, "C"; dir=:both), NamedEdge.(["B" => "C", "C" => "D"]))
+    @test issetequal(
+      incident_edges(g, "C"; dir=:both), NamedEdge.(["B" => "C", "C" => "D"])
+    )
   end
   @testset "merge_vertices" begin
     g = named_grid((3, 3))
     mg = merge_vertices(g, [(2, 2), (2, 3), (3, 3)])
     @test nv(mg) == 7
     @test ne(mg) == 9
-    merged_vertices = [
-      (1, 1),
-      (2, 1),
-      (3, 1),
-      (1, 2),
-      (2, 2),
-      (3, 2),
-      (1, 3),
-    ]
+    merged_vertices = [(1, 1), (2, 1), (3, 1), (1, 2), (2, 2), (3, 2), (1, 3)]
     for v in merged_vertices
       @test has_vertex(mg, v)
     end
@@ -484,7 +420,8 @@ end
     d = dijkstra_shortest_paths(g, [(2, 2)])
     @test d.dists == Dictionary(vertices(g), [2, 1, 2, 1, 0, 1, 2, 1, 2])
     @test d.parents == parents
-    @test d.pathcounts == Dictionary(vertices(g), [2.0, 1.0, 2.0, 1.0, 1.0, 1.0, 2.0, 1.0, 2.0])
+    @test d.pathcounts ==
+      Dictionary(vertices(g), [2.0, 1.0, 2.0, 1.0, 1.0, 1.0, 2.0, 1.0, 2.0])
 
     t = dijkstra_tree(g, (2, 2))
     @test nv(t) == 9
@@ -520,7 +457,8 @@ end
     g = named_grid((3, 3))
     @test eccentricity(g, (1, 1)) == 4
     @test eccentricities(g, [(1, 2), (2, 2)]) == [3, 2]
-    @test eccentricities(g, Indices([(1, 2), (2, 2)])) == Dictionary([(1, 2), (2, 2)], [3, 2])
+    @test eccentricities(g, Indices([(1, 2), (2, 2)])) ==
+      Dictionary([(1, 2), (2, 2)], [3, 2])
     @test eccentricities(g) == Dictionary(vertices(g), [4, 3, 4, 3, 2, 3, 4, 3, 4])
     @test center(g) == [(2, 2)]
     @test radius(g) == 2
@@ -556,15 +494,7 @@ end
   @testset "boundary" begin
     g = named_grid((5, 5))
     subgraph_vertices = [
-      (2, 2),
-      (2, 3),
-      (2, 4),
-      (3, 2),
-      (3, 3),
-      (3, 4),
-      (4, 2),
-      (4, 3),
-      (4, 4),
+      (2, 2), (2, 3), (2, 4), (3, 2), (3, 3), (3, 4), (4, 2), (4, 3), (4, 4)
     ]
     inner_vertices = setdiff(subgraph_vertices, [(3, 3)])
     outer_vertices = setdiff(vertices(g), subgraph_vertices, periphery(g))
@@ -586,12 +516,7 @@ end
     g = named_grid((3, 5))
     terminal_vertices = [(1, 2), (1, 4), (3, 4)]
     st = steiner_tree(g, terminal_vertices)
-    es = [
-      (1, 2) => (1, 3),
-      (1, 3) => (1, 4),
-      (1, 4) => (2, 4),
-      (2, 4) => (3, 4),
-    ]
+    es = [(1, 2) => (1, 3), (1, 3) => (1, 4), (1, 4) => (2, 4), (2, 4) => (3, 4)]
     @test ne(st) == 4
     @test nv(st) == 12
     for e in es

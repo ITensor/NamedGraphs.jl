@@ -331,5 +331,9 @@ This file was generated with [weave.jl](https://github.com/JunoLab/Weave.jl) wit
 
 ```julia
 using NamedGraphs, Weave
-weave(joinpath(pkgdir(NamedGraphs), "examples", "README.jl"); doctype="github", out_path=pkgdir(NamedGraphs))
+weave(
+  joinpath(pkgdir(NamedGraphs), "examples", "README.jl");
+  doctype="github",
+  out_path=pkgdir(NamedGraphs),
+)
 ```

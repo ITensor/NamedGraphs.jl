@@ -1,27 +1,14 @@
-function dijkstra_parents(
-  graph::AbstractGraph,
-  vertex,
-  distmx=weights(graph)
-)
+function dijkstra_parents(graph::AbstractGraph, vertex, distmx=weights(graph))
   return dijkstra_shortest_paths(
-    graph,
-    [vertex],
-    distmx;
-    allpaths=false,
-    trackvertices=false).parents
+    graph, [vertex], distmx; allpaths=false, trackvertices=false
+  ).parents
 end
 
-function dijkstra_mst(
-  graph::AbstractGraph,
-  vertex,
-  distmx=weights(graph)
-) 
-  parents = dijkstra_shortest_paths(
-    graph,
-    [vertex],
-    distmx;
-    allpaths=false,
-    trackvertices=false).parents
+function dijkstra_mst(graph::AbstractGraph, vertex, distmx=weights(graph))
+  parents =
+    dijkstra_shortest_paths(
+      graph, [vertex], distmx; allpaths=false, trackvertices=false
+    ).parents
   mst = Vector{edgetype(graph)}()
   for src in eachindex(parents)
     dst = parents[src]
@@ -32,10 +19,6 @@ function dijkstra_mst(
   return mst
 end
 
-function dijkstra_tree(
-  graph::AbstractGraph,
-  vertex,
-  distmx=weights(graph),
-)
+function dijkstra_tree(graph::AbstractGraph, vertex, distmx=weights(graph))
   return tree(graph, dijkstra_parents(graph, vertex, distmx))
 end

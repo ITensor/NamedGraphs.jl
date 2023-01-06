@@ -1,7 +1,5 @@
 @traitfn function steiner_tree(
-  g::AbstractNamedGraph::(!IsDirected),
-  term_vert,
-  distmx=weights(g),
+  g::AbstractNamedGraph::(!IsDirected), term_vert, distmx=weights(g)
 )
   parent_tree = steiner_tree(
     parent_graph(g),
