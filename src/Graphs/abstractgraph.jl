@@ -78,7 +78,9 @@ function _neighbors(graph::AbstractGraph, vertex; dir=:out)
   elseif dir == :both
     return all_neighbors(graph, vertex)
   end
-  return error("`_neighbors(graph::AbstractGraph, vertex; dir)` with `dir = $(dir) not implemented. Use either `dir = :out`, `dir = :in`, or `dir = :both`.")
+  return error(
+    "`_neighbors(graph::AbstractGraph, vertex; dir)` with `dir = $(dir) not implemented. Use either `dir = :out`, `dir = :in`, or `dir = :both`.",
+  )
 end
 
 # Returns just the edges of a directed graph,
@@ -180,13 +182,15 @@ end
 
 function out_incident_edges(graph::AbstractGraph, vertex)
   return [
-    edgetype(graph)(vertex, neighbor_vertex) for neighbor_vertex in outneighbors(graph, vertex)
+    edgetype(graph)(vertex, neighbor_vertex) for
+    neighbor_vertex in outneighbors(graph, vertex)
   ]
 end
 
 function in_incident_edges(graph::AbstractGraph, vertex)
   return [
-    edgetype(graph)(neighbor_vertex, vertex) for neighbor_vertex in inneighbors(graph, vertex)
+    edgetype(graph)(neighbor_vertex, vertex) for
+    neighbor_vertex in inneighbors(graph, vertex)
   ]
 end
 
@@ -355,10 +359,7 @@ end
   return [edgetype(graph)(vertex, parent_vertex(graph, vertex)) for vertex in vertices]
 end
 
-function mincut_partitions(
-  graph::AbstractGraph,
-  distmx=weights(graph),
-)
+function mincut_partitions(graph::AbstractGraph, distmx=weights(graph))
   parts = groupfind(first(mincut(graph, distmx)))
   return parts[1], parts[2]
 end

@@ -22,15 +22,16 @@ function NamedDijkstraState(parents, dists, predecessors, pathcounts, closest_ve
 end
 
 function parent_path_state_to_path_state(
-  graph::AbstractNamedGraph,
-  parent_path_state::Graphs.DijkstraState,
+  graph::AbstractNamedGraph, parent_path_state::Graphs.DijkstraState
 )
   parent_path_state_parents = map(eachindex(parent_path_state.parents)) do i
     pᵢ = parent_path_state.parents[i]
     return iszero(pᵢ) ? i : pᵢ
   end
   return NamedDijkstraState(
-    Dictionary(vertices(graph), parent_vertices_to_vertices(graph, parent_path_state_parents)),
+    Dictionary(
+      vertices(graph), parent_vertices_to_vertices(graph, parent_path_state_parents)
+    ),
     Dictionary(vertices(graph), parent_path_state.dists),
     map(x -> parent_vertices_to_vertices(graph, x), parent_path_state.predecessors),
     Dictionary(vertices(graph), parent_path_state.pathcounts),
@@ -56,19 +57,23 @@ function _dijkstra_shortest_paths(
 end
 
 function dijkstra_shortest_paths(
+  graph::AbstractNamedGraph, srcs, distmx=weights(graph); kwargs...
+)
+  return _dijkstra_shortest_paths(graph, srcs, distmx; kwargs...)
+end
+
+# Fix ambiguity error with `AbstractGraph` version
+function dijkstra_shortest_paths(
   graph::AbstractNamedGraph,
-  srcs,
-  distmx=weights(graph);
+  srcs::Vector{<:Integer},
+  distmx::AbstractMatrix{<:Real}=weights(graph);
   kwargs...,
 )
   return _dijkstra_shortest_paths(graph, srcs, distmx; kwargs...)
 end
 
 function dijkstra_shortest_paths(
-  graph::AbstractNamedGraph,
-  vertex::Integer,
-  distmx::AbstractMatrix;
-  kwargs...,
+  graph::AbstractNamedGraph, vertex::Integer, distmx::AbstractMatrix; kwargs...
 )
   return _dijkstra_shortest_paths(graph, [vertex], distmx; kwargs...)
 end

@@ -8,7 +8,9 @@ end
 parent_graph_type(G::Type{<:GenericNamedGraph}) = fieldtype(G, :parent_graph)
 parent_graph(graph::GenericNamedGraph) = getfield(graph, :parent_graph)
 vertices(graph::GenericNamedGraph) = getfield(graph, :vertices)
-vertex_to_parent_vertex(graph::GenericNamedGraph, vertex) = graph.vertex_to_parent_vertex[vertex]
+function vertex_to_parent_vertex(graph::GenericNamedGraph, vertex)
+  return graph.vertex_to_parent_vertex[vertex]
+end
 
 function convert_vertextype(V::Type, graph::GenericNamedGraph)
   return GenericNamedGraph(parent_graph(graph), convert(Vector{V}, vertices(graph)))
@@ -47,9 +49,7 @@ function GenericNamedGraph{V,G}(
   )
 end
 
-function GenericNamedGraph{V,G}(
-  parent_graph::AbstractSimpleGraph, vertices
-) where {V,G}
+function GenericNamedGraph{V,G}(parent_graph::AbstractSimpleGraph, vertices) where {V,G}
   return GenericNamedGraph{V,G}(parent_graph, to_vertices(V, vertices))
 end
 
@@ -63,9 +63,7 @@ function GenericNamedGraph{<:Any,G}(
   return GenericNamedGraph{eltype(vertices),G}(parent_graph, vertices)
 end
 
-function GenericNamedGraph{<:Any,G}(
-  parent_graph::AbstractSimpleGraph, vertices
-) where {G}
+function GenericNamedGraph{<:Any,G}(parent_graph::AbstractSimpleGraph, vertices) where {G}
   return GenericNamedGraph{<:Any,G}(parent_graph, to_vertices(vertices))
 end
 

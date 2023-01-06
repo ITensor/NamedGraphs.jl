@@ -109,4 +109,8 @@ rename_vertices(v -> v[1], subgraph(v -> v[2] == 2, g₁ ⊔ g₂))
 #+ eval=false
 
 using NamedGraphs, Weave
-weave(joinpath(pkgdir(NamedGraphs), "examples", "README.jl"); doctype="github", out_path=pkgdir(NamedGraphs))
+weave(
+  joinpath(pkgdir(NamedGraphs), "examples", "README.jl");
+  doctype="github",
+  out_path=pkgdir(NamedGraphs),
+)
