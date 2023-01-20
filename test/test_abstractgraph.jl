@@ -55,6 +55,13 @@ using NamedGraphs
     [net1((1, 2), (1, 1)), net1((1, 1), (2, 1)), net1((2, 1), (2, 2))]
   @test isnothing(vertex_path(dng1, (1, 2), (3, 2)))
   @test isnothing(edge_path(dng1, (1, 2), (3, 2)))
+
+  @test is_path_graph(path_graph(4))
+  @test is_path_graph(named_path_graph(4))
+  @test is_path_graph(grid((3,)))
+  @test is_path_graph(named_grid((3,)))
+  @test !is_path_graph(grid((3, 3)))
+  @test !is_path_graph(named_grid((3, 3)))
 end
 
 @testset "Tree graph leaf vertices" begin

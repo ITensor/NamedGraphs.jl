@@ -180,6 +180,22 @@ function is_tree(graph::AbstractGraph)
   return (ne(graph) == nv(graph) - 1) && is_connected(graph)
 end
 
+"""
+TODO: Make this more sophisticated, check that
+only two vertices have degree 1 and none have
+degree 0, meaning it is a path/linear graph:
+
+https://en.wikipedia.org/wiki/Path_graph
+
+but not a path/linear forest:
+
+https://en.wikipedia.org/wiki/Linear_forest
+"""
+function is_path_graph(graph::AbstractGraph)
+  # Maximum degree
+  return Δ(graph) == 2
+end
+
 function out_incident_edges(graph::AbstractGraph, vertex)
   return [
     edgetype(graph)(vertex, neighbor_vertex) for
