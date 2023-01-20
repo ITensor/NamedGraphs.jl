@@ -63,6 +63,16 @@ end
     @test has_path(g, "A", "C")
     @test has_path(g, "D", "E")
     @test !has_path(g, "A", "E")
+
+    g = named_path_graph(4)
+    @test degree(g, 1) == 1
+    @test indegree(g, 1) == 1
+    @test outdegree(g, 1) == 1
+    @test degree(g, 2) == 2
+    @test indegree(g, 2) == 2
+    @test outdegree(g, 2) == 2
+    @test Δ(g) == 2
+    @test δ(g) == 1
   end
   @testset "neighborhood" begin
     g = named_grid((4, 4))

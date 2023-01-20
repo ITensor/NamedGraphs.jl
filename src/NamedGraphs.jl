@@ -14,7 +14,19 @@ using Graphs.SimpleGraphs
 # General utility functions
 not_implemented() = error("Not implemented")
 
-import Base: show, eltype, copy, getindex, convert, hcat, vcat, hvncat, union, zero
+import Base:
+  convert,
+  copy,
+  eltype,
+  getindex,
+  hcat,
+  hvncat,
+  show,
+  to_index,
+  to_indices,
+  union,
+  vcat,
+  zero
 # abstractnamedgraph.jl
 import Graphs:
   a_star,
@@ -86,6 +98,7 @@ import SymRCM: symrcm
 import Base: Pair, Tuple, show, ==, hash, eltype, convert
 import Graphs: AbstractEdge, src, dst, reverse, reverse!
 
+include(joinpath("Base", "key.jl"))
 include(joinpath("Dictionaries", "dictionary.jl"))
 include(joinpath("Graphs", "abstractgraph.jl"))
 include(joinpath("Graphs", "shortestpaths.jl"))
@@ -108,6 +121,7 @@ include(joinpath("generators", "named_staticgraphs.jl"))
 export NamedGraph,
   NamedDiGraph,
   NamedEdge,
+  Key,
   ⊔,
   named_binary_tree,
   named_grid,
@@ -123,6 +137,7 @@ export NamedGraph,
   edge_path,
   inner_boundary_vertices,
   is_leaf,
+  is_path_graph,
   is_tree,
   leaf_vertices,
   outer_boundary_vertices,

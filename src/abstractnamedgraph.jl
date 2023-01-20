@@ -162,13 +162,29 @@ end
 
 common_neighbors(g::AbstractNamedGraph, u, v) = intersect(neighbors(g, u), neighbors(g, v))
 
-indegree(graph::AbstractNamedGraph, vertex) = length(inneighbors(graph, vertex))
-outdegree(graph::AbstractNamedGraph, vertex) = length(outneighbors(graph, vertex))
+_indegree(graph::AbstractNamedGraph, vertex) = length(inneighbors(graph, vertex))
+_outdegree(graph::AbstractNamedGraph, vertex) = length(outneighbors(graph, vertex))
 
-@traitfn function degree(graph::AbstractNamedGraph::IsDirected, vertex)
+indegree(graph::AbstractNamedGraph, vertex) = _indegree(graph, vertex)
+outdegree(graph::AbstractNamedGraph, vertex) = _outdegree(graph, vertex)
+
+# Fix for ambiguity error with `AbstractGraph` version
+indegree(graph::AbstractNamedGraph, vertex::Integer) = _indegree(graph, vertex)
+outdegree(graph::AbstractNamedGraph, vertex::Integer) = _outdegree(graph, vertex)
+
+@traitfn function _degree(graph::AbstractNamedGraph::IsDirected, vertex)
   return indegree(graph, vertex) + outdegree(graph, vertex)
 end
-@traitfn degree(graph::AbstractNamedGraph::(!IsDirected), vertex) = indegree(graph, vertex)
+@traitfn _degree(graph::AbstractNamedGraph::(!IsDirected), vertex) = indegree(graph, vertex)
+
+function degree(graph::AbstractNamedGraph, vertex)
+  return _degree(graph::AbstractNamedGraph, vertex)
+end
+
+# Fix for ambiguity error with `AbstractGraph` version
+function degree(graph::AbstractNamedGraph, vertex::Integer)
+  return _degree(graph::AbstractNamedGraph, vertex)
+end
 
 function degree_histogram(g::AbstractNamedGraph, degfn=degree)
   hist = Dictionary{Int,Int}()
