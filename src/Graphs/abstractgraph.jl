@@ -389,9 +389,9 @@ function rem_edges!(g::AbstractGraph, edges)
 end
 
 function rem_edges(g::AbstractGraph, edges)
-  g_out = copy(g)
+  g = copy(g)
   rem_edges!(g, edges)
-  return g_out
+  return g
 end
 
 
@@ -404,9 +404,9 @@ function add_edges!(g::AbstractGraph, edges)
 end
 
 function add_edges(g::AbstractGraph, edges)
-  g_out = copy(g)
+  g = copy(g)
   add_edges!(g, edges)
-  return g_out
+  return g
 end
 
 
