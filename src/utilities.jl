@@ -1,5 +1,5 @@
 """Remove a list of edges from a graph g"""
-function remove_edges(g::AbstractGraph, edges)
+function rem_edges(g::AbstractGraph, edges)
     g_out = copy(g)
     for e in edges
         rem_edge!(g_out, e)
@@ -8,7 +8,7 @@ function remove_edges(g::AbstractGraph, edges)
     return g_out
 end
 
-function remove_edges!(g::AbstractGraph, edges)
+function rem_edges!(g::AbstractGraph, edges)
     for e in edges
         rem_edge!(g, e)
     end
