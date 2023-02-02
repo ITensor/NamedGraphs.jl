@@ -394,7 +394,6 @@ function rem_edges(g::AbstractGraph, edges)
   return g
 end
 
-
 """Add a list of edges to a graph g"""
 function add_edges!(g::AbstractGraph, edges)
   for e in edges
@@ -408,5 +407,3 @@ function add_edges(g::AbstractGraph, edges)
   add_edges!(g, edges)
   return g
 end
-
-
