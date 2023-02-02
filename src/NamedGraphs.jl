@@ -116,6 +116,7 @@ include(joinpath("steiner_tree", "steiner_tree.jl"))
 include(joinpath("traversals", "dfs.jl"))
 include("namedgraph.jl")
 include(joinpath("generators", "named_staticgraphs.jl"))
+include("utilities.jl")
 
 # TODO: reexport Graphs.jl (except for `Graphs.contract`)
 export NamedGraph,
