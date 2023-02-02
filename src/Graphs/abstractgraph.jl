@@ -379,3 +379,31 @@ function mincut_partitions(graph::AbstractGraph, distmx=weights(graph))
   parts = groupfind(first(mincut(graph, distmx)))
   return parts[1], parts[2]
 end
+
+"""Remove a list of edges from a graph g"""
+function rem_edges!(g::AbstractGraph, edges)
+  for e in edges
+    rem_edge!(g, e)
+  end
+  return g
+end
+
+function rem_edges(g::AbstractGraph, edges)
+  g = copy(g)
+  rem_edges!(g, edges)
+  return g
+end
+
+"""Add a list of edges to a graph g"""
+function add_edges!(g::AbstractGraph, edges)
+  for e in edges
+    add_edge!(g, e)
+  end
+  return g
+end
+
+function add_edges(g::AbstractGraph, edges)
+  g = copy(g)
+  add_edges!(g, edges)
+  return g
+end
