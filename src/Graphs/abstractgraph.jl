@@ -261,6 +261,11 @@ end
   return post_order_dfs_vertices(dfs_tree_graph, root_vertex)
 end
 
+@traitfn function pre_order_dfs_vertices(graph::::(!IsDirected), root_vertex)
+  dfs_tree_graph = dfs_tree(graph, root_vertex)
+  return pre_order_dfs_vertices(dfs_tree_graph, root_vertex)
+end
+
 @traitfn function post_order_dfs_edges(graph::::(!IsDirected), root_vertex)
   dfs_tree_graph = dfs_tree(graph, root_vertex)
   return post_order_dfs_edges(dfs_tree_graph, root_vertex)
@@ -334,6 +339,10 @@ end
   # @assert is_tree(graph)
   # Outputs a rooted directed tree (https://en.wikipedia.org/wiki/Arborescence_(graph_theory))
   return [node.vertex for node in PostOrderDFS(TreeGraph(graph, root_vertex))]
+end
+
+@traitfn function pre_order_dfs_vertices(graph::::IsDirected, root_vertex)
+  return [node.vertex for node in PreOrderDFS(TreeGraph(graph, root_vertex))]
 end
 
 # Traverse the tree using a [post-order depth-first search](https://en.wikipedia.org/wiki/Tree_traversal#Depth-first_search), returning the edges where the source is the current vertex and the destination is the parent vertex.
