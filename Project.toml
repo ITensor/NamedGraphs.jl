@@ -17,7 +17,7 @@ SymRCM = "286e6d88-80af-4590-acc9-0001b223b9bd"
 [compat]
 AbstractTrees = "0.3, 0.4"
 Dictionaries = "0.3"
-Graphs = "1"
+Graphs = "1.8"
 GraphsFlows = "0.1.1"
 SimpleTraits = "0.9"
 SplitApplyCombine = "1.2.2"
