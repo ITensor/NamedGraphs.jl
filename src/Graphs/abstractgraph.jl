@@ -423,10 +423,10 @@ function random_bfs_tree(g::AbstractGraph, s)
     v = rand(Q)
     setdiff!(Q, [v])
     for vn in neighbors(g, v)
-      if(d[vn] > d[v] + 1)
+      if (d[vn] > d[v] + 1)
         d[vn] = d[v] + 1
-        if(vn ∉ Q)
-          if(vn ∉ visited)
+        if (vn ∉ Q)
+          if (vn ∉ visited)
             add_edge!(g_out, v => vn)
             push!(visited, vn)
           end
@@ -437,5 +437,4 @@ function random_bfs_tree(g::AbstractGraph, s)
   end
 
   return g_out
-
 end
