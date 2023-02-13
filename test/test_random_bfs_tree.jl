@@ -4,7 +4,7 @@ using NamedGraphs: random_bfs_tree
 using Graphs
 using Random
 
-@testset "Random BFs Tree" begin
+@testset "Random Bfs Tree" begin
   g = named_grid((10, 10))
 
   s = (5,5)
