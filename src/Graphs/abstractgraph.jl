@@ -175,11 +175,6 @@ end
 #   return hvncat(dim, graph1, graph2; kwargs...)
 # end
 
-# https://github.com/JuliaGraphs/Graphs.jl/issues/34
-function is_tree(graph::AbstractGraph)
-  return (ne(graph) == nv(graph) - 1) && is_connected(graph)
-end
-
 """
 TODO: Make this more sophisticated, check that
 only two vertices have degree 1 and none have
