@@ -413,13 +413,20 @@ function add_edges(g::AbstractGraph, edges)
 end
 
 """ Do a BFS search to construct a tree, but do it with randomness to avoid generating the same tree. Based on Int. J. Comput. Their Appl. 15 pp 177-186 (2008). Edges will point away from source vertex s."""
-function random_bfs_tree(g::AbstractGraph, s)
+function random_bfs_tree(g::AbstractGraph, s; max_iter = nothing)
   Q = [s]
-  d = Dict([v ≠ s ? (v, Inf) : (v, 0) for v in vertices(g)])
+  d = map(v -> v == s ? 0.0 : Inf, Indices(vertices(g)))
   visited = [s]
   g_out = NamedDiGraph(vertices(g))
 
-  while !isempty(Q)
+  nv, ne = length(vertices(g)), length(edges(g))
+  if(max_iter == nothing)
+    max_iter = 1000*(nv + ne)
+  end
+
+  isempty_Q = false
+  for iter in 1:max_iter
+  
     v = rand(Q)
     setdiff!(Q, [v])
     for vn in neighbors(g, v)
@@ -434,6 +441,14 @@ function random_bfs_tree(g::AbstractGraph, s)
         end
       end
     end
+  
+    isempty_Q = isempty(Q)
+    if isempty_Q
+      break
+    end
+  end
+  if !isempty_Q
+    error("Search failed to cover the graph in time. Consider increasing max_iter.")
   end
 
   return g_out
