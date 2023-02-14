@@ -413,7 +413,7 @@ function add_edges(g::AbstractGraph, edges)
 end
 
 """ Do a BFS search to construct a tree, but do it with randomness to avoid generating the same tree. Based on Int. J. Comput. Their Appl. 15 pp 177-186 (2008). Edges will point away from source vertex s."""
-function random_bfs_tree(g::AbstractGraph, s; maxiter=(1000 * (nv(g) + ne(g)^2)))
+function random_bfs_tree(g::AbstractGraph, s; maxiter=1000 * (nv(g) + ne(g)))
   Q = [s]
   d = map(v -> v == s ? 0.0 : Inf, Indices(vertices(g)))
   visited = [s]
