@@ -442,7 +442,7 @@ function random_bfs_tree(g::AbstractGraph, s; maxiter=1000 * (nv(g) + ne(g)))
     end
   end
   if !isempty_Q
-    error("Search failed to cover the graph in time. Consider increasing max_iter.")
+    error("Search failed to cover the graph in time. Consider increasing maxiter.")
   end
 
   return g_out
