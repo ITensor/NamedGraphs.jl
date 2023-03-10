@@ -438,6 +438,7 @@ end
       Dictionary(vertices(g), [2.0, 1.0, 2.0, 1.0, 1.0, 1.0, 2.0, 1.0, 2.0])
 
     # Regression test
+    # https://github.com/mtfishman/NamedGraphs.jl/pull/34
     vertex_map = v -> v[1] > 1 ? (v, 1) : v
     g̃ = rename_vertices(vertex_map, g)
     d = dijkstra_shortest_paths(g̃, [((2, 2), 1)])
