@@ -437,6 +437,15 @@ end
     @test d.pathcounts ==
       Dictionary(vertices(g), [2.0, 1.0, 2.0, 1.0, 1.0, 1.0, 2.0, 1.0, 2.0])
 
+    # Regression test
+    vertex_map = v -> v[1] > 1 ? (v, 1) : v
+    g̃ = rename_vertices(vertex_map, g)
+    d = dijkstra_shortest_paths(g̃, [((2, 2), 1)])
+    @test d.dists == Dictionary(vertices(g̃), [2, 1, 2, 1, 0, 1, 2, 1, 2])
+    @test d.parents == Dictionary(map(vertex_map, srcs), map(vertex_map, dsts))
+    @test d.pathcounts ==
+      Dictionary(vertices(g̃), [2.0, 1.0, 2.0, 1.0, 1.0, 1.0, 2.0, 1.0, 2.0])
+
     t = dijkstra_tree(g, (2, 2))
     @test nv(t) == 9
     @test ne(t) == 8

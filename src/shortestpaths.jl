@@ -12,7 +12,7 @@ struct NamedDijkstraState{V,T<:Real} <: Graphs.AbstractPathState
 end
 
 function NamedDijkstraState(parents, dists, predecessors, pathcounts, closest_vertices)
-  return NamedDijkstraState{eltype(dists),eltype(parents)}(
+  return NamedDijkstraState{keytype(parents),eltype(dists)}(
     parents,
     dists,
     convert.(Vector{eltype(parents)}, predecessors),
