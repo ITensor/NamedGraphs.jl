@@ -447,4 +447,3 @@ function random_bfs_tree(g::AbstractGraph, s; maxiter=1000 * (nv(g) + ne(g)))
 
   return g_out
 end
-
