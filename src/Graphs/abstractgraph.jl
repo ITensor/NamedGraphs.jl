@@ -448,10 +448,3 @@ function random_bfs_tree(g::AbstractGraph, s; maxiter=1000 * (nv(g) + ne(g)))
   return g_out
 end
 
-"""Contract two vertices u and v into one vertex. Default is for u to represent the name of the merged vertex"""
-function contracted_nodes(g::AbstractGraph, u, v; new_vertex_name = u)
-  g = copy(g)
-  v_edges = filter(e -> src(e) == v || dst(e) == v, edges(g))
-
-  return g
-end
