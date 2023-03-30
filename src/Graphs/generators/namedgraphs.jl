@@ -36,3 +36,40 @@ function hexagonal_lattice_graph(m::Int64, n::Int64; periodic=false)
 
   return G
 end
+
+"""Generate a graph which corresponds to a equilateral triangle tiling of the plane. There are m rows and n columns of triangles.
+Based off of the generator in Networkx triangular_lattice_graph()"""
+function triangular_lattice_graph(m::Int64, n::Int64; periodic=false)
+  N = floor(Int64, (n + 1) / 2.0)
+  rows = [i for i in 1:(m + 1)]
+  cols = [i for i in 1:(N + 1)]
+
+  if periodic && (n < 5 || m < 3)
+    error("Periodic Triangular Lattice needs m > 2, n > 4")
+  end
+
+  G = NamedGraph([(i, j) for i in cols for j in rows])
+
+  grid_edges1 = [(i, j) => (i + 1, j) for j in rows for i in cols[1:N]]
+  grid_edges2 = [(i, j) => (i, j + 1) for j in rows[1:m] for i in cols]
+  add_edges!(G, vcat(grid_edges1, grid_edges2))
+
+  diagonal_edges1 = [(i, j) => (i + 1, j + 1) for j in rows[2:2:m] for i in cols[1:N]]
+  diagonal_edges2 = [(i + 1, j) => (i, j + 1) for j in rows[1:2:m] for i in cols[1:N]]
+  add_edges!(G, vcat(diagonal_edges1, diagonal_edges2))
+
+  if periodic == true
+    for i in cols
+      G = merge_vertices(G, [(i, 1), (i, m + 1)])
+    end
+
+    for j in rows[1:m]
+      G = merge_vertices(G, [(1, j), (N + 1, j)])
+    end
+
+  elseif n % 2 == 1
+    rem_vertices!(G, [(N + 1, j) for j in rows[2:2:(m + 1)]])
+  end
+
+  return G
+end

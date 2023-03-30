@@ -1,6 +1,6 @@
 using Test
 using NamedGraphs
-using NamedGraphs: hexagonal_lattice_graph
+using NamedGraphs: hexagonal_lattice_graph, triangular_lattice_graph
 using Graphs
 using Random
 
@@ -19,4 +19,19 @@ using Random
   g = hexagonal_lattice_graph(6, 6; periodic=true)
   degree_dist = [length(neighbors(g, v)) for v in vertices(g)]
   @test all(d -> d == 3, degree_dist)
+
+  g = triangular_lattice_graph(1, 1)
+
+  #Should just be 1 hexagon
+  @test is_path_graph(g)
+
+  #Check consistency with the output of hexagonal_lattice_graph(7,7) in networkx
+  g = triangular_lattice_graph(7, 7)
+  @test length(vertices(g)) == 36
+  @test length(edges(g)) == 84
+
+  #Check all vertices have degree 3 in the periodic case
+  g = triangular_lattice_graph(6, 6; periodic=true)
+  degree_dist = [length(neighbors(g, v)) for v in vertices(g)]
+  @test all(d -> d == 6, degree_dist)
 end
