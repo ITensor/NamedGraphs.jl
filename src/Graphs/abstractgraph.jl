@@ -412,6 +412,21 @@ function add_edges(g::AbstractGraph, edges)
   return g
 end
 
+"""Remove a list of vertices from a graph g"""
+function rem_vertices!(g::AbstractGraph, vs)
+  for v in vs
+    rem_vertex!(g, v)
+  end
+
+  return g
+end
+
+function rem_vertices(g::AbstractGraph, vs)
+  g = copy(g)
+  rem_vertices!(g, vs)
+  return g
+end
+
 """ Do a BFS search to construct a tree, but do it with randomness to avoid generating the same tree. Based on Int. J. Comput. Their Appl. 15 pp 177-186 (2008). Edges will point away from source vertex s."""
 function random_bfs_tree(g::AbstractGraph, s; maxiter=1000 * (nv(g) + ne(g)))
   Q = [s]
