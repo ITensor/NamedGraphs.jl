@@ -275,7 +275,7 @@ function mincut_partitions(
   return part1, part2
 end
 
-function a_star(
+function _a_star(
   graph::AbstractNamedGraph,
   source,
   destination,
@@ -293,6 +293,29 @@ function a_star(
     SimpleEdge,
   )
   return parent_edges_to_edges(graph, parent_shortest_path)
+end
+
+function a_star(
+  graph::AbstractNamedGraph,
+  source,
+  destination,
+  distmx=weights(graph),
+  heuristic::Function=(v -> zero(eltype(distmx))),
+  edgetype_to_return=edgetype(graph),
+)
+  return _a_star(graph, source, destination, distmx, heuristic, edgetype_to_return)
+end
+
+# Fix ambiguity error with `AbstractGraph` version
+function a_star(
+  graph::AbstractNamedGraph{U},
+  source::Integer,
+  destination::Integer,
+  distmx::AbstractMatrix{T}=weights(graph),
+  heuristic::Function=(v -> zero(eltype(distmx))),
+  edgetype_to_return::Type{E}=edgetype(graph),
+) where {T<:Real,U<:Integer,E<:AbstractEdge}
+  return _a_star(graph, source, destination, distmx, heuristic, edgetype_to_return)
 end
 
 function spfa_shortest_paths(graph::AbstractNamedGraph, vertex, distmx=weights(graph))
