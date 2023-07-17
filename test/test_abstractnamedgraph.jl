@@ -87,6 +87,7 @@ end
   @test has_vertex(ndg_int, 1)
   @test has_edge(ndg_int, 1 => 2)
   @test has_edge(ndg_int, 2 => 4)
+  @test length(a_star(ndg_int, 1, 4)) == 2
   # rename to strings
   vmap_string = Dictionary(vertices(ndg), string_names)
   ndg_string = rename_vertices(ndg, vmap_string)
@@ -94,6 +95,7 @@ end
   @test has_vertex(ndg_string, "A")
   @test has_edge(ndg_string, "A" => "B")
   @test has_edge(ndg_string, "B" => "D")
+  @test length(a_star(ndg_string, "A", "D")) == 2
   # rename to strings
   vmap_tuple = Dictionary(vertices(ndg), tuple_names)
   ndg_tuple = rename_vertices(ndg, vmap_tuple)
@@ -101,12 +103,14 @@ end
   @test has_vertex(ndg_tuple, ("X", 1))
   @test has_edge(ndg_tuple, ("X", 1) => ("X", 2))
   @test has_edge(ndg_tuple, ("X", 2) => ("Y", 2))
+  @test length(a_star(ndg_tuple, ("X", 1), ("Y", 2))) == 2
   # rename with name map function
   ndg_function = rename_vertices(function_name, ndg_tuple)
   @test isa(ndg_function, NamedGraph{Tuple{Int,String}})
   @test has_vertex(ndg_function, (1, "X"))
   @test has_edge(ndg_function, (1, "X") => (2, "X"))
   @test has_edge(ndg_function, (2, "X") => (2, "Y"))
+  @test length(a_star(ndg_function, (1, "X"), (2, "Y"))) == 2
 
   # NamedDiGraph
   nddg = NamedDiGraph(DiGraph(collect(edges(g))), vertices(ndg))
