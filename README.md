@@ -327,7 +327,7 @@ and 4 edge(s):
 
 
 
-This file was generated with [weave.jl](https://github.com/JunoLab/Weave.jl) with the following commands:
+This file was generated with [Weave.jl](https://github.com/JunoLab/Weave.jl) with the following commands:
 
 ```julia
 using NamedGraphs, Weave
