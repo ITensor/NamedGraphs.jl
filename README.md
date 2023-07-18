@@ -277,13 +277,13 @@ and 8 edge(s):
 
 
 The symbol `⊔` is just an alias for `disjoint_union` and can be written in the terminal
-or in your favorite [ide with the appropriate Julia extension](https://julialang.org/) with `\sqcup<tab>`
+or in your favorite [IDE with the appropriate Julia extension](https://julialang.org/) with `\sqcup<tab>`
 
 
 
 By default, this maps the vertices `v₁ ∈ vertices(g₁)` to `(v₁, 1)` and the vertices `v₂ ∈ vertices(g₂)`
-to `(v₂, 1)`, so the resulting vertices of the unioned graph will always be unique.
-The resulting graph will have no edges between vertices `(v₁, 1)` and `(v₂, 1)`, these would have to
+to `(v₂, 2)`, so the resulting vertices of the unioned graph will always be unique.
+The resulting graph will have no edges between vertices `(v₁, 1)` and `(v₂, 2)`, these would have to
 be added manually.
 
 
