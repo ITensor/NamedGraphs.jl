@@ -25,6 +25,15 @@ using Random
   #Should just be 1 triangle
   @test is_path_graph(g)
 
+  g = hexagonal_lattice_graph(2, 1)
+  dims = maximum(vertices(g))
+  @test dims[1] > dims[2]
+
+  g = triangular_lattice_graph(2, 1)
+  @show g
+  dims = maximum(vertices(g))
+  @test dims[1] > dims[2]
+
   #Check consistency with the output of triangular_lattice_graph(7,7) in networkx
   g = triangular_lattice_graph(7, 7)
   @test length(vertices(g)) == 36
