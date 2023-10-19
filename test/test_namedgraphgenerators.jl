@@ -30,7 +30,6 @@ using Random
   @test dims[1] > dims[2]
 
   g = triangular_lattice_graph(2, 1)
-  @show g
   dims = maximum(vertices(g))
   @test dims[1] > dims[2]
 

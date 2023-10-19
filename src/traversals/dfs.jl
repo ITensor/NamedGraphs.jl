@@ -25,3 +25,32 @@ end
 function dfs_parents(graph::AbstractNamedGraph, vertex; kwargs...)
   return _dfs_parents(graph, vertex; kwargs...)
 end
+
+#Given a graph, split it into its connected components, construct a spanning tree over each of them
+# and take the union (adding in edges between the trees to recover a connected graph)
+function spanning_forest(g::AbstractNamedGraph)
+  components = connected_components(g)
+  return reduce(
+    union,
+    NamedGraph[
+      undirected_graph(bfs_tree(g[g_comp], first(g_comp))) for g_comp in components
+    ],
+  )
+end
+
+#Given a graph g with vertex set V, build a set of forests (each with vertex set V) which covers all edges in g
+# (see https://en.wikipedia.org/wiki/Arboricity) We do not find the minimum but our tests show this algorithm performs well
+function build_forest_cover(g::AbstractNamedGraph)
+  edges_collected = edgetype(g)[]
+  remaining_edges = edges(g)
+  forests = NamedGraph[]
+  while !isempty(remaining_edges)
+    g_reduced = rem_edges(g, edges_collected)
+    g_reduced_spanning_forest = spanning_forest(g_reduced)
+    push!(edges_collected, edges(g_reduced_spanning_forest)...)
+    push!(forests, g_reduced_spanning_forest)
+    setdiff!(remaining_edges, edges(g_reduced_spanning_forest))
+  end
+
+  return forests
+end
