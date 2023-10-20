@@ -1,12 +1,7 @@
 using Test
 using Graphs
 using NamedGraphs
-using NamedGraphs:
-  decorate_graph_edges,
-  decorate_graph_vertices,
-  hexagonal_lattice_graph,
-  triangular_lattice_graph,
-  build_forest_cover
+using NamedGraphs: hexagonal_lattice_graph, triangular_lattice_graph, build_forest_cover
 
 @testset "Test Forest Cover" begin
   gs = [
