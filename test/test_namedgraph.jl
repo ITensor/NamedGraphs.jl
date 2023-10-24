@@ -557,6 +557,8 @@ end
     add_edge!(g, "D" => "G")
     add_edge!(g, "E" => "G")
     t = topological_sort_by_dfs(g)
-    @test t == ["C", "B", "E", "A", "D", "G", "F"]
+    for e in edges(g)
+      @test findfirst(x -> x == src(e), t) < findfirst(x -> x == dst(e), t) 
+    end
   end
 end
