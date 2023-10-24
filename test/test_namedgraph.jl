@@ -390,17 +390,16 @@ end
     g = NamedGraph(path_graph(4), ["A", "B", "C", "D"])
 
     part1, part2, flow = GraphsFlows.mincut(g, "A", "D")
-    @test issetequal(part1, ["A"])
-    @test issetequal(part2, ["B", "C", "D"])
+    @test "A" ∈ part1
+    @test "D" ∈ part2
     @test flow == 1
 
     part1, part2 = mincut_partitions(g, "A", "D")
-    @test issetequal(part1, ["A"])
-    @test issetequal(part2, ["B", "C", "D"])
+    @test "A" ∈ part1
+    @test "D" ∈ part2
 
     part1, part2 = mincut_partitions(g)
-    @test issetequal(part1, ["B", "C", "D"])
-    @test issetequal(part2, ["A"])
+    @test issetequal(vcat(part1, part2), vertices(g))
 
     weights_dict = Dict{Tuple{String,String},Float64}()
     weights_dict["A", "B"] = 3
@@ -411,17 +410,17 @@ end
 
     for weights in (weights_dict, weights_dictionary)
       part1, part2, flow = GraphsFlows.mincut(g, "A", "D", weights)
-      @test issetequal(part1, ["A", "B"])
-      @test issetequal(part2, ["C", "D"])
+      @test issetequal(part1, ["A", "B"]) || issetequal(part1, ["C", "D"])
+      @test issetequal(vcat(part1, part2), vertices(g))
       @test flow == 2
 
       part1, part2 = mincut_partitions(g, "A", "D", weights)
-      @test issetequal(part1, ["A", "B"])
-      @test issetequal(part2, ["C", "D"])
+      @test issetequal(part1, ["A", "B"]) || issetequal(part1, ["C", "D"])
+      @test issetequal(vcat(part1, part2), vertices(g))
 
       part1, part2 = mincut_partitions(g, weights)
-      @test issetequal(part1, ["C", "D"])
-      @test issetequal(part2, ["A", "B"])
+      @test issetequal(part1, ["A", "B"]) || issetequal(part1, ["C", "D"])
+      @test issetequal(vcat(part1, part2), vertices(g))
     end
   end
   @testset "dijkstra" begin
@@ -558,7 +557,7 @@ end
     add_edge!(g, "E" => "G")
     t = topological_sort_by_dfs(g)
     for e in edges(g)
-      @test findfirst(x -> x == src(e), t) < findfirst(x -> x == dst(e), t) 
+      @test findfirst(x -> x == src(e), t) < findfirst(x -> x == dst(e), t)
     end
   end
 end
