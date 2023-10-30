@@ -12,20 +12,21 @@ function spanning_tree(g::AbstractNamedGraph; root_vertex=default_root_vertex(g)
   return spanning_tree(default_spanning_tree_alg(), g; root_vertex)
 end
 
-function spanning_tree(::BFS, g::AbstractNamedGraph; root_vertex=default_root_vertex(g))
-  @assert !NamedGraphs.is_directed(g)
+@traitfn function spanning_tree(
+  ::BFS, g::AbstractNamedGraph::(!IsDirected); root_vertex=default_root_vertex(g)
+)
   return undirected_graph(bfs_tree(g, root_vertex))
 end
 
-function spanning_tree(
-  ::RandomBFS, g::AbstractNamedGraph; root_vertex=default_root_vertex(g)
+@traitfn function spanning_tree(
+  ::RandomBFS, g::AbstractNamedGraph::(!IsDirected); root_vertex=default_root_vertex(g)
 )
-  @assert !NamedGraphs.is_directed(g)
   return undirected_graph(random_bfs_tree(g, root_vertex))
 end
 
-function spanning_tree(::DFS, g::AbstractNamedGraph; root_vertex=default_root_vertex(g))
-  @assert !NamedGraphs.is_directed(g)
+@traitfn function spanning_tree(
+  ::DFS, g::AbstractNamedGraph::(!IsDirected); root_vertex=default_root_vertex(g)
+)
   return undirected_graph(dfs_tree(g, root_vertex))
 end
 
