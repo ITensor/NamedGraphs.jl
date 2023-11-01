@@ -8,7 +8,9 @@ default_spanning_tree_alg() = BFS()
 
 default_root_vertex(g) = last(findmax(eccentricities(g)))
 
-function spanning_tree(g::AbstractNamedGraph; alg=default_spanning_tree_alg(), root_vertex=default_root_vertex(g))
+function spanning_tree(
+  g::AbstractNamedGraph; alg=default_spanning_tree_alg(), root_vertex=default_root_vertex(g)
+)
   return spanning_tree(alg, g; root_vertex)
 end
 
