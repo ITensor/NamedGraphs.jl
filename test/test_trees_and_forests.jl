@@ -20,7 +20,7 @@ end
 @testset "Test Spanning Trees $g_string, $alg" for (g_string, g) in TestTreesAndForests.gs,
   alg in TestTreesAndForests.algs
 
-  s_tree = spanning_tree(alg, g)
+  s_tree = spanning_tree(g; alg)
   @test is_tree(s_tree)
   @test Set(vertices(s_tree)) == Set(vertices(g))
   @test issubset(Set(edges(s_tree)), Set(edges(g)))
