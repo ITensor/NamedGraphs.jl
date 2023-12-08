@@ -119,11 +119,20 @@ include(joinpath("generators", "named_staticgraphs.jl"))
 include(joinpath("Graphs", "generators", "staticgraphs.jl"))
 include(joinpath("Graphs", "generators", "namedgraphs.jl"))
 include(joinpath("Graphs", "generators", "decoratedgraphs.jl"))
+include(joinpath("partitioning", "abstractpartitionedge.jl"))
+include(joinpath("partitioning", "partitionedge.jl"))
+include(joinpath("partitioning", "abstractpartitionvertex.jl"))
+include(joinpath("partitioning", "partitionvertex.jl"))
+include(joinpath("partitioning", "abstractpartitionedgraph.jl"))
+include(joinpath("partitioning", "partitionedgraph.jl"))
 
 # TODO: reexport Graphs.jl (except for `Graphs.contract`)
 export NamedGraph,
   NamedDiGraph,
   NamedEdge,
+  PartitionedGraph,
+  PartitionEdge,
+  PartitionVertex,
   Key,
   ⊔,
   named_binary_tree,

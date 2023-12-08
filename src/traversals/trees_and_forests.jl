@@ -35,7 +35,7 @@ end
 #Given a graph, split it into its connected components, construct a spanning tree, using the function spanning_tree, over each of them
 # and take the union.
 function spanning_forest(g::AbstractNamedGraph; spanning_tree=spanning_tree)
-  return reduce(union, (spanning_tree(g[vs]) for vs in connected_components(g)))
+  return reduce(union, (spanning_tree(subgraph(g, vs)) for vs in connected_components(g)))
 end
 
 #Given an undirected graph g with vertex set V, build a set of forests (each with vertex set V) which covers all edges in g
@@ -54,3 +54,5 @@ function forest_cover(g::AbstractNamedGraph; spanning_tree=spanning_tree)
 
   return forests
 end
+
+#forest_cover(g::PartitionedGraph; kwargs...) = not_implemented()
