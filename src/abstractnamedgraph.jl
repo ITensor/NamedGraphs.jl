@@ -381,10 +381,7 @@ function union(graph1::AbstractNamedGraph, graph2::AbstractNamedGraph)
   return union_graph
 end
 
-function add_vertex!(graph::AbstractNamedGraph, vertex)
-  if vertex ∈ vertices(graph)
-    throw(ArgumentError("Duplicate vertices are not allowed"))
-  end
+function insert_vertex!(graph::AbstractNamedGraph, vertex)
   add_vertex!(parent_graph(graph))
   # Update the vertex list
   push!(vertices(graph), vertex)
@@ -392,6 +389,15 @@ function add_vertex!(graph::AbstractNamedGraph, vertex)
   # TODO: Make this more generic
   insert!(graph.vertex_to_parent_vertex, vertex, last(parent_vertices(graph)))
   return graph
+end
+
+function add_vertex!(graph::AbstractNamedGraph, vertex)
+  if vertex ∈ vertices(graph)
+    return false
+  else
+    insert_vertex!(graph, vertex)
+    return true
+  end
 end
 
 function rem_vertex!(graph::AbstractNamedGraph, vertex)
@@ -471,9 +477,8 @@ function merge_vertices(
   graph::AbstractNamedGraph, merge_vertices; merged_vertex=first(merge_vertices)
 )
   merged_graph = copy(graph)
-  if !has_vertex(graph, merged_vertex)
-    add_vertex!(merged_graph, merged_vertex)
-  end
+  add_vertex!(merged_graph, merged_vertex)
+
   for vertex in merge_vertices
     for e in incident_edges(graph, vertex; dir=:both)
       merged_edge = rename_vertices(v -> v == vertex ? merged_vertex : v, e)

@@ -1,4 +1,5 @@
 using Test
+using KaHyPar
 using NamedGraphs
 using NamedGraphs:
   spanning_forest,
@@ -8,11 +9,13 @@ using NamedGraphs:
   rem_edge!,
   PartitionEdge,
   rem_edges!,
-  underlying_vertex
+  underlying_vertex,
+  has_partition_vertex,
+  partition
 using Dictionaries
 using Graphs
 
-@testset "Test Partition Constructors" begin
+@testset "Test Partitioned Graph Constructors" begin
   nx, ny = 10, 10
   g = named_grid((nx, ny))
 
@@ -30,7 +33,7 @@ using Graphs
   @test pg.graph == pg.partitioned_graph
 end
 
-@testset "Test Partition Addition and Removal" begin
+@testset "Test Partitioned Graph Vertex/Edge Addition and Removal" begin
   nx, ny = 10, 10
   g = named_grid((nx, ny))
 
@@ -43,22 +46,31 @@ end
     e -> !isempty(intersect(v_set, [src(e), dst(e)])), edges(pg)
   )
 
-  #Strip the middle column from pg
+  #Strip the middle column from pg via the partitioned graph vertex, and make a new pg
+  pg_stripped = NamedGraphs.rem_partition_vertex(pg, pv)
+  @test !is_connected(pg_stripped.graph) && !is_connected(pg_stripped.partitioned_graph)
+  @test !haskey(pg_stripped.partition_vertices, pv)
+  @test !has_partition_vertex(pg_stripped, pv)
+
+  #Strip the middle column from pg directly and via the graph vertices, do it in place
   NamedGraphs.rem_vertices!(pg, v_set)
   @test !is_connected(pg.graph) && !is_connected(pg.partitioned_graph)
   @test !haskey(pg.partition_vertices, pv)
-  @test !has_vertex(pg, PartitionVertex(pv))
+  @test !has_partition_vertex(pg, pv)
 
-  #Add the column back
+  #Test both are the same
+  @test pg == pg_stripped
+
+  #Add the column back to the in place graph
   NamedGraphs.add_vertices!(pg, v_set, pv)
   NamedGraphs.add_edges!(pg, edges_involving_v_set)
   @test is_connected(pg.graph) && is_path_graph(pg.partitioned_graph)
   @test haskey(pg.partition_vertices, pv)
-  @test has_vertex(pg, PartitionVertex(pv))
+  @test has_partition_vertex(pg, pv)
 end
 
 @testset "Test NamedGraphs Functions on Partitioned Graph" begin
-  functions = [is_tree, NamedGraphs.default_root_vertex, spanning_tree, spanning_forest]
+  functions = [is_tree, NamedGraphs.default_root_vertex, spanning_tree, spanning_forest, center, diameter, radius]
   gs = [
     named_comb_tree((4, 4)),
     named_grid((2, 2, 2)),
@@ -73,3 +85,4 @@ end
     end
   end
 end
+

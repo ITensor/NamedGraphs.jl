@@ -61,6 +61,14 @@ function PartitionedGraph(vertices::Vector{V}) where {V}
   return PartitionedGraph{V,V,NamedGraph{V},NamedGraph{V}}(vertices)
 end
 
+function PartitionedGraph(g::AbstractNamedGraph{V}; npartitions=nothing,
+  nvertices_per_partition=nothing,
+  backend=current_partitioning_backend(),
+  kwargs...) where{V}
+  partition_vertices = partition(g; npartitions, nvertices_per_partition, backend, kwargs...)
+  return PartitionedGraph(g, partition_vertices)
+end
+
 #Needed for interface
 partitioned_graph(pg::PartitionedGraph) = getfield(pg, :partitioned_graph)
 graph(pg::PartitionedGraph) = getfield(pg, :graph)

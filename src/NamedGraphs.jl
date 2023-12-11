@@ -8,6 +8,8 @@ using SimpleTraits
 using SparseArrays
 using SplitApplyCombine
 using SymRCM
+using Suppressor
+using Requires
 
 using Graphs.SimpleGraphs
 
@@ -119,12 +121,13 @@ include(joinpath("generators", "named_staticgraphs.jl"))
 include(joinpath("Graphs", "generators", "staticgraphs.jl"))
 include(joinpath("Graphs", "generators", "namedgraphs.jl"))
 include(joinpath("Graphs", "generators", "decoratedgraphs.jl"))
-include(joinpath("partitioning", "abstractpartitionedge.jl"))
-include(joinpath("partitioning", "partitionedge.jl"))
-include(joinpath("partitioning", "abstractpartitionvertex.jl"))
-include(joinpath("partitioning", "partitionvertex.jl"))
-include(joinpath("partitioning", "abstractpartitionedgraph.jl"))
-include(joinpath("partitioning", "partitionedgraph.jl"))
+include(joinpath("Graphs", "partitionedgraphs", "abstractpartitionedge.jl"))
+include(joinpath("Graphs", "partitionedgraphs", "abstractpartitionvertex.jl"))
+include(joinpath("Graphs", "partitionedgraphs", "abstractpartitionedgraph.jl"))
+include(joinpath("Graphs", "partitionedgraphs", "partitioning.jl"))
+include(joinpath("Graphs", "partitionedgraphs", "partitionedge.jl"))
+include(joinpath("Graphs", "partitionedgraphs", "partitionvertex.jl"))
+include(joinpath("Graphs", "partitionedgraphs", "partitionedgraph.jl"))
 
 # TODO: reexport Graphs.jl (except for `Graphs.contract`)
 export NamedGraph,
@@ -194,5 +197,14 @@ export NamedGraph,
   mincut_partitions,
   steiner_tree,
   weights
+
+  function __init__()
+    @require KaHyPar = "2a6221f6-aa48-11e9-3542-2d9e0ef01880" include(
+      joinpath("requires", "kahypar.jl")
+    )
+    @require Metis = "2679e427-3c69-5b7f-982b-ece356f1e94b" include(
+      joinpath("requires", "metis.jl")
+    )
+  end
 
 end # module AbstractNamedGraphs
