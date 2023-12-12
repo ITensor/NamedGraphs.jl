@@ -9,9 +9,10 @@ using NamedGraphs:
   rem_edge!,
   PartitionEdge,
   rem_edges!,
-  underlying_vertex,
-  has_partition_vertex,
-  partition
+  partition,
+  PartitionVertex,
+  parent,
+  _npartitions
 using Dictionaries
 using Graphs
 
@@ -40,23 +41,23 @@ end
   partitions = [[(i, j) for j in 1:ny] for i in 1:nx]
   pg = PartitionedGraph(g, partitions)
 
-  pv = 5
-  v_set = pg.partition_vertices[pv]
+  pv = PartitionVertex(5)
+  v_set = vertices(pg, pv)
   edges_involving_v_set = filter(
     e -> !isempty(intersect(v_set, [src(e), dst(e)])), edges(pg)
   )
 
   #Strip the middle column from pg via the partitioned graph vertex, and make a new pg
-  pg_stripped = NamedGraphs.rem_partition_vertex(pg, pv)
+  pg_stripped = NamedGraphs.rem_vertex(pg, pv)
   @test !is_connected(pg_stripped.graph) && !is_connected(pg_stripped.partitioned_graph)
-  @test !haskey(pg_stripped.partition_vertices, pv)
-  @test !has_partition_vertex(pg_stripped, pv)
+  @test !haskey(pg_stripped.partition_vertices, parent(pv))
+  @test !has_vertex(pg_stripped, pv)
 
   #Strip the middle column from pg directly and via the graph vertices, do it in place
   NamedGraphs.rem_vertices!(pg, v_set)
   @test !is_connected(pg.graph) && !is_connected(pg.partitioned_graph)
-  @test !haskey(pg.partition_vertices, pv)
-  @test !has_partition_vertex(pg, pv)
+  @test !haskey(pg.partition_vertices, parent(pv))
+  @test !has_vertex(pg, pv)
 
   #Test both are the same
   @test pg == pg_stripped
@@ -65,12 +66,35 @@ end
   NamedGraphs.add_vertices!(pg, v_set, pv)
   NamedGraphs.add_edges!(pg, edges_involving_v_set)
   @test is_connected(pg.graph) && is_path_graph(pg.partitioned_graph)
-  @test haskey(pg.partition_vertices, pv)
-  @test has_partition_vertex(pg, pv)
+  @test haskey(pg.partition_vertices, parent(pv))
+  @test has_vertex(pg, pv)
+end
+
+@testset "Test Partitioned Graph Subgraph Functionality" begin
+  n, z = 20, 4
+  nvertices_per_partition = 4
+  g = NamedGraph(random_regular_graph(n, z))
+  npartitions = _npartitions(g, nothing, nvertices_per_partition)
+  partitions = [
+    [nvertices_per_partition * (i - 1) + j for j in 1:nvertices_per_partition] for
+    i in 1:npartitions
+  ]
+  pg = PartitionedGraph(g, partitions)
+
+  pg_1 = subgraph(pg, partitions[1])
+  pg_2 = subgraph(pg, [PartitionVertex(1)])
 end
 
 @testset "Test NamedGraphs Functions on Partitioned Graph" begin
-  functions = [is_tree, NamedGraphs.default_root_vertex, spanning_tree, spanning_forest, center, diameter, radius]
+  functions = [
+    is_tree,
+    NamedGraphs.default_root_vertex,
+    spanning_tree,
+    spanning_forest,
+    center,
+    diameter,
+    radius,
+  ]
   gs = [
     named_comb_tree((4, 4)),
     named_grid((2, 2, 2)),
@@ -85,4 +109,3 @@ end
     end
   end
 end
-

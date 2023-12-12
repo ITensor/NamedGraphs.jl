@@ -1,6 +1,7 @@
 abstract type AbstractPartitionEdge{V} <: AbstractNamedEdge{V} end
 
-edge(pe::AbstractPartitionEdge) = not_implemented()
+parent(pe::AbstractPartitionEdge) = not_implemented()
+src(pe::AbstractPartitionEdge) = not_implemented()
+dst(pe::AbstractPartitionEdge) = not_implemented()
 
-src(pe::AbstractPartitionEdge) = src(edge(pe))
-dst(pe::AbstractPartitionEdge) = dst(edge(pe))
+#Don't have the vertices wrapped. But wrap them with source and edge.
