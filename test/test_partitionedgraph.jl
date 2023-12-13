@@ -1,5 +1,4 @@
 using Test
-using KaHyPar
 using NamedGraphs
 using NamedGraphs:
   spanning_forest,
