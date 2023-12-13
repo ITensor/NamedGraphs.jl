@@ -381,7 +381,7 @@ function union(graph1::AbstractNamedGraph, graph2::AbstractNamedGraph)
   return union_graph
 end
 
-function insert_vertex!(graph::AbstractNamedGraph, vertex)
+function set_vertex!(graph::AbstractNamedGraph, vertex)
   add_vertex!(parent_graph(graph))
   # Update the vertex list
   push!(vertices(graph), vertex)
@@ -391,16 +391,24 @@ function insert_vertex!(graph::AbstractNamedGraph, vertex)
   return graph
 end
 
+function insert_vertex!(graph::AbstractNamedGraph, vertex)
+  if vertex ∈ vertices(graph)
+    error("Duplicate vertices not allowed!")
+  else
+    set_vertex!(graph, vertex)
+  end
+end
+
 function add_vertex!(graph::AbstractNamedGraph, vertex)
   if vertex ∈ vertices(graph)
     return false
   else
-    insert_vertex!(graph, vertex)
+    set_vertex!(graph, vertex)
     return true
   end
 end
 
-function rem_vertex!(graph::AbstractNamedGraph, vertex)
+function unset_vertex!(graph::AbstractNamedGraph, vertex)
   parent_vertex = vertex_to_parent_vertex(graph, vertex)
   rem_vertex!(parent_graph(graph), parent_vertex)
 
@@ -418,6 +426,23 @@ function rem_vertex!(graph::AbstractNamedGraph, vertex)
   delete!(graph.vertex_to_parent_vertex, vertex)
 
   return graph
+end
+
+function rem_vertex!(graph::AbstractNamedGraph, vertex)
+  if vertex ∉ vertices(graph)
+    return false
+  else
+    unset_vertex!(graph, vertex)
+    return true
+  end
+end
+
+function delete_vertex!(graph::AbstractNamedGraph, vertex)
+  if vertex ∉ vertices(graph)
+    error("vertex not in graph!")
+  else
+    unset_vertex!(graph, vertex)
+  end
 end
 
 function add_vertices!(graph::AbstractNamedGraph, vs::Vector)
