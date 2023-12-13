@@ -83,6 +83,8 @@ end
 
   pg_1 = subgraph(pg, partitions[1])
   pg_2 = subgraph(pg, [PartitionVertex(1)])
+
+  @test pg_1 == pg_2
 end
 
 @testset "Test NamedGraphs Functions on Partitioned Graph" begin
