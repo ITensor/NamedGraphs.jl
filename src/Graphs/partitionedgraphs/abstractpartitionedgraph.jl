@@ -6,12 +6,10 @@ graph(pg::AbstractPartitionedGraph) = not_implemented()
 function vertices(pg::AbstractPartitionedGraph, partition_vertex::AbstractPartitionVertex)
   return not_implemented()
 end
-partition_vertex(pg::AbstractPartitionedGraph, vertex) = not_implemented()
+which_partition(pg::AbstractPartitionedGraph, vertex) = not_implemented()
 copy(pg::AbstractPartitionedGraph) = not_implemented()
-function add_to_vertex_map!(pg::AbstractPartitionedGraph, vertex, partition_vertex)
-  return not_implemented()
-end
-rem_from_vertex_map!(pg::AbstractPartitionedGraph, vertex) = not_implemented()
+delete_from_vertex_map!(pg::AbstractPartitionedGraph, vertex) = not_implemented()
+insert_to_vertex_map!(pg::AbstractPartitionedGraph, vertex) = not_implemented()
 partition_edge(pg::AbstractPartitionedGraph, edge::AbstractEdge) = not_implemented()
 function edges(pg::AbstractPartitionedGraph, partition_edge::AbstractPartitionEdge)
   return not_implemented()
@@ -95,7 +93,7 @@ function add_vertex!(
   add_vertex!(graph(pg), vertex)
   add_vertex!(partitioned_graph(pg), parent(partition_vertex))
 
-  return add_to_vertex_map!(pg, vertex, partition_vertex)
+  return insert_to_vertex_map!(pg, vertex, partition_vertex)
 end
 
 function add_vertices!(
@@ -117,11 +115,11 @@ end
 
 function rem_vertex!(pg::AbstractPartitionedGraph, vertex)
   rem_vertex!(graph(pg), vertex)
-  pv = partition_vertex(pg, vertex)
+  pv = which_partition(pg, vertex)
   if length(vertices(pg, pv)) == 1
     rem_vertex!(partitioned_graph(pg), parent(pv))
   end
-  return rem_from_vertex_map!(pg, vertex)
+  return delete_from_vertex_map!(pg, vertex)
 end
 
 function rem_vertex!(

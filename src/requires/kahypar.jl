@@ -11,7 +11,7 @@ KaHyPar.HyperGraph(g::SimpleGraph) = incidence_matrix(g)
 - :connectivity => "km1_kKaHyPar_sea20.ini"
 - imbalance::Number=0.03
 """
-function partition(
+function partition_vertices(
   ::Backend"KaHyPar",
   g::SimpleGraph,
   npartitions::Integer;

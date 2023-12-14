@@ -8,7 +8,6 @@ using NamedGraphs:
   rem_edge!,
   PartitionEdge,
   rem_edges!,
-  partition,
   PartitionVertex,
   parent,
   _npartitions
@@ -49,13 +48,13 @@ end
   #Strip the middle column from pg via the partitioned graph vertex, and make a new pg
   pg_stripped = NamedGraphs.rem_vertex(pg, pv)
   @test !is_connected(pg_stripped.graph) && !is_connected(pg_stripped.partitioned_graph)
-  @test !haskey(pg_stripped.partition_vertices, parent(pv))
+  @test !haskey(pg_stripped.partitioned_vertices, parent(pv))
   @test !has_vertex(pg_stripped, pv)
 
   #Strip the middle column from pg directly and via the graph vertices, do it in place
   NamedGraphs.rem_vertices!(pg, v_set)
   @test !is_connected(pg.graph) && !is_connected(pg.partitioned_graph)
-  @test !haskey(pg.partition_vertices, parent(pv))
+  @test !haskey(pg.partitioned_vertices, parent(pv))
   @test !has_vertex(pg, pv)
 
   #Test both are the same
@@ -65,7 +64,7 @@ end
   NamedGraphs.add_vertices!(pg, v_set, pv)
   NamedGraphs.add_edges!(pg, edges_involving_v_set)
   @test is_connected(pg.graph) && is_path_graph(pg.partitioned_graph)
-  @test haskey(pg.partition_vertices, parent(pv))
+  @test haskey(pg.partitioned_vertices, parent(pv))
   @test has_vertex(pg, pv)
 end
 

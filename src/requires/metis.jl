@@ -8,7 +8,7 @@ The partition algorithm is defined by the `alg` keyword:
  - :KWAY: multilevel k-way partitioning
  - :RECURSIVE: multilevel recursive bisection
 """
-function partition(
+function partition_vertices(
   ::Backend"Metis", g::SimpleGraph, npartitions::Integer; alg="recursive", kwargs...
 )
   metis_alg = metis_algs[alg]
