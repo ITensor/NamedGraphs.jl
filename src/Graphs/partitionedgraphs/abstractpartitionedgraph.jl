@@ -71,7 +71,7 @@ function rem_edge(pg::AbstractPartitionedGraph, partition_edge::AbstractPartitio
 end
 
 function rem_partition_edges!(
-  pg::AbstractPartitionedGraph, partition_edges::Vector{AbstractPartitionEdge}
+  pg::AbstractPartitionedGraph, partition_edges::Vector{<:AbstractPartitionEdge}
 )
   for pe in partition_edges
     rem_edge!(pg, pe)
