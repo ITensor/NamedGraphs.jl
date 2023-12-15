@@ -2,7 +2,7 @@ abstract type AbstractPartitionedGraph{V,PV} <: AbstractNamedGraph{V} end
 
 #Needed for interface
 partitioned_graph(pg::AbstractPartitionedGraph) = not_implemented()
-graph(pg::AbstractPartitionedGraph) = not_implemented()
+unpartitioned_graph(pg::AbstractPartitionedGraph) = not_implemented()
 function vertices(pg::AbstractPartitionedGraph, partition_vertex::AbstractPartitionVertex)
   return not_implemented()
 end
@@ -15,12 +15,15 @@ function edges(pg::AbstractPartitionedGraph, partition_edge::AbstractPartitionEd
   return not_implemented()
 end
 
-vertices(pg::AbstractPartitionedGraph) = vertices(graph(pg))
-parent_graph(pg::AbstractPartitionedGraph) = parent_graph(graph(pg))
+vertices(pg::AbstractPartitionedGraph) = vertices(unpartitioned_graph(pg))
+#edges(pg::AbstractPartitionedGraph) = edges(unpartitioned_graph(pg))
+#nv(pg::AbstractPartitionedGraph) = nv(unpartitioned_graph(pg))
+#outneighbors(pg::AbstractPartitionedGraph, vertex) = outneighbors(unpartitioned_graph(pg), vertex)
+parent_graph(pg::AbstractPartitionedGraph) = parent_graph(unpartitioned_graph(pg))
 function vertex_to_parent_vertex(pg::AbstractPartitionedGraph, vertex)
-  return vertex_to_parent_vertex(graph(pg), vertex)
+  return vertex_to_parent_vertex(unpartitioned_graph(pg), vertex)
 end
-edgetype(pg::AbstractPartitionedGraph) = edgetype(graph(pg))
+edgetype(pg::AbstractPartitionedGraph) = edgetype(unpartitioned_graph(pg))
 function parent_graph_type(G::Type{<:AbstractPartitionedGraph})
   return fieldtype(fieldtype(G, :graph), :parent_graph)
 end
@@ -41,7 +44,7 @@ function is_boundary_edge(pg::AbstractPartitionedGraph, edge::AbstractEdge)
 end
 
 function add_edge!(pg::AbstractPartitionedGraph, edge::AbstractEdge)
-  add_edge!(graph(pg), edge)
+  add_edge!(unpartitioned_graph(pg), edge)
   pg_edge = parent(partition_edge(pg, edge))
   if src(pg_edge) != dst(pg_edge)
     add_edge!(partitioned_graph(pg), pg_edge)
@@ -57,7 +60,7 @@ function rem_edge!(pg::AbstractPartitionedGraph, edge::AbstractEdge)
     end
   end
 
-  return rem_edge!(graph(pg), edge)
+  return rem_edge!(unpartitioned_graph(pg), edge)
 end
 
 function rem_edge!(pg::AbstractPartitionedGraph, partition_edge::AbstractPartitionEdge)
@@ -66,11 +69,11 @@ end
 
 function rem_edge(pg::AbstractPartitionedGraph, partition_edge::AbstractPartitionEdge)
   pg_new = copy(pg)
-  rem_partition_edge!(pg_new, partition_edge)
+  rem_edge!(pg_new, partition_edge)
   return pg_new
 end
 
-function rem_partition_edges!(
+function rem_edges!(
   pg::AbstractPartitionedGraph, partition_edges::Vector{<:AbstractPartitionEdge}
 )
   for pe in partition_edges
@@ -78,11 +81,11 @@ function rem_partition_edges!(
   end
 end
 
-function rem_partition_edges(
+function rem_edges(
   pg::AbstractPartitionedGraph, partition_edges::Vector{AbstractPartitionEdge}
 )
   pg_new = copy(pg)
-  rem_partition_edges!(pg_new, partition_edges)
+  rem_edges!(pg_new, partition_edges)
   return pg_new
 end
 
@@ -90,7 +93,7 @@ end
 function add_vertex!(
   pg::AbstractPartitionedGraph, vertex, partition_vertex::AbstractPartitionVertex
 )
-  add_vertex!(graph(pg), vertex)
+  add_vertex!(unpartitioned_graph(pg), vertex)
   add_vertex!(partitioned_graph(pg), parent(partition_vertex))
 
   return insert_to_vertex_map!(pg, vertex, partition_vertex)
@@ -114,7 +117,7 @@ function add_vertices!(
 end
 
 function rem_vertex!(pg::AbstractPartitionedGraph, vertex)
-  rem_vertex!(graph(pg), vertex)
+  rem_vertex!(unpartitioned_graph(pg), vertex)
   pv = which_partition(pg, vertex)
   if length(vertices(pg, pv)) == 1
     rem_vertex!(partitioned_graph(pg), parent(pv))
@@ -155,14 +158,16 @@ function add_vertex!(pg::AbstractPartitionedGraph, vertex)
 end
 
 function (pg1::AbstractPartitionedGraph == pg2::AbstractPartitionedGraph)
-  if fieldnames(typeof(pg1)) != fieldnames(typeof(pg1))
+  if unpartitioned_graph(pg1) != unpartitioned_graph(pg2) ||
+    !issetequal(vertices(pg1), vertices(pg2))
     return false
   end
 
-  for field in fieldnames(typeof(pg1))
-    if getfield(pg1, field) != getfield(pg2, field)
+  for v in vertices(pg1)
+    if which_partition(pg1, v) != which_partition(pg2, v)
       return false
     end
   end
+
   return true
 end

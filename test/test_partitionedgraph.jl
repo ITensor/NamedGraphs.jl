@@ -1,5 +1,4 @@
 using Test
-using NamedGraphs
 using NamedGraphs:
   spanning_forest,
   subvertices,

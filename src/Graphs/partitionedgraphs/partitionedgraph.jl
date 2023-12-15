@@ -1,4 +1,4 @@
-struct PartitionedGraph{V,PV,G<:AbstractNamedGraph{V},PG<:AbstractNamedGraph{PV}} <:
+struct PartitionedGraph{V,PV,G<:AbstractGraph{V},PG<:AbstractGraph{PV}} <:
        AbstractPartitionedGraph{V,PV}
   graph::G
   partitioned_graph::PG
@@ -8,8 +8,8 @@ end
 
 ##Constructors.
 function PartitionedGraph{V,PV,G,PG}(
-  g::AbstractNamedGraph{V}, partitioned_vertices::Dictionary{PV,Vector{V}}
-) where {V,PV,G<:AbstractNamedGraph{V},PG<:AbstractNamedGraph{PV}}
+  g::AbstractGraph{V}, partitioned_vertices::Dictionary{PV,Vector{V}}
+) where {V,PV,G<:AbstractGraph{V},PG<:AbstractGraph{PV}}
   pvs = keys(partitioned_vertices)
   pg = NamedGraph(pvs)
   which_partition = Dictionary{V,PV}()
@@ -31,26 +31,24 @@ function PartitionedGraph{V,PV,G,PG}(
 end
 
 function PartitionedGraph(
-  g::AbstractNamedGraph{V}, partitioned_vertices::Dictionary{PV,Vector{V}}
+  g::AbstractGraph{V}, partitioned_vertices::Dictionary{PV,Vector{V}}
 ) where {V,PV}
   return PartitionedGraph{V,PV,NamedGraph{V},NamedGraph{PV}}(g, partitioned_vertices)
 end
 
-function PartitionedGraph{V,Int64,G,NamedGraph{Int64}}(
-  g::AbstractNamedGraph{V}, partitioned_vertices::Vector{Vector{V}}
+function PartitionedGraph{V,Int,G,NamedGraph{Int}}(
+  g::AbstractGraph{V}, partitioned_vertices::Vector{Vector{V}}
 ) where {V,G<:NamedGraph{V}}
-  partitioned_vertices_dict = Dictionary{Int64,Vector{V}}(
+  partitioned_vertices_dict = Dictionary{Int,Vector{V}}(
     [i for i in 1:length(partitioned_vertices)], partitioned_vertices
   )
-  return PartitionedGraph{V,Int64,NamedGraph{V},NamedGraph{Int64}}(
-    g, partitioned_vertices_dict
-  )
+  return PartitionedGraph{V,Int,NamedGraph{V},NamedGraph{Int}}(g, partitioned_vertices_dict)
 end
 
 function PartitionedGraph(
-  g::AbstractNamedGraph{V}, partition_vertices::Vector{Vector{V}}
+  g::AbstractGraph{V}, partition_vertices::Vector{Vector{V}}
 ) where {V}
-  return PartitionedGraph{V,Int64,NamedGraph{V},NamedGraph{Int64}}(g, partition_vertices)
+  return PartitionedGraph{V,Int,NamedGraph{V},NamedGraph{Int}}(g, partition_vertices)
 end
 
 function PartitionedGraph{V,V,G,G}(vertices::Vector{V}) where {V,G<:NamedGraph{V}}
@@ -62,12 +60,12 @@ function PartitionedGraph(vertices::Vector{V}) where {V}
 end
 
 function PartitionedGraph(
-  g::AbstractNamedGraph;
+  g::AbstractGraph;
   npartitions=nothing,
   nvertices_per_partition=nothing,
   backend=current_partitioning_backend(),
   kwargs...,
-) where {V}
+)
   partitioned_vertices = partition_vertices(
     g; npartitions, nvertices_per_partition, backend, kwargs...
   )
@@ -76,7 +74,7 @@ end
 
 #Needed for interface
 partitioned_graph(pg::PartitionedGraph) = getfield(pg, :partitioned_graph)
-graph(pg::PartitionedGraph) = getfield(pg, :graph)
+unpartitioned_graph(pg::PartitionedGraph) = getfield(pg, :graph)
 partitioned_vertices(pg::PartitionedGraph) = getfield(pg, :partitioned_vertices)
 which_partition(pg::PartitionedGraph) = getfield(pg, :which_partition)
 function vertices(pg::PartitionedGraph, partition_vert::PartitionVertex)
@@ -100,7 +98,7 @@ end
 function partition_edges(pg::PartitionedGraph, partition_edge::PartitionEdge)
   psrc_vs, pdst_vs = vertices(pg, PartitionVertex(src(partition_edge))),
   vertices(pg, PartitionVertex(dst(partition_edge)))
-  psrc_subgraph, pdst_subgraph, full_subgraph = subgraph(graph(pg), psrc_vs),
+  psrc_subgraph, pdst_subgraph, full_subgraph = subgraph(unpartitioned_graph(pg), psrc_vs),
   subgraph(pg, pdst_vs),
   subgraph(pg, vcat(psrc_vs, pdst_vs))
 
@@ -113,7 +111,7 @@ end
 #Copy on dictionaries is dodgy?!
 function copy(pg::PartitionedGraph)
   return PartitionedGraph(
-    copy(graph(pg)),
+    copy(unpartitioned_graph(pg)),
     copy(partitioned_graph(pg)),
     copy_keys_values(partitioned_vertices(pg)),
     copy_keys_values(which_partition(pg)),
@@ -145,7 +143,7 @@ end
 
 ### PartitionedGraph Specific Functions
 function induced_subgraph(pg::PartitionedGraph, vertices::Vector)
-  sub_pg_graph, _ = induced_subgraph(graph(pg), vertices)
+  sub_pg_graph, _ = induced_subgraph(unpartitioned_graph(pg), vertices)
   sub_partitioned_vertices = copy_keys_values(partitioned_vertices(pg))
   for pv in NamedGraphs.vertices(partitioned_graph(pg))
     vs = intersect(vertices, sub_partitioned_vertices[pv])
