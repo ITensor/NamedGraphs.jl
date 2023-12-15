@@ -143,7 +143,7 @@ function rem_vertices!(
 end
 
 function rem_vertices(
-  pg::AbstractPartitionedGraph, partition_vertices::Vector{AbstractPartitionVertex}
+  pg::AbstractPartitionedGraph, partition_vertices::Vector{<:AbstractPartitionVertex}
 )
   pg_new = copy(rem_partition_vertex)
   rem_vertices!(pg_new, partition_vertices)
