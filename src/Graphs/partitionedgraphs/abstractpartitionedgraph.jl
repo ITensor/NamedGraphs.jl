@@ -135,7 +135,7 @@ function rem_vertex(pg::AbstractPartitionedGraph, partition_vertex::AbstractPart
 end
 
 function rem_vertices!(
-  pg::AbstractPartitionedGraph, partition_vertices::Vector{AbstractPartitionVertex}
+  pg::AbstractPartitionedGraph, partition_vertices::Vector{<:AbstractPartitionVertex}
 )
   for pv in partition_vertices
     rem_vertex!(pg, pv)
