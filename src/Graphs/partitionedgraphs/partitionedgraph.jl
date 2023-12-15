@@ -62,7 +62,7 @@ function PartitionedGraph(vertices::Vector{V}) where {V}
 end
 
 function PartitionedGraph(
-  g::AbstractNamedGraph{V};
+  g::AbstractNamedGraph;
   npartitions=nothing,
   nvertices_per_partition=nothing,
   backend=current_partitioning_backend(),
