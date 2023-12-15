@@ -99,7 +99,7 @@ end
 function add_vertices!(
   pg::AbstractPartitionedGraph,
   vertices::Vector,
-  partition_vertices::Vector{V} where {V<:AbstractPartitionVertex},
+  partition_vertices::Vector{<:AbstractPartitionVertex},
 )
   @assert length(vertices) == length(partition_vertices)
   for (v, pv) in zip(vertices, partition_vertices)
