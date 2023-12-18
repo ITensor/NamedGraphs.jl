@@ -82,7 +82,7 @@ function rem_edges!(
 end
 
 function rem_edges(
-  pg::AbstractPartitionedGraph, partition_edges::Vector{AbstractPartitionEdge}
+  pg::AbstractPartitionedGraph, partition_edges::Vector{<:AbstractPartitionEdge}
 )
   pg_new = copy(pg)
   rem_edges!(pg_new, partition_edges)
