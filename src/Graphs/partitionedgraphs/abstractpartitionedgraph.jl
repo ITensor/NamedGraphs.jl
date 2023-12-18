@@ -159,7 +159,7 @@ end
 
 function (pg1::AbstractPartitionedGraph == pg2::AbstractPartitionedGraph)
   if unpartitioned_graph(pg1) != unpartitioned_graph(pg2) ||
-    !issetequal(vertices(pg1), vertices(pg2))
+    partitioned_graph(pg1) != partitioned_graph(pg2)
     return false
   end
 
