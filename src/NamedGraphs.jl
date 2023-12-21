@@ -179,6 +179,7 @@ export NamedGraph,
   neighborhood,
   neighborhood_dists,
   neighbors,
+  partitioned_graph,
   path_digraph,
   path_graph,
   periphery,
@@ -196,6 +197,7 @@ export NamedGraph,
   outdegrees,
   mincut_partitions,
   steiner_tree,
+  unpartitioned_graph,
   weights
 
 function __init__()

@@ -1,4 +1,5 @@
 using Test
+using NamedGraphs
 using NamedGraphs:
   spanning_forest,
   subvertices,
@@ -19,16 +20,26 @@ using Graphs
 
   partitions = [[(i, j) for j in 1:ny] for i in 1:nx]
   pg = PartitionedGraph(g, partitions)
-  @test vertextype(pg.partitioned_graph) == Int64
-  @test vertextype(pg.graph) == vertextype(g)
+  @test vertextype(partitioned_graph(pg)) == Int64
+  @test vertextype(unpartitioned_graph(pg)) == vertextype(g)
+  @test is_tree(partitioned_graph(pg))
+  @test nv(pg) == nx * ny
+  @test nv(partitioned_graph(pg)) == nx
 
   partition_dict = Dictionary([first(partition) for partition in partitions], partitions)
   pg = PartitionedGraph(g, partition_dict)
-  @test vertextype(pg.partitioned_graph) == vertextype(g)
-  @test vertextype(pg.graph) == vertextype(g)
+  @test vertextype(partitioned_graph(pg)) == vertextype(g)
+  @test vertextype(unpartitioned_graph(pg)) == vertextype(g)
+  @test is_tree(partitioned_graph(pg))
+  @test nv(pg) == nx * ny
+  @test nv(partitioned_graph(pg)) == nx
 
   pg = PartitionedGraph([i for i in 1:nx])
-  @test pg.graph == pg.partitioned_graph
+  @test unpartitioned_graph(pg) == partitioned_graph(pg)
+  @test nv(pg) == nx
+  @test nv(partitioned_graph(pg)) == nx
+  @test ne(pg) == 0
+  @test ne(partitioned_graph(pg)) == 0
 end
 
 @testset "Test Partitioned Graph Vertex/Edge Addition and Removal" begin
@@ -40,48 +51,53 @@ end
 
   pv = PartitionVertex(5)
   v_set = vertices(pg, pv)
-  edges_involving_v_set = filter(
-    e -> !isempty(intersect(v_set, [src(e), dst(e)])), edges(pg)
-  )
+  edges_involving_v_set = boundary_edges(g, v_set)
 
   #Strip the middle column from pg via the partitioned graph vertex, and make a new pg
-  pg_stripped = NamedGraphs.rem_vertex(pg, pv)
-  @test !is_connected(pg_stripped.graph) && !is_connected(pg_stripped.partitioned_graph)
-  @test !haskey(pg_stripped.partitioned_vertices, parent(pv))
-  @test !has_vertex(pg_stripped, pv)
-
-  #Strip the middle column from pg directly and via the graph vertices, do it in place
-  NamedGraphs.rem_vertices!(pg, v_set)
-  @test !is_connected(pg.graph) && !is_connected(pg.partitioned_graph)
-  @test !haskey(pg.partitioned_vertices, parent(pv))
+  NamedGraphs.rem_vertex!(pg, pv)
+  @test !is_connected(unpartitioned_graph(pg)) && !is_connected(partitioned_graph(pg))
+  @test parent(pv) ∉ vertices(partitioned_graph(pg))
   @test !has_vertex(pg, pv)
-
-  #Test both are the same
-  @test pg == pg_stripped
+  @test nv(pg) == (nx - 1) * ny
+  @test nv(partitioned_graph(pg)) == nx - 1
+  @test !is_tree(partitioned_graph(pg))
 
   #Add the column back to the in place graph
   NamedGraphs.add_vertices!(pg, v_set, pv)
   NamedGraphs.add_edges!(pg, edges_involving_v_set)
-  @test is_connected(pg.graph) && is_path_graph(pg.partitioned_graph)
-  @test haskey(pg.partitioned_vertices, parent(pv))
+  @test is_connected(pg.graph) && is_path_graph(partitioned_graph(pg))
+  @test parent(pv) ∈ vertices(partitioned_graph(pg))
   @test has_vertex(pg, pv)
+  @test is_tree(partitioned_graph(pg))
+  @test nv(pg) == nx * ny
+  @test nv(partitioned_graph(pg)) == nx
 end
 
 @testset "Test Partitioned Graph Subgraph Functionality" begin
-  n, z = 20, 4
-  nvertices_per_partition = 4
+  n, z = 12, 4
   g = NamedGraph(random_regular_graph(n, z))
-  npartitions = _npartitions(g, nothing, nvertices_per_partition)
-  partitions = [
-    [nvertices_per_partition * (i - 1) + j for j in 1:nvertices_per_partition] for
-    i in 1:npartitions
-  ]
+  partitions = dictionary([
+    1 => [1, 2, 3], 2 => [4, 5, 6], 3 => [7, 8, 9], 4 => [10, 11, 12]
+  ])
   pg = PartitionedGraph(g, partitions)
 
-  pg_1 = subgraph(pg, partitions[1])
-  pg_2 = subgraph(pg, [PartitionVertex(1)])
+  subgraph_partitioned_vertices = [1, 2]
+  subgraph_vertices = reduce(
+    vcat, [partitions[spv] for spv in subgraph_partitioned_vertices]
+  )
 
+  pg_1 = subgraph(pg, PartitionVertex.(subgraph_partitioned_vertices))
+  pg_2 = subgraph(pg, subgraph_vertices)
   @test pg_1 == pg_2
+  @test nv(pg_1) == length(subgraph_vertices)
+  @test nv(partitioned_graph(pg_1)) == length(subgraph_partitioned_vertices)
+
+  subgraph_partitioned_vertex = 3
+  subgraph_vertices = partitions[subgraph_partitioned_vertex]
+  g_1 = subgraph(pg, PartitionVertex(subgraph_partitioned_vertex))
+  pg_1 = subgraph(pg, subgraph_vertices)
+  @test unpartitioned_graph(pg_1) == subgraph(g, subgraph_vertices)
+  @test g_1 == subgraph(g, subgraph_vertices)
 end
 
 @testset "Test NamedGraphs Functions on Partitioned Graph" begin
@@ -105,6 +121,10 @@ end
     for g in gs
       pg = PartitionedGraph(g, [vertices(g)])
       @test f(pg) == f(pg.graph)
+      @test nv(pg) == nv(g)
+      @test nv(partitioned_graph(pg)) == 1
+      @test ne(pg) == ne(g)
+      @test ne(partitioned_graph(pg)) == 0
     end
   end
 end

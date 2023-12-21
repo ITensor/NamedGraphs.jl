@@ -1,7 +1,7 @@
 set_partitioning_backend!(Backend"Metis"())
 
 """
-    partition(::Backend"Metis", g::AbstractGraph, npartitions::Integer; alg="recursive")
+    partition_vertices(::Backend"Metis", g::AbstractGraph, npartitions::Integer; alg="recursive")
 
 Partition the graph `G` in `n` parts.
 The partition algorithm is defined by the `alg` keyword:

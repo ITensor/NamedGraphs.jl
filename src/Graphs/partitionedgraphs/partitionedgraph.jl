@@ -157,9 +157,16 @@ function induced_subgraph(pg::PartitionedGraph, vertices::Vector)
   return PartitionedGraph(sub_pg_graph, sub_partitioned_vertices), nothing
 end
 
-### PartitionedGraph Specific Functions
 function induced_subgraph(
   pg::PartitionedGraph, partition_verts::Vector{V}
 ) where {V<:PartitionVertex}
   return induced_subgraph(pg, vertices(pg, partition_verts))
+end
+
+function subgraph(pg::PartitionedGraph, partition_vertex::PartitionVertex)
+  return first(induced_subgraph(unpartitioned_graph(pg), vertices(pg, [partition_vertex])))
+end
+
+function induced_subgraph(pg::PartitionedGraph, partition_vertex::PartitionVertex)
+  return subgraph(pg, partition_vertex), nothing
 end
