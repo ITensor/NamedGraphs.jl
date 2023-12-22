@@ -2,17 +2,15 @@ struct PartitionedGraph{V,PV,G<:AbstractGraph{V},PG<:AbstractGraph{PV}} <:
        AbstractPartitionedGraph{V,PV}
   graph::G
   partitioned_graph::PG
-  partitioned_vertices::Dictionary{PV,Vector{V}}
-  which_partition::Dictionary{V,PV}
+  partitioned_vertices::Dictionary
+  which_partition::Dictionary
 end
 
 ##Constructors.
-function PartitionedGraph{V,PV,G,PG}(
-  g::AbstractGraph{V}, partitioned_vertices::Dictionary{PV,Vector{V}}
-) where {V,PV,G<:AbstractGraph{V},PG<:AbstractGraph{PV}}
+function PartitionedGraph(g::AbstractGraph, partitioned_vertices)
   pvs = keys(partitioned_vertices)
   pg = NamedGraph(pvs)
-  which_partition = Dictionary{V,PV}()
+  which_partition = Dictionary()
   for v in vertices(g)
     v_pvs = Set(findall(pv -> v ∈ partitioned_vertices[pv], pvs))
     @assert length(v_pvs) == 1
@@ -27,48 +25,15 @@ function PartitionedGraph{V,PV,G,PG}(
     end
   end
 
-  return PartitionedGraph(g, pg, partitioned_vertices, which_partition)
+  return PartitionedGraph(g, pg, Dictionary(partitioned_vertices), which_partition)
 end
 
-function PartitionedGraph(
-  g::AbstractGraph{V}, partitioned_vertices::Dictionary{PV,Vector{V}}
-) where {V,PV}
-  return PartitionedGraph{V,PV,NamedGraph{V},NamedGraph{PV}}(g, partitioned_vertices)
+function PartitionedGraph(partitioned_vertices)
+  return PartitionedGraph(NamedGraph(keys(partitioned_vertices)), partitioned_vertices)
 end
 
-function PartitionedGraph{V,Int,G,NamedGraph{Int}}(
-  g::AbstractGraph{V}, partitioned_vertices::Vector{Vector{V}}
-) where {V,G<:NamedGraph{V}}
-  partitioned_vertices_dict = Dictionary{Int,Vector{V}}(
-    [i for i in 1:length(partitioned_vertices)], partitioned_vertices
-  )
-  return PartitionedGraph{V,Int,NamedGraph{V},NamedGraph{Int}}(g, partitioned_vertices_dict)
-end
-
-function PartitionedGraph(
-  g::AbstractGraph{V}, partition_vertices::Vector{Vector{V}}
-) where {V}
-  return PartitionedGraph{V,Int,NamedGraph{V},NamedGraph{Int}}(g, partition_vertices)
-end
-
-function PartitionedGraph{V,V,G,G}(vertices::Vector{V}) where {V,G<:NamedGraph{V}}
-  return PartitionedGraph(NamedGraph{V}(vertices), [[v] for v in vertices])
-end
-
-function PartitionedGraph(vertices::Vector{V}) where {V}
-  return PartitionedGraph{V,V,NamedGraph{V},NamedGraph{V}}(vertices)
-end
-
-function PartitionedGraph(
-  g::AbstractGraph;
-  npartitions=nothing,
-  nvertices_per_partition=nothing,
-  backend=current_partitioning_backend(),
-  kwargs...,
-)
-  partitioned_vertices = partition_vertices(
-    g; npartitions, nvertices_per_partition, backend, kwargs...
-  )
+function PartitionedGraph(g::AbstractGraph; kwargs...)
+  partitioned_vertices = partition_vertices(g; kwargs...)
   return PartitionedGraph(g, partitioned_vertices)
 end
 

@@ -8,9 +8,9 @@ npartitions = 4
 pg_kahypar = PartitionedGraph(g; npartitions, backend="KaHyPar")
 pg_metis = PartitionedGraph(g; npartitions, backend="Metis")
 
-@show length(vertices(pg_kahypar.partitioned_graph)) ==
-  length(vertices(pg_metis.partitioned_graph)) ==
+@show length(NamedGraphs.vertices(partitioned_graph(pg_kahypar))) ==
+  length(NamedGraphs.vertices(partitioned_graph(pg_metis))) ==
   npartitions
 
-@show typeof(pg_kahypar) <: PartitionedGraph
-@show typeof(pg_metis) <: PartitionedGraph
+@show pg_kahypar isa PartitionedGraph
+@show pg_metis isa PartitionedGraph
