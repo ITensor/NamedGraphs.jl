@@ -159,10 +159,10 @@ function set_vertices(graph::GenericNamedGraph, vertices)
   return GenericNamedGraph(parent_graph(graph), vertices)
 end
 
-function directed_graph(G::Type{<:GenericNamedGraph})
+function directed_graph_type(G::Type{<:GenericNamedGraph})
   return GenericNamedGraph{vertextype(G),directed_graph(parent_graph_type(G))}
 end
-function undirected_graph(G::Type{<:GenericNamedGraph})
+function undirected_graph_type(G::Type{<:GenericNamedGraph})
   return GenericNamedGraph{vertextype(G),undirected_graph(parent_graph_type(G))}
 end
 

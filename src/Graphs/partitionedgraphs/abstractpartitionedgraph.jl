@@ -3,34 +3,34 @@ abstract type AbstractPartitionedGraph{V,PV} <: AbstractNamedGraph{V} end
 #Needed for interface
 partitioned_graph(pg::AbstractPartitionedGraph) = not_implemented()
 unpartitioned_graph(pg::AbstractPartitionedGraph) = not_implemented()
-function vertices(pg::AbstractPartitionedGraph, partition_vertex::AbstractPartitionVertex)
-  return not_implemented()
-end
 which_partition(pg::AbstractPartitionedGraph, vertex) = not_implemented()
 copy(pg::AbstractPartitionedGraph) = not_implemented()
 delete_from_vertex_map!(pg::AbstractPartitionedGraph, vertex) = not_implemented()
 insert_to_vertex_map!(pg::AbstractPartitionedGraph, vertex) = not_implemented()
-partition_edge(pg::AbstractPartitionedGraph, edge::AbstractEdge) = not_implemented()
+partition_edge(pg::AbstractPartitionedGraph, edge) = not_implemented()
 function edges(pg::AbstractPartitionedGraph, partition_edge::AbstractPartitionEdge)
   return not_implemented()
 end
+vertices(pg::AbstractPartitionedGraph, pv::AbstractPartitionVertex) = not_implemented()
+function vertices(
+  pg::AbstractPartitionedGraph, partition_verts::Vector{V}
+) where {V<:AbstractPartitionVertex}
+  return not_implemented()
+end
+parent_graph_type(G::Type{<:AbstractPartitionedGraph}) = not_implemented()
+directed_graph_type(G::Type{<:AbstractPartitionedGraph}) = not_implemented()
+undirected_graph_type(G::Type{<:AbstractPartitionedGraph}) = not_implemented()
 
+#Functions for the abstract type
 vertices(pg::AbstractPartitionedGraph) = vertices(unpartitioned_graph(pg))
-#edges(pg::AbstractPartitionedGraph) = edges(unpartitioned_graph(pg))
-#nv(pg::AbstractPartitionedGraph) = nv(unpartitioned_graph(pg))
-#outneighbors(pg::AbstractPartitionedGraph, vertex) = outneighbors(unpartitioned_graph(pg), vertex)
 parent_graph(pg::AbstractPartitionedGraph) = parent_graph(unpartitioned_graph(pg))
 function vertex_to_parent_vertex(pg::AbstractPartitionedGraph, vertex)
   return vertex_to_parent_vertex(unpartitioned_graph(pg), vertex)
 end
 edgetype(pg::AbstractPartitionedGraph) = edgetype(unpartitioned_graph(pg))
-function parent_graph_type(G::Type{<:AbstractPartitionedGraph})
-  return fieldtype(fieldtype(G, :graph), :parent_graph)
-end
-directed_graph(G::Type{<:AbstractPartitionedGraph}) = directed_graph(fieldtype(G, :graph))
-function undirected_graph(G::Type{<:AbstractPartitionedGraph})
-  return unddirected_graph(fieldtype(G, :graph))
-end
+parent_graph_type(pg::AbstractPartitionedGraph) = parent_graph_type(unpartitioned_graph(pg))
+nv(pg::AbstractPartitionedGraph, pv::AbstractPartitionVertex) = length(vertices(pg, pv))
+
 function has_vertex(pg::AbstractPartitionedGraph, partition_vertex::AbstractPartitionVertex)
   return has_vertex(partitioned_graph(pg), parent(partition_vertex))
 end
@@ -49,6 +49,8 @@ function add_edge!(pg::AbstractPartitionedGraph, edge::AbstractEdge)
   if src(pg_edge) != dst(pg_edge)
     add_edge!(partitioned_graph(pg), pg_edge)
   end
+
+  return pg
 end
 
 function rem_edge!(pg::AbstractPartitionedGraph, edge::AbstractEdge)
@@ -79,6 +81,8 @@ function rem_edges!(
   for pe in partition_edges
     rem_edge!(pg, pe)
   end
+
+  return pg
 end
 
 function rem_edges(
@@ -108,6 +112,8 @@ function add_vertices!(
   for (v, pv) in zip(vertices, partition_vertices)
     add_vertex!(pg, v, pv)
   end
+
+  return pg
 end
 
 function add_vertices!(
@@ -117,12 +123,13 @@ function add_vertices!(
 end
 
 function rem_vertex!(pg::AbstractPartitionedGraph, vertex)
-  rem_vertex!(unpartitioned_graph(pg), vertex)
   pv = which_partition(pg, vertex)
-  if length(vertices(pg, pv)) == 1
+  delete_from_vertex_map!(pg, pv, vertex)
+  rem_vertex!(unpartitioned_graph(pg), vertex)
+  if iszero(nv(pg, pv))
     rem_vertex!(partitioned_graph(pg), parent(pv))
   end
-  return delete_from_vertex_map!(pg, vertex)
+  return pg
 end
 
 function rem_vertex!(
@@ -143,6 +150,8 @@ function rem_vertices!(
   for pv in partition_vertices
     rem_vertex!(pg, pv)
   end
+
+  return pg
 end
 
 function rem_vertices(
@@ -170,4 +179,14 @@ function (pg1::AbstractPartitionedGraph == pg2::AbstractPartitionedGraph)
   end
 
   return true
+end
+
+function subgraph(pg::AbstractPartitionedGraph, partition_vertex::AbstractPartitionVertex)
+  return first(induced_subgraph(unpartitioned_graph(pg), vertices(pg, [partition_vertex])))
+end
+
+function induced_subgraph(
+  pg::AbstractPartitionedGraph, partition_vertex::AbstractPartitionVertex
+)
+  return subgraph(pg, partition_vertex), nothing
 end

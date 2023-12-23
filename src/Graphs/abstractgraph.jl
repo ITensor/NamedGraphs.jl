@@ -43,7 +43,7 @@ end
 # to avoid method overwrite warnings, see:
 # https://github.com/mauro3/SimpleTraits.jl#method-overwritten-warnings
 @traitfn function undirected_graph(graph::::IsDirected)
-  undigraph = undirected_graph(typeof(graph))(vertices(graph))
+  undigraph = undirected_graph_type(typeof(graph))(vertices(graph))
   for e in edges(graph)
     # TODO: Check for repeated edges?
     add_edge!(undigraph, e)

@@ -1,16 +1,7 @@
 using Test
 using NamedGraphs
 using NamedGraphs:
-  spanning_forest,
-  subvertices,
-  spanning_tree,
-  forest_cover,
-  rem_edge!,
-  PartitionEdge,
-  rem_edges!,
-  PartitionVertex,
-  parent,
-  _npartitions
+  spanning_forest, spanning_tree, forest_cover, PartitionEdge, PartitionVertex, parent
 using Dictionaries
 using Graphs
 
@@ -120,7 +111,7 @@ end
   for f in functions
     for g in gs
       pg = PartitionedGraph(g, [vertices(g)])
-      @test f(pg) == f(pg.graph)
+      @test f(pg) == f(unpartitioned_graph(pg))
       @test nv(pg) == nv(g)
       @test nv(partitioned_graph(pg)) == 1
       @test ne(pg) == ne(g)

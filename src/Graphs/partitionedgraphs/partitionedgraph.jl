@@ -42,12 +42,21 @@ partitioned_graph(pg::PartitionedGraph) = getfield(pg, :partitioned_graph)
 unpartitioned_graph(pg::PartitionedGraph) = getfield(pg, :graph)
 partitioned_vertices(pg::PartitionedGraph) = getfield(pg, :partitioned_vertices)
 which_partition(pg::PartitionedGraph) = getfield(pg, :which_partition)
-function vertices(pg::PartitionedGraph, partition_vert::PartitionVertex)
-  return partitioned_vertices(pg)[parent(partition_vert)]
+parent_graph_type(PG::Type{<:PartitionedGraph}) = fieldtype(PG, :graph)
+function directed_graph_type(PG::Type{<:PartitionedGraph})
+  return directed_graph_type(fieldtype(PG, :graph))
 end
-function vertices(
-  pg::PartitionedGraph, partition_verts::Vector{V}
-) where {V<:PartitionVertex}
+function undirected_graph_type(PG::Type{<:PartitionedGraph})
+  return undirected_graph_type(fieldtype(PG, :graph))
+end
+function vertices(pg::PartitionedGraph, partition_vert::PartitionVertex)
+  if haskey(partitioned_vertices(pg), parent(partition_vert))
+    return partitioned_vertices(pg)[parent(partition_vert)]
+  else
+    return []
+  end
+end
+function vertices(pg::PartitionedGraph, partition_verts::Vector{<:PartitionVertex})
   return unique(reduce(vcat, [vertices(pg, pv) for pv in partition_verts]))
 end
 function which_partition(pg::PartitionedGraph, vertex)
@@ -61,19 +70,15 @@ function partition_edge(pg::PartitionedGraph, edge::AbstractEdge)
 end
 
 function partition_edges(pg::PartitionedGraph, partition_edge::PartitionEdge)
-  psrc_vs, pdst_vs = vertices(pg, PartitionVertex(src(partition_edge))),
-  vertices(pg, PartitionVertex(dst(partition_edge)))
-  psrc_subgraph, pdst_subgraph, full_subgraph = subgraph(unpartitioned_graph(pg), psrc_vs),
-  subgraph(pg, pdst_vs),
-  subgraph(pg, vcat(psrc_vs, pdst_vs))
+  psrc_vs = vertices(pg, PartitionVertex(src(partition_edge)))
+  pdst_vs = vertices(pg, PartitionVertex(dst(partition_edge)))
+  psrc_subgraph = subgraph(unpartitioned_graph(pg), psrc_vs)
+  pdst_subgraph = subgraph(pg, pdst_vs)
+  full_subgraph = subgraph(pg, vcat(psrc_vs, pdst_vs))
 
-  return setdiff(
-    NamedGraphs.edges(full_subgraph),
-    vcat(NamedGraphs.edges(psrc_subgraph), NamedGraphs.edges(pdst_subgraph)),
-  )
+  return setdiff(edges(full_subgraph), vcat(edges(psrc_subgraph), edges(pdst_subgraph)))
 end
 
-#Copy on dictionaries is dodgy?!
 function copy(pg::PartitionedGraph)
   return PartitionedGraph(
     copy(unpartitioned_graph(pg)),
@@ -93,17 +98,26 @@ function insert_to_vertex_map!(
     pg.partitioned_vertices[pv] = unique(vcat(vertices(pg, partition_vertex), [vertex]))
   end
 
-  return insert!(NamedGraphs.which_partition(pg), vertex, pv)
+  insert!(which_partition(pg), vertex, pv)
+  return pg
 end
 
 function delete_from_vertex_map!(pg::PartitionedGraph, vertex)
   pv = which_partition(pg, vertex)
-  vs = vertices(pg, pv)
-  delete!(partitioned_vertices(pg), parent(pv))
+  return delete_from_vertex_map!(pg, pv, vertex)
+end
+
+function delete_from_vertex_map!(
+  pg::PartitionedGraph, partitioned_vertex::PartitionVertex, vertex
+)
+  vs = vertices(pg, partitioned_vertex)
+  delete!(partitioned_vertices(pg), parent(partitioned_vertex))
   if length(vs) != 1
-    insert!(partitioned_vertices(pg), parent(pv), setdiff(vs, [vertex]))
+    insert!(partitioned_vertices(pg), parent(partitioned_vertex), setdiff(vs, [vertex]))
   end
-  return delete!(pg.which_partition, vertex)
+
+  delete!(which_partition(pg), vertex)
+  return partitioned_vertex
 end
 
 ### PartitionedGraph Specific Functions
@@ -126,12 +140,4 @@ function induced_subgraph(
   pg::PartitionedGraph, partition_verts::Vector{V}
 ) where {V<:PartitionVertex}
   return induced_subgraph(pg, vertices(pg, partition_verts))
-end
-
-function subgraph(pg::PartitionedGraph, partition_vertex::PartitionVertex)
-  return first(induced_subgraph(unpartitioned_graph(pg), vertices(pg, [partition_vertex])))
-end
-
-function induced_subgraph(pg::PartitionedGraph, partition_vertex::PartitionVertex)
-  return subgraph(pg, partition_vertex), nothing
 end

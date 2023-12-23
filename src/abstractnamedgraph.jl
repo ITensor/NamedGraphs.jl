@@ -36,8 +36,8 @@ end
 
 # TODO: rename `edge_type`?
 edgetype(graph::AbstractNamedGraph) = not_implemented()
-directed_graph(G::Type{<:AbstractNamedGraph}) = not_implemented()
-undirected_graph(G::Type{<:AbstractNamedGraph}) = not_implemented()
+directed_graph_type(G::Type{<:AbstractNamedGraph}) = not_implemented()
+undirected_graph_type(G::Type{<:AbstractNamedGraph}) = not_implemented()
 
 # In terms of `parent_graph_type`
 # is_directed(::Type{<:AbstractNamedGraph}) = not_implemented()
@@ -61,7 +61,7 @@ zero(G::Type{<:AbstractNamedGraph}) = G()
 
 # TODO: Implement using `copyto!`?
 function directed_graph(graph::AbstractNamedGraph)
-  digraph = directed_graph(typeof(graph))(vertices(graph))
+  digraph = directed_graph_type(typeof(graph))(vertices(graph))
   for e in edges(graph)
     add_edge!(digraph, e)
     add_edge!(digraph, reverse(e))
@@ -530,7 +530,7 @@ function tree(graph::AbstractNamedGraph, parents)
   n = length(parents)
   # TODO: Use `directed_graph` here to make more generic?
   ## t = GenericNamedGraph(DiGraph(n), vertices(graph))
-  t = directed_graph(typeof(graph))(vertices(graph))
+  t = directed_graph_type(typeof(graph))(vertices(graph))
   for destination in eachindex(parents)
     source = parents[destination]
     if source != destination
