@@ -95,7 +95,7 @@ function insert_to_vertex_map!(
   if pv ∉ keys(partitioned_vertices(pg))
     insert!(partitioned_vertices(pg), pv, [vertex])
   else
-    pg.partitioned_vertices[pv] = unique(vcat(vertices(pg, partition_vertex), [vertex]))
+    partitioned_vertices(pg)[pv] = unique(vcat(vertices(pg, partition_vertex), [vertex]))
   end
 
   insert!(which_partition(pg), vertex, pv)
