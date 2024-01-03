@@ -43,18 +43,8 @@ unpartitioned_graph(pg::PartitionedGraph) = getfield(pg, :graph)
 partitioned_vertices(pg::PartitionedGraph) = getfield(pg, :partitioned_vertices)
 which_partition(pg::PartitionedGraph) = getfield(pg, :which_partition)
 parent_graph_type(PG::Type{<:PartitionedGraph}) = fieldtype(PG, :graph)
-function directed_graph_type(PG::Type{<:PartitionedGraph})
-  return directed_graph_type(fieldtype(PG, :graph))
-end
-function undirected_graph_type(PG::Type{<:PartitionedGraph})
-  return undirected_graph_type(fieldtype(PG, :graph))
-end
 function vertices(pg::PartitionedGraph, partition_vert::PartitionVertex)
-  if haskey(partitioned_vertices(pg), parent(partition_vert))
-    return partitioned_vertices(pg)[parent(partition_vert)]
-  else
-    return []
-  end
+  return partitioned_vertices(pg)[parent(partition_vert)]
 end
 function vertices(pg::PartitionedGraph, partition_verts::Vector{<:PartitionVertex})
   return unique(reduce(vcat, [vertices(pg, pv) for pv in partition_verts]))

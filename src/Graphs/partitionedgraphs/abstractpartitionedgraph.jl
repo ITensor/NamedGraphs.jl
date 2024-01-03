@@ -4,6 +4,7 @@ abstract type AbstractPartitionedGraph{V,PV} <: AbstractNamedGraph{V} end
 partitioned_graph(pg::AbstractPartitionedGraph) = not_implemented()
 unpartitioned_graph(pg::AbstractPartitionedGraph) = not_implemented()
 which_partition(pg::AbstractPartitionedGraph, vertex) = not_implemented()
+partitioned_vertices(pg::AbstractPartitionedGraph) = not_implemented()
 copy(pg::AbstractPartitionedGraph) = not_implemented()
 delete_from_vertex_map!(pg::AbstractPartitionedGraph, vertex) = not_implemented()
 insert_to_vertex_map!(pg::AbstractPartitionedGraph, vertex) = not_implemented()
@@ -17,9 +18,9 @@ function vertices(
 ) where {V<:AbstractPartitionVertex}
   return not_implemented()
 end
-parent_graph_type(G::Type{<:AbstractPartitionedGraph}) = not_implemented()
-directed_graph_type(G::Type{<:AbstractPartitionedGraph}) = not_implemented()
-undirected_graph_type(G::Type{<:AbstractPartitionedGraph}) = not_implemented()
+parent_graph_type(PG::Type{<:AbstractPartitionedGraph}) = not_implemented()
+directed_graph_type(PG::Type{<:AbstractPartitionedGraph}) = not_implemented()
+undirected_graph_type(PG::Type{<:AbstractPartitionedGraph}) = not_implemented()
 
 #Functions for the abstract type
 vertices(pg::AbstractPartitionedGraph) = vertices(unpartitioned_graph(pg))
@@ -30,9 +31,9 @@ end
 edgetype(pg::AbstractPartitionedGraph) = edgetype(unpartitioned_graph(pg))
 parent_graph_type(pg::AbstractPartitionedGraph) = parent_graph_type(unpartitioned_graph(pg))
 nv(pg::AbstractPartitionedGraph, pv::AbstractPartitionVertex) = length(vertices(pg, pv))
-
 function has_vertex(pg::AbstractPartitionedGraph, partition_vertex::AbstractPartitionVertex)
-  return has_vertex(partitioned_graph(pg), parent(partition_vertex))
+  return haskey(partitioned_vertices(pg), parent(partition_vertex)) &&
+         has_vertex(partitioned_graph(pg), parent(partition_vertex))
 end
 function has_edge(pg::AbstractPartitionedGraph, edge::AbstractPartitionEdge)
   return has_edge(partitioned_graph(pg), parent(partition_edge))
@@ -126,7 +127,7 @@ function rem_vertex!(pg::AbstractPartitionedGraph, vertex)
   pv = which_partition(pg, vertex)
   delete_from_vertex_map!(pg, pv, vertex)
   rem_vertex!(unpartitioned_graph(pg), vertex)
-  if iszero(nv(pg, pv))
+  if !haskey(partitioned_vertices(pg), parent(pv))
     rem_vertex!(partitioned_graph(pg), parent(pv))
   end
   return pg

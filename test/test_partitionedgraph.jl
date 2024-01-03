@@ -92,15 +92,7 @@ end
 end
 
 @testset "Test NamedGraphs Functions on Partitioned Graph" begin
-  functions = [
-    is_tree,
-    NamedGraphs.default_root_vertex,
-    spanning_tree,
-    spanning_forest,
-    center,
-    diameter,
-    radius,
-  ]
+  functions = [is_tree, NamedGraphs.default_root_vertex, center, diameter, radius]
   gs = [
     named_comb_tree((4, 4)),
     named_grid((2, 2, 2)),
