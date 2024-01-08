@@ -1,5 +1,7 @@
 directed_graph(::Type{<:AbstractGraph}) = error("Not implemented")
 undirected_graph(::Type{<:AbstractGraph}) = error("Not implemented")
+add_vertex!(graph::AbstractGraph, vertex) = error("Not implemented")
+rem_vertex!(graph::AbstractGraph, vertex) = error("Not implemented")
 # TODO: Implement generic version for `IsDirected`
 # directed_graph(G::Type{IsDirected}) = G
 
@@ -382,6 +384,31 @@ end
 function mincut_partitions(graph::AbstractGraph, distmx=weights(graph))
   parts = groupfind(first(mincut(graph, distmx)))
   return parts[1], parts[2]
+end
+
+function insert_vertex!(graph::AbstractGraph, vertex)
+  z = add_vertex!(graph, vertex)
+  if !z
+    error("Duplicate vertices are not allowed")
+  else
+    return graph
+  end
+end
+
+function delete_vertex!(graph::AbstractGraph, vertex)
+  z = rem_vertex!(graph, vertex)
+  if !z
+    error("Vertex not in graph")
+  else
+    return graph
+  end
+end
+
+function add_vertices!(graph::AbstractGraph, vs::Vector)
+  for vertex in vs
+    add_vertex!(graph, vertex)
+  end
+  return graph
 end
 
 """Remove a list of edges from a graph g"""

@@ -381,21 +381,27 @@ function union(graph1::AbstractNamedGraph, graph2::AbstractNamedGraph)
   return union_graph
 end
 
-function set_vertex!(graph::AbstractNamedGraph, vertex)
-  add_vertex!(parent_graph(graph))
-  # Update the vertex list
-  push!(vertices(graph), vertex)
-  # Update the reverse map
-  # TODO: Make this more generic
-  insert!(graph.vertex_to_parent_vertex, vertex, last(parent_vertices(graph)))
-  return graph
-end
-
-function insert_vertex!(graph::AbstractNamedGraph, vertex)
-  if vertex ∈ vertices(graph)
-    error("Duplicate vertices not allowed!")
+function rem_vertex!(graph::AbstractNamedGraph, vertex)
+  if vertex ∉ vertices(graph)
+    return false
   else
-    set_vertex!(graph, vertex)
+    parent_vertex = vertex_to_parent_vertex(graph, vertex)
+    rem_vertex!(parent_graph(graph), parent_vertex)
+
+    # Insert the last vertex into the position of the vertex
+    # that is being deleted, then remove the last vertex.
+    last_vertex = last(vertices(graph))
+    vertices(graph)[parent_vertex] = last_vertex
+    last_vertex = pop!(vertices(graph))
+
+    # Insert the last vertex into the position of the vertex
+    # that is being deleted, then remove the last vertex.
+    # TODO: Make this more generic
+    graph.vertex_to_parent_vertex[last_vertex] = parent_vertex
+    # TODO: Make this more generic
+    delete!(graph.vertex_to_parent_vertex, vertex)
+
+    return true
   end
 end
 
@@ -403,53 +409,14 @@ function add_vertex!(graph::AbstractNamedGraph, vertex)
   if vertex ∈ vertices(graph)
     return false
   else
-    set_vertex!(graph, vertex)
+    add_vertex!(parent_graph(graph))
+    # Update the vertex list
+    push!(vertices(graph), vertex)
+    # Update the reverse map
+    # TODO: Make this more generic
+    insert!(graph.vertex_to_parent_vertex, vertex, last(parent_vertices(graph)))
     return true
   end
-end
-
-function unset_vertex!(graph::AbstractNamedGraph, vertex)
-  parent_vertex = vertex_to_parent_vertex(graph, vertex)
-  rem_vertex!(parent_graph(graph), parent_vertex)
-
-  # Insert the last vertex into the position of the vertex
-  # that is being deleted, then remove the last vertex.
-  last_vertex = last(vertices(graph))
-  vertices(graph)[parent_vertex] = last_vertex
-  last_vertex = pop!(vertices(graph))
-
-  # Insert the last vertex into the position of the vertex
-  # that is being deleted, then remove the last vertex.
-  # TODO: Make this more generic
-  graph.vertex_to_parent_vertex[last_vertex] = parent_vertex
-  # TODO: Make this more generic
-  delete!(graph.vertex_to_parent_vertex, vertex)
-
-  return graph
-end
-
-function rem_vertex!(graph::AbstractNamedGraph, vertex)
-  if vertex ∉ vertices(graph)
-    return false
-  else
-    unset_vertex!(graph, vertex)
-    return true
-  end
-end
-
-function delete_vertex!(graph::AbstractNamedGraph, vertex)
-  if vertex ∉ vertices(graph)
-    error("vertex not in graph!")
-  else
-    unset_vertex!(graph, vertex)
-  end
-end
-
-function add_vertices!(graph::AbstractNamedGraph, vs::Vector)
-  for vertex in vs
-    add_vertex!(graph, vertex)
-  end
-  return graph
 end
 
 is_directed(G::Type{<:AbstractNamedGraph}) = is_directed(parent_graph_type(G))
