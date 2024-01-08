@@ -384,39 +384,40 @@ end
 function rem_vertex!(graph::AbstractNamedGraph, vertex)
   if vertex ∉ vertices(graph)
     return false
-  else
-    parent_vertex = vertex_to_parent_vertex(graph, vertex)
-    rem_vertex!(parent_graph(graph), parent_vertex)
-
-    # Insert the last vertex into the position of the vertex
-    # that is being deleted, then remove the last vertex.
-    last_vertex = last(vertices(graph))
-    vertices(graph)[parent_vertex] = last_vertex
-    last_vertex = pop!(vertices(graph))
-
-    # Insert the last vertex into the position of the vertex
-    # that is being deleted, then remove the last vertex.
-    # TODO: Make this more generic
-    graph.vertex_to_parent_vertex[last_vertex] = parent_vertex
-    # TODO: Make this more generic
-    delete!(graph.vertex_to_parent_vertex, vertex)
-
-    return true
   end
+
+  parent_vertex = vertex_to_parent_vertex(graph, vertex)
+  rem_vertex!(parent_graph(graph), parent_vertex)
+
+  # Insert the last vertex into the position of the vertex
+  # that is being deleted, then remove the last vertex.
+  last_vertex = last(vertices(graph))
+  vertices(graph)[parent_vertex] = last_vertex
+  last_vertex = pop!(vertices(graph))
+
+  # Insert the last vertex into the position of the vertex
+  # that is being deleted, then remove the last vertex.
+  # TODO: Make this more generic
+  graph.vertex_to_parent_vertex[last_vertex] = parent_vertex
+  # TODO: Make this more generic
+  delete!(graph.vertex_to_parent_vertex, vertex)
+
+  return true
 end
 
 function add_vertex!(graph::AbstractNamedGraph, vertex)
   if vertex ∈ vertices(graph)
     return false
-  else
-    add_vertex!(parent_graph(graph))
-    # Update the vertex list
-    push!(vertices(graph), vertex)
-    # Update the reverse map
-    # TODO: Make this more generic
-    insert!(graph.vertex_to_parent_vertex, vertex, last(parent_vertices(graph)))
-    return true
   end
+
+  add_vertex!(parent_graph(graph))
+  # Update the vertex list
+  push!(vertices(graph), vertex)
+  # Update the reverse map
+  # TODO: Make this more generic
+  insert!(graph.vertex_to_parent_vertex, vertex, last(parent_vertices(graph)))
+
+  return true
 end
 
 is_directed(G::Type{<:AbstractNamedGraph}) = is_directed(parent_graph_type(G))

@@ -387,21 +387,21 @@ function mincut_partitions(graph::AbstractGraph, distmx=weights(graph))
 end
 
 function insert_vertex!(graph::AbstractGraph, vertex)
-  z = add_vertex!(graph, vertex)
-  if !z
+  in_graph = !add_vertex!(graph, vertex)
+  if in_graph
     error("Duplicate vertices are not allowed")
-  else
-    return graph
   end
+
+  return graph
 end
 
 function delete_vertex!(graph::AbstractGraph, vertex)
-  z = rem_vertex!(graph, vertex)
-  if !z
+  in_graph = rem_vertex!(graph, vertex)
+  if !in_graph
     error("Vertex not in graph")
-  else
-    return graph
   end
+
+  return graph
 end
 
 function add_vertices!(graph::AbstractGraph, vs::Vector)
