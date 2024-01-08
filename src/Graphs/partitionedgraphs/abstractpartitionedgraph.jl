@@ -31,7 +31,9 @@ end
 edgetype(pg::AbstractPartitionedGraph) = edgetype(unpartitioned_graph(pg))
 parent_graph_type(pg::AbstractPartitionedGraph) = parent_graph_type(unpartitioned_graph(pg))
 nv(pg::AbstractPartitionedGraph, pv::AbstractPartitionVertex) = length(vertices(pg, pv))
-has_vertex(pg::AbstractPartitionedGraph, partition_vertex::AbstractPartitionVertex) = has_vertex(partitioned_graph(pg), parent(partition_vertex))
+function has_vertex(pg::AbstractPartitionedGraph, partition_vertex::AbstractPartitionVertex)
+  return has_vertex(partitioned_graph(pg), parent(partition_vertex))
+end
 
 function has_edge(pg::AbstractPartitionedGraph, edge::AbstractPartitionEdge)
   return has_edge(partitioned_graph(pg), parent(partition_edge))
