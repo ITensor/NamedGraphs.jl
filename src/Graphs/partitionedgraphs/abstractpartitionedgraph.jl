@@ -101,7 +101,8 @@ function add_vertex!(
   add_vertex!(unpartitioned_graph(pg), vertex)
   add_vertex!(partitioned_graph(pg), parent(partition_vertex))
 
-  return insert_to_vertex_map!(pg, vertex, partition_vertex)
+  insert_to_vertex_map!(pg, vertex, partition_vertex)
+  return pg
 end
 
 function add_vertices!(
