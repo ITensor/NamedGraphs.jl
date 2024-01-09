@@ -138,7 +138,8 @@ end
 function rem_vertex!(
   pg::AbstractPartitionedGraph, partition_vertex::AbstractPartitionVertex
 )
-  return rem_vertices!(pg, vertices(pg, partition_vertex))
+  rem_vertices!(pg, vertices(pg, partition_vertex))
+  return pg
 end
 
 function rem_vertex(pg::AbstractPartitionedGraph, partition_vertex::AbstractPartitionVertex)
