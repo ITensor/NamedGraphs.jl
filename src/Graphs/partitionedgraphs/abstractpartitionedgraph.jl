@@ -121,7 +121,8 @@ end
 function add_vertices!(
   pg::AbstractPartitionedGraph, vertices::Vector, partition_vertex::AbstractPartitionVertex
 )
-  return add_vertices!(pg, vertices, fill(partition_vertex, length(vertices)))
+  add_vertices!(pg, vertices, fill(partition_vertex, length(vertices)))
+  return pg
 end
 
 function rem_vertex!(pg::AbstractPartitionedGraph, vertex)
