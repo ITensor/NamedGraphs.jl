@@ -62,7 +62,6 @@ function rem_edge!(pg::AbstractPartitionedGraph, edge::AbstractEdge)
       rem_edge!(partitioned_graph(pg), pg_edge)
     end
   end
-
   return rem_edge!(unpartitioned_graph(pg), edge)
 end
 
@@ -82,7 +81,6 @@ function rem_edges!(
   for pe in partition_edges
     rem_edge!(pg, pe)
   end
-
   return pg
 end
 
@@ -100,7 +98,6 @@ function add_vertex!(
 )
   add_vertex!(unpartitioned_graph(pg), vertex)
   add_vertex!(partitioned_graph(pg), parent(partition_vertex))
-
   insert_to_vertex_map!(pg, vertex, partition_vertex)
   return pg
 end
@@ -148,24 +145,6 @@ function rem_vertex(pg::AbstractPartitionedGraph, partition_vertex::AbstractPart
   return pg_new
 end
 
-function rem_vertices!(
-  pg::AbstractPartitionedGraph, partition_vertices::Vector{<:AbstractPartitionVertex}
-)
-  for pv in partition_vertices
-    rem_vertex!(pg, pv)
-  end
-
-  return pg
-end
-
-function rem_vertices(
-  pg::AbstractPartitionedGraph, partition_vertices::Vector{<:AbstractPartitionVertex}
-)
-  pg_new = copy(rem_partition_vertex)
-  rem_vertices!(pg_new, partition_vertices)
-  return pg_new
-end
-
 function add_vertex!(pg::AbstractPartitionedGraph, vertex)
   return error("Need to specify a partition where the new vertex will go.")
 end
@@ -175,13 +154,11 @@ function (pg1::AbstractPartitionedGraph == pg2::AbstractPartitionedGraph)
     partitioned_graph(pg1) != partitioned_graph(pg2)
     return false
   end
-
   for v in vertices(pg1)
     if which_partition(pg1, v) != which_partition(pg2, v)
       return false
     end
   end
-
   return true
 end
 
