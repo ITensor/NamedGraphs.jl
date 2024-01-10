@@ -43,7 +43,7 @@ end
 # to avoid method overwrite warnings, see:
 # https://github.com/mauro3/SimpleTraits.jl#method-overwritten-warnings
 @traitfn function undirected_graph(graph::::IsDirected)
-  undigraph = undirected_graph(typeof(graph))(vertices(graph))
+  undigraph = undirected_graph_type(typeof(graph))(vertices(graph))
   for e in edges(graph)
     # TODO: Check for repeated edges?
     add_edge!(undigraph, e)
@@ -384,6 +384,29 @@ function mincut_partitions(graph::AbstractGraph, distmx=weights(graph))
   return parts[1], parts[2]
 end
 
+function insert_vertex!(graph::AbstractGraph, vertex)
+  in_graph = !add_vertex!(graph, vertex)
+  if in_graph
+    error("Duplicate vertices are not allowed")
+  end
+  return graph
+end
+
+function delete_vertex!(graph::AbstractGraph, vertex)
+  in_graph = rem_vertex!(graph, vertex)
+  if !in_graph
+    error("Vertex not in graph")
+  end
+  return graph
+end
+
+function add_vertices!(graph::AbstractGraph, vs::Vector)
+  for vertex in vs
+    add_vertex!(graph, vertex)
+  end
+  return graph
+end
+
 """Remove a list of edges from a graph g"""
 function rem_edges!(g::AbstractGraph, edges)
   for e in edges
@@ -450,7 +473,6 @@ function random_bfs_tree(g::AbstractGraph, s; maxiter=1000 * (nv(g) + ne(g)))
         end
       end
     end
-
     isempty_Q = isempty(Q)
     if isempty_Q
       break
@@ -459,6 +481,5 @@ function random_bfs_tree(g::AbstractGraph, s; maxiter=1000 * (nv(g) + ne(g)))
   if !isempty_Q
     error("Search failed to cover the graph in time. Consider increasing maxiter.")
   end
-
   return g_out
 end
