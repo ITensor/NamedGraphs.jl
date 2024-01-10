@@ -1,7 +1,15 @@
 using Test
 using NamedGraphs
 using NamedGraphs:
-  spanning_forest, spanning_tree, forest_cover, PartitionEdge, PartitionVertex, parent
+  spanning_forest,
+  spanning_tree,
+  forest_cover,
+  PartitionEdge,
+  PartitionVertex,
+  parent,
+  default_root_vertex,
+  triangular_lattice_graph,
+  add_edges!
 using Dictionaries
 using Graphs
 
@@ -45,7 +53,7 @@ end
   edges_involving_v_set = boundary_edges(g, v_set)
 
   #Strip the middle column from pg via the partitioned graph vertex, and make a new pg
-  NamedGraphs.rem_vertex!(pg, pv)
+  rem_vertex!(pg, pv)
   @test !is_connected(unpartitioned_graph(pg)) && !is_connected(partitioned_graph(pg))
   @test parent(pv) ∉ vertices(partitioned_graph(pg))
   @test !has_vertex(pg, pv)
@@ -54,8 +62,8 @@ end
   @test !is_tree(partitioned_graph(pg))
 
   #Add the column back to the in place graph
-  NamedGraphs.add_vertices!(pg, v_set, pv)
-  NamedGraphs.add_edges!(pg, edges_involving_v_set)
+  add_vertices!(pg, v_set, pv)
+  add_edges!(pg, edges_involving_v_set)
   @test is_connected(pg.graph) && is_path_graph(partitioned_graph(pg))
   @test parent(pv) ∈ vertices(partitioned_graph(pg))
   @test has_vertex(pg, pv)
@@ -92,12 +100,12 @@ end
 end
 
 @testset "Test NamedGraphs Functions on Partitioned Graph" begin
-  functions = [is_tree, NamedGraphs.default_root_vertex, center, diameter, radius]
+  functions = [is_tree, default_root_vertex, center, diameter, radius]
   gs = [
     named_comb_tree((4, 4)),
     named_grid((2, 2, 2)),
     NamedGraph(random_regular_graph(12, 3)),
-    NamedGraphs.triangular_lattice_graph(7, 7),
+    triangular_lattice_graph(7, 7),
   ]
 
   for f in functions

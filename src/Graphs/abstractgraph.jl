@@ -1,7 +1,5 @@
 directed_graph(::Type{<:AbstractGraph}) = error("Not implemented")
 undirected_graph(::Type{<:AbstractGraph}) = error("Not implemented")
-add_vertex!(graph::AbstractGraph, vertex) = error("Not implemented")
-rem_vertex!(graph::AbstractGraph, vertex) = error("Not implemented")
 # TODO: Implement generic version for `IsDirected`
 # directed_graph(G::Type{IsDirected}) = G
 
@@ -391,7 +389,6 @@ function insert_vertex!(graph::AbstractGraph, vertex)
   if in_graph
     error("Duplicate vertices are not allowed")
   end
-
   return graph
 end
 
@@ -400,7 +397,6 @@ function delete_vertex!(graph::AbstractGraph, vertex)
   if !in_graph
     error("Vertex not in graph")
   end
-
   return graph
 end
 
@@ -477,7 +473,6 @@ function random_bfs_tree(g::AbstractGraph, s; maxiter=1000 * (nv(g) + ne(g)))
         end
       end
     end
-
     isempty_Q = isempty(Q)
     if isempty_Q
       break
@@ -486,6 +481,5 @@ function random_bfs_tree(g::AbstractGraph, s; maxiter=1000 * (nv(g) + ne(g)))
   if !isempty_Q
     error("Search failed to cover the graph in time. Consider increasing maxiter.")
   end
-
   return g_out
 end
