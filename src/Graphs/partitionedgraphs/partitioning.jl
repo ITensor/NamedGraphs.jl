@@ -71,7 +71,7 @@ function _npartitions(
   return error("Must specify either `npartitions` or `nvertices_per_partition`")
 end
 
-function partition_vertices(
+function partitioned_vertices(
   g::Graph;
   npartitions=nothing,
   nvertices_per_partition=nothing,
@@ -84,15 +84,15 @@ function partition_vertices(
     return group(v -> 1, collect(vertices(g)))
   end
 
-  return partition_vertices(
+  return partitioned_vertices(
     Backend(backend), g, _npartitions(g, npartitions, nvertices_per_partition); kwargs...
   )
 end
 
-function partition_vertices(
+function partitioned_vertices(
   g::AbstractNamedGraph; npartitions=nothing, nvertices_per_partition=nothing, kwargs...
 )
-  vertex_partitions = partition_vertices(
+  vertex_partitions = partitioned_vertices(
     parent_graph(g); npartitions, nvertices_per_partition, kwargs...
   )
   #[inv(vertex_to_parent_vertex(g))[v] for v in partitions]

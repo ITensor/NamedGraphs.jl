@@ -3,17 +3,17 @@ abstract type AbstractPartitionedGraph{V,PV} <: AbstractNamedGraph{V} end
 #Needed for interface
 partitioned_graph(pg::AbstractPartitionedGraph) = not_implemented()
 unpartitioned_graph(pg::AbstractPartitionedGraph) = not_implemented()
-which_partition(pg::AbstractPartitionedGraph, vertex) = not_implemented()
-which_partitions(pg::AbstractPartitionedGraph, verts::Vector) = not_implemented()
-partitioned_vertices(pg::AbstractPartitionedGraph) = not_implemented()
+partition_vertex(pg::AbstractPartitionedGraph, vertex) = not_implemented()
+partition_vertices(pg::AbstractPartitionedGraph, verts::Vector) = not_implemented()
+partition_vertices(pg::AbstractPartitionedGraph) = not_implemented()
 copy(pg::AbstractPartitionedGraph) = not_implemented()
 delete_from_vertex_map!(pg::AbstractPartitionedGraph, vertex) = not_implemented()
 insert_to_vertex_map!(pg::AbstractPartitionedGraph, vertex) = not_implemented()
-which_partitionedge(pg::AbstractPartitionedGraph, edge) = not_implemented()
-function which_partitionedges(pg::AbstractPartitionedGraph, edges::Vector{<:AbstractEdge})
+partition_edge(pg::AbstractPartitionedGraph, edge) = not_implemented()
+function partition_edges(pg::AbstractPartitionedGraph, edges::Vector{<:AbstractEdge})
   return not_implemented()
 end
-partitionedges(pg::AbstractPartitionedGraph) = not_implemented()
+partition_edges(pg::AbstractPartitionedGraph) = not_implemented()
 function edges(pg::AbstractPartitionedGraph, partition_edge::AbstractPartitionEdge)
   return not_implemented()
 end
@@ -45,13 +45,13 @@ function has_edge(pg::AbstractPartitionedGraph, partition_edge::AbstractPartitio
 end
 
 function is_boundary_edge(pg::AbstractPartitionedGraph, edge::AbstractEdge)
-  p_edge = which_partitionedge(pg, edge)
+  p_edge = partition_edge(pg, edge)
   return src(p_edge) == dst(p_edge)
 end
 
 function add_edge!(pg::AbstractPartitionedGraph, edge::AbstractEdge)
   add_edge!(unpartitioned_graph(pg), edge)
-  pg_edge = parent(which_partitionedge(pg, edge))
+  pg_edge = parent(partition_edge(pg, edge))
   if src(pg_edge) != dst(pg_edge)
     add_edge!(partitioned_graph(pg), pg_edge)
   end
@@ -60,7 +60,7 @@ function add_edge!(pg::AbstractPartitionedGraph, edge::AbstractEdge)
 end
 
 function rem_edge!(pg::AbstractPartitionedGraph, edge::AbstractEdge)
-  pg_edge = which_partitionedge(pg, edge)
+  pg_edge = partition_edge(pg, edge)
   if has_edge(partitioned_graph(pg), pg_edge)
     g_edges = edges(pg, pg_edge)
     if length(g_edges) == 1
@@ -128,7 +128,7 @@ function add_vertices!(
 end
 
 function rem_vertex!(pg::AbstractPartitionedGraph, vertex)
-  pv = which_partition(pg, vertex)
+  pv = partition_vertex(pg, vertex)
   delete_from_vertex_map!(pg, pv, vertex)
   rem_vertex!(unpartitioned_graph(pg), vertex)
   if !haskey(partitioned_vertices(pg), parent(pv))
@@ -160,7 +160,7 @@ function (pg1::AbstractPartitionedGraph == pg2::AbstractPartitionedGraph)
     return false
   end
   for v in vertices(pg1)
-    if which_partition(pg1, v) != which_partition(pg2, v)
+    if partition_vertex(pg1, v) != partition_vertex(pg2, v)
       return false
     end
   end
