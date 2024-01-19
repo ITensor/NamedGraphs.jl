@@ -53,13 +53,26 @@ function which_partition(pg::PartitionedGraph, vertex)
   return PartitionVertex(which_partition(pg)[vertex])
 end
 
-function partition_edge(pg::PartitionedGraph, edge::AbstractEdge)
+function which_partitions(pg::PartitionedGraph, verts::Vector)
+  return unique(which_partition(pg, v) for v in verts)
+end
+
+function which_partitionedge(pg::PartitionedGraph, edge::AbstractEdge)
   return PartitionEdge(
     parent(which_partition(pg, src(edge))) => parent(which_partition(pg, dst(edge)))
   )
 end
 
-function partition_edges(pg::PartitionedGraph, partition_edge::PartitionEdge)
+#Lets filter out any self-edges from this. Although this makes it a bit consistent with which_partitionedge
+function which_partitionedges(pg::PartitionedGraph, edges::Vector{<:AbstractEdge})
+  return filter(e -> src(e) != dst(e), unique([which_partitionedge(pg, e) for e in edges]))
+end
+
+function partitionedges(pg::PartitionedGraph)
+  return PartitionEdge.(edges(partitioned_graph(pg)))
+end
+
+function edges(pg::PartitionedGraph, partition_edge::PartitionEdge)
   psrc_vs = vertices(pg, PartitionVertex(src(partition_edge)))
   pdst_vs = vertices(pg, PartitionVertex(dst(partition_edge)))
   psrc_subgraph = subgraph(unpartitioned_graph(pg), psrc_vs)
@@ -67,6 +80,10 @@ function partition_edges(pg::PartitionedGraph, partition_edge::PartitionEdge)
   full_subgraph = subgraph(pg, vcat(psrc_vs, pdst_vs))
 
   return setdiff(edges(full_subgraph), vcat(edges(psrc_subgraph), edges(pdst_subgraph)))
+end
+
+function edges(pg::PartitionedGraph, partition_edges::Vector{<:PartitionEdge})
+  return unique(reduce(vcat, [edges(pg, pe) for pe in partition_edges]))
 end
 
 function copy(pg::PartitionedGraph)
