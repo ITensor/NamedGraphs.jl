@@ -58,7 +58,7 @@ function partition_vertices(pg::PartitionedGraph, verts::Vector)
 end
 
 function partition_vertices(pg::PartitionedGraph)
-  return PartitionedVertex.(partitioned_graph(pg))
+  return PartitionVertex.(vertices(partitioned_graph(pg)))
 end
 
 function partition_edge(pg::PartitionedGraph, edge::AbstractEdge)

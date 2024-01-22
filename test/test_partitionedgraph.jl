@@ -17,28 +17,57 @@ using Graphs
   nx, ny = 10, 10
   g = named_grid((nx, ny))
 
+  #Partition it column-wise (into a 1D chain)
   partitions = [[(i, j) for j in 1:ny] for i in 1:nx]
   pg = PartitionedGraph(g, partitions)
   @test vertextype(partitioned_graph(pg)) == Int64
   @test vertextype(unpartitioned_graph(pg)) == vertextype(g)
+  @test isa(partition_vertices(pg), Vector{PartitionVertex{Int64}})
+  @test isa(partition_edges(pg), Vector{PartitionEdge{Int64,NamedEdge{Int64}}})
   @test is_tree(partitioned_graph(pg))
   @test nv(pg) == nx * ny
   @test nv(partitioned_graph(pg)) == nx
 
+  #Same partitioning but with a dictionary constructor
   partition_dict = Dictionary([first(partition) for partition in partitions], partitions)
   pg = PartitionedGraph(g, partition_dict)
   @test vertextype(partitioned_graph(pg)) == vertextype(g)
   @test vertextype(unpartitioned_graph(pg)) == vertextype(g)
+  @test isa(partition_vertices(pg), Vector{PartitionVertex{Tuple{Int64,Int64}}})
+  @test isa(
+    partition_edges(pg),
+    Vector{PartitionEdge{Tuple{Int64,Int64},NamedEdge{Tuple{Int64,Int64}}}},
+  )
   @test is_tree(partitioned_graph(pg))
   @test nv(pg) == nx * ny
   @test nv(partitioned_graph(pg)) == nx
 
+  #Partition the whole thing into just 1 vertex
   pg = PartitionedGraph([i for i in 1:nx])
   @test unpartitioned_graph(pg) == partitioned_graph(pg)
   @test nv(pg) == nx
   @test nv(partitioned_graph(pg)) == nx
   @test ne(pg) == 0
   @test ne(partitioned_graph(pg)) == 0
+end
+
+@testset "Test Partitioned Graph Partition Edge and Vertex Finding" begin
+  nx, ny, nz = 4, 4, 4
+  g = named_grid((nx, ny, nz))
+
+  #Partition it column-wise (into a square grid)
+  partitions = [[(i, j, k) for k in 1:nz] for i in 1:nx for j in 1:ny]
+  pg = PartitionedGraph(g, partitions)
+  @test Set(partition_vertices(pg)) == Set(partition_vertices(pg, vertices(g)))
+  @test Set(partition_edges(pg)) == Set(partition_edges(pg, edges(g)))
+  @test partition_vertex(pg, (1, 1, 1)) == partition_vertex(pg, (1, 1, nz))
+  @test partition_vertex(pg, (2, 1, 1)) != partition_vertex(pg, (1, 1, nz))
+
+  @test partition_edge(pg, NamedEdge((1, 1, 1) => (2, 1, 1))) ==
+    partition_edge(pg, NamedEdge((1, 1, 2) => (2, 1, 2)))
+  inter_column_edges = NamedEdge.([(1, 1, i) => (2, 1, i) for i in 1:nz])
+  @test length(partition_edges(pg, inter_column_edges)) == 1
+  @test length(partition_vertices(pg, [(1, 2, i) for i in 1:nz])) == 1
 end
 
 @testset "Test Partitioned Graph Vertex/Edge Addition and Removal" begin
