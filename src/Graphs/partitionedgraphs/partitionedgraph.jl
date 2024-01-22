@@ -43,42 +43,42 @@ unpartitioned_graph(pg::PartitionedGraph) = getfield(pg, :graph)
 partitioned_vertices(pg::PartitionedGraph) = getfield(pg, :partitioned_vertices)
 which_partition(pg::PartitionedGraph) = getfield(pg, :which_partition)
 parent_graph_type(PG::Type{<:PartitionedGraph}) = fieldtype(PG, :graph)
-function vertices(pg::PartitionedGraph, partition_vert::PartitionVertex)
-  return partitioned_vertices(pg)[parent(partition_vert)]
+function vertices(pg::PartitionedGraph, partitionvert::PartitionVertex)
+  return partitioned_vertices(pg)[parent(partitionvert)]
 end
-function vertices(pg::PartitionedGraph, partition_verts::Vector{<:PartitionVertex})
-  return unique(reduce(vcat, [vertices(pg, pv) for pv in partition_verts]))
+function vertices(pg::PartitionedGraph, partitionverts::Vector{<:PartitionVertex})
+  return unique(reduce(vcat, [vertices(pg, pv) for pv in partitionverts]))
 end
-function partition_vertex(pg::PartitionedGraph, vertex)
+function partitionvertex(pg::PartitionedGraph, vertex)
   return PartitionVertex(which_partition(pg)[vertex])
 end
 
-function partition_vertices(pg::PartitionedGraph, verts::Vector)
-  return unique(partition_vertex(pg, v) for v in verts)
+function partitionvertices(pg::PartitionedGraph, verts::Vector)
+  return unique(partitionvertex(pg, v) for v in verts)
 end
 
-function partition_vertices(pg::PartitionedGraph)
+function partitionvertices(pg::PartitionedGraph)
   return PartitionVertex.(vertices(partitioned_graph(pg)))
 end
 
-function partition_edge(pg::PartitionedGraph, edge::AbstractEdge)
+function partitionedge(pg::PartitionedGraph, edge::AbstractEdge)
   return PartitionEdge(
-    parent(partition_vertex(pg, src(edge))) => parent(partition_vertex(pg, dst(edge)))
+    parent(partitionvertex(pg, src(edge))) => parent(partitionvertex(pg, dst(edge)))
   )
 end
 
-#Lets filter out any self-edges from this. Although this makes it a bit consistent with partition_edge
-function partition_edges(pg::PartitionedGraph, edges::Vector{<:AbstractEdge})
-  return filter(e -> src(e) != dst(e), unique([partition_edge(pg, e) for e in edges]))
+#Lets filter out any self-edges from this. Although this makes it a bit consistent with partitionedge
+function partitionedges(pg::PartitionedGraph, edges::Vector{<:AbstractEdge})
+  return filter(e -> src(e) != dst(e), unique([partitionedge(pg, e) for e in edges]))
 end
 
-function partition_edges(pg::PartitionedGraph)
+function partitionedges(pg::PartitionedGraph)
   return PartitionEdge.(edges(partitioned_graph(pg)))
 end
 
-function edges(pg::PartitionedGraph, partition_edge::PartitionEdge)
-  psrc_vs = vertices(pg, PartitionVertex(src(partition_edge)))
-  pdst_vs = vertices(pg, PartitionVertex(dst(partition_edge)))
+function edges(pg::PartitionedGraph, partitionedge::PartitionEdge)
+  psrc_vs = vertices(pg, PartitionVertex(src(partitionedge)))
+  pdst_vs = vertices(pg, PartitionVertex(dst(partitionedge)))
   psrc_subgraph = subgraph(unpartitioned_graph(pg), psrc_vs)
   pdst_subgraph = subgraph(pg, pdst_vs)
   full_subgraph = subgraph(pg, vcat(psrc_vs, pdst_vs))
@@ -86,8 +86,8 @@ function edges(pg::PartitionedGraph, partition_edge::PartitionEdge)
   return setdiff(edges(full_subgraph), vcat(edges(psrc_subgraph), edges(pdst_subgraph)))
 end
 
-function edges(pg::PartitionedGraph, partition_edges::Vector{<:PartitionEdge})
-  return unique(reduce(vcat, [edges(pg, pe) for pe in partition_edges]))
+function edges(pg::PartitionedGraph, partitionedges::Vector{<:PartitionEdge})
+  return unique(reduce(vcat, [edges(pg, pe) for pe in partitionedges]))
 end
 
 function copy(pg::PartitionedGraph)
@@ -95,18 +95,18 @@ function copy(pg::PartitionedGraph)
     copy(unpartitioned_graph(pg)),
     copy(partitioned_graph(pg)),
     copy_keys_values(partitioned_vertices(pg)),
-    copy_keys_values(partition_vertex(pg)),
+    copy_keys_values(partitionvertex(pg)),
   )
 end
 
 function insert_to_vertex_map!(
-  pg::PartitionedGraph, vertex, partition_vertex::PartitionVertex
+  pg::PartitionedGraph, vertex, partitionvertex::PartitionVertex
 )
-  pv = parent(partition_vertex)
+  pv = parent(partitionvertex)
   if pv ∉ keys(partitioned_vertices(pg))
     insert!(partitioned_vertices(pg), pv, [vertex])
   else
-    partitioned_vertices(pg)[pv] = unique(vcat(vertices(pg, partition_vertex), [vertex]))
+    partitioned_vertices(pg)[pv] = unique(vcat(vertices(pg, partitionvertex), [vertex]))
   end
 
   insert!(which_partition(pg), vertex, pv)
@@ -114,7 +114,7 @@ function insert_to_vertex_map!(
 end
 
 function delete_from_vertex_map!(pg::PartitionedGraph, vertex)
-  pv = partition_vertex(pg, vertex)
+  pv = partitionvertex(pg, vertex)
   return delete_from_vertex_map!(pg, pv, vertex)
 end
 
@@ -148,7 +148,7 @@ function induced_subgraph(pg::PartitionedGraph, vertices::Vector)
 end
 
 function induced_subgraph(
-  pg::PartitionedGraph, partition_verts::Vector{V}
+  pg::PartitionedGraph, partitionverts::Vector{V}
 ) where {V<:PartitionVertex}
-  return induced_subgraph(pg, vertices(pg, partition_verts))
+  return induced_subgraph(pg, vertices(pg, partitionverts))
 end
