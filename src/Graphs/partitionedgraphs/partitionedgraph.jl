@@ -150,5 +150,5 @@ end
 function induced_subgraph(
   pg::PartitionedGraph, partitionverts::Vector{V}
 ) where {V<:PartitionVertex}
-  return induced_subgraph(unpartitioned_graph(pg), vertices(pg, partitionverts))
+  return induced_subgraph(pg, vertices(pg, partitionverts))
 end

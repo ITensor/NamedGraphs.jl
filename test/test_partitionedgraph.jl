@@ -115,10 +115,10 @@ end
   )
 
   pg_1 = subgraph(pg, PartitionVertex.(subgraph_partitioned_vertices))
-  @test isa(pg_1, NamedGraph)
   pg_2 = subgraph(pg, subgraph_vertices)
-  @test isa(pg_2, PartitionedGraph)
+  @test pg_1 == pg_2
   @test nv(pg_1) == length(subgraph_vertices)
+  @test nv(partitioned_graph(pg_1)) == length(subgraph_partitioned_vertices)
 
   subgraph_partitioned_vertex = 3
   subgraph_vertices = partitions[subgraph_partitioned_vertex]
