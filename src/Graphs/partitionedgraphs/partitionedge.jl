@@ -1,4 +1,4 @@
-struct PartitionEdge{V,E<:AbstractEdge{<:V}} <: AbstractPartitionEdge{V}
+struct PartitionEdge{V,E<:AbstractEdge{V}} <: AbstractPartitionEdge{V}
   edge::E
 end
 
