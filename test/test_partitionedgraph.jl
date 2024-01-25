@@ -60,6 +60,8 @@ end
   pg = PartitionedGraph(g, partitions)
   @test Set(partitionvertices(pg)) == Set(partitionvertices(pg, vertices(g)))
   @test Set(partitionedges(pg)) == Set(partitionedges(pg, edges(g)))
+  @test is_self_loop(partitionedge(pg, (1, 1, 1) => (1, 1, 2)))
+  @test !is_self_loop(partitionedge(pg, (1, 2, 1) => (1, 1, 1)))
   @test partitionvertex(pg, (1, 1, 1)) == partitionvertex(pg, (1, 1, nz))
   @test partitionvertex(pg, (2, 1, 1)) != partitionvertex(pg, (1, 1, nz))
 
