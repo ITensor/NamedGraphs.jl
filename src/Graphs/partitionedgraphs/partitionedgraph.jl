@@ -67,7 +67,7 @@ function partitionedge(pg::PartitionedGraph, edge::AbstractEdge)
   )
 end
 
-partitionedge(pg::PartitionedGraph, p::Pair) = partitionedge(pg, NamedEdge(p))
+partitionedge(pg::PartitionedGraph, p::Pair) = partitionedge(pg, edgetype(pg)(p))
 partitionedges(pg::PartitionedGraph, ps::Vector{Pair}) = partitionedges(pg, NamedEdge.(ps))
 
 #Lets filter out any self-edges from this. Although this makes it a bit consistent with partitionedge
