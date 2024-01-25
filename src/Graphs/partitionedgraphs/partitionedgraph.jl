@@ -68,11 +68,12 @@ function partitionedge(pg::PartitionedGraph, edge::AbstractEdge)
 end
 
 partitionedge(pg::PartitionedGraph, p::Pair) = partitionedge(pg, edgetype(pg)(p))
-partitionedges(pg::PartitionedGraph, ps::Vector{Pair}) = partitionedges(pg, NamedEdge.(ps))
 
-#Lets filter out any self-edges from this. Although this makes it a bit consistent with partitionedge
-function partitionedges(pg::PartitionedGraph, edges::Vector{<:AbstractEdge})
-  return filter(e -> src(e) != dst(e), unique([partitionedge(pg, e) for e in edges]))
+is_self_loop(e::AbstractEdge) = src(e) == dst(e)
+is_self_loop(e::Pair) = first(e) == last(e)
+
+function partitionedges(pg::PartitionedGraph, edges::Vector)
+  return filter(!is_self_loop, unique([partitionedge(pg, e) for e in edges]))
 end
 
 function partitionedges(pg::PartitionedGraph)
