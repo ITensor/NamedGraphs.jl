@@ -98,8 +98,8 @@ function copy(pg::PartitionedGraph)
   return PartitionedGraph(
     copy(unpartitioned_graph(pg)),
     copy(partitioned_graph(pg)),
-    copy_keys_values(partitioned_vertices(pg)),
-    copy_keys_values(partitionvertex(pg)),
+    copy(partitioned_vertices(pg)),
+    copy(partitionvertex(pg)),
   )
 end
 
@@ -138,7 +138,7 @@ end
 ### PartitionedGraph Specific Functions
 function induced_subgraph(pg::PartitionedGraph, vertices::Vector)
   sub_pg_graph, _ = induced_subgraph(unpartitioned_graph(pg), vertices)
-  sub_partitioned_vertices = copy_keys_values(partitioned_vertices(pg))
+  sub_partitioned_vertices = copy(partitioned_vertices(pg))
   for pv in NamedGraphs.vertices(partitioned_graph(pg))
     vs = intersect(vertices, sub_partitioned_vertices[pv])
     if !isempty(vs)
