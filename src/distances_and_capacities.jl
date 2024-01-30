@@ -11,7 +11,7 @@ function _symmetrize(dist)
 end
 
 function _symmetrize(dist::AbstractDictionary)
-  symmetrized_dist = copy_keys_values(dist)
+  symmetrized_dist = copy(dist)
   for k in keys(dist)
     insert!(symmetrized_dist, reverse(k), dist[k])
   end
