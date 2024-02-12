@@ -73,6 +73,15 @@ using Test
   @test has_vertex(g, ((1, 1), "X"))
   @test has_vertex(g, ((1, 1), "Y"))
 
+  g3 = NamedGraph(grid((2, 2)); vertices=(2, 2))
+  g = disjoint_union("X" => g1, "Y" => g2, "Z" => g3)
+
+  @test nv(g) == 12
+  @test ne(g) == 12
+  @test has_vertex(g, ((1, 1), "X"))
+  @test has_vertex(g, ((1, 1), "Y"))
+  @test has_vertex(g, ((1, 1), "Z"))
+
   # TODO: Need to drop the dimensions to make these equal
   #@test issetequal(Graphs.vertices(g1), Graphs.vertices(g["X", :]))
   #@test issetequal(edges(g1), edges(g["X", :]))
