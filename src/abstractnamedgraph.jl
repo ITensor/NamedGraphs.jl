@@ -381,6 +381,15 @@ function union(graph1::AbstractNamedGraph, graph2::AbstractNamedGraph)
   return union_graph
 end
 
+function union(
+  graph1::AbstractNamedGraph,
+  graph2::AbstractNamedGraph,
+  graph3::AbstractNamedGraph,
+  graph_rest::AbstractNamedGraph...,
+)
+  return union(union(graph1, graph2), graph3, graph_rest...)
+end
+
 function rem_vertex!(graph::AbstractNamedGraph, vertex)
   if vertex ∉ vertices(graph)
     return false
