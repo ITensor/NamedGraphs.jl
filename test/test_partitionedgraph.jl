@@ -27,6 +27,8 @@ using Graphs
   @test is_tree(partitioned_graph(pg))
   @test nv(pg) == nx * ny
   @test nv(partitioned_graph(pg)) == nx
+  pg_c = copy(pg)
+  @test pg_c == pg
 
   #Same partitioning but with a dictionary constructor
   partition_dict = Dictionary([first(partition) for partition in partitions], partitions)

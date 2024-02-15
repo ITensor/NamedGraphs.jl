@@ -99,7 +99,7 @@ function copy(pg::PartitionedGraph)
     copy(unpartitioned_graph(pg)),
     copy(partitioned_graph(pg)),
     copy(partitioned_vertices(pg)),
-    copy(partitionvertex(pg)),
+    copy(which_partition(pg)),
   )
 end
 
