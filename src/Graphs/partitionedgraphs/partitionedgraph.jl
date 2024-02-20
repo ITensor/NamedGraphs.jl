@@ -94,12 +94,26 @@ function edges(pg::PartitionedGraph, partitionedges::Vector{<:PartitionEdge})
   return unique(reduce(vcat, [edges(pg, pe) for pe in partitionedges]))
 end
 
+function boundary_partitionedges(
+  pg::PartitionedGraph, partitionvertices::Vector{<:PartitionVertex}; kwargs...
+)
+  return PartitionEdge.(
+    boundary_edges(partitioned_graph(pg), parent.(partitionvertices); kwargs...)
+  )
+end
+
+function boundary_partitionedges(
+  pg::PartitionedGraph, partitionvertex::PartitionVertex; kwargs...
+)
+  return boundary_partitionedges(pg, PartitionVertex[partitionvertex]; kwargs...)
+end
+
 function copy(pg::PartitionedGraph)
   return PartitionedGraph(
     copy(unpartitioned_graph(pg)),
     copy(partitioned_graph(pg)),
     copy(partitioned_vertices(pg)),
-    copy(partitionvertex(pg)),
+    copy(which_partition(pg)),
   )
 end
 

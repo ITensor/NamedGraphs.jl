@@ -6,6 +6,7 @@ using NamedGraphs:
   forest_cover,
   PartitionEdge,
   PartitionVertex,
+  boundary_partitionedges,
   parent,
   default_root_vertex,
   triangular_lattice_graph,
@@ -65,11 +66,17 @@ end
   @test partitionvertex(pg, (1, 1, 1)) == partitionvertex(pg, (1, 1, nz))
   @test partitionvertex(pg, (2, 1, 1)) != partitionvertex(pg, (1, 1, nz))
 
-  @test partitionedge(pg, NamedEdge((1, 1, 1) => (2, 1, 1))) ==
-    partitionedge(pg, NamedEdge((1, 1, 2) => (2, 1, 2)))
-  inter_column_edges = NamedEdge.([(1, 1, i) => (2, 1, i) for i in 1:nz])
+  @test partitionedge(pg, (1, 1, 1) => (2, 1, 1)) ==
+    partitionedge(pg, (1, 1, 2) => (2, 1, 2))
+  inter_column_edges = [(1, 1, i) => (2, 1, i) for i in 1:nz]
   @test length(partitionedges(pg, inter_column_edges)) == 1
   @test length(partitionvertices(pg, [(1, 2, i) for i in 1:nz])) == 1
+
+  boundary_sizes = [length(boundary_partitionedges(pg, pv)) for pv in partitionvertices(pg)]
+  #Partitions into a square grid so each partition should have maximum 4 incoming edges and minimum 2
+  @test maximum(boundary_sizes) == 4
+  @test minimum(boundary_sizes) == 2
+  @test isempty(boundary_partitionedges(pg, partitionvertices(pg)))
 end
 
 @testset "Test Partitioned Graph Vertex/Edge Addition and Removal" begin
