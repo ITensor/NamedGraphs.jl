@@ -105,7 +105,7 @@ end
 function boundary_partitionedges(
   pg::PartitionedGraph, partitionvertex::PartitionVertex; kwargs...
 )
-  return boundary_partitionedges(pg, PartitionVertex[partitionvertex]; kwargs...)
+  return boundary_partitionedges(pg, [partitionvertex]; kwargs...)
 end
 
 function copy(pg::PartitionedGraph)
