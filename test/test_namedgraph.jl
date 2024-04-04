@@ -131,6 +131,11 @@ end
       ((1, 4), 3),
     ]
     @test issetequal(neighborhood_dists(g, (1, 1), 3), ns_ds)
+
+    # Test ambiguity with Graphs.jl AbstractGraph definition
+    g = named_path_graph(5)
+    @test issetequal(neighborhood(g, 3, 1), [2, 3, 4])
+    @test issetequal(neighborhood_dists(g, 3, 1), [(2, 1), (3, 0), (4, 1)])
   end
   @testset "Basics (directed)" begin
     g = NamedDiGraph(["A", "B", "C", "D"])
