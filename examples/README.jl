@@ -91,18 +91,6 @@ g₁ ⊔ g₂ # Same as above
 rename_vertices(v -> v[1], subgraph(v -> v[2] == 1, g₁ ⊔ g₂))
 rename_vertices(v -> v[1], subgraph(v -> v[2] == 2, g₁ ⊔ g₂))
 
-## #' Additionally, we can use standard array concatenation syntax, such as:
-## #+ term=true
-## 
-## [g; g]
-## 
-## #' which is equivalent to `vcat(g, g)` or:
-## #+ term=true
-## 
-## [g;; g]
-## 
-## #' which is the same as `hcat(g, g)`.
-
 #' ## Generating this README
 
 #' This file was generated with [Weave.jl](https://github.com/JunoLab/Weave.jl) with the following commands:

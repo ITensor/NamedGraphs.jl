@@ -196,7 +196,9 @@ function degree_histogram(g::AbstractNamedGraph, degfn=degree)
   return hist
 end
 
-function neighborhood(graph::AbstractNamedGraph, vertex, d, distmx=weights(graph); dir=:out)
+function _neighborhood(
+  graph::AbstractNamedGraph, vertex, d, distmx=weights(graph); dir=:out
+)
   parent_distmx = dist_matrix_to_parent_dist_matrix(graph, distmx)
   parent_vertices = neighborhood(
     parent_graph(graph), vertex_to_parent_vertex(graph, vertex), d, parent_distmx; dir
@@ -206,9 +208,25 @@ function neighborhood(graph::AbstractNamedGraph, vertex, d, distmx=weights(graph
   ]
 end
 
-function neighborhood_dists(
-  graph::AbstractNamedGraph, vertex, d, distmx=weights(graph); dir=:out
+function neighborhood(graph::AbstractNamedGraph, vertex, d, distmx=weights(graph); dir=:out)
+  return _neighborhood(graph, vertex, d, distmx; dir)
+end
+
+# Fix for ambiguity error with `AbstractGraph` version
+function neighborhood(
+  graph::AbstractNamedGraph, vertex::Integer, d, distmx=weights(graph); dir=:out
 )
+  return _neighborhood(graph, vertex, d, distmx; dir)
+end
+
+# Fix for ambiguity error with `AbstractGraph` version
+function neighborhood(
+  graph::AbstractNamedGraph, vertex::Integer, d, distmx::AbstractMatrix{<:Real}; dir=:out
+)
+  return _neighborhood(graph, vertex, d, distmx; dir)
+end
+
+function _neighborhood_dists(graph::AbstractNamedGraph, vertex, d, distmx; dir)
   parent_distmx = dist_matrix_to_parent_dist_matrix(graph, distmx)
   parent_vertices_and_dists = neighborhood_dists(
     parent_graph(graph), vertex_to_parent_vertex(graph, vertex), d, parent_distmx; dir
@@ -217,6 +235,30 @@ function neighborhood_dists(
     (parent_vertex_to_vertex(graph, parent_vertex), dist) for
     (parent_vertex, dist) in parent_vertices_and_dists
   ]
+end
+
+function neighborhood_dists(
+  graph::AbstractNamedGraph, vertex, d, distmx=weights(graph); dir=:out
+)
+  return _neighborhood_dists(graph, vertex, d, distmx; dir)
+end
+
+# Fix for ambiguity error with `AbstractGraph` version
+function neighborhood_dists(
+  graph::AbstractNamedGraph, vertex::Integer, d, distmx=weights(graph); dir=:out
+)
+  return _neighborhood_dists(graph, vertex, d, distmx; dir)
+end
+
+# Fix for ambiguity error with `AbstractGraph` version
+function neighborhood_dists(
+  graph::AbstractNamedGraph,
+  vertex::Integer,
+  d,
+  distmx::AbstractMatrix{<:Real}=weights(graph);
+  dir=:out,
+)
+  return _neighborhood_dists(graph, vertex, d, distmx; dir)
 end
 
 function _mincut(graph::AbstractNamedGraph, distmx)
