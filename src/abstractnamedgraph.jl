@@ -252,11 +252,7 @@ end
 
 # Fix for ambiguity error with `AbstractGraph` version
 function neighborhood_dists(
-  graph::AbstractNamedGraph,
-  vertex::Integer,
-  d,
-  distmx::AbstractMatrix{<:Real};
-  dir=:out,
+  graph::AbstractNamedGraph, vertex::Integer, d, distmx::AbstractMatrix{<:Real}; dir=:out
 )
   return _neighborhood_dists(graph, vertex, d, distmx; dir)
 end
