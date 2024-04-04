@@ -255,7 +255,7 @@ function neighborhood_dists(
   graph::AbstractNamedGraph,
   vertex::Integer,
   d,
-  distmx::AbstractMatrix{<:Real}=weights(graph);
+  distmx::AbstractMatrix{<:Real};
   dir=:out,
 )
   return _neighborhood_dists(graph, vertex, d, distmx; dir)
