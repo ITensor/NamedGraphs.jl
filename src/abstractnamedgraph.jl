@@ -12,6 +12,10 @@ parent_graph(graph::AbstractNamedGraph) = not_implemented()
 # ?
 parent_graph_type(graph::AbstractNamedGraph) = not_implemented()
 
+function Graphs.has_vertex(graph::AbstractNamedGraph, vertex)
+  return not_implemented()
+end
+
 parent_vertextype(graph::AbstractNamedGraph) = vertextype(parent_graph(graph))
 
 # Convert vertex to parent vertex
@@ -136,9 +140,6 @@ parent_edge_to_edge(graph::AbstractNamedGraph) = Base.Fix1(parent_edge_to_edge, 
 function parent_edges_to_edges(graph::AbstractNamedGraph, parent_edges)
   return map(parent_edge_to_edge(graph), parent_edges)
 end
-
-# TODO: This is `O(nv(g))`, use `haskey(vertex_to_parent_vertex(g), v)` instead?
-has_vertex(g::AbstractNamedGraph, v) = v in vertices(g)
 
 function edges(graph::AbstractNamedGraph)
   return parent_edges_to_edges(graph, parent_edges(graph))
