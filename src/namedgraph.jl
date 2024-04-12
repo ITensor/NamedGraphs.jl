@@ -11,6 +11,9 @@ vertices(graph::GenericNamedGraph) = getfield(graph, :vertices)
 function vertex_to_parent_vertex(graph::GenericNamedGraph, vertex)
   return graph.vertex_to_parent_vertex[vertex]
 end
+function Graphs.has_vertex(graph::GenericNamedGraph, vertex)
+  return haskey(graph.vertex_to_parent_vertex, vertex)
+end
 
 function convert_vertextype(V::Type, graph::GenericNamedGraph)
   return GenericNamedGraph(parent_graph(graph), convert(Vector{V}, vertices(graph)))
