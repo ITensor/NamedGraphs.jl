@@ -1,18 +1,48 @@
 struct GenericNamedGraph{V,G<:AbstractSimpleGraph{Int}} <: AbstractNamedGraph{V}
   parent_graph::G
-  vertices::Vector{V}
+  parent_vertex_to_vertex::Vector{V}
   vertex_to_parent_vertex::Dictionary{V,Int}
 end
 
 # AbstractNamedGraph required interface.
 parent_graph_type(G::Type{<:GenericNamedGraph}) = fieldtype(G, :parent_graph)
 parent_graph(graph::GenericNamedGraph) = getfield(graph, :parent_graph)
-vertices(graph::GenericNamedGraph) = getfield(graph, :vertices)
 function vertex_to_parent_vertex(graph::GenericNamedGraph, vertex)
   return graph.vertex_to_parent_vertex[vertex]
 end
-function Graphs.has_vertex(graph::GenericNamedGraph, vertex)
-  return haskey(graph.vertex_to_parent_vertex, vertex)
+function parent_vertex_to_vertex(graph::GenericNamedGraph, parent_vertex)
+  return graph.parent_vertex_to_vertex[parent_vertex]
+end
+vertices(graph::GenericNamedGraph) = keys(graph.vertex_to_parent_vertex)
+
+function add_vertex!(graph::GenericNamedGraph, vertex)
+  if vertex ∈ vertices(graph)
+    return false
+  end
+  add_vertex!(graph.parent_graph)
+  # Update the forward map
+  push!(graph.parent_vertex_to_vertex, vertex)
+  # Update the reverse map
+  insert!(graph.vertex_to_parent_vertex, vertex, nv(graph.parent_graph))
+  return true
+end
+
+function rem_vertex!(graph::GenericNamedGraph, vertex)
+  if vertex ∉ vertices(graph)
+    return false
+  end
+  parent_vertex = graph.vertex_to_parent_vertex[vertex]
+  rem_vertex!(graph.parent_graph, parent_vertex)
+  # Insert the last vertex into the position of the vertex
+  # that is being deleted, then remove the last vertex.
+  last_vertex = last(graph.parent_vertex_to_vertex)
+  graph.parent_vertex_to_vertex[parent_vertex] = last_vertex
+  last_vertex = pop!(graph.parent_vertex_to_vertex)
+  # Insert the last vertex into the position of the vertex
+  # that is being deleted, then remove the last vertex.
+  graph.vertex_to_parent_vertex[last_vertex] = parent_vertex
+  delete!(graph.vertex_to_parent_vertex, vertex)
+  return true
 end
 
 function convert_vertextype(V::Type, graph::GenericNamedGraph)
@@ -172,7 +202,7 @@ end
 is_directed(G::Type{<:GenericNamedGraph}) = is_directed(parent_graph_type(G))
 
 # TODO: Implement an edgelist version
-function induced_subgraph(graph::AbstractNamedGraph, subvertices::Vector)
+function induced_subgraph(graph::AbstractNamedGraph, subvertices)
   subgraph = typeof(graph)(subvertices)
   subvertices_set = Set(subvertices)
   for src in subvertices

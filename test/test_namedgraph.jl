@@ -154,11 +154,11 @@ end
     @test indegree(g, "D") == 0
     @test outdegree(g, "D") == 0
 
-    @test degrees(g) == [1, 2, 1, 0]
+    @test degrees(g) == Dictionary(vertices(g), [1, 2, 1, 0])
     @test degrees(g, ["B", "C"]) == [2, 1]
     @test degrees(g, Indices(["B", "C"])) == Dictionary(["B", "C"], [2, 1])
-    @test indegrees(g) == [0, 1, 1, 0]
-    @test outdegrees(g) == [1, 1, 0, 0]
+    @test indegrees(g) == Dictionary(vertices(g), [0, 1, 1, 0])
+    @test outdegrees(g) == Dictionary(vertices(g), [1, 1, 0, 0])
 
     h = degree_histogram(g)
     @test h[0] == 1

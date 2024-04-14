@@ -12,11 +12,8 @@ parent_graph(graph::AbstractNamedGraph) = not_implemented()
 # ?
 parent_graph_type(graph::AbstractNamedGraph) = not_implemented()
 
-function Graphs.has_vertex(graph::AbstractNamedGraph, vertex)
-  return not_implemented()
-end
-
-parent_vertextype(graph::AbstractNamedGraph) = vertextype(parent_graph(graph))
+rem_vertex!(graph::AbstractNamedGraph, vertex) = not_implemented()
+add_vertex!(graph::AbstractNamedGraph, vertex) = not_implemented()
 
 # Convert vertex to parent vertex
 # Inverse map of `parent_vertex_to_vertex`.
@@ -24,19 +21,7 @@ vertex_to_parent_vertex(graph::AbstractNamedGraph, vertex) = not_implemented()
 
 # Convert parent vertex to vertex.
 # Use `vertices`, assumes `vertices` is indexed by a parent vertex (a Vector for linear indexed parent vertices, a dictionary in general).
-function parent_vertex_to_vertex(graph::AbstractNamedGraph, parent_vertex)
-  return vertices(graph)[parent_vertex]
-end
-
-Graphs.SimpleDiGraph(graph::AbstractNamedGraph) = SimpleDiGraph(parent_graph(graph))
-
-# Convenient shorthands for using in higher order functions like `map`.
-function vertex_to_parent_vertex(graph::AbstractNamedGraph)
-  return Base.Fix1(vertex_to_parent_vertex, graph)
-end
-function parent_vertex_to_vertex(graph::AbstractNamedGraph)
-  return Base.Fix1(parent_vertex_to_vertex, graph)
-end
+parent_vertex_to_vertex(graph::AbstractNamedGraph, parent_vertex) = not_implemented()
 
 # TODO: rename `edge_type`?
 edgetype(graph::AbstractNamedGraph) = not_implemented()
@@ -61,6 +46,39 @@ convert_vertextype(::Type, ::AbstractNamedGraph) = not_implemented()
 # end
 copy(graph::AbstractNamedGraph) = not_implemented()
 
+# This should be overloaded for multi-dimensional indexing.
+# Get the subset of vertices of the graph, for example
+# for an input slice `subvertices(graph, "X", :)`.
+function subvertices(graph::AbstractNamedGraph, vertices)
+  return not_implemented()
+end
+
+function merge_vertices!(
+  graph::AbstractNamedGraph, merge_vertices; merged_vertex=first(merge_vertices)
+)
+  return not_implemented()
+end
+
+#
+# Derived interface
+#
+
+function Graphs.has_vertex(graph::AbstractNamedGraph, vertex)
+  return vertex ∈ vertices(graph)
+end
+
+parent_vertextype(graph::AbstractNamedGraph) = vertextype(parent_graph(graph))
+
+Graphs.SimpleDiGraph(graph::AbstractNamedGraph) = SimpleDiGraph(parent_graph(graph))
+
+# Convenient shorthands for using in higher order functions like `map`.
+function vertex_to_parent_vertex(graph::AbstractNamedGraph)
+  return Base.Fix1(vertex_to_parent_vertex, graph)
+end
+function parent_vertex_to_vertex(graph::AbstractNamedGraph)
+  return Base.Fix1(parent_vertex_to_vertex, graph)
+end
+
 zero(G::Type{<:AbstractNamedGraph}) = G()
 
 # TODO: Implement using `copyto!`?
@@ -77,13 +95,6 @@ end
 eltype(graph::AbstractNamedGraph) = eltype(vertices(graph))
 
 parent_eltype(graph::AbstractNamedGraph) = eltype(parent_graph(graph))
-
-# This should be overloaded for multi-dimensional indexing.
-# Get the subset of vertices of the graph, for example
-# for an input slice `subvertices(graph, "X", :)`.
-function subvertices(graph::AbstractNamedGraph, vertices)
-  return not_implemented()
-end
 
 function subvertices(graph::AbstractNamedGraph{V}, vertices::Vector{V}) where {V}
   return vertices
@@ -429,45 +440,6 @@ function union(
   return union(union(graph1, graph2), graph3, graph_rest...)
 end
 
-function rem_vertex!(graph::AbstractNamedGraph, vertex)
-  if vertex ∉ vertices(graph)
-    return false
-  end
-
-  parent_vertex = vertex_to_parent_vertex(graph, vertex)
-  rem_vertex!(parent_graph(graph), parent_vertex)
-
-  # Insert the last vertex into the position of the vertex
-  # that is being deleted, then remove the last vertex.
-  last_vertex = last(vertices(graph))
-  vertices(graph)[parent_vertex] = last_vertex
-  last_vertex = pop!(vertices(graph))
-
-  # Insert the last vertex into the position of the vertex
-  # that is being deleted, then remove the last vertex.
-  # TODO: Make this more generic
-  graph.vertex_to_parent_vertex[last_vertex] = parent_vertex
-  # TODO: Make this more generic
-  delete!(graph.vertex_to_parent_vertex, vertex)
-
-  return true
-end
-
-function add_vertex!(graph::AbstractNamedGraph, vertex)
-  if vertex ∈ vertices(graph)
-    return false
-  end
-
-  add_vertex!(parent_graph(graph))
-  # Update the vertex list
-  push!(vertices(graph), vertex)
-  # Update the reverse map
-  # TODO: Make this more generic
-  insert!(graph.vertex_to_parent_vertex, vertex, last(parent_vertices(graph)))
-
-  return true
-end
-
 is_directed(G::Type{<:AbstractNamedGraph}) = is_directed(parent_graph_type(G))
 
 is_directed(graph::AbstractNamedGraph) = is_directed(parent_graph(graph))
@@ -508,18 +480,11 @@ function connected_components(graph::AbstractNamedGraph)
   return map(parent_vertices_to_vertices(graph), parent_connected_components)
 end
 
-function merge_vertices!(
-  graph::AbstractNamedGraph, merge_vertices; merged_vertex=first(merge_vertices)
-)
-  return not_implemented()
-end
-
 function merge_vertices(
   graph::AbstractNamedGraph, merge_vertices; merged_vertex=first(merge_vertices)
 )
   merged_graph = copy(graph)
   add_vertex!(merged_graph, merged_vertex)
-
   for vertex in merge_vertices
     for e in incident_edges(graph, vertex; dir=:both)
       merged_edge = rename_vertices(v -> v == vertex ? merged_vertex : v, e)
