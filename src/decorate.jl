@@ -1,6 +1,7 @@
 using Graphs: add_edge!, dst, edges, neighbors, rem_vertex!, src, vertices
+using .GraphsExtensions: GraphsExtensions
 
-function decorate_graph_edges(
+function GraphsExtensions.decorate_graph_edges(
   g::AbstractNamedGraph; edge_map::Function=e -> named_grid((1,))
 )
   g_dec = copy(g)
@@ -16,7 +17,7 @@ function decorate_graph_edges(
   return g_dec
 end
 
-function decorate_graph_vertices(
+function GraphsExtensions.decorate_graph_vertices(
   g::AbstractNamedGraph; vertex_map::Function=v -> named_grid((1,))
 )
   g_dec = copy(g)

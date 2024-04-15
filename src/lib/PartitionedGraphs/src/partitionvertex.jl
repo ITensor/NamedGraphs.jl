@@ -2,4 +2,4 @@ struct PartitionVertex{V} <: AbstractPartitionVertex{V}
   vertex::V
 end
 
-parent(pv::PartitionVertex) = getfield(pv, :vertex)
+Base.parent(pv::PartitionVertex) = getfield(pv, :vertex)

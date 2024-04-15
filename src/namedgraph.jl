@@ -13,7 +13,8 @@ using Graphs:
   outneighbors,
   rem_vertex!,
   vertices
-using .GraphsExtensions: GraphsExtensions, vertextype, directed_graph_type
+using .GraphsExtensions:
+  GraphsExtensions, vertextype, directed_graph_type, undirected_graph_type
 
 struct GenericNamedGraph{V,G<:AbstractSimpleGraph{Int}} <: AbstractNamedGraph{V}
   parent_graph::G

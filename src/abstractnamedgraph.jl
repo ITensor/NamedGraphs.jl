@@ -11,7 +11,12 @@ using Graphs:
   vertices,
   weights
 using .GraphsExtensions:
-  GraphsExtensions, directed_graph, incident_edges, rename_vertices, subgraph
+  GraphsExtensions,
+  directed_graph,
+  incident_edges,
+  partitioned_vertices,
+  rename_vertices,
+  subgraph
 using GraphsFlows: GraphsFlows
 
 abstract type AbstractNamedGraph{V} <: AbstractGraph{V} end
@@ -330,6 +335,23 @@ end
   part1 = parent_vertices_to_vertices(graph, parent_part1)
   part2 = parent_vertices_to_vertices(graph, parent_part2)
   return (part1, part2, flow)
+end
+
+# TODO: Make this more generic?
+function GraphsExtensions.partitioned_vertices(
+  g::AbstractNamedGraph; npartitions=nothing, nvertices_per_partition=nothing, kwargs...
+)
+  vertex_partitions = partitioned_vertices(
+    parent_graph(g); npartitions, nvertices_per_partition, kwargs...
+  )
+  #[inv(vertex_to_parent_vertex(g))[v] for v in partitions]
+  # TODO: output the reverse of this dictionary (a Vector of Vector
+  # of the vertices in each partition).
+  # return Dictionary(vertices(g), partitions)
+  return [
+    parent_vertices_to_vertices(g, vertex_partition) for
+    vertex_partition in vertex_partitions
+  ]
 end
 
 # TODO: Move to `NamedGraphsGraphsFlowsExt`.

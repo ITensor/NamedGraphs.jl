@@ -1,4 +1,4 @@
-using Graphs: AbstractGraph, Graph, vertices
+using Graphs: AbstractGraph, SimpleGraph, vertices
 using SplitApplyCombine: group
 
 """
@@ -75,7 +75,7 @@ function _npartitions(
 end
 
 function partitioned_vertices(
-  g::Graph;
+  g::AbstractSimpleGraph;
   npartitions=nothing,
   nvertices_per_partition=nothing,
   backend=current_partitioning_backend(),
@@ -95,15 +95,5 @@ end
 function partitioned_vertices(
   g::AbstractGraph; npartitions=nothing, nvertices_per_partition=nothing, kwargs...
 )
-  vertex_partitions = partitioned_vertices(
-    parent_graph(g); npartitions, nvertices_per_partition, kwargs...
-  )
-  #[inv(vertex_to_parent_vertex(g))[v] for v in partitions]
-  # TODO: output the reverse of this dictionary (a Vector of Vector
-  # of the vertices in each partition).
-  # return Dictionary(vertices(g), partitions)
-  return [
-    parent_vertices_to_vertices(g, vertex_partition) for
-    vertex_partition in vertex_partitions
-  ]
+  return not_implemented()
 end

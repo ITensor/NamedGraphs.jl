@@ -1,20 +1,24 @@
 using Dictionaries: Dictionary
 using Graphs:
   AbstractEdge, AbstractGraph, add_edge!, edges, has_edge, induced_subgraph, vertices
+using .GraphsExtensions: GraphsExtensions, is_self_loop, partitioned_vertices
 using ..NamedGraphs: NamedEdge, NamedGraph
 
+# TODO: Parametrize `partitioned_vertices` and `which_partition`,
+# see https://github.com/mtfishman/NamedGraphs.jl/issues/63.
 struct PartitionedGraph{V,PV,G<:AbstractGraph{V},PG<:AbstractGraph{PV}} <:
        AbstractPartitionedGraph{V,PV}
   graph::G
   partitioned_graph::PG
-  partitioned_vertices::Dictionary{V,PV}
-  which_partition::Dictionary{PV,V}
+  partitioned_vertices::Dictionary
+  which_partition::Dictionary
 end
 
 ##Constructors.
 function PartitionedGraph(g::AbstractGraph, partitioned_vertices)
   pvs = keys(partitioned_vertices)
   pg = NamedGraph(pvs)
+  # TODO: Make this type more specific.
   which_partition = Dictionary()
   for v in vertices(g)
     v_pvs = Set(findall(pv -> v ∈ partitioned_vertices[pv], pvs))
@@ -43,7 +47,9 @@ end
 #Needed for interface
 partitioned_graph(pg::PartitionedGraph) = getfield(pg, :partitioned_graph)
 unpartitioned_graph(pg::PartitionedGraph) = getfield(pg, :graph)
-partitioned_vertices(pg::PartitionedGraph) = getfield(pg, :partitioned_vertices)
+function GraphsExtensions.partitioned_vertices(pg::PartitionedGraph)
+  return getfield(pg, :partitioned_vertices)
+end
 which_partition(pg::PartitionedGraph) = getfield(pg, :which_partition)
 NamedGraphs.parent_graph_type(PG::Type{<:PartitionedGraph}) = fieldtype(PG, :graph)
 function Graphs.vertices(pg::PartitionedGraph, partitionvert::PartitionVertex)
@@ -71,10 +77,6 @@ function partitionedge(pg::PartitionedGraph, edge::AbstractEdge)
 end
 
 partitionedge(pg::PartitionedGraph, p::Pair) = partitionedge(pg, edgetype(pg)(p))
-
-# TODO: Move to `NamedGraphs.GraphsExtensions`.
-is_self_loop(e::AbstractEdge) = src(e) == dst(e)
-is_self_loop(e::Pair) = first(e) == last(e)
 
 function partitionedges(pg::PartitionedGraph, edges::Vector)
   return filter(!is_self_loop, unique([partitionedge(pg, e) for e in edges]))

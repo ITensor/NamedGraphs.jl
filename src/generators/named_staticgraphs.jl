@@ -1,8 +1,12 @@
+using Graphs: SimpleDiGraph, inneighbors, merge_vertices, outneighbors, rem_vertex!
+using .GraphsExtensions: add_edges!, rem_vertices!
+# TODO: Move to `GraphGenerators`?
 using .GraphsExtensions: comb_tree
 
-function parent(tree::SimpleDiGraph, v::Integer)
-  return only(inneighbors(tree, v))
-end
+## TODO: Bring this back in some form?
+## function parent(tree::SimpleDiGraph, v::Integer)
+##   return only(inneighbors(tree, v))
+## end
 
 function children(tree::SimpleDiGraph, v::Integer)
   return outneighbors(tree, v)

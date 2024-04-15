@@ -1,7 +1,8 @@
 using AbstractTrees: AbstractTrees, PostOrderDFS, PreOrderDFS
-using Dictionaries: Dictionary, dictionary
+using Dictionaries: Dictionary, Indices, dictionary
 using Graphs:
   Graphs,
+  AbstractEdge,
   AbstractGraph,
   AbstractSimpleGraph,
   IsDirected,
@@ -16,18 +17,27 @@ using Graphs:
   inneighbors,
   outdegree,
   outneighbors,
+  ne,
   neighbors,
+  nv,
   rem_edge!,
+  rem_vertex!,
   weights
 using SimpleTraits: SimpleTraits, @traitfn
 using SplitApplyCombine: groupfind
 
 not_implemented() = error("Not implemented")
 
+is_self_loop(e::AbstractEdge) = src(e) == dst(e)
+is_self_loop(e::Pair) = first(e) == last(e)
+
 directed_graph_type(::Type{<:AbstractGraph}) = not_implemented()
 undirected_graph_type(::Type{<:AbstractGraph}) = not_implemented()
 # TODO: Implement generic version for `IsDirected`
 # directed_graph_type(G::Type{IsDirected}) = G
+
+directed_graph_type(g::AbstractGraph) = directed_graph_type(typeof(g))
+undirected_graph_type(g::AbstractGraph) = undirected_graph_type(typeof(g))
 
 @traitfn directed_graph(graph::::IsDirected) = graph
 
@@ -493,12 +503,22 @@ function eccentricities(graph::AbstractGraph, vs, distmx=weights(graph))
   return map(vertex -> eccentricity(graph, vertex, distmx), vs)
 end
 
+function decorate_graph_edges(g::AbstractGraph; kwargs...)
+  return not_implemented()
+end
+
+function decorate_graph_vertices(g::AbstractGraph; kwargs...)
+  return not_implemented()
+end
+
 """ Do a BFS search to construct a tree, but do it with randomness to avoid generating the same tree. Based on Int. J. Comput. Their Appl. 15 pp 177-186 (2008). Edges will point away from source vertex s."""
 function random_bfs_tree(g::AbstractGraph, s; maxiter=1000 * (nv(g) + ne(g)))
   Q = [s]
   d = map(v -> v == s ? 0.0 : Inf, Indices(vertices(g)))
   visited = [s]
-  g_out = NamedDiGraph(vertices(g))
+
+  # TODO: This fails for `SimpleDiGraph`.
+  g_out = directed_graph_type(g)(vertices(g))
 
   isempty_Q = false
   for iter in 1:maxiter

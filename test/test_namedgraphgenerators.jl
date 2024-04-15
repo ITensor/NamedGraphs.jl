@@ -1,6 +1,7 @@
 using Test
 using NamedGraphs
 using NamedGraphs: hexagonal_lattice_graph, triangular_lattice_graph
+using NamedGraphs.GraphsExtensions: is_path_graph
 using Graphs
 using Random
 

@@ -1,8 +1,11 @@
-using Test
-using Graphs
-using NamedGraphs
-using NamedGraphs.GraphsExtensions:
-  decorate_graph_edges, decorate_graph_vertices, hexagonal_lattice_graph
+@eval module $(gensym())
+using Graphs: a_star, edges, vertices
+# TODO: Move to `NamedGraphGenerators`.
+using NamedGraphs: named_grid
+# TODO: Rename `named_hexagonal_lattice_graph`, move to `NamedGraphGenerators`.
+using NamedGraphs: hexagonal_lattice_graph
+using NamedGraphs.GraphsExtensions: decorate_graph_edges, decorate_graph_vertices
+using Test: @test, @testset
 
 @testset "Decorated Graphs" begin
   L = 4
@@ -47,4 +50,5 @@ using NamedGraphs.GraphsExtensions:
   @test length(vertices(g_comb)) == 5 * length(vertices(g_1d))
   @test length(a_star(g_1d, (1, 1), (L, 1))) ==
     length(a_star(g_comb, ((1,), (1, 1)), ((1,), (L, 1))))
+end
 end

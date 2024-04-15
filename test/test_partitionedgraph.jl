@@ -1,18 +1,26 @@
-using Test
-using NamedGraphs
-using NamedGraphs:
-  spanning_forest,
-  spanning_tree,
-  forest_cover,
+@eval module $(gensym())
+using Graphs: center, is_tree, radius, random_regular_graph, vertices
+using NamedGraphs: NamedEdge, NamedGraph, diameter, ne, nv
+# TODO: Move to `NamedGraphGenerators`.
+using NamedGraphs: named_comb_tree, named_grid
+# TODO: Rename to `named_triangular_lattice_graph`,
+# move to `NamedGraphGenerators`/`GraphGenerators`.
+using NamedGraphs: triangular_lattice_graph
+using NamedGraphs.GraphsExtensions:
+  add_edges!, default_root_vertex, forest_cover, spanning_forest, spanning_tree, vertextype
+using NamedGraphs.PartitionedGraphs:
   PartitionEdge,
+  PartitionedGraph,
   PartitionVertex,
   boundary_partitionedges,
-  parent,
-  default_root_vertex,
-  triangular_lattice_graph,
-  add_edges!
-using Dictionaries
-using Graphs
+  partitioned_graph,
+  partitionedge,
+  partitionedges,
+  partitionvertex,
+  partitionvertices,
+  unpartitioned_graph
+using Dictionaries: Dictionary, dictionary
+using Test: @test, @testset
 
 @testset "Test Partitioned Graph Constructors" begin
   nx, ny = 10, 10
@@ -165,4 +173,5 @@ end
       @test ne(partitioned_graph(pg)) == 0
     end
   end
+end
 end
