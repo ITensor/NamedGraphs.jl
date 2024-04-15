@@ -488,7 +488,7 @@ end
     @test eccentricities(g, Indices([(1, 2), (2, 2)])) ==
       Dictionary([(1, 2), (2, 2)], [3, 2])
     @test eccentricities(g) == Dictionary(vertices(g), [4, 3, 4, 3, 2, 3, 4, 3, 4])
-    @test center(g) == [(2, 2)]
+    @test issetequal(center(g), [(2, 2)])
     @test radius(g) == 2
     @test diameter(g) == 4
     @test issetequal(periphery(g), [(1, 1), (3, 1), (1, 3), (3, 3)])
