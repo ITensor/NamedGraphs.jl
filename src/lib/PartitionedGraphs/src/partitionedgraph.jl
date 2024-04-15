@@ -1,7 +1,8 @@
 using Dictionaries: Dictionary
 using Graphs:
   AbstractEdge, AbstractGraph, add_edge!, edges, has_edge, induced_subgraph, vertices
-using .GraphsExtensions: GraphsExtensions, is_self_loop, partitioned_vertices
+using .GraphsExtensions:
+  GraphsExtensions, boundary_edges, is_self_loop, partitioned_vertices
 using ..NamedGraphs: NamedEdge, NamedGraph
 
 # TODO: Parametrize `partitioned_vertices` and `which_partition`,

@@ -1,4 +1,5 @@
-using Graphs: Graphs, AbstractEdge, dst, edgetype, src, vertices
+using Graphs:
+  Graphs, AbstractEdge, add_vertex!, dst, edgetype, has_vertex, rem_vertex!, src, vertices
 using ..NamedGraphs:
   NamedGraphs,
   AbstractNamedGraph,
@@ -6,7 +7,7 @@ using ..NamedGraphs:
   parent_graph_type,
   parent_vertex_to_vertex,
   vertex_to_parent_vertex
-using ..NamedGraphs.GraphsExtensions: GraphsExtensions
+using ..NamedGraphs.GraphsExtensions: GraphsExtensions, add_vertices!, rem_vertices!
 
 abstract type AbstractPartitionedGraph{V,PV} <: AbstractNamedGraph{V} end
 

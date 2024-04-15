@@ -1,5 +1,14 @@
 @eval module $(gensym())
-using Graphs: center, is_tree, radius, random_regular_graph, vertices
+using Graphs:
+  center,
+  edges,
+  has_vertex,
+  is_connected,
+  is_tree,
+  radius,
+  random_regular_graph,
+  rem_vertex!,
+  vertices
 using NamedGraphs: NamedEdge, NamedGraph, diameter, ne, nv
 # TODO: Move to `NamedGraphGenerators`.
 using NamedGraphs: named_comb_tree, named_grid
@@ -7,7 +16,17 @@ using NamedGraphs: named_comb_tree, named_grid
 # move to `NamedGraphGenerators`/`GraphGenerators`.
 using NamedGraphs: triangular_lattice_graph
 using NamedGraphs.GraphsExtensions:
-  add_edges!, default_root_vertex, forest_cover, spanning_forest, spanning_tree, vertextype
+  add_edges!,
+  add_vertices!,
+  boundary_edges,
+  default_root_vertex,
+  forest_cover,
+  is_path_graph,
+  is_self_loop,
+  spanning_forest,
+  spanning_tree,
+  subgraph,
+  vertextype
 using NamedGraphs.PartitionedGraphs:
   PartitionEdge,
   PartitionedGraph,

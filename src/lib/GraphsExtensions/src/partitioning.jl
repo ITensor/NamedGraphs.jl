@@ -92,8 +92,6 @@ function partitioned_vertices(
   )
 end
 
-function partitioned_vertices(
-  g::AbstractGraph; npartitions=nothing, nvertices_per_partition=nothing, kwargs...
-)
+function partitioned_vertices(g::AbstractGraph; kwargs...)
   return not_implemented()
 end
