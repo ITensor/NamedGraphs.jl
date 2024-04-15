@@ -102,29 +102,6 @@ function Graphs.rem_edge!(
   return rem_edges!(pg, edges(pg, parent(partitionedge)))
 end
 
-## function GraphsExtensions.rem_edge(pg::AbstractPartitionedGraph, partitionedge::AbstractPartitionEdge)
-##   pg_new = copy(pg)
-##   rem_edge!(pg_new, partitionedge)
-##   return pg_new
-## end
-
-## function GraphsExtensions.rem_edges!(
-##   pg::AbstractPartitionedGraph, partitionedges::Vector{<:AbstractPartitionEdge}
-## )
-##   for pe in partitionedges
-##     rem_edge!(pg, pe)
-##   end
-##   return pg
-## end
-
-## function GraphsExtensions.rem_edges(
-##   pg::AbstractPartitionedGraph, partitionedges::Vector{<:AbstractPartitionEdge}
-## )
-##   pg_new = copy(pg)
-##   rem_edges!(pg_new, partitionedges)
-##   return pg_new
-## end
-
 #Vertex addition and removal. I think it's important not to allow addition of a vertex without specification of PV
 function Graphs.add_vertex!(
   pg::AbstractPartitionedGraph, vertex, partitionvertex::AbstractPartitionVertex
