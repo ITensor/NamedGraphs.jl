@@ -57,16 +57,15 @@ vertextype(graph::AbstractGraph) = vertextype(typeof(graph))
 
 # Function `f` maps original vertices `vᵢ` of `g`
 # to new vertices `f(vᵢ)` of the output graph.
-function rename_vertices(f::Function, g::AbstractGraph)
-  return set_vertices(g, f.(vertices(g)))
-end
+rename_vertices(f::Function, g::AbstractGraph) = not_implemented()
 
 function rename_vertices(g::AbstractGraph, name_map)
   return rename_vertices(v -> name_map[v], g)
 end
 
+# TODO: This isn't really a generic `AbstractGraph` function!
 function permute_vertices(graph::AbstractGraph, permutation::Vector)
-  return subgraph(graph, vertices(graph)[permutation])
+  return subgraph(graph, parent_vertices_to_vertices(graph, permutation))
 end
 
 # Uniform interface for `outneighbors`, `inneighbors`, and `all_neighbors`

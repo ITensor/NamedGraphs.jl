@@ -21,17 +21,25 @@ end
 
 # function eccentricity(graph::AbstractNamedGraph, ::AbstractMatrix)
 
-eccentricities(graph::AbstractGraph) = eccentricities(graph, Indices(vertices(graph)))
+eccentricities(graph::AbstractGraph) = eccentricities(graph, vertices(graph))
 
 function eccentricities(graph::AbstractGraph, vs, distmx=weights(graph))
   return map(vertex -> eccentricity(graph, vertex, distmx), vs)
 end
 
+function eccentricities_center(eccentricities)
+  rad = eccentricities_radius(eccentricities)
+  return filter(x -> eccentricities[x] == rad, keys(eccentricities))
+end
+function eccentricities_periphery(eccentricities)
+  diam = eccentricities_diameter(eccentricities)
+  return filter(x -> eccentricities[x] == diam, keys(eccentricities))
+end
+eccentricities_radius(eccentricities) = minimum(eccentricities)
+eccentricities_diameter(eccentricities) = maximum(eccentricities)
+
 function _center(graph::AbstractNamedGraph, distmx)
-  # TODO: Why does this return the parent vertices?
-  return parent_vertices_to_vertices(
-    graph, center(eccentricities(graph, vertices(graph), distmx))
-  )
+  return eccentricities_center(eccentricities(graph, vertices(graph), distmx))
 end
 
 function center(graph::AbstractNamedGraph, distmx=weights(graph))
@@ -44,7 +52,7 @@ function center(graph::AbstractNamedGraph, distmx::AbstractMatrix)
 end
 
 function _radius(graph::AbstractNamedGraph, distmx)
-  return radius(eccentricities(graph, vertices(graph), distmx))
+  return eccentricities_radius(eccentricities(graph, vertices(graph), distmx))
 end
 
 function radius(graph::AbstractNamedGraph, distmx=weights(graph))
@@ -57,7 +65,7 @@ function radius(graph::AbstractNamedGraph, distmx::AbstractMatrix)
 end
 
 function _diameter(graph::AbstractNamedGraph, distmx)
-  return diameter(eccentricities(graph, vertices(graph), distmx))
+  return eccentricities_diameter(eccentricities(graph, vertices(graph), distmx))
 end
 
 function diameter(graph::AbstractNamedGraph, distmx=weights(graph))
@@ -70,10 +78,7 @@ function diameter(graph::AbstractNamedGraph, distmx::AbstractMatrix)
 end
 
 function _periphery(graph::AbstractNamedGraph, distmx)
-  # TODO: Why does this return the parent vertices?
-  return parent_vertices_to_vertices(
-    graph, periphery(eccentricities(graph, vertices(graph), distmx))
-  )
+  return eccentricities_periphery(eccentricities(graph, vertices(graph), distmx))
 end
 
 function periphery(graph::AbstractNamedGraph, distmx=weights(graph))

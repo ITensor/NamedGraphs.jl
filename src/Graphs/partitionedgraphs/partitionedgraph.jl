@@ -53,7 +53,7 @@ function partitionvertex(pg::PartitionedGraph, vertex)
   return PartitionVertex(which_partition(pg)[vertex])
 end
 
-function partitionvertices(pg::PartitionedGraph, verts::Vector)
+function partitionvertices(pg::PartitionedGraph, verts)
   return unique(partitionvertex(pg, v) for v in verts)
 end
 
@@ -94,9 +94,7 @@ function edges(pg::PartitionedGraph, partitionedges::Vector{<:PartitionEdge})
   return unique(reduce(vcat, [edges(pg, pe) for pe in partitionedges]))
 end
 
-function boundary_partitionedges(
-  pg::PartitionedGraph, partitionvertices::Vector{<:PartitionVertex}; kwargs...
-)
+function boundary_partitionedges(pg::PartitionedGraph, partitionvertices; kwargs...)
   return PartitionEdge.(
     boundary_edges(partitioned_graph(pg), parent.(partitionvertices); kwargs...)
   )
@@ -150,7 +148,7 @@ function delete_from_vertex_map!(
 end
 
 ### PartitionedGraph Specific Functions
-function induced_subgraph(pg::PartitionedGraph, vertices::Vector)
+function partitionedgraph_induced_subgraph(pg::PartitionedGraph, vertices::Vector)
   sub_pg_graph, _ = induced_subgraph(unpartitioned_graph(pg), vertices)
   sub_partitioned_vertices = copy(partitioned_vertices(pg))
   for pv in NamedGraphs.vertices(partitioned_graph(pg))
@@ -165,8 +163,17 @@ function induced_subgraph(pg::PartitionedGraph, vertices::Vector)
   return PartitionedGraph(sub_pg_graph, sub_partitioned_vertices), nothing
 end
 
-function induced_subgraph(
-  pg::PartitionedGraph, partitionverts::Vector{V}
-) where {V<:PartitionVertex}
+function partitionedgraph_induced_subgraph(
+  pg::PartitionedGraph, partitionverts::Vector{<:PartitionVertex}
+)
   return induced_subgraph(pg, vertices(pg, partitionverts))
+end
+
+function Graphs.induced_subgraph(pg::PartitionedGraph, vertices)
+  return partitionedgraph_induced_subgraph(pg, vertices)
+end
+
+# Fixes ambiguity error with `Graphs.jl`.
+function Graphs.induced_subgraph(pg::PartitionedGraph, vertices::Vector{<:Integer})
+  return partitionedgraph_induced_subgraph(pg, vertices)
 end

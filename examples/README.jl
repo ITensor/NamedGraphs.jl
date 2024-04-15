@@ -37,19 +37,19 @@ has_vertex(g, "A")
 has_edge(g, "A" => "B")
 has_edge(g, "A" => "C")
 neighbors(g, "B")
-g[["A", "B"]]
+subgraph(g, ["A", "B"])
 
 #' Internally, this type wraps a `SimpleGraph`, and stores a `Dictionary` from the [Dictionaries.jl](https://github.com/andyferris/Dictionaries.jl) package that maps the vertex names to the linear indices of the underlying `SimpleGraph`.
 
 #' Graph operations are implemented by mapping back and forth between the generalized named vertices and the linear index vertices of the `SimpleGraph`.
 
 #' It is natural to use tuples of integers as the names for the vertices of graphs with grid connectivities.
-#' For this, we use the convention that if a tuple is input, it is interpreted as the grid size and
-#' the vertex names label cartesian coordinates:
+#' For example:
 #+ term=true
 
-g = NamedGraph(grid((2, 2)); vertices=(2, 2))
+g = NamedGraph(grid((2, 2)); vertices=Tuple.(CartesianIndices((2, 2))))
 
+#' In the future we will provide a shorthand notation for this, such as `cartesian_graph(grid((2, 2)), (2, 2))`.
 #' Internally the vertices are all stored as tuples with a label in each dimension.
 
 #' Vertices can be referred to by their tuples:
@@ -65,9 +65,7 @@ neighbors(g, (2, 2))
 
 subgraph(v -> v[1] == 1, g)
 subgraph(v -> v[2] == 2, g)
-g[[(1, 1), (2, 2)]]
-
-#' Note that this is similar to multidimensional array slicing, and we may support syntax like `subgraph(v, 1, :)` in the future.
+subgraph(g, [(1, 1), (2, 2)])
 
 #' You can also take [disjoint unions](https://en.wikipedia.org/wiki/Disjoint_union) or concatenations of graphs:
 #+ term=true

@@ -1,7 +1,7 @@
 using Test
 using Graphs
 using NamedGraphs
-using NamedGraphs: forest_cover, spanning_tree
+using NamedGraphs: all_edges, forest_cover, spanning_tree
 
 module TestTreesAndForests
 using NamedGraphs
@@ -22,8 +22,8 @@ end
 
   s_tree = spanning_tree(g; alg)
   @test is_tree(s_tree)
-  @test Set(vertices(s_tree)) == Set(vertices(g))
-  @test issubset(Set(edges(s_tree)), Set(edges(g)))
+  @test issetequal(vertices(s_tree), vertices(g))
+  @test issubset(all_edges(s_tree), all_edges(g))
 end
 
 @testset "Test Forest Cover $g_string" for (g_string, g) in TestTreesAndForests.gs

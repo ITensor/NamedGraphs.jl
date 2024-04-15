@@ -47,7 +47,7 @@ julia> using NamedGraphs
 
 julia> g = NamedGraph(grid((4,)), ["A", "B", "C", "D"])
 NamedGraph{String} with 4 vertices:
-4-element Vector{String}:
+4-element Dictionaries.Indices{String}
  "A"
  "B"
  "C"
@@ -61,7 +61,7 @@ and 3 edge(s):
 
 julia> g = NamedGraph(grid((4,)); vertices=["A", "B", "C", "D"]) # Same as above
 NamedGraph{String} with 4 vertices:
-4-element Vector{String}:
+4-element Dictionaries.Indices{String}
  "A"
  "B"
  "C"
@@ -92,9 +92,9 @@ julia> neighbors(g, "B")
  "A"
  "C"
 
-julia> g[["A", "B"]]
+julia> subgraph(g, ["A", "B"])
 NamedGraph{String} with 2 vertices:
-2-element Vector{String}:
+2-element Dictionaries.Indices{String}
  "A"
  "B"
 
@@ -113,13 +113,12 @@ Graph operations are implemented by mapping back and forth between the generaliz
 
 
 It is natural to use tuples of integers as the names for the vertices of graphs with grid connectivities.
-For this, we use the convention that if a tuple is input, it is interpreted as the grid size and
-the vertex names label cartesian coordinates:
+For example:
 
 ```julia
-julia> g = NamedGraph(grid((2, 2)); vertices=(2, 2))
+julia> g = NamedGraph(grid((2, 2)); vertices=Tuple.(CartesianIndices((2, 2))))
 NamedGraph{Tuple{Int64, Int64}} with 4 vertices:
-4-element Vector{Tuple{Int64, Int64}}:
+4-element Dictionaries.Indices{Tuple{Int64, Int64}}
  (1, 1)
  (2, 1)
  (1, 2)
@@ -134,6 +133,7 @@ and 4 edge(s):
 ```
 
 
+In the future we will provide a shorthand notation for this, such as `cartesian_graph(grid((2, 2)), (2, 2))`.
 Internally the vertices are all stored as tuples with a label in each dimension.
 
 
@@ -162,7 +162,7 @@ You can use vertex names to get [induced subgraphs](https://juliagraphs.org/Grap
 ```julia
 julia> subgraph(v -> v[1] == 1, g)
 NamedGraph{Tuple{Int64, Int64}} with 2 vertices:
-2-element Vector{Tuple{Int64, Int64}}:
+2-element Dictionaries.Indices{Tuple{Int64, Int64}}
  (1, 1)
  (1, 2)
 
@@ -172,7 +172,7 @@ and 1 edge(s):
 
 julia> subgraph(v -> v[2] == 2, g)
 NamedGraph{Tuple{Int64, Int64}} with 2 vertices:
-2-element Vector{Tuple{Int64, Int64}}:
+2-element Dictionaries.Indices{Tuple{Int64, Int64}}
  (1, 2)
  (2, 2)
 
@@ -180,9 +180,9 @@ and 1 edge(s):
 (1, 2) => (2, 2)
 
 
-julia> g[[(1, 1), (2, 2)]]
+julia> subgraph(g, [(1, 1), (2, 2)])
 NamedGraph{Tuple{Int64, Int64}} with 2 vertices:
-2-element Vector{Tuple{Int64, Int64}}:
+2-element Dictionaries.Indices{Tuple{Int64, Int64}}
  (1, 1)
  (2, 2)
 
@@ -191,16 +191,12 @@ and 0 edge(s):
 ```
 
 
-Note that this is similar to multidimensional array slicing, and we may support syntax like `subgraph(v, 1, :)` in the future.
-
-
-
 You can also take [disjoint unions](https://en.wikipedia.org/wiki/Disjoint_union) or concatenations of graphs:
 
 ```julia
 julia> g₁ = g
 NamedGraph{Tuple{Int64, Int64}} with 4 vertices:
-4-element Vector{Tuple{Int64, Int64}}:
+4-element Dictionaries.Indices{Tuple{Int64, Int64}}
  (1, 1)
  (2, 1)
  (1, 2)
@@ -215,7 +211,7 @@ and 4 edge(s):
 
 julia> g₂ = g
 NamedGraph{Tuple{Int64, Int64}} with 4 vertices:
-4-element Vector{Tuple{Int64, Int64}}:
+4-element Dictionaries.Indices{Tuple{Int64, Int64}}
  (1, 1)
  (2, 1)
  (1, 2)
@@ -230,7 +226,7 @@ and 4 edge(s):
 
 julia> disjoint_union(g₁, g₂)
 NamedGraph{Tuple{Tuple{Int64, Int64}, Int64}} with 8 vertices:
-8-element Vector{Tuple{Tuple{Int64, Int64}, Int64}}:
+8-element Dictionaries.Indices{Tuple{Tuple{Int64, Int64}, Int64}}
  ((1, 1), 1)
  ((2, 1), 1)
  ((1, 2), 1)
@@ -253,7 +249,7 @@ and 8 edge(s):
 
 julia> g₁ ⊔ g₂ # Same as above
 NamedGraph{Tuple{Tuple{Int64, Int64}, Int64}} with 8 vertices:
-8-element Vector{Tuple{Tuple{Int64, Int64}, Int64}}:
+8-element Dictionaries.Indices{Tuple{Tuple{Int64, Int64}, Int64}}
  ((1, 1), 1)
  ((2, 1), 1)
  ((1, 2), 1)
@@ -293,7 +289,7 @@ The original graphs can be obtained from subgraphs:
 ```julia
 julia> rename_vertices(v -> v[1], subgraph(v -> v[2] == 1, g₁ ⊔ g₂))
 NamedGraph{Tuple{Int64, Int64}} with 4 vertices:
-4-element Vector{Tuple{Int64, Int64}}:
+4-element Dictionaries.Indices{Tuple{Int64, Int64}}
  (1, 1)
  (2, 1)
  (1, 2)
@@ -308,7 +304,7 @@ and 4 edge(s):
 
 julia> rename_vertices(v -> v[1], subgraph(v -> v[2] == 2, g₁ ⊔ g₂))
 NamedGraph{Tuple{Int64, Int64}} with 4 vertices:
-4-element Vector{Tuple{Int64, Int64}}:
+4-element Dictionaries.Indices{Tuple{Int64, Int64}}
  (1, 1)
  (2, 1)
  (1, 2)
