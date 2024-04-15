@@ -1,5 +1,6 @@
-using NamedGraphs
-using Graphs
+using NamedGraphs: named_grid
+using NamedGraphs.GraphsExtensions:
+  boundary_edges, boundary_vertices, inner_boundary_vertices, outer_boundary_vertices
 
 g = named_grid((5, 5))
 subgraph_vertices = [(2, 2), (2, 3), (2, 4), (3, 2), (3, 3), (3, 4), (4, 2), (4, 3), (4, 4)]

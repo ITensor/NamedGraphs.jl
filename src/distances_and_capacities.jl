@@ -1,3 +1,5 @@
+using .GraphsExtensions: directed_graph
+
 function _symmetrize(dist::AbstractMatrix)
   return sparse(Symmetric(dist))
 end

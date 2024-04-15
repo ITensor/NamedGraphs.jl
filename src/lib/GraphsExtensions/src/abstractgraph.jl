@@ -1,5 +1,23 @@
-directed_graph(::Type{<:AbstractGraph}) = error("Not implemented")
-undirected_graph(::Type{<:AbstractGraph}) = error("Not implemented")
+using AbstractTrees: AbstractTrees, PostOrderDFS, PreOrderDFS
+using Dictionaries: Dictionary, dictionary
+using Graphs:
+  AbstractGraph,
+  AbstractSimpleGraph,
+  IsDirected,
+  Δ,
+  dfs_tree,
+  edgetype,
+  induced_subgraph,
+  inneighbors,
+  outneighbors,
+  neighbors,
+  rem_edge!
+using SimpleTraits: SimpleTraits, @traitfn
+
+not_implemented() = error("Not implemented")
+
+directed_graph(::Type{<:AbstractGraph}) = not_implemented()
+undirected_graph(::Type{<:AbstractGraph}) = not_implemented()
 # TODO: Implement generic version for `IsDirected`
 # directed_graph(G::Type{IsDirected}) = G
 

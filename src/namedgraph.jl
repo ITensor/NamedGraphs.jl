@@ -1,3 +1,20 @@
+using Dictionaries: Dictionary
+using Graphs:
+  Graphs,
+  AbstractGraph,
+  AbstractSimpleGraph,
+  SimpleGraph,
+  SimpleDiGraph,
+  add_edge!,
+  add_vertex!,
+  edgetype,
+  has_edge,
+  is_directed,
+  outneighbors,
+  rem_vertex!,
+  vertices
+using .GraphsExtensions: GraphsExtensions, vertextype, directed_graph
+
 struct GenericNamedGraph{V,G<:AbstractSimpleGraph{Int}} <: AbstractNamedGraph{V}
   parent_graph::G
   parent_vertex_to_vertex::Vector{V}
@@ -15,9 +32,9 @@ function parent_vertex_to_vertex(graph::GenericNamedGraph, parent_vertex)
 end
 
 # TODO: Order them according to the internal ordering?
-vertices(graph::GenericNamedGraph) = keys(graph.vertex_to_parent_vertex)
+Graphs.vertices(graph::GenericNamedGraph) = keys(graph.vertex_to_parent_vertex)
 
-function add_vertex!(graph::GenericNamedGraph, vertex)
+function Graphs.add_vertex!(graph::GenericNamedGraph, vertex)
   if vertex ∈ vertices(graph)
     return false
   end
@@ -29,7 +46,7 @@ function add_vertex!(graph::GenericNamedGraph, vertex)
   return true
 end
 
-function rem_vertex!(graph::GenericNamedGraph, vertex)
+function Graphs.rem_vertex!(graph::GenericNamedGraph, vertex)
   if vertex ∉ vertices(graph)
     return false
   end
@@ -45,12 +62,12 @@ function rem_vertex!(graph::GenericNamedGraph, vertex)
   return true
 end
 
-function rename_vertices(f::Function, g::GenericNamedGraph)
+function GraphsExtensions.rename_vertices(f::Function, g::GenericNamedGraph)
   # TODO: Could be `set_vertices(g, f.(g.parent_vertex_to_vertex))`.
   return GenericNamedGraph(g.parent_graph, f.(g.parent_vertex_to_vertex))
 end
 
-function convert_vertextype(V::Type, graph::GenericNamedGraph)
+function GraphsExtensions.convert_vertextype(V::Type, graph::GenericNamedGraph)
   return GenericNamedGraph(
     parent_graph(graph), convert(Vector{V}, graph.parent_vertex_to_vertex)
   )
@@ -172,8 +189,8 @@ function copy(graph::GenericNamedGraph)
   return GenericNamedGraph(copy(graph.parent_graph), copy(graph.parent_vertex_to_vertex))
 end
 
-edgetype(G::Type{<:GenericNamedGraph}) = NamedEdge{vertextype(G)}
-edgetype(graph::GenericNamedGraph) = edgetype(typeof(graph))
+Graphs.edgetype(G::Type{<:GenericNamedGraph}) = NamedEdge{vertextype(G)}
+Graphs.edgetype(graph::GenericNamedGraph) = edgetype(typeof(graph))
 
 function set_vertices(graph::GenericNamedGraph, vertices)
   return GenericNamedGraph(parent_graph(graph), vertices)
@@ -186,7 +203,7 @@ function undirected_graph_type(G::Type{<:GenericNamedGraph})
   return GenericNamedGraph{vertextype(G),undirected_graph(parent_graph_type(G))}
 end
 
-is_directed(G::Type{<:GenericNamedGraph}) = is_directed(parent_graph_type(G))
+Graphs.is_directed(G::Type{<:GenericNamedGraph}) = is_directed(parent_graph_type(G))
 
 # TODO: Implement an edgelist version
 function namedgraph_induced_subgraph(graph::AbstractGraph, subvertices)
@@ -202,11 +219,11 @@ function namedgraph_induced_subgraph(graph::AbstractGraph, subvertices)
   return subgraph, nothing
 end
 
-function induced_subgraph(graph::AbstractNamedGraph, subvertices)
+function Graphs.induced_subgraph(graph::AbstractNamedGraph, subvertices)
   return namedgraph_induced_subgraph(graph, subvertices)
 end
 
-function induced_subgraph(graph::AbstractNamedGraph, subvertices::Vector{<:Integer})
+function Graphs.induced_subgraph(graph::AbstractNamedGraph, subvertices::Vector{<:Integer})
   return namedgraph_induced_subgraph(graph, subvertices)
 end
 

@@ -1,3 +1,5 @@
+using Graphs: AbstractGraph, dst, src, vertices
+
 # https://en.wikipedia.org/wiki/Boundary_(graph_theory)
 function boundary_edges(graph::AbstractGraph, subgraph_vertices; dir=:out)
   E = edgetype(graph)

@@ -1,3 +1,6 @@
+using Dictionaries: Dictionary
+using Graphs: SimpleGraph, add_edge!
+
 function comb_tree(dims::Tuple)
   @assert length(dims) == 2
   nx, ny = dims

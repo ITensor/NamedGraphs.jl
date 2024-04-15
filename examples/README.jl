@@ -25,8 +25,9 @@
 #' `NamedGraph` simply takes a set of names for the vertices of the graph. For example:
 #+ term=true
 
-using Graphs
-using NamedGraphs
+using Graphs: grid, has_edge, has_vertex, neighbors
+using NamedGraphs: NamedGraph
+using NamedGraphs.GraphsExtensions: ⊔, disjoint_union, subgraph, rename_vertices
 g = NamedGraph(grid((4,)), ["A", "B", "C", "D"])
 
 #'Common operations are defined as you would expect:
@@ -94,8 +95,9 @@ rename_vertices(first, subgraph(v -> v[2] == 2, g₁ ⊔ g₂))
 #' This file was generated with [Weave.jl](https://github.com/JunoLab/Weave.jl) with the following commands:
 #+ eval=false
 
-using NamedGraphs, Weave
-weave(
+using NamedGraphs: NamedGraphs
+using Weave: Weave
+Weave.weave(
   joinpath(pkgdir(NamedGraphs), "examples", "README.jl");
   doctype="github",
   out_path=pkgdir(NamedGraphs),

@@ -1,7 +1,8 @@
 using Test
 using Graphs
 using NamedGraphs
-using NamedGraphs: decorate_graph_edges, decorate_graph_vertices, hexagonal_lattice_graph
+using NamedGraphs.GraphsExtensions:
+  decorate_graph_edges, decorate_graph_vertices, hexagonal_lattice_graph
 
 @testset "Decorated Graphs" begin
   L = 4

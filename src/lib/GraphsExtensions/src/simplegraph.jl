@@ -1,3 +1,5 @@
+using Graphs.SimpleGraphs: SimpleDiGraph, SimpleGraph
+
 ########################################################################
 # Graphs.SimpleGraphs extensions
 
@@ -7,7 +9,3 @@ directed_graph(G::Type{<:SimpleGraph}) = SimpleDiGraph{vertextype(G)}
 undirected_graph(G::Type{<:SimpleGraph}) = G
 directed_graph(G::Type{<:SimpleDiGraph}) = G
 undirected_graph(G::Type{<:SimpleDiGraph}) = SimpleGraph{vertextype(G)}
-
-function set_vertices(graph::AbstractSimpleGraph, vertices::Vector)
-  return GenericNamedGraph(graph, vertices)
-end

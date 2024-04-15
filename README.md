@@ -41,9 +41,11 @@ Graphs.jl operations, and two implementations: `NamedGraph` and `NamedDiGraph`.
 `NamedGraph` simply takes a set of names for the vertices of the graph. For example:
 
 ```julia
-julia> using Graphs
+julia> using Graphs: grid, has_edge, has_vertex, neighbors
 
-julia> using NamedGraphs
+julia> using NamedGraphs: NamedGraph
+
+julia> using NamedGraphs.GraphsExtensions: ⊔, disjoint_union, subgraph, rename_vertices
 
 julia> g = NamedGraph(grid((4,)), ["A", "B", "C", "D"])
 NamedGraph{String} with 4 vertices:
@@ -315,8 +317,9 @@ and 4 edge(s):
 This file was generated with [Weave.jl](https://github.com/JunoLab/Weave.jl) with the following commands:
 
 ```julia
-using NamedGraphs, Weave
-weave(
+using NamedGraphs: NamedGraphs
+using Weave: Weave
+Weave.weave(
   joinpath(pkgdir(NamedGraphs), "examples", "README.jl");
   doctype="github",
   out_path=pkgdir(NamedGraphs),

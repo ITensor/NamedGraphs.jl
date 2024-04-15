@@ -1,6 +1,17 @@
-using Test
-using Graphs
-using NamedGraphs
+@eval module $(gensym())
+using Graphs: binary_tree, dfs_tree, edgetype, grid, path_graph
+# TODO: Move to `NamedGraphs.NamedGraphGenerators`.
+using NamedGraphs: named_binary_tree, named_comb_tree, named_grid, named_path_graph
+using NamedGraphs.GraphsExtensions:
+  comb_tree,
+  is_leaf,
+  is_path_graph,
+  edge_path,
+  leaf_vertices,
+  post_order_dfs_vertices,
+  pre_order_dfs_vertices,
+  vertex_path
+using Test: @test, @testset
 
 @testset "Tree graph paths" begin
   # undirected trees
@@ -88,4 +99,5 @@ end
   @test !is_leaf(dng, (2, 2))
   @test !is_leaf(dng, (1, 1))
   @test issetequal(leaf_vertices(dng), [(1, 2), (3, 2)])
+end
 end

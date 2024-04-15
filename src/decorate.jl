@@ -1,4 +1,8 @@
-function decorate_graph_edges(g::NamedGraph; edge_map::Function=e -> named_grid((1,)))
+using Graphs: add_edge!, dst, edges, neighbors, rem_vertex!, src, vertices
+
+function decorate_graph_edges(
+  g::AbstractNamedGraph; edge_map::Function=e -> named_grid((1,))
+)
   g_dec = copy(g)
   es = edges(g_dec)
   for e in es
@@ -12,7 +16,9 @@ function decorate_graph_edges(g::NamedGraph; edge_map::Function=e -> named_grid(
   return g_dec
 end
 
-function decorate_graph_vertices(g::NamedGraph; vertex_map::Function=v -> named_grid((1,)))
+function decorate_graph_vertices(
+  g::AbstractNamedGraph; vertex_map::Function=v -> named_grid((1,))
+)
   g_dec = copy(g)
   vs = vertices(g_dec)
   for v in vs

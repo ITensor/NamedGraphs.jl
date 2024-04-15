@@ -1,7 +1,8 @@
-using Graphs
+using Dictionaries: Dictionary, Indices
+using Graphs: degree, degrees, has_vertex, ne, nv
 using GraphsFlows
-using NamedGraphs
-using NamedGraphs.Dictionaries
+using NamedGraphs: NamedEdge, NamedGraph
+using NamedGraphs.GraphsExtensions: incident_edges
 using Test
 
 @testset "NamedEdge" begin

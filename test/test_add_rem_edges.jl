@@ -1,7 +1,8 @@
-using Test
-using NamedGraphs
-using NamedGraphs: add_edges, add_edges!, rem_edges, rem_edges!
-using Graphs
+@eval module $(gensym())
+using NamedGraphs: NamedGraph, named_grid
+using NamedGraphs.GraphsExtensions: add_edges!, rem_edges!
+using Graphs: has_edge, is_connected
+using Test: @test, @testset
 
 @testset "Adding and Removing Edge Lists" begin
   g = named_grid((2, 2))
@@ -14,4 +15,5 @@ using Graphs
   g = NamedGraph([(i,) for i in 1:n])
   add_edges!(g, [(i,) => (i + 1,) for i in 1:(n - 1)])
   @test is_connected(g)
+end
 end
