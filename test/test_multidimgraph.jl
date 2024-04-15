@@ -18,14 +18,14 @@ using Test
   show(io, "text/plain", g)
   @test String(take!(io)) isa String
 
-  g_sub = g[[("X", 1)]]
+  g_sub = subgraph(g, [("X", 1)])
 
   @test has_vertex(g_sub, ("X", 1))
   @test !has_vertex(g_sub, ("X", 2))
   @test !has_vertex(g_sub, ("Y", 1))
   @test !has_vertex(g_sub, ("Y", 2))
 
-  g_sub = g[[("X", 1), ("X", 2)]]
+  g_sub = subgraph(g, [("X", 1), ("X", 2)])
 
   @test has_vertex(g_sub, ("X", 1))
   @test has_vertex(g_sub, ("X", 2))
@@ -50,7 +50,7 @@ using Test
   @test !has_vertex(g_sub, ("Y", 1))
   @test has_edge(g_sub, ("X", 2) => ("Y", 2))
 
-  g1 = NamedGraph(grid((2, 2)); vertices=(2, 2))
+  g1 = NamedGraph(grid((2, 2)), Tuple.(CartesianIndices((2, 2))))
 
   @test nv(g1) == 4
   @test ne(g1) == 4
@@ -64,7 +64,7 @@ using Test
   @test has_edge(g1, (2, 1) => (2, 2))
   @test !has_edge(g1, (1, 1) => (2, 2))
 
-  g2 = NamedGraph(grid((2, 2)); vertices=(2, 2))
+  g2 = NamedGraph(grid((2, 2)), Tuple.(CartesianIndices((2, 2))))
 
   g = ("X" => g1) ⊔ ("Y" => g2)
 
@@ -73,7 +73,7 @@ using Test
   @test has_vertex(g, ((1, 1), "X"))
   @test has_vertex(g, ((1, 1), "Y"))
 
-  g3 = NamedGraph(grid((2, 2)); vertices=(2, 2))
+  g3 = NamedGraph(grid((2, 2)), Tuple.(CartesianIndices((2, 2))))
   g = disjoint_union("X" => g1, "Y" => g2, "Z" => g3)
 
   @test nv(g) == 12

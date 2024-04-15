@@ -10,14 +10,14 @@ g = NamedGraph(parent_graph, vs)
 @show has_edge(g, "A" => "B")
 @show !has_edge(g, "A" => "C")
 
-g_sub = g[["A"]]
+g_sub = subgraph(g, ["A"])
 
 @show has_vertex(g_sub, "A")
 @show !has_vertex(g_sub, "B")
 @show !has_vertex(g_sub, "C")
 @show !has_vertex(g_sub, "D")
 
-g_sub = g[["A", "B"]]
+g_sub = subgraph(g, ["A", "B"])
 
 @show has_vertex(g_sub, "A")
 @show has_vertex(g_sub, "B")

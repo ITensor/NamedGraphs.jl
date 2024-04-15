@@ -107,12 +107,20 @@ function GenericNamedGraph{<:Any,G}(parent_graph::AbstractSimpleGraph, vertices)
   return GenericNamedGraph{<:Any,G}(parent_graph, to_vertices(vertices))
 end
 
+function GenericNamedGraph{<:Any,G}(parent_graph::AbstractSimpleGraph) where {G}
+  return GenericNamedGraph{<:Any,G}(parent_graph, vertices(parent_graph))
+end
+
 function GenericNamedGraph(parent_graph::AbstractSimpleGraph, vertices::Vector)
   return GenericNamedGraph{eltype(vertices)}(parent_graph, vertices)
 end
 
 function GenericNamedGraph(parent_graph::AbstractSimpleGraph, vertices)
   return GenericNamedGraph(parent_graph, to_vertices(vertices))
+end
+
+function GenericNamedGraph(parent_graph::AbstractSimpleGraph)
+  return GenericNamedGraph(parent_graph, vertices(parent_graph))
 end
 
 #
@@ -156,34 +164,6 @@ GenericNamedGraph{V}() where {V} = GenericNamedGraph{V}(V[])
 GenericNamedGraph{<:Any,G}() where {G} = GenericNamedGraph{<:Any,G}(Any[])
 
 GenericNamedGraph() = GenericNamedGraph(Any[])
-
-#
-# Keyword argument constructor syntax
-#
-
-function GenericNamedGraph{V,G}(
-  parent_graph::AbstractSimpleGraph; vertices=vertices(parent_graph)
-) where {V,G}
-  return GenericNamedGraph{V,G}(parent_graph, vertices)
-end
-
-function GenericNamedGraph{V}(
-  parent_graph::AbstractSimpleGraph; vertices=vertices(parent_graph)
-) where {V}
-  return GenericNamedGraph{V}(parent_graph, vertices)
-end
-
-function GenericNamedGraph{<:Any,G}(
-  parent_graph::AbstractSimpleGraph; vertices=vertices(parent_graph)
-) where {G}
-  return GenericNamedGraph{<:Any,G}(parent_graph, vertices)
-end
-
-function GenericNamedGraph(
-  parent_graph::AbstractSimpleGraph; vertices=vertices(parent_graph)
-)
-  return GenericNamedGraph(parent_graph, vertices)
-end
 
 # TODO: implement as:
 # graph = set_parent_graph(graph, copy(parent_graph(graph)))

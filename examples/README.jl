@@ -28,7 +28,6 @@
 using Graphs
 using NamedGraphs
 g = NamedGraph(grid((4,)), ["A", "B", "C", "D"])
-g = NamedGraph(grid((4,)); vertices=["A", "B", "C", "D"]) # Same as above
 
 #'Common operations are defined as you would expect:
 #+ term=true
@@ -47,7 +46,8 @@ subgraph(g, ["A", "B"])
 #' For example:
 #+ term=true
 
-g = NamedGraph(grid((2, 2)); vertices=Tuple.(CartesianIndices((2, 2))))
+dims = (2, 2)
+g = NamedGraph(grid(dims), Tuple.(CartesianIndices(dims)))
 
 #' In the future we will provide a shorthand notation for this, such as `cartesian_graph(grid((2, 2)), (2, 2))`.
 #' Internally the vertices are all stored as tuples with a label in each dimension.
@@ -86,8 +86,8 @@ g₁ ⊔ g₂ # Same as above
 #' The original graphs can be obtained from subgraphs:
 #+ term=true
 
-rename_vertices(v -> v[1], subgraph(v -> v[2] == 1, g₁ ⊔ g₂))
-rename_vertices(v -> v[1], subgraph(v -> v[2] == 2, g₁ ⊔ g₂))
+rename_vertices(first, subgraph(v -> v[2] == 1, g₁ ⊔ g₂))
+rename_vertices(first, subgraph(v -> v[2] == 2, g₁ ⊔ g₂))
 
 #' ## Generating this README
 

@@ -48,12 +48,14 @@ end
     @test issetequal(neighbors(g, "A"), ["B", "C"])
     @test issetequal(neighbors(g, "B"), ["A", "C"])
 
-    g_sub = g[["A", "B"]]
+    g_sub = subgraph(g, ["A", "B"])
 
     @test has_vertex(g_sub, "A")
     @test has_vertex(g_sub, "B")
     @test !has_vertex(g_sub, "C")
     @test !has_vertex(g_sub, "D")
+    # Test Graphs.jl `getindex` syntax.
+    @test g_sub == g[["A", "B"]]
 
     g = NamedGraph(["A", "B", "C", "D", "E"])
     add_edge!(g, "A" => "B")

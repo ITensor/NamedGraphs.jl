@@ -16,7 +16,7 @@ add_edge!(g, "A" => "C")
 @show issetequal(neighbors(g, "A"), ["B", "C"])
 @show issetequal(neighbors(g, "B"), ["A", "C"])
 
-g_sub = g[["A", "B"]]
+g_sub = subgraph(g, ["A", "B"])
 
 @show has_vertex(g_sub, "A")
 @show has_vertex(g_sub, "B")

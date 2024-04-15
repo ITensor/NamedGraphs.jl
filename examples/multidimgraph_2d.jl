@@ -42,8 +42,8 @@ g_sub = subgraph(v -> v[2] == 2, g)
 @show has_vertex(g_sub, ("Y", 2))
 
 parent_graph = grid((2, 2))
-g1 = NamedGraph(parent_graph; vertices=(2, 2))
-g2 = NamedGraph(parent_graph; vertices=(2, 2))
+g1 = NamedGraph(parent_graph, Tuple.(CartesianIndices((2, 2))))
+g2 = NamedGraph(parent_graph, Tuple.(CartesianIndices((2, 2))))
 
 g_disjoint_union = g1 ⊔ g2
 
