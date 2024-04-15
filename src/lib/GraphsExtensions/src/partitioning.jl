@@ -1,4 +1,4 @@
-using Graphs: AbstractGraph, SimpleGraph, vertices
+using Graphs: AbstractGraph, AbstractSimpleGraph, nv, vertices
 using SplitApplyCombine: group
 
 """
