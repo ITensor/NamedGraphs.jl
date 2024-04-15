@@ -1,25 +1,33 @@
 using AbstractTrees: AbstractTrees, PostOrderDFS, PreOrderDFS
 using Dictionaries: Dictionary, dictionary
 using Graphs:
+  Graphs,
   AbstractGraph,
   AbstractSimpleGraph,
   IsDirected,
   Δ,
+  add_vertex!,
+  degree,
   dfs_tree,
+  eccentricity,
   edgetype,
+  indegree,
   induced_subgraph,
   inneighbors,
+  outdegree,
   outneighbors,
   neighbors,
-  rem_edge!
+  rem_edge!,
+  weights
 using SimpleTraits: SimpleTraits, @traitfn
+using SplitApplyCombine: groupfind
 
 not_implemented() = error("Not implemented")
 
-directed_graph(::Type{<:AbstractGraph}) = not_implemented()
-undirected_graph(::Type{<:AbstractGraph}) = not_implemented()
+directed_graph_type(::Type{<:AbstractGraph}) = not_implemented()
+undirected_graph_type(::Type{<:AbstractGraph}) = not_implemented()
 # TODO: Implement generic version for `IsDirected`
-# directed_graph(G::Type{IsDirected}) = G
+# directed_graph_type(G::Type{IsDirected}) = G
 
 @traitfn directed_graph(graph::::IsDirected) = graph
 
@@ -30,7 +38,7 @@ end
 
 # TODO: Handle metadata in a generic way
 @traitfn function directed_graph(graph::::(!IsDirected))
-  digraph = directed_graph(typeof(graph))()
+  digraph = directed_graph_type(typeof(graph))()
   for v in vertices(graph)
     add_vertex!(digraph, v)
   end
@@ -42,7 +50,7 @@ end
 end
 
 @traitfn function directed_graph(graph::AbstractSimpleGraph::(!IsDirected))
-  digraph = directed_graph(typeof(graph))()
+  digraph = directed_graph_type(typeof(graph))()
   for v in vertices(graph)
     add_vertex!(digraph)
   end
@@ -81,9 +89,8 @@ function rename_vertices(g::AbstractGraph, name_map)
   return rename_vertices(v -> name_map[v], g)
 end
 
-# TODO: This isn't really a generic `AbstractGraph` function!
-function permute_vertices(graph::AbstractGraph, permutation::Vector)
-  return subgraph(graph, parent_vertices_to_vertices(graph, permutation))
+function permute_vertices(graph::AbstractGraph, permutation)
+  return not_implemented()
 end
 
 # Uniform interface for `outneighbors`, `inneighbors`, and `all_neighbors`
@@ -397,24 +404,14 @@ end
 end
 
 function mincut_partitions(graph::AbstractGraph, distmx=weights(graph))
-  parts = groupfind(first(mincut(graph, distmx)))
+  parts = groupfind(first(Graphs.mincut(graph, distmx)))
   return parts[1], parts[2]
 end
 
-function insert_vertex!(graph::AbstractGraph, vertex)
-  in_graph = !add_vertex!(graph, vertex)
-  if in_graph
-    error("Duplicate vertices are not allowed")
-  end
-  return graph
-end
-
-function delete_vertex!(graph::AbstractGraph, vertex)
-  in_graph = rem_vertex!(graph, vertex)
-  if !in_graph
-    error("Vertex not in graph")
-  end
-  return graph
+function add_vertex(g::AbstractGraph, vs)
+  g = copy(g)
+  add_vertex!(g, vs)
+  return g
 end
 
 function add_vertices!(graph::AbstractGraph, vs::Vector)
@@ -424,17 +421,35 @@ function add_vertices!(graph::AbstractGraph, vs::Vector)
   return graph
 end
 
-"""Remove a list of edges from a graph g"""
-function rem_edges!(g::AbstractGraph, edges)
-  for e in edges
-    rem_edge!(g, e)
+function add_vertices(g::AbstractGraph, vs)
+  g = copy(g)
+  add_vertices!(g, vs)
+  return g
+end
+
+function rem_vertex(g::AbstractGraph, vs)
+  g = copy(g)
+  rem_vertex!(g, vs)
+  return g
+end
+
+"""Remove a list of vertices from a graph g"""
+function rem_vertices!(g::AbstractGraph, vs)
+  for v in vs
+    rem_vertex!(g, v)
   end
   return g
 end
 
-function rem_edges(g::AbstractGraph, edges)
+function rem_vertices(g::AbstractGraph, vs)
   g = copy(g)
-  rem_edges!(g, edges)
+  rem_vertices!(g, vs)
+  return g
+end
+
+function add_edge(g::AbstractGraph, edge)
+  g = copy(g)
+  add_edge!(g, edges)
   return g
 end
 
@@ -452,19 +467,30 @@ function add_edges(g::AbstractGraph, edges)
   return g
 end
 
-"""Remove a list of vertices from a graph g"""
-function rem_vertices!(g::AbstractGraph, vs)
-  for v in vs
-    rem_vertex!(g, v)
-  end
-
+function rem_edge(g::AbstractGraph, edge)
+  g = copy(g)
+  rem_edge!(g, edges)
   return g
 end
 
-function rem_vertices(g::AbstractGraph, vs)
-  g = copy(g)
-  rem_vertices!(g, vs)
+"""Remove a list of edges from a graph g"""
+function rem_edges!(g::AbstractGraph, edges)
+  for e in edges
+    rem_edge!(g, e)
+  end
   return g
+end
+
+function rem_edges(g::AbstractGraph, edges)
+  g = copy(g)
+  rem_edges!(g, edges)
+  return g
+end
+
+eccentricities(graph::AbstractGraph) = eccentricities(graph, vertices(graph))
+
+function eccentricities(graph::AbstractGraph, vs, distmx=weights(graph))
+  return map(vertex -> eccentricity(graph, vertex, distmx), vs)
 end
 
 """ Do a BFS search to construct a tree, but do it with randomness to avoid generating the same tree. Based on Int. J. Comput. Their Appl. 15 pp 177-186 (2008). Edges will point away from source vertex s."""

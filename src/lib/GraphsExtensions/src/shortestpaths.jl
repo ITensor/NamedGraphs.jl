@@ -1,3 +1,5 @@
+using Graphs: Graphs, dijkstra_shortest_paths, edgetype, weights
+
 function dijkstra_parents(graph::AbstractGraph, vertex, distmx=weights(graph))
   return dijkstra_shortest_paths(
     graph, [vertex], distmx; allpaths=false, trackvertices=false
@@ -20,5 +22,5 @@ function dijkstra_mst(graph::AbstractGraph, vertex, distmx=weights(graph))
 end
 
 function dijkstra_tree(graph::AbstractGraph, vertex, distmx=weights(graph))
-  return tree(graph, dijkstra_parents(graph, vertex, distmx))
+  return Graphs.tree(graph, dijkstra_parents(graph, vertex, distmx))
 end

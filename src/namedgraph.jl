@@ -13,7 +13,7 @@ using Graphs:
   outneighbors,
   rem_vertex!,
   vertices
-using .GraphsExtensions: GraphsExtensions, vertextype, directed_graph
+using .GraphsExtensions: GraphsExtensions, vertextype, directed_graph_type
 
 struct GenericNamedGraph{V,G<:AbstractSimpleGraph{Int}} <: AbstractNamedGraph{V}
   parent_graph::G
@@ -192,15 +192,11 @@ end
 Graphs.edgetype(G::Type{<:GenericNamedGraph}) = NamedEdge{vertextype(G)}
 Graphs.edgetype(graph::GenericNamedGraph) = edgetype(typeof(graph))
 
-function set_vertices(graph::GenericNamedGraph, vertices)
-  return GenericNamedGraph(parent_graph(graph), vertices)
+function GraphsExtensions.directed_graph_type(G::Type{<:GenericNamedGraph})
+  return GenericNamedGraph{vertextype(G),directed_graph_type(parent_graph_type(G))}
 end
-
-function directed_graph_type(G::Type{<:GenericNamedGraph})
-  return GenericNamedGraph{vertextype(G),directed_graph(parent_graph_type(G))}
-end
-function undirected_graph_type(G::Type{<:GenericNamedGraph})
-  return GenericNamedGraph{vertextype(G),undirected_graph(parent_graph_type(G))}
+function GraphsExtensions.undirected_graph_type(G::Type{<:GenericNamedGraph})
+  return GenericNamedGraph{vertextype(G),undirected_graph_type(parent_graph_type(G))}
 end
 
 Graphs.is_directed(G::Type{<:GenericNamedGraph}) = is_directed(parent_graph_type(G))

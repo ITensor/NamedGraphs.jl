@@ -1,3 +1,8 @@
+using Graphs: incidence_matrix
+using .GraphsExtensions: GraphsExtensions
+using SplitApplyCombine: groupfind
+using KaHyPar: KaHyPar
+
 set_partitioning_backend!(Backend"KaHyPar"())
 
 # https://github.com/kahypar/KaHyPar.jl/issues/20
@@ -11,7 +16,7 @@ partitioned_vertices(::Backend"KaHyPar", g::Graph, npartiations::Integer; object
 - :connectivity => "km1_kKaHyPar_sea20.ini"
 - imbalance::Number=0.03
 """
-function partitioned_vertices(
+function GraphsExtensions.partitioned_vertices(
   ::Backend"KaHyPar",
   g::SimpleGraph,
   npartitions::Integer;

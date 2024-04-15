@@ -1,5 +1,6 @@
-using NamedGraphs
-using GraphsFlows
+using Graphs: path_graph
+using NamedGraphs: NamedGraph
+using NamedGraphs.GraphsExtensions: mincut_partitions
 
 g = NamedGraph(path_graph(4), ["A", "B", "C", "D"])
 

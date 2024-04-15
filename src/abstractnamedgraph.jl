@@ -1,5 +1,18 @@
-using Graphs: Graphs, AbstractGraph, add_edge!, adjacency_matrix, edges, ne, nv, vertices
-using .GraphsExtensions: GraphsExtensions, directed_graph, rename_vertices
+using Graphs:
+  Graphs,
+  AbstractGraph,
+  IsDirected,
+  SimpleDiGraph,
+  add_edge!,
+  adjacency_matrix,
+  edges,
+  ne,
+  nv,
+  vertices,
+  weights
+using .GraphsExtensions:
+  GraphsExtensions, directed_graph, incident_edges, rename_vertices, subgraph
+using GraphsFlows: GraphsFlows
 
 abstract type AbstractNamedGraph{V} <: AbstractGraph{V} end
 
@@ -21,6 +34,10 @@ Graphs.add_vertex!(graph::AbstractNamedGraph, vertex) = not_implemented()
 # TODO: Define generic version in `GraphsExtensions`.
 GraphsExtensions.rename_vertices(f::Function, g::AbstractNamedGraph) = not_implemented()
 
+function GraphsExtensions.permute_vertices(graph::AbstractNamedGraph, permutation)
+  return subgraph(graph, parent_vertices_to_vertices(graph, permutation))
+end
+
 # Convert vertex to parent vertex
 # Inverse map of `parent_vertex_to_vertex`.
 vertex_to_parent_vertex(graph::AbstractNamedGraph, vertex) = not_implemented()
@@ -32,8 +49,8 @@ parent_vertex_to_vertex(graph::AbstractNamedGraph, parent_vertex) = not_implemen
 Graphs.edgetype(graph::AbstractNamedGraph) = not_implemented()
 
 # TODO: Define generic version in `GraphsExtensions`.
-directed_graph_type(G::Type{<:AbstractNamedGraph}) = not_implemented()
-undirected_graph_type(G::Type{<:AbstractNamedGraph}) = not_implemented()
+GraphsExtensions.directed_graph_type(G::Type{<:AbstractNamedGraph}) = not_implemented()
+GraphsExtensions.undirected_graph_type(G::Type{<:AbstractNamedGraph}) = not_implemented()
 
 # In terms of `parent_graph_type`
 # is_directed(::Type{<:AbstractNamedGraph}) = not_implemented()
@@ -281,18 +298,18 @@ function neighborhood_dists(
   return namedgraph_neighborhood_dists(graph, vertex, d, distmx; dir)
 end
 
-function _mincut(graph::AbstractNamedGraph, distmx)
+function namedgraph_mincut(graph::AbstractNamedGraph, distmx)
   parent_distmx = dist_matrix_to_parent_dist_matrix(graph, distmx)
-  parent_parity, bestcut = mincut(parent_graph(graph), parent_distmx)
+  parent_parity, bestcut = Graphs.mincut(parent_graph(graph), parent_distmx)
   return Dictionary(vertices(graph), parent_parity), bestcut
 end
 
-function mincut(graph::AbstractNamedGraph, distmx=weights(graph))
-  return _mincut(graph, distmx)
+function Graphs.mincut(graph::AbstractNamedGraph, distmx=weights(graph))
+  return namedgraph_mincut(graph, distmx)
 end
 
-function mincut(graph::AbstractNamedGraph, distmx::AbstractMatrix{<:Real})
-  return _mincut(graph, distmx)
+function Graphs.mincut(graph::AbstractNamedGraph, distmx::AbstractMatrix{<:Real})
+  return namedgraph_mincut(graph, distmx)
 end
 
 # TODO: Move to `NamedGraphsGraphsFlowsExt`.
@@ -301,7 +318,7 @@ end
   source,
   target,
   capacity_matrix=DefaultNamedCapacity(graph),
-  algorithm::GraphsFlows.AbstractFlowAlgorithm=PushRelabelAlgorithm(),
+  algorithm::GraphsFlows.AbstractFlowAlgorithm=GraphsFlows.PushRelabelAlgorithm(),
 )
   parent_part1, parent_part2, flow = GraphsFlows.mincut(
     directed_graph(parent_graph(graph)),
@@ -321,19 +338,20 @@ end
   source,
   target,
   capacity_matrix=DefaultNamedCapacity(graph),
-  algorithm::GraphsFlows.AbstractFlowAlgorithm=PushRelabelAlgorithm(),
+  algorithm::GraphsFlows.AbstractFlowAlgorithm=GraphsFlows.PushRelabelAlgorithm(),
 )
   return GraphsFlows.mincut(
     directed_graph(graph), source, target, _symmetrize(capacity_matrix), algorithm
   )
 end
 
-function mincut_partitions(
+# TODO: Move to `NamedGraphsGraphsFlowsExt`.
+function GraphsExtensions.mincut_partitions(
   graph::AbstractGraph,
   source,
   target,
   capacity_matrix=DefaultNamedCapacity(graph),
-  algorithm::GraphsFlows.AbstractFlowAlgorithm=PushRelabelAlgorithm(),
+  algorithm::GraphsFlows.AbstractFlowAlgorithm=GraphsFlows.PushRelabelAlgorithm(),
 )
   part1, part2, flow = GraphsFlows.mincut(graph, source, target, capacity_matrix, algorithm)
   return part1, part2
@@ -523,7 +541,7 @@ end
 
 # Overload Graphs.tree. Used for bfs_tree and dfs_tree
 # traversal algorithms.
-function tree(graph::AbstractNamedGraph, parents)
+function Graphs.tree(graph::AbstractNamedGraph, parents)
   n = length(parents)
   # TODO: Use `directed_graph` here to make more generic?
   ## t = GenericNamedGraph(DiGraph(n), vertices(graph))
@@ -538,7 +556,7 @@ function tree(graph::AbstractNamedGraph, parents)
 end
 
 function namedgraph_bfs_tree(graph::AbstractNamedGraph, vertex; kwargs...)
-  return tree(graph, bfs_parents(graph, vertex; kwargs...))
+  return Graphs.tree(graph, bfs_parents(graph, vertex; kwargs...))
 end
 # Disambiguation from Graphs.bfs_tree
 function Graphs.bfs_tree(graph::AbstractNamedGraph, vertex::Integer; kwargs...)

@@ -1,30 +1,25 @@
-function _eccentricity(graph::AbstractNamedGraph, vertex, distmx)
+using Graphs: Graphs, dijkstra_shortest_paths, weights
+using .GraphsExtensions: eccentricities
+
+function namedgraph_eccentricity(graph::AbstractNamedGraph, vertex, distmx)
   e = maximum(dijkstra_shortest_paths(graph, [vertex], distmx).dists)
   e == typemax(e) && @warn("Infinite path length detected for vertex $vertex")
   return e
 end
 
-function eccentricity(graph::AbstractNamedGraph, vertex, distmx=weights(graph))
-  return _eccentricity(graph, vertex, distmx)
+function Graphs.eccentricity(graph::AbstractNamedGraph, vertex, distmx=weights(graph))
+  return namedgraph_eccentricity(graph, vertex, distmx)
 end
 
 # Fix for ambiguity error with `AbstractGraph`
-function eccentricity(
+function Graphs.eccentricity(
   graph::AbstractNamedGraph, vertex::Integer, distmx::AbstractMatrix{<:Real}
 )
-  return _eccentricity(graph, vertex, distmx)
+  return namedgraph_eccentricity(graph, vertex, distmx)
 end
 
-function eccentricity(graph::AbstractNamedGraph, vertex, distmx::AbstractMatrix)
-  return _eccentricity(graph, vertex, distmx)
-end
-
-# function eccentricity(graph::AbstractNamedGraph, ::AbstractMatrix)
-
-eccentricities(graph::AbstractGraph) = eccentricities(graph, vertices(graph))
-
-function eccentricities(graph::AbstractGraph, vs, distmx=weights(graph))
-  return map(vertex -> eccentricity(graph, vertex, distmx), vs)
+function Graphs.eccentricity(graph::AbstractNamedGraph, vertex, distmx::AbstractMatrix)
+  return namedgraph_eccentricity(graph, vertex, distmx)
 end
 
 function eccentricities_center(eccentricities)
@@ -38,54 +33,54 @@ end
 eccentricities_radius(eccentricities) = minimum(eccentricities)
 eccentricities_diameter(eccentricities) = maximum(eccentricities)
 
-function _center(graph::AbstractNamedGraph, distmx)
+function namedgraph_center(graph::AbstractNamedGraph, distmx)
   return eccentricities_center(eccentricities(graph, vertices(graph), distmx))
 end
 
-function center(graph::AbstractNamedGraph, distmx=weights(graph))
-  return _center(graph, distmx)
+function Graphs.center(graph::AbstractNamedGraph, distmx=weights(graph))
+  return namedgraph_center(graph, distmx)
 end
 
 # Fix for ambiguity error with `AbstractGraph`
-function center(graph::AbstractNamedGraph, distmx::AbstractMatrix)
-  return _center(graph, distmx)
+function Graphs.center(graph::AbstractNamedGraph, distmx::AbstractMatrix)
+  return namedgraph_center(graph, distmx)
 end
 
-function _radius(graph::AbstractNamedGraph, distmx)
+function namedgraph_radius(graph::AbstractNamedGraph, distmx)
   return eccentricities_radius(eccentricities(graph, vertices(graph), distmx))
 end
 
-function radius(graph::AbstractNamedGraph, distmx=weights(graph))
-  return _radius(graph, distmx)
+function Graphs.radius(graph::AbstractNamedGraph, distmx=weights(graph))
+  return namedgraph_radius(graph, distmx)
 end
 
 # Fix for ambiguity error with `AbstractGraph`
-function radius(graph::AbstractNamedGraph, distmx::AbstractMatrix)
-  return _radius(graph, distmx)
+function Graphs.radius(graph::AbstractNamedGraph, distmx::AbstractMatrix)
+  return namedgraph_radius(graph, distmx)
 end
 
-function _diameter(graph::AbstractNamedGraph, distmx)
+function namedgraph_diameter(graph::AbstractNamedGraph, distmx)
   return eccentricities_diameter(eccentricities(graph, vertices(graph), distmx))
 end
 
-function diameter(graph::AbstractNamedGraph, distmx=weights(graph))
-  return _diameter(graph, distmx)
+function Graphs.diameter(graph::AbstractNamedGraph, distmx=weights(graph))
+  return namedgraph_diameter(graph, distmx)
 end
 
 # Fix for ambiguity error with `AbstractGraph`
-function diameter(graph::AbstractNamedGraph, distmx::AbstractMatrix)
-  return _diameter(graph, distmx)
+function Graphs.diameter(graph::AbstractNamedGraph, distmx::AbstractMatrix)
+  return namedgraph_diameter(graph, distmx)
 end
 
-function _periphery(graph::AbstractNamedGraph, distmx)
+function namedgraph_periphery(graph::AbstractNamedGraph, distmx)
   return eccentricities_periphery(eccentricities(graph, vertices(graph), distmx))
 end
 
-function periphery(graph::AbstractNamedGraph, distmx=weights(graph))
-  return _periphery(graph, distmx)
+function Graphs.periphery(graph::AbstractNamedGraph, distmx=weights(graph))
+  return namedgraph_periphery(graph, distmx)
 end
 
 # Fix for ambiguity error with `AbstractGraph`
-function periphery(graph::AbstractNamedGraph, distmx::AbstractMatrix)
-  return _periphery(graph, distmx)
+function Graphs.periphery(graph::AbstractNamedGraph, distmx::AbstractMatrix)
+  return namedgraph_periphery(graph, distmx)
 end

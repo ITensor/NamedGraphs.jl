@@ -1,3 +1,8 @@
+using Graphs: SimpleGraph
+using .GraphsExtensions: GraphsExtensions
+using Metis: Metis
+using SplitApplyCombine: groupfind
+
 set_partitioning_backend!(Backend"Metis"())
 
 """
@@ -8,7 +13,7 @@ The partition algorithm is defined by the `alg` keyword:
  - :KWAY: multilevel k-way partitioning
  - :RECURSIVE: multilevel recursive bisection
 """
-function partitioned_vertices(
+function GraphsExtensions.partitioned_vertices(
   ::Backend"Metis", g::SimpleGraph, npartitions::Integer; alg="recursive", kwargs...
 )
   metis_alg = metis_algs[alg]

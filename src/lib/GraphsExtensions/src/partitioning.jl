@@ -1,3 +1,6 @@
+using Graphs: AbstractGraph, Graph, vertices
+using SplitApplyCombine: group
+
 """
 Graph partitioning backend
 """

@@ -1,13 +1,9 @@
-using Graphs
-using NamedGraphs
-using Suppressor
-using Test
-
-examples_path = joinpath(pkgdir(NamedGraphs), "examples")
-examples_to_exclude = []
-@testset "Run examples: $filename" for filename in
-                                       setdiff(readdir(examples_path), examples_to_exclude)
-  if endswith(filename, ".jl")
-    @suppress include(joinpath(examples_path, filename))
-  end
+@eval module $(gensym())
+using NamedGraphs: NamedGraphs
+using Suppressor: @suppress
+using Test: @testset
+filenames = filter(endswith(".jl"), readdir(joinpath(pkgdir(NamedGraphs), "examples")))
+@testset "Run examples: $filename" for filename in filenames
+  @suppress include(joinpath(pkgdir(NamedGraphs), "examples", filename))
+end
 end

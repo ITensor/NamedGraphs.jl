@@ -1,9 +1,14 @@
+using Dictionaries: Dictionary
+using Graphs:
+  AbstractEdge, AbstractGraph, add_edge!, edges, has_edge, induced_subgraph, vertices
+using ..NamedGraphs: NamedEdge, NamedGraph
+
 struct PartitionedGraph{V,PV,G<:AbstractGraph{V},PG<:AbstractGraph{PV}} <:
        AbstractPartitionedGraph{V,PV}
   graph::G
   partitioned_graph::PG
-  partitioned_vertices::Dictionary
-  which_partition::Dictionary
+  partitioned_vertices::Dictionary{V,PV}
+  which_partition::Dictionary{PV,V}
 end
 
 ##Constructors.
@@ -16,7 +21,6 @@ function PartitionedGraph(g::AbstractGraph, partitioned_vertices)
     @assert length(v_pvs) == 1
     insert!(which_partition, v, first(v_pvs))
   end
-
   for e in edges(g)
     pv_src, pv_dst = which_partition[src(e)], which_partition[dst(e)]
     pe = NamedEdge(pv_src => pv_dst)
@@ -24,7 +28,6 @@ function PartitionedGraph(g::AbstractGraph, partitioned_vertices)
       add_edge!(pg, pe)
     end
   end
-
   return PartitionedGraph(g, pg, Dictionary(partitioned_vertices), which_partition)
 end
 
@@ -42,12 +45,12 @@ partitioned_graph(pg::PartitionedGraph) = getfield(pg, :partitioned_graph)
 unpartitioned_graph(pg::PartitionedGraph) = getfield(pg, :graph)
 partitioned_vertices(pg::PartitionedGraph) = getfield(pg, :partitioned_vertices)
 which_partition(pg::PartitionedGraph) = getfield(pg, :which_partition)
-parent_graph_type(PG::Type{<:PartitionedGraph}) = fieldtype(PG, :graph)
-function vertices(pg::PartitionedGraph, partitionvert::PartitionVertex)
+NamedGraphs.parent_graph_type(PG::Type{<:PartitionedGraph}) = fieldtype(PG, :graph)
+function Graphs.vertices(pg::PartitionedGraph, partitionvert::PartitionVertex)
   return partitioned_vertices(pg)[parent(partitionvert)]
 end
-function vertices(pg::PartitionedGraph, partitionverts::Vector{<:PartitionVertex})
-  return unique(reduce(vcat, [vertices(pg, pv) for pv in partitionverts]))
+function Graphs.vertices(pg::PartitionedGraph, partitionverts::Vector{<:PartitionVertex})
+  return unique(reduce(vcat, Iterators.map(pv -> vertices(pg, pv), partitionverts)))
 end
 function partitionvertex(pg::PartitionedGraph, vertex)
   return PartitionVertex(which_partition(pg)[vertex])
@@ -69,6 +72,7 @@ end
 
 partitionedge(pg::PartitionedGraph, p::Pair) = partitionedge(pg, edgetype(pg)(p))
 
+# TODO: Move to `NamedGraphs.GraphsExtensions`.
 is_self_loop(e::AbstractEdge) = src(e) == dst(e)
 is_self_loop(e::Pair) = first(e) == last(e)
 
@@ -80,7 +84,7 @@ function partitionedges(pg::PartitionedGraph)
   return PartitionEdge.(edges(partitioned_graph(pg)))
 end
 
-function edges(pg::PartitionedGraph, partitionedge::PartitionEdge)
+function Graphs.edges(pg::PartitionedGraph, partitionedge::PartitionEdge)
   psrc_vs = vertices(pg, PartitionVertex(src(partitionedge)))
   pdst_vs = vertices(pg, PartitionVertex(dst(partitionedge)))
   psrc_subgraph = subgraph(unpartitioned_graph(pg), psrc_vs)
@@ -90,7 +94,7 @@ function edges(pg::PartitionedGraph, partitionedge::PartitionEdge)
   return setdiff(edges(full_subgraph), vcat(edges(psrc_subgraph), edges(pdst_subgraph)))
 end
 
-function edges(pg::PartitionedGraph, partitionedges::Vector{<:PartitionEdge})
+function Graphs.edges(pg::PartitionedGraph, partitionedges::Vector{<:PartitionEdge})
   return unique(reduce(vcat, [edges(pg, pe) for pe in partitionedges]))
 end
 
@@ -106,7 +110,7 @@ function boundary_partitionedges(
   return boundary_partitionedges(pg, [partitionvertex]; kwargs...)
 end
 
-function copy(pg::PartitionedGraph)
+function Base.copy(pg::PartitionedGraph)
   return PartitionedGraph(
     copy(unpartitioned_graph(pg)),
     copy(partitioned_graph(pg)),
