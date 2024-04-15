@@ -23,7 +23,7 @@ using Graphs
   pg = PartitionedGraph(g, partitions)
   @test vertextype(partitioned_graph(pg)) == Int64
   @test vertextype(unpartitioned_graph(pg)) == vertextype(g)
-  @test isa(partitionvertices(pg), Vector{PartitionVertex{Int64}})
+  @test isa(partitionvertices(pg), Dictionary{Int64,PartitionVertex{Int64}})
   @test isa(partitionedges(pg), Vector{PartitionEdge{Int64,NamedEdge{Int64}}})
   @test is_tree(partitioned_graph(pg))
   @test nv(pg) == nx * ny
@@ -36,7 +36,10 @@ using Graphs
   pg = PartitionedGraph(g, partition_dict)
   @test vertextype(partitioned_graph(pg)) == vertextype(g)
   @test vertextype(unpartitioned_graph(pg)) == vertextype(g)
-  @test isa(partitionvertices(pg), Vector{PartitionVertex{Tuple{Int64,Int64}}})
+  @test isa(
+    partitionvertices(pg),
+    Dictionary{Tuple{Int64,Int64},PartitionVertex{Tuple{Int64,Int64}}},
+  )
   @test isa(
     partitionedges(pg),
     Vector{PartitionEdge{Tuple{Int64,Int64},NamedEdge{Tuple{Int64,Int64}}}},

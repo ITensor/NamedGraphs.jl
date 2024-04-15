@@ -15,6 +15,8 @@ parent_graph_type(graph::AbstractNamedGraph) = not_implemented()
 rem_vertex!(graph::AbstractNamedGraph, vertex) = not_implemented()
 add_vertex!(graph::AbstractNamedGraph, vertex) = not_implemented()
 
+rename_vertices(f::Function, g::AbstractNamedGraph) = not_implemented()
+
 # Convert vertex to parent vertex
 # Inverse map of `parent_vertex_to_vertex`.
 vertex_to_parent_vertex(graph::AbstractNamedGraph, vertex) = not_implemented()
@@ -521,29 +523,38 @@ function tree(graph::AbstractNamedGraph, parents)
   return t
 end
 
-function _bfs_tree(graph::AbstractNamedGraph, vertex; kwargs...)
+function namedgraph_bfs_tree(graph::AbstractNamedGraph, vertex; kwargs...)
   return tree(graph, bfs_parents(graph, vertex; kwargs...))
 end
 # Disambiguation from Graphs.bfs_tree
 function bfs_tree(graph::AbstractNamedGraph, vertex::Integer; kwargs...)
-  return _bfs_tree(graph, vertex; kwargs...)
+  return namedgraph_bfs_tree(graph, vertex; kwargs...)
 end
-bfs_tree(graph::AbstractNamedGraph, vertex; kwargs...) = _bfs_tree(graph, vertex; kwargs...)
+function bfs_tree(graph::AbstractNamedGraph, vertex; kwargs...)
+  return namedgraph_bfs_tree(graph, vertex; kwargs...)
+end
 
 # Returns a Dictionary mapping a vertex to it's parent
 # vertex in the traversal/spanning tree.
-function _bfs_parents(graph::AbstractNamedGraph, vertex; kwargs...)
+function namedgraph_bfs_parents(graph::AbstractNamedGraph, vertex; kwargs...)
   parent_bfs_parents = bfs_parents(
     parent_graph(graph), vertex_to_parent_vertex(graph, vertex); kwargs...
   )
-  return Dictionary(vertices(graph), parent_vertices_to_vertices(graph, parent_bfs_parents))
+  # Works around issue in this `Dictionary` constructor:
+  # https://github.com/andyferris/Dictionaries.jl/blob/v0.4.1/src/Dictionary.jl#L139-L145
+  # when `inds` has holes. This removes the holes.
+  # TODO: Raise an issue with `Dictionaries.jl`.
+  ## vertices_graph = Indices(collect(vertices(graph)))
+  # This makes the vertices ordered according to the parent vertices.
+  vertices_graph = parent_vertices_to_vertices(graph, parent_vertices(graph))
+  return Dictionary(vertices_graph, parent_vertices_to_vertices(graph, parent_bfs_parents))
 end
 # Disambiguation from Graphs.bfs_tree
 function bfs_parents(graph::AbstractNamedGraph, vertex::Integer; kwargs...)
-  return _bfs_parents(graph, vertex; kwargs...)
+  return namedgraph_bfs_parents(graph, vertex; kwargs...)
 end
 function bfs_parents(graph::AbstractNamedGraph, vertex; kwargs...)
-  return _bfs_parents(graph, vertex; kwargs...)
+  return namedgraph_bfs_parents(graph, vertex; kwargs...)
 end
 
 #

@@ -31,6 +31,9 @@ parent_graph(pg::AbstractPartitionedGraph) = parent_graph(unpartitioned_graph(pg
 function vertex_to_parent_vertex(pg::AbstractPartitionedGraph, vertex)
   return vertex_to_parent_vertex(unpartitioned_graph(pg), vertex)
 end
+function parent_vertex_to_vertex(pg::AbstractPartitionedGraph, parent_vertex)
+  return parent_vertex_to_vertex(unpartitioned_graph(pg), parent_vertex)
+end
 edgetype(pg::AbstractPartitionedGraph) = edgetype(unpartitioned_graph(pg))
 parent_graph_type(pg::AbstractPartitionedGraph) = parent_graph_type(unpartitioned_graph(pg))
 nv(pg::AbstractPartitionedGraph, pv::AbstractPartitionVertex) = length(vertices(pg, pv))

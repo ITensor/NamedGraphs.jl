@@ -13,6 +13,8 @@ end
 function parent_vertex_to_vertex(graph::GenericNamedGraph, parent_vertex)
   return graph.parent_vertex_to_vertex[parent_vertex]
 end
+
+# TODO: Order them according to the internal ordering?
 vertices(graph::GenericNamedGraph) = keys(graph.vertex_to_parent_vertex)
 
 function add_vertex!(graph::GenericNamedGraph, vertex)
@@ -38,15 +40,20 @@ function rem_vertex!(graph::GenericNamedGraph, vertex)
   last_vertex = last(graph.parent_vertex_to_vertex)
   graph.parent_vertex_to_vertex[parent_vertex] = last_vertex
   last_vertex = pop!(graph.parent_vertex_to_vertex)
-  # Insert the last vertex into the position of the vertex
-  # that is being deleted, then remove the last vertex.
   graph.vertex_to_parent_vertex[last_vertex] = parent_vertex
   delete!(graph.vertex_to_parent_vertex, vertex)
   return true
 end
 
+function rename_vertices(f::Function, g::GenericNamedGraph)
+  # TODO: Could be `set_vertices(g, f.(g.parent_vertex_to_vertex))`.
+  return GenericNamedGraph(g.parent_graph, f.(g.parent_vertex_to_vertex))
+end
+
 function convert_vertextype(V::Type, graph::GenericNamedGraph)
-  return GenericNamedGraph(parent_graph(graph), convert(Vector{V}, vertices(graph)))
+  return GenericNamedGraph(
+    parent_graph(graph), convert(Vector{V}, graph.parent_vertex_to_vertex)
+  )
 end
 
 #
@@ -182,7 +189,7 @@ end
 # graph = set_parent_graph(graph, copy(parent_graph(graph)))
 # graph = set_vertices(graph, copy(vertices(graph)))
 function copy(graph::GenericNamedGraph)
-  return GenericNamedGraph(copy(parent_graph(graph)), copy(vertices(graph)))
+  return GenericNamedGraph(copy(graph.parent_graph), copy(graph.parent_vertex_to_vertex))
 end
 
 edgetype(G::Type{<:GenericNamedGraph}) = NamedEdge{vertextype(G)}
@@ -202,7 +209,7 @@ end
 is_directed(G::Type{<:GenericNamedGraph}) = is_directed(parent_graph_type(G))
 
 # TODO: Implement an edgelist version
-function induced_subgraph(graph::AbstractNamedGraph, subvertices)
+function namedgraph_induced_subgraph(graph::AbstractGraph, subvertices)
   subgraph = typeof(graph)(subvertices)
   subvertices_set = Set(subvertices)
   for src in subvertices
@@ -213,6 +220,14 @@ function induced_subgraph(graph::AbstractNamedGraph, subvertices)
     end
   end
   return subgraph, nothing
+end
+
+function induced_subgraph(graph::AbstractNamedGraph, subvertices)
+  return namedgraph_induced_subgraph(graph, subvertices)
+end
+
+function induced_subgraph(graph::AbstractNamedGraph, subvertices::Vector{<:Integer})
+  return namedgraph_induced_subgraph(graph, subvertices)
 end
 
 #

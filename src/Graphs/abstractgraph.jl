@@ -57,9 +57,7 @@ vertextype(graph::AbstractGraph) = vertextype(typeof(graph))
 
 # Function `f` maps original vertices `vᵢ` of `g`
 # to new vertices `f(vᵢ)` of the output graph.
-function rename_vertices(f::Function, g::AbstractGraph)
-  return set_vertices(g, f.(vertices(g)))
-end
+rename_vertices(f::Function, g::AbstractGraph) = not_implemented()
 
 function rename_vertices(g::AbstractGraph, name_map)
   return rename_vertices(v -> name_map[v], g)
