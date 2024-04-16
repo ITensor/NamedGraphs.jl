@@ -12,6 +12,7 @@ using Graphs:
   random_regular_graph,
   rem_vertex!,
   vertices
+using Metis: Metis
 using NamedGraphs: NamedEdge, NamedGraph
 # TODO: Move to `NamedGraphGenerators`.
 using NamedGraphs: named_comb_tree, named_grid, named_triangular_lattice_graph
@@ -39,6 +40,7 @@ using NamedGraphs.PartitionedGraphs:
   partitionvertices,
   unpartitioned_graph
 using Dictionaries: Dictionary, dictionary
+using Pkg: Pkg
 using Test: @test, @testset
 
 @testset "Test Partitioned Graph Constructors" begin
@@ -174,14 +176,13 @@ end
 end
 
 @testset "Test NamedGraphs Functions on Partitioned Graph" begin
-  functions = [is_tree, default_root_vertex, center, diameter, radius]
-  gs = [
+  functions = (is_tree, default_root_vertex, center, diameter, radius)
+  gs = (
     named_comb_tree((4, 4)),
     named_grid((2, 2, 2)),
     NamedGraph(random_regular_graph(12, 3)),
     named_triangular_lattice_graph(7, 7),
-  ]
-
+  )
   for f in functions
     for g in gs
       pg = PartitionedGraph(g, [vertices(g)])
@@ -191,6 +192,22 @@ end
       @test ne(pg) == ne(g)
       @test ne(partitioned_graph(pg)) == 0
     end
+  end
+end
+
+@testset "Graph partitioning" begin
+  g = named_grid((4, 4))
+  npartitions = 4
+  backends = ["metis"]
+  if !Sys.iswindows()
+    # `KaHyPar` doesn't work on Windows.
+    Pkg.add("KaHyPar"; io=devnull)
+    push!(backends, "kahypar")
+  end
+  for backend in backends
+    pg = PartitionedGraph(g; npartitions, backend="metis")
+    @test pg isa PartitionedGraph
+    @test nv(partitioned_graph(pg)) == npartitions
   end
 end
 end
