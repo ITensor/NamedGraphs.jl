@@ -48,8 +48,8 @@ julia> using NamedGraphs: NamedGraph
 julia> using NamedGraphs.GraphsExtensions: ⊔, disjoint_union, subgraph, rename_vertices
 
 julia> g = NamedGraph(grid((4,)), ["A", "B", "C", "D"])
-NamedGraphs.NamedGraph{String} with 4 vertices:
-4-element Dictionaries.Indices{String}
+NamedGraph{String} with 4 vertices:
+4-element Indices{String}
  "A"
  "B"
  "C"
@@ -81,8 +81,8 @@ julia> neighbors(g, "B")
  "C"
 
 julia> subgraph(g, ["A", "B"])
-NamedGraphs.NamedGraph{String} with 2 vertices:
-2-element Dictionaries.Indices{String}
+NamedGraph{String} with 2 vertices:
+2-element Indices{String}
  "A"
  "B"
 
@@ -108,8 +108,8 @@ julia> dims = (2, 2)
 (2, 2)
 
 julia> g = NamedGraph(grid(dims), Tuple.(CartesianIndices(dims)))
-NamedGraphs.NamedGraph{Tuple{Int64, Int64}} with 4 vertices:
-4-element Dictionaries.Indices{Tuple{Int64, Int64}}
+NamedGraph{Tuple{Int64, Int64}} with 4 vertices:
+4-element Indices{Tuple{Int64, Int64}}
  (1, 1)
  (2, 1)
  (1, 2)
@@ -152,8 +152,8 @@ You can use vertex names to get [induced subgraphs](https://juliagraphs.org/Grap
 
 ```julia
 julia> subgraph(v -> v[1] == 1, g)
-NamedGraphs.NamedGraph{Tuple{Int64, Int64}} with 2 vertices:
-2-element Dictionaries.Indices{Tuple{Int64, Int64}}
+NamedGraph{Tuple{Int64, Int64}} with 2 vertices:
+2-element Indices{Tuple{Int64, Int64}}
  (1, 1)
  (1, 2)
 
@@ -162,8 +162,8 @@ and 1 edge(s):
 
 
 julia> subgraph(v -> v[2] == 2, g)
-NamedGraphs.NamedGraph{Tuple{Int64, Int64}} with 2 vertices:
-2-element Dictionaries.Indices{Tuple{Int64, Int64}}
+NamedGraph{Tuple{Int64, Int64}} with 2 vertices:
+2-element Indices{Tuple{Int64, Int64}}
  (1, 2)
  (2, 2)
 
@@ -172,8 +172,8 @@ and 1 edge(s):
 
 
 julia> subgraph(g, [(1, 1), (2, 2)])
-NamedGraphs.NamedGraph{Tuple{Int64, Int64}} with 2 vertices:
-2-element Dictionaries.Indices{Tuple{Int64, Int64}}
+NamedGraph{Tuple{Int64, Int64}} with 2 vertices:
+2-element Indices{Tuple{Int64, Int64}}
  (1, 1)
  (2, 2)
 
@@ -186,8 +186,8 @@ You can also take [disjoint unions](https://en.wikipedia.org/wiki/Disjoint_union
 
 ```julia
 julia> g₁ = g
-NamedGraphs.NamedGraph{Tuple{Int64, Int64}} with 4 vertices:
-4-element Dictionaries.Indices{Tuple{Int64, Int64}}
+NamedGraph{Tuple{Int64, Int64}} with 4 vertices:
+4-element Indices{Tuple{Int64, Int64}}
  (1, 1)
  (2, 1)
  (1, 2)
@@ -201,8 +201,8 @@ and 4 edge(s):
 
 
 julia> g₂ = g
-NamedGraphs.NamedGraph{Tuple{Int64, Int64}} with 4 vertices:
-4-element Dictionaries.Indices{Tuple{Int64, Int64}}
+NamedGraph{Tuple{Int64, Int64}} with 4 vertices:
+4-element Indices{Tuple{Int64, Int64}}
  (1, 1)
  (2, 1)
  (1, 2)
@@ -216,8 +216,8 @@ and 4 edge(s):
 
 
 julia> disjoint_union(g₁, g₂)
-NamedGraphs.NamedGraph{Tuple{Tuple{Int64, Int64}, Int64}} with 8 vertices:
-8-element Dictionaries.Indices{Tuple{Tuple{Int64, Int64}, Int64}}
+NamedGraph{Tuple{Tuple{Int64, Int64}, Int64}} with 8 vertices:
+8-element Indices{Tuple{Tuple{Int64, Int64}, Int64}}
  ((1, 1), 1)
  ((2, 1), 1)
  ((1, 2), 1)
@@ -239,8 +239,8 @@ and 8 edge(s):
 
 
 julia> g₁ ⊔ g₂ # Same as above
-NamedGraphs.NamedGraph{Tuple{Tuple{Int64, Int64}, Int64}} with 8 vertices:
-8-element Dictionaries.Indices{Tuple{Tuple{Int64, Int64}, Int64}}
+NamedGraph{Tuple{Tuple{Int64, Int64}, Int64}} with 8 vertices:
+8-element Indices{Tuple{Tuple{Int64, Int64}, Int64}}
  ((1, 1), 1)
  ((2, 1), 1)
  ((1, 2), 1)
@@ -279,8 +279,8 @@ The original graphs can be obtained from subgraphs:
 
 ```julia
 julia> rename_vertices(first, subgraph(v -> v[2] == 1, g₁ ⊔ g₂))
-NamedGraphs.NamedGraph{Tuple{Int64, Int64}} with 4 vertices:
-4-element Dictionaries.Indices{Tuple{Int64, Int64}}
+NamedGraph{Tuple{Int64, Int64}} with 4 vertices:
+4-element Indices{Tuple{Int64, Int64}}
  (1, 1)
  (2, 1)
  (1, 2)
@@ -294,8 +294,8 @@ and 4 edge(s):
 
 
 julia> rename_vertices(first, subgraph(v -> v[2] == 2, g₁ ⊔ g₂))
-NamedGraphs.NamedGraph{Tuple{Int64, Int64}} with 4 vertices:
-4-element Dictionaries.Indices{Tuple{Int64, Int64}}
+NamedGraph{Tuple{Int64, Int64}} with 4 vertices:
+4-element Indices{Tuple{Int64, Int64}}
  (1, 1)
  (2, 1)
  (1, 2)

@@ -4,7 +4,7 @@ Pkg.activate(; temp=true, io=devnull)
 
 Pkg.add("Graphs"; io=devnull)
 using Graphs: nv
-Pkg.develop(; path=joinpath(Pkg.devdir(), "NamedGraphs"), io=devnull)
+Pkg.develop("NamedGraphs"; io=devnull)
 using NamedGraphs: named_grid
 using NamedGraphs.PartitionedGraphs: PartitionedGraph, partitioned_graph
 
