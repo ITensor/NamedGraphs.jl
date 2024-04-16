@@ -198,4 +198,9 @@ export NamedGraph,
   unpartitioned_graph,
   weights
 
+using PackageExtensionCompat: @require_extensions
+function __init__()
+  @require_extensions
+end
+
 end # module AbstractNamedGraphs
