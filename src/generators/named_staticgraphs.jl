@@ -8,9 +8,8 @@ using Graphs:
   outneighbors,
   path_graph,
   rem_vertex!
+using .GraphGenerators: comb_tree
 using .GraphsExtensions: add_edges!, rem_vertices!
-# TODO: Move to `GraphGenerators`?
-using .GraphsExtensions: comb_tree
 
 ## TODO: Bring this back in some form?
 ## TODO: Move to `GraphsExtensions`?

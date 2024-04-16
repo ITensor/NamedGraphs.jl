@@ -1,3 +1,4 @@
+module GraphGenerators
 using Dictionaries: Dictionary
 using Graphs: SimpleGraph, add_edge!
 
@@ -26,4 +27,5 @@ function comb_tree(tooth_lengths::Vector{<:Integer})
     end
   end
   return graph
+end
 end

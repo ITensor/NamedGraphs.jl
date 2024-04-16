@@ -7,6 +7,7 @@ using Graphs:
   AbstractSimpleGraph,
   IsDirected,
   Δ,
+  add_edge!,
   add_vertex!,
   degree,
   dfs_tree,

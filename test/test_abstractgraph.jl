@@ -2,8 +2,8 @@
 using Graphs: binary_tree, dfs_tree, edgetype, grid, path_graph
 # TODO: Move to `NamedGraphs.NamedGraphGenerators`.
 using NamedGraphs: named_binary_tree, named_comb_tree, named_grid, named_path_graph
+using NamedGraphs.GraphGenerators: comb_tree
 using NamedGraphs.GraphsExtensions:
-  comb_tree,
   is_leaf,
   is_path_graph,
   edge_path,

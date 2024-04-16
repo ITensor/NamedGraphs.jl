@@ -1,5 +1,6 @@
 module NamedGraphs
 include("lib/Keys/src/Keys.jl")
+include("lib/GraphGenerators/src/GraphGenerators.jl")
 include("lib/GraphsExtensions/src/GraphsExtensions.jl")
 include("utils.jl")
 include("abstractnamededge.jl")
