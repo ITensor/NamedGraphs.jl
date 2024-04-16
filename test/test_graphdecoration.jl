@@ -1,9 +1,7 @@
 @eval module $(gensym())
 using Graphs: a_star, edges, vertices
 # TODO: Move to `NamedGraphGenerators`.
-using NamedGraphs: named_grid
-# TODO: Rename `named_hexagonal_lattice_graph`, move to `NamedGraphGenerators`.
-using NamedGraphs: hexagonal_lattice_graph
+using NamedGraphs: named_grid, named_hexagonal_lattice_graph
 using NamedGraphs.GraphsExtensions: decorate_graph_edges, decorate_graph_vertices
 using Test: @test, @testset
 
@@ -34,7 +32,7 @@ using Test: @test, @testset
   @test length(a_star(g_2d_Lieb_heavy, (1, 1), (2, 2))) == 8
 
   #Create Hexagon (loops are size 6)
-  g_hexagon = hexagonal_lattice_graph(3, 6)
+  g_hexagon = named_hexagonal_lattice_graph(3, 6)
 
   #Create Heavy Hexagon (loops are size 12)
   g_heavy_hexagon = decorate_graph_edges(g_hexagon)

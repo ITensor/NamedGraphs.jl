@@ -1,5 +1,6 @@
 using Graphs:
   SimpleDiGraph,
+  bfs_tree,
   binary_tree,
   grid,
   inneighbors,
@@ -12,14 +13,17 @@ using .GraphsExtensions: add_edges!, rem_vertices!
 using .GraphsExtensions: comb_tree
 
 ## TODO: Bring this back in some form?
+## TODO: Move to `GraphsExtensions`?
 ## function parent(tree::SimpleDiGraph, v::Integer)
 ##   return only(inneighbors(tree, v))
 ## end
 
+## TODO: Move to `GraphsExtensions`?
 function children(tree::SimpleDiGraph, v::Integer)
   return outneighbors(tree, v)
 end
 
+## TODO: Move to `GraphsExtensions`?
 function set_named_vertices!(
   named_vertices::Vector,
   tree::SimpleDiGraph,
@@ -107,7 +111,7 @@ end
 
 """Generate a graph which corresponds to a hexagonal tiling of the plane. There are m rows and n columns of hexagons.
 Based off of the generator in Networkx hexagonal_lattice_graph()"""
-function hexagonal_lattice_graph(m::Int64, n::Int64; periodic=false)
+function named_hexagonal_lattice_graph(m::Int64, n::Int64; periodic=false)
   M = 2 * m
   rows = [i for i in 1:(M + 2)]
   cols = [i for i in 1:(n + 1)]
@@ -146,7 +150,7 @@ end
 
 """Generate a graph which corresponds to a equilateral triangle tiling of the plane. There are m rows and n columns of triangles.
 Based off of the generator in Networkx triangular_lattice_graph()"""
-function triangular_lattice_graph(m::Int64, n::Int64; periodic=false)
+function named_triangular_lattice_graph(m::Int64, n::Int64; periodic=false)
   N = floor(Int64, (n + 1) / 2.0)
   rows = [i for i in 1:(m + 1)]
   cols = [i for i in 1:(N + 1)]

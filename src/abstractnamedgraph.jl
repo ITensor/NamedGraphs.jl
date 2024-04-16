@@ -5,11 +5,27 @@ using Graphs:
   IsDirected,
   SimpleDiGraph,
   SimpleEdge,
+  a_star,
   add_edge!,
   adjacency_matrix,
+  bfs_parents,
+  boruvka_mst,
+  connected_components,
+  degree,
   edges,
+  has_path,
+  indegree,
+  is_connected,
+  is_cyclic,
+  kruskal_mst,
   ne,
+  neighborhood,
+  neighborhood_dists,
   nv,
+  outdegree,
+  prim_mst,
+  rem_edge!,
+  spfa_shortest_paths,
   vertices,
   weights
 using .GraphsExtensions:
@@ -233,7 +249,7 @@ function Graphs.degree(graph::AbstractNamedGraph, vertex::Integer)
   return namedgraph_degree(graph::AbstractNamedGraph, vertex)
 end
 
-function degree_histogram(g::AbstractNamedGraph, degfn=degree)
+function Graphs.degree_histogram(g::AbstractNamedGraph, degfn=degree)
   hist = Dictionary{Int,Int}()
   for v in vertices(g)        # minimize allocations by
     for d in degfn(g, v)    # iterating over vertices
@@ -293,14 +309,14 @@ function Graphs.neighborhood_dists(
 end
 
 # Fix for ambiguity error with `AbstractGraph` version
-function neighborhood_dists(
+function Graphs.neighborhood_dists(
   graph::AbstractNamedGraph, vertex::Integer, d, distmx=weights(graph); dir=:out
 )
   return namedgraph_neighborhood_dists(graph, vertex, d, distmx; dir)
 end
 
 # Fix for ambiguity error with `AbstractGraph` version
-function neighborhood_dists(
+function Graphs.neighborhood_dists(
   graph::AbstractNamedGraph, vertex::Integer, d, distmx::AbstractMatrix{<:Real}; dir=:out
 )
   return namedgraph_neighborhood_dists(graph, vertex, d, distmx; dir)
@@ -448,23 +464,23 @@ function Graphs.add_edge!(graph::AbstractNamedGraph, edge::AbstractEdge)
 end
 
 # handles single-argument edge constructors such as pairs and tuples
-add_edge!(g::AbstractNamedGraph, edge) = add_edge!(g, edgetype(g)(edge))
-add_edge!(g::AbstractNamedGraph, src, dst) = add_edge!(g, edgetype(g)(src, dst))
+Graphs.add_edge!(g::AbstractNamedGraph, edge) = add_edge!(g, edgetype(g)(edge))
+Graphs.add_edge!(g::AbstractNamedGraph, src, dst) = add_edge!(g, edgetype(g)(src, dst))
 
-function rem_edge!(graph::AbstractNamedGraph, edge)
+function Graphs.rem_edge!(graph::AbstractNamedGraph, edge)
   rem_edge!(parent_graph(graph), edge_to_parent_edge(graph, edge))
   return graph
 end
 
-function has_edge(graph::AbstractNamedGraph, edge::AbstractNamedEdge)
+function Graphs.has_edge(graph::AbstractNamedGraph, edge::AbstractNamedEdge)
   return has_edge(parent_graph(graph), edge_to_parent_edge(graph, edge))
 end
 
 # handles two-argument edge constructors like src,dst
-has_edge(g::AbstractNamedGraph, edge) = has_edge(g, edgetype(g)(edge))
-has_edge(g::AbstractNamedGraph, src, dst) = has_edge(g, edgetype(g)(src, dst))
+Graphs.has_edge(g::AbstractNamedGraph, edge) = has_edge(g, edgetype(g)(edge))
+Graphs.has_edge(g::AbstractNamedGraph, src, dst) = has_edge(g, edgetype(g)(src, dst))
 
-function has_path(
+function Graphs.has_path(
   graph::AbstractNamedGraph, source, destination; exclude_vertices=vertextype(graph)[]
 )
   return has_path(

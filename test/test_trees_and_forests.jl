@@ -3,18 +3,17 @@ using Test: @test, @testset
 using Graphs: connected_components, edges, is_tree, vertices
 using NamedGraphs: NamedGraph
 # TODO: Move to `NamedGraphGenerators`.
-using NamedGraphs: named_comb_tree, named_grid
-# TODO: Move to `NamedGraphGenerators`, rename to `named_f(...)`.
-using NamedGraphs: hexagonal_lattice_graph, triangular_lattice_graph
+using NamedGraphs:
+  named_comb_tree, named_grid, named_hexagonal_lattice_graph, named_triangular_lattice_graph
 using NamedGraphs.GraphsExtensions: GraphsExtensions, all_edges, forest_cover, spanning_tree
 
 gs = [
   ("Chain", named_grid((6, 1))),
   ("Cubic Lattice", named_grid((3, 3, 3))),
-  ("Hexagonal Grid", hexagonal_lattice_graph(6, 6)),
+  ("Hexagonal Grid", named_hexagonal_lattice_graph(6, 6)),
   ("Comb Tree", named_comb_tree((4, 4))),
   ("Square lattice", named_grid((10, 10))),
-  ("Triangular Grid", triangular_lattice_graph(5, 5; periodic=true)),
+  ("Triangular Grid", named_triangular_lattice_graph(5, 5; periodic=true)),
 ]
 algs = (GraphsExtensions.BFS(), GraphsExtensions.DFS(), GraphsExtensions.RandomBFS())
 

@@ -1,20 +1,20 @@
 @eval module $(gensym())
 using Graphs:
   center,
+  diameter,
   edges,
   has_vertex,
   is_connected,
   is_tree,
+  ne,
+  nv,
   radius,
   random_regular_graph,
   rem_vertex!,
   vertices
-using NamedGraphs: NamedEdge, NamedGraph, diameter, ne, nv
+using NamedGraphs: NamedEdge, NamedGraph
 # TODO: Move to `NamedGraphGenerators`.
-using NamedGraphs: named_comb_tree, named_grid
-# TODO: Rename to `named_triangular_lattice_graph`,
-# move to `NamedGraphGenerators`/`GraphGenerators`.
-using NamedGraphs: triangular_lattice_graph
+using NamedGraphs: named_comb_tree, named_grid, named_triangular_lattice_graph
 using NamedGraphs.GraphsExtensions:
   add_edges!,
   add_vertices!,
@@ -179,7 +179,7 @@ end
     named_comb_tree((4, 4)),
     named_grid((2, 2, 2)),
     NamedGraph(random_regular_graph(12, 3)),
-    triangular_lattice_graph(7, 7),
+    named_triangular_lattice_graph(7, 7),
   ]
 
   for f in functions

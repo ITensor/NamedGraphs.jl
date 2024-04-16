@@ -186,7 +186,7 @@ GenericNamedGraph() = GenericNamedGraph(Any[])
 # TODO: implement as:
 # graph = set_parent_graph(graph, copy(parent_graph(graph)))
 # graph = set_vertices(graph, copy(vertices(graph)))
-function copy(graph::GenericNamedGraph)
+function Base.copy(graph::GenericNamedGraph)
   return GenericNamedGraph(copy(graph.parent_graph), copy(graph.parent_vertex_to_vertex))
 end
 
