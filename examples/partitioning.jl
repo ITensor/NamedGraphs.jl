@@ -1,10 +1,12 @@
 using Pkg: Pkg
 active_project_dir = dirname(Base.active_project())
+using NamedGraphs: NamedGraphs
+namedgraphs_pkgdir = pkgdir(NamedGraphs)
 Pkg.activate(; temp=true, io=devnull)
 
 Pkg.add("Graphs"; io=devnull)
 using Graphs: nv
-Pkg.develop("NamedGraphs"; io=devnull)
+Pkg.develop(; path=namedgraphs_pkgdir, io=devnull)
 using NamedGraphs: named_grid
 using NamedGraphs.PartitionedGraphs: PartitionedGraph, partitioned_graph
 
