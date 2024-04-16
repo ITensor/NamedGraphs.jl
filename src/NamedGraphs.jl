@@ -1,4 +1,5 @@
 module NamedGraphs
+# TODO: Delete this!
 using AbstractTrees
 using Dictionaries
 using Graphs
@@ -9,7 +10,6 @@ using SparseArrays
 using SplitApplyCombine
 using SymRCM
 using Suppressor
-using Requires
 
 using Graphs.SimpleGraphs
 
@@ -197,14 +197,5 @@ export NamedGraph,
   steiner_tree,
   unpartitioned_graph,
   weights
-
-function __init__()
-  @require KaHyPar = "2a6221f6-aa48-11e9-3542-2d9e0ef01880" include(
-    joinpath("requires", "kahypar.jl")
-  )
-  @require Metis = "2679e427-3c69-5b7f-982b-ece356f1e94b" include(
-    joinpath("requires", "metis.jl")
-  )
-end
 
 end # module AbstractNamedGraphs

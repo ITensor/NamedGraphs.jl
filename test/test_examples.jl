@@ -1,9 +1,11 @@
 @eval module $(gensym())
 using NamedGraphs: NamedGraphs
 using Suppressor: @suppress
-using Test: @testset
+using Test: @test, @testset
 filenames = filter(endswith(".jl"), readdir(joinpath(pkgdir(NamedGraphs), "examples")))
 @testset "Run examples: $filename" for filename in filenames
-  @suppress include(joinpath(pkgdir(NamedGraphs), "examples", filename))
+  @test Returns(true)(
+    @suppress include(joinpath(pkgdir(NamedGraphs), "examples", filename))
+  )
 end
 end

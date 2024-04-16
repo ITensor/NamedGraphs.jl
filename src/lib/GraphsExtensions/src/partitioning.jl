@@ -32,26 +32,6 @@ function set_partitioning_backend!(backend::Union{Missing,Backend,String})
   return nothing
 end
 
-# KaHyPar configuration options
-#
-# configurations = readdir(joinpath(pkgdir(KaHyPar), "src", "config"))
-#  "cut_kKaHyPar_sea20.ini"
-#  "cut_rKaHyPar_sea20.ini"
-#  "km1_kKaHyPar-E_sea20.ini"
-#  "km1_kKaHyPar_eco_sea20.ini"
-#  "km1_kKaHyPar_sea20.ini"
-#  "km1_rKaHyPar_sea20.ini"
-#
-const kahypar_configurations = Dict([
-  (objective="edge_cut", alg="kway") => "cut_kKaHyPar_sea20.ini",
-  (objective="edge_cut", alg="recursive") => "cut_rKaHyPar_sea20.ini",
-  (objective="connectivity", alg="kway") => "km1_kKaHyPar_sea20.ini",
-  (objective="connectivity", alg="recursive") => "km1_rKaHyPar_sea20.ini",
-])
-
-# Metis configuration options
-const metis_algs = Dict(["kway" => :KWAY, "recursive" => :RECURSIVE])
-
 function _npartitions(
   g::AbstractGraph, npartitions::Integer, nvertices_per_partition::Nothing
 )
@@ -81,12 +61,11 @@ function partitioned_vertices(
   backend=current_partitioning_backend(),
   kwargs...,
 )
-  #Metis cannot handle the edge case npartitions = 1, so we will fix it here for now
-  #Is this now
+  # Metis cannot handle the edge case npartitions = 1, so we will fix it here for now.
+  # TODO: Check if this is still needed, or move to `NamedGraphsMetisExt`.
   if (_npartitions(g, npartitions, nvertices_per_partition) == 1)
     return group(v -> 1, collect(vertices(g)))
   end
-
   return partitioned_vertices(
     Backend(backend), g, _npartitions(g, npartitions, nvertices_per_partition); kwargs...
   )
