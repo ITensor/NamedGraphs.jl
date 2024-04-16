@@ -100,12 +100,11 @@ import SymRCM: symrcm
 import Base: Pair, Tuple, show, ==, hash, eltype, convert
 import Graphs: AbstractEdge, src, dst, reverse, reverse!
 
-# TODO: Move to `lib/BaseExtensions/src/BaseExtensions.jl`.
-include("Base/key.jl")
 
 # TODO: Move to `lib/DictionariesExtensions/src/DictionariesExtensions.jl`.
 include("Dictionaries/dictionary.jl")
 
+include("lib/Keys/src/Keys.jl")
 include("lib/GraphsExtensions/src/GraphsExtensions.jl")
 include("abstractnamededge.jl")
 include("namededge.jl")

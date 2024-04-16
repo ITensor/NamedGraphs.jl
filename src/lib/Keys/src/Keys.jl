@@ -1,3 +1,4 @@
+module Keys
 """
 Key{K}
 
@@ -19,24 +20,26 @@ struct Key{K}
 end
 Key(I...) = Key(I)
 
-show(io::IO, I::Key) = print(io, "Key(", I.I, ")")
+Base.show(io::IO, I::Key) = print(io, "Key(", I.I, ")")
 
 ## For indexing into `AbstractArray`
 # This allows linear indexing `A[Key(2)]`.
 # Overload of `Base.to_index`.
-to_index(I::Key) = I.I
+Base.to_index(I::Key) = I.I
 
 # This allows cartesian indexing `A[Key(CartesianIndex(1, 2))]`.
 # Overload of `Base.to_indices`.
-to_indices(A::AbstractArray, I::Tuple{Key{<:CartesianIndex}}) = I[1].I.I
+Base.to_indices(A::AbstractArray, I::Tuple{Key{<:CartesianIndex}}) = I[1].I.I
 
 # This would allow syntax like `A[Key(1, 2)]`, should we support that?
 # Overload of `Base.to_indices`.
 # to_indices(A::AbstractArray, I::Tuple{Key}) = I[1].I
 
-getindex(d::AbstractDict, I::Key) = d[I.I]
+Base.getindex(d::AbstractDict, I::Key) = d[I.I]
 
 # Fix ambiguity error with Base
-getindex(d::Dict, I::Key) = d[I.I]
+Base.getindex(d::Dict, I::Key) = d[I.I]
 
-getindex(d::AbstractDictionary, I::Key) = d[I.I]
+using Dictionaries: AbstractDictionary
+Base.getindex(d::AbstractDictionary, I::Key) = d[I.I]
+end

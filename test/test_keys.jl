@@ -1,6 +1,7 @@
-using Dictionaries
-using NamedGraphs
-using Test
+@eval module $(gensym())
+using Dictionaries: Dictionary
+using NamedGraphs.Keys: Key
+using Test: @test, @test_throws, @testset
 
 @testset "Tree Base extensions" begin
   @testset "Test Key indexing" begin
@@ -21,4 +22,5 @@ using Test
     A = Dictionary(["X", "Y"], [1, 2])
     @test A["X"] == A[Key("X")]
   end
+end
 end
