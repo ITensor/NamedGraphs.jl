@@ -1,8 +1,9 @@
-using Graphs: add_edge!, dst, edges, neighbors, rem_vertex!, src, vertices
-using .GraphsExtensions: GraphsExtensions
+using Graphs: add_edge!, dst, edges, neighbors, rem_edge!, rem_vertex!, src, vertices
+using Graphs.SimpleGraphs: SimpleGraph
+using .GraphsExtensions: GraphsExtensions, add_edges!
 
 function GraphsExtensions.decorate_graph_edges(
-  g::AbstractNamedGraph; edge_map::Function=e -> named_grid((1,))
+  g::AbstractNamedGraph; edge_map::Function=Returns(SimpleGraph(1))
 )
   g_dec = copy(g)
   es = edges(g_dec)
@@ -18,7 +19,7 @@ function GraphsExtensions.decorate_graph_edges(
 end
 
 function GraphsExtensions.decorate_graph_vertices(
-  g::AbstractNamedGraph; vertex_map::Function=v -> named_grid((1,))
+  g::AbstractNamedGraph; vertex_map::Function=Returns(SimpleGraph(1))
 )
   g_dec = copy(g)
   vs = vertices(g_dec)

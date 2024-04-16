@@ -1,31 +1,36 @@
+module NamedGraphGenerators
 using Graphs:
-  SimpleDiGraph,
+  IsDirected,
   bfs_tree,
   binary_tree,
   grid,
   inneighbors,
   merge_vertices,
+  nv,
   outneighbors,
   path_graph,
   rem_vertex!
-using .GraphGenerators: comb_tree
-using .GraphsExtensions: add_edges!, rem_vertices!
+using Graphs.SimpleGraphs: AbstractSimpleGraph
+using ..GraphGenerators: comb_tree
+using ..GraphsExtensions: add_edges!, rem_vertices!
+using ..NamedGraphs: NamedGraph
+using SimpleTraits: SimpleTraits, @traitfn
 
 ## TODO: Bring this back in some form?
 ## TODO: Move to `GraphsExtensions`?
-## function parent(tree::SimpleDiGraph, v::Integer)
+## @traitfn function parent(tree::AbstractSimpleGraph::IsDirected, v::Integer)
 ##   return only(inneighbors(tree, v))
 ## end
 
 ## TODO: Move to `GraphsExtensions`?
-function children(tree::SimpleDiGraph, v::Integer)
+@traitfn function children(tree::AbstractSimpleGraph::IsDirected, v::Integer)
   return outneighbors(tree, v)
 end
 
 ## TODO: Move to `GraphsExtensions`?
-function set_named_vertices!(
-  named_vertices::Vector,
-  tree::SimpleDiGraph,
+@traitfn function set_named_vertices!(
+  named_vertices::AbstractVector,
+  tree::AbstractSimpleGraph::IsDirected,
   simple_parent::Integer,
   named_parent;
   child_name=identity,
@@ -50,7 +55,7 @@ end
 # 6 => (1, 2, 1)
 # 7 => (1, 2, 2)
 function named_bfs_tree_vertices(
-  simple_graph::SimpleGraph, source::Integer=1; source_name=1, child_name=identity
+  simple_graph::AbstractSimpleGraph, source::Integer=1; source_name=1, child_name=identity
 )
   tree = bfs_tree(simple_graph, source)
   named_vertices = Vector{Tuple}(undef, nv(simple_graph))
@@ -61,7 +66,7 @@ function named_bfs_tree_vertices(
 end
 
 function named_bfs_tree(
-  simple_graph::SimpleGraph, source::Integer=1; source_name=1, child_name=identity
+  simple_graph::AbstractSimpleGraph, source::Integer=1; source_name=1, child_name=identity
 )
   named_vertices = named_bfs_tree_vertices(simple_graph, source; source_name, child_name)
   return NamedGraph(simple_graph, named_vertices)
@@ -97,7 +102,7 @@ function named_comb_tree(dims::Tuple)
   return NamedGraph(simple_graph, Tuple.(CartesianIndices(Tuple(dims))))
 end
 
-function named_comb_tree(tooth_lengths::Vector{<:Integer})
+function named_comb_tree(tooth_lengths::AbstractVector{<:Integer})
   @assert all(>(0), tooth_lengths)
   simple_graph = comb_tree(tooth_lengths)
   nx = length(tooth_lengths)
@@ -110,7 +115,7 @@ end
 
 """Generate a graph which corresponds to a hexagonal tiling of the plane. There are m rows and n columns of hexagons.
 Based off of the generator in Networkx hexagonal_lattice_graph()"""
-function named_hexagonal_lattice_graph(m::Int64, n::Int64; periodic=false)
+function named_hexagonal_lattice_graph(m::Integer, n::Integer; periodic=false)
   M = 2 * m
   rows = [i for i in 1:(M + 2)]
   cols = [i for i in 1:(n + 1)]
@@ -149,7 +154,7 @@ end
 
 """Generate a graph which corresponds to a equilateral triangle tiling of the plane. There are m rows and n columns of triangles.
 Based off of the generator in Networkx triangular_lattice_graph()"""
-function named_triangular_lattice_graph(m::Int64, n::Int64; periodic=false)
+function named_triangular_lattice_graph(m::Integer, n::Integer; periodic=false)
   N = floor(Int64, (n + 1) / 2.0)
   rows = [i for i in 1:(m + 1)]
   cols = [i for i in 1:(N + 1)]
@@ -182,4 +187,5 @@ function named_triangular_lattice_graph(m::Int64, n::Int64; periodic=false)
   end
 
   return G
+end
 end

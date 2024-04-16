@@ -1,9 +1,9 @@
-using Test
-using NamedGraphs
-using NamedGraphs: named_hexagonal_lattice_graph, named_triangular_lattice_graph
+@eval module $(gensym())
+using Graphs: edges, neighbors, vertices
 using NamedGraphs.GraphsExtensions: is_path_graph
-using Graphs
-using Random
+using NamedGraphs.NamedGraphGenerators:
+  named_hexagonal_lattice_graph, named_triangular_lattice_graph
+using Test: @test, @testset
 
 @testset "Named Graph Generators" begin
   g = named_hexagonal_lattice_graph(1, 1)
@@ -43,4 +43,5 @@ using Random
   g = named_triangular_lattice_graph(6, 6; periodic=true)
   degree_dist = [length(neighbors(g, v)) for v in vertices(g)]
   @test all(d -> d == 6, degree_dist)
+end
 end

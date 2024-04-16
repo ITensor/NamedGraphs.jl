@@ -1,8 +1,7 @@
 @eval module $(gensym())
 using Graphs: bfs_tree, edges, is_connected, vertices
-# TODO: Move to `NamedGraphs.NamedGraphGenerators`.
-using NamedGraphs: named_grid
 using NamedGraphs.GraphsExtensions: random_bfs_tree
+using NamedGraphs.NamedGraphGenerators: named_grid
 using Random: Random
 using Test: @test, @testset
 

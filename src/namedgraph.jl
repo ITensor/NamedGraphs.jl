@@ -2,9 +2,6 @@ using Dictionaries: Dictionary
 using Graphs:
   Graphs,
   AbstractGraph,
-  AbstractSimpleGraph,
-  SimpleGraph,
-  SimpleDiGraph,
   add_edge!,
   add_vertex!,
   edgetype,
@@ -13,6 +10,7 @@ using Graphs:
   outneighbors,
   rem_vertex!,
   vertices
+using Graphs.SimpleGraphs: AbstractSimpleGraph, SimpleDiGraph, SimpleGraph
 using .GraphsExtensions:
   GraphsExtensions, vertextype, directed_graph_type, undirected_graph_type
 
@@ -66,6 +64,10 @@ end
 function GraphsExtensions.rename_vertices(f::Function, g::GenericNamedGraph)
   # TODO: Could be `set_vertices(g, f.(g.parent_vertex_to_vertex))`.
   return GenericNamedGraph(g.parent_graph, f.(g.parent_vertex_to_vertex))
+end
+
+function GraphsExtensions.rename_vertices(f::Function, g::AbstractSimpleGraph)
+  return rename_vertices(f, GenericNamedGraph(g))
 end
 
 function GraphsExtensions.convert_vertextype(V::Type, graph::GenericNamedGraph)

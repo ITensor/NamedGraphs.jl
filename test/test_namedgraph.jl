@@ -2,7 +2,6 @@
 using Dictionaries: Dictionary, Indices
 using Graphs:
   Edge,
-  SimpleDiGraph,
   δ,
   Δ,
   a_star,
@@ -59,10 +58,9 @@ using Graphs:
   topological_sort_by_dfs,
   vertices,
   yen_k_shortest_paths
+using Graphs.SimpleGraphs: SimpleDiGraph
 using GraphsFlows: GraphsFlows
 using NamedGraphs: NamedEdge, NamedDiGraph, NamedGraph
-# Move to `NamedGraphGenerators`.
-using NamedGraphs: named_binary_tree, named_grid, named_path_graph
 using NamedGraphs.GraphsExtensions:
   GraphsExtensions,
   ⊔,
@@ -84,6 +82,7 @@ using NamedGraphs.GraphsExtensions:
   subgraph,
   symrcm_perm,
   symrcm_permute
+using NamedGraphs.NamedGraphGenerators: named_binary_tree, named_grid, named_path_graph
 using Test: @test, @test_broken, @testset
 
 @testset "NamedEdge" begin

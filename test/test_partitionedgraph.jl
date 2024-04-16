@@ -14,8 +14,6 @@ using Graphs:
   vertices
 using Metis: Metis
 using NamedGraphs: NamedEdge, NamedGraph
-# TODO: Move to `NamedGraphGenerators`.
-using NamedGraphs: named_comb_tree, named_grid, named_triangular_lattice_graph
 using NamedGraphs.GraphsExtensions:
   add_edges!,
   add_vertices!,
@@ -28,6 +26,8 @@ using NamedGraphs.GraphsExtensions:
   spanning_tree,
   subgraph,
   vertextype
+using NamedGraphs.NamedGraphGenerators:
+  named_comb_tree, named_grid, named_triangular_lattice_graph
 using NamedGraphs.PartitionedGraphs:
   PartitionEdge,
   PartitionedGraph,

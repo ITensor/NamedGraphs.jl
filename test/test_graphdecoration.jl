@@ -1,8 +1,7 @@
 @eval module $(gensym())
 using Graphs: a_star, edges, vertices
-# TODO: Move to `NamedGraphGenerators`.
-using NamedGraphs: named_grid, named_hexagonal_lattice_graph
 using NamedGraphs.GraphsExtensions: decorate_graph_edges, decorate_graph_vertices
+using NamedGraphs.NamedGraphGenerators: named_grid, named_hexagonal_lattice_graph
 using Test: @test, @testset
 
 @testset "Decorated Graphs" begin

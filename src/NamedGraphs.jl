@@ -13,14 +13,10 @@ include("distances_and_capacities.jl")
 include("steiner_tree/steiner_tree.jl")
 include("traversals/dfs.jl")
 include("namedgraph.jl")
-include("generators/named_staticgraphs.jl")
+include("lib/NamedGraphGenerators/src/NamedGraphGenerators.jl")
 include("lib/PartitionedGraphs/src/PartitionedGraphs.jl")
 
 export NamedGraph, NamedDiGraph, NamedEdge
-
-# TODO: Move to `NamedGraphs.NamedGraphGenerators`.
-# TODO: Add `named_hex`, `named_triangular`, etc.
-export named_binary_tree, named_grid, named_path_graph, named_path_digraph
 
 using PackageExtensionCompat: @require_extensions
 function __init__()

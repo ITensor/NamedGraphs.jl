@@ -1,7 +1,5 @@
 @eval module $(gensym())
 using Graphs: binary_tree, dfs_tree, edgetype, grid, path_graph
-# TODO: Move to `NamedGraphs.NamedGraphGenerators`.
-using NamedGraphs: named_binary_tree, named_comb_tree, named_grid, named_path_graph
 using NamedGraphs.GraphGenerators: comb_tree
 using NamedGraphs.GraphsExtensions:
   is_leaf,
@@ -11,6 +9,8 @@ using NamedGraphs.GraphsExtensions:
   post_order_dfs_vertices,
   pre_order_dfs_vertices,
   vertex_path
+using NamedGraphs.NamedGraphGenerators:
+  named_binary_tree, named_comb_tree, named_grid, named_path_graph
 using Test: @test, @testset
 
 @testset "Tree graph paths" begin

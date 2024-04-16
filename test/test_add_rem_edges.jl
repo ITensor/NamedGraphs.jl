@@ -1,6 +1,7 @@
 @eval module $(gensym())
-using NamedGraphs: NamedGraph, named_grid
+using NamedGraphs: NamedGraph
 using NamedGraphs.GraphsExtensions: add_edges!, rem_edges!
+using NamedGraphs.NamedGraphGenerators: named_grid
 using Graphs: has_edge, is_connected
 using Test: @test, @testset
 

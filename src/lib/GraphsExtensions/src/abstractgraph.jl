@@ -4,7 +4,6 @@ using Graphs:
   Graphs,
   AbstractEdge,
   AbstractGraph,
-  AbstractSimpleGraph,
   IsDirected,
   Δ,
   add_edge!,
@@ -24,6 +23,7 @@ using Graphs:
   rem_edge!,
   rem_vertex!,
   weights
+using Graphs.SimpleGraphs: AbstractSimpleGraph
 using SimpleTraits: SimpleTraits, @traitfn
 using SplitApplyCombine: groupfind
 

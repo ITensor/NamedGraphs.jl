@@ -3,8 +3,6 @@ using Graphs:
   Graphs,
   AbstractGraph,
   IsDirected,
-  SimpleDiGraph,
-  SimpleEdge,
   a_star,
   add_edge!,
   adjacency_matrix,
@@ -15,6 +13,7 @@ using Graphs:
   edges,
   has_path,
   indegree,
+  inneighbors,
   is_connected,
   is_cyclic,
   kruskal_mst,
@@ -28,6 +27,7 @@ using Graphs:
   spfa_shortest_paths,
   vertices,
   weights
+using Graphs.SimpleGraphs: SimpleDiGraph, SimpleEdge
 using .GraphsExtensions:
   GraphsExtensions,
   directed_graph,
@@ -55,7 +55,6 @@ parent_graph_type(graph::AbstractNamedGraph) = not_implemented()
 Graphs.rem_vertex!(graph::AbstractNamedGraph, vertex) = not_implemented()
 Graphs.add_vertex!(graph::AbstractNamedGraph, vertex) = not_implemented()
 
-# TODO: Define generic version in `GraphsExtensions`.
 GraphsExtensions.rename_vertices(f::Function, g::AbstractNamedGraph) = not_implemented()
 
 function GraphsExtensions.permute_vertices(graph::AbstractNamedGraph, permutation)
