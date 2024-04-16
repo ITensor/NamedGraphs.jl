@@ -1,3 +1,6 @@
+using Dictionaries: Dictionary
+using Graphs: Graphs, dijkstra_shortest_paths, weights
+
 """
     struct NamedDijkstraState{V,T}
 
@@ -46,7 +49,7 @@ function parent_path_state_to_path_state(
   )
 end
 
-function _dijkstra_shortest_paths(
+function namedgraph_dijkstra_shortest_paths(
   graph::AbstractNamedGraph,
   srcs,
   distmx=weights(graph);
@@ -63,34 +66,34 @@ function _dijkstra_shortest_paths(
   return parent_path_state_to_path_state(graph, parent_path_state)
 end
 
-function dijkstra_shortest_paths(
+function Graphs.dijkstra_shortest_paths(
   graph::AbstractNamedGraph, srcs, distmx=weights(graph); kwargs...
 )
-  return _dijkstra_shortest_paths(graph, srcs, distmx; kwargs...)
+  return namedgraph_dijkstra_shortest_paths(graph, srcs, distmx; kwargs...)
 end
 
 # Fix ambiguity error with `AbstractGraph` version
-function dijkstra_shortest_paths(
+function Graphs.dijkstra_shortest_paths(
   graph::AbstractNamedGraph,
   srcs::Vector{<:Integer},
   distmx::AbstractMatrix{<:Real}=weights(graph);
   kwargs...,
 )
-  return _dijkstra_shortest_paths(graph, srcs, distmx; kwargs...)
+  return namedgraph_dijkstra_shortest_paths(graph, srcs, distmx; kwargs...)
 end
 
-function dijkstra_shortest_paths(
+function Graphs.dijkstra_shortest_paths(
   graph::AbstractNamedGraph, vertex::Integer, distmx::AbstractMatrix; kwargs...
 )
-  return _dijkstra_shortest_paths(graph, [vertex], distmx; kwargs...)
+  return namedgraph_dijkstra_shortest_paths(graph, [vertex], distmx; kwargs...)
 end
 
 for f in [
-  :bellman_ford_shortest_paths,
-  :desopo_pape_shortest_paths,
-  :floyd_warshall_shortest_paths,
-  :johnson_shortest_paths,
-  :yen_k_shortest_paths,
+  :(Graphs.bellman_ford_shortest_paths),
+  :(Graphs.desopo_pape_shortest_paths),
+  :(Graphs.floyd_warshall_shortest_paths),
+  :(Graphs.johnson_shortest_paths),
+  :(Graphs.yen_k_shortest_paths),
 ]
   @eval begin
     function $f(graph::AbstractNamedGraph, args...; kwargs...)

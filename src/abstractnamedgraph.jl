@@ -1,10 +1,49 @@
+using Dictionaries: set!
+using Graphs:
+  Graphs,
+  AbstractGraph,
+  IsDirected,
+  a_star,
+  add_edge!,
+  adjacency_matrix,
+  bfs_parents,
+  boruvka_mst,
+  connected_components,
+  degree,
+  edges,
+  has_path,
+  indegree,
+  inneighbors,
+  is_connected,
+  is_cyclic,
+  kruskal_mst,
+  ne,
+  neighborhood,
+  neighborhood_dists,
+  nv,
+  outdegree,
+  prim_mst,
+  rem_edge!,
+  spfa_shortest_paths,
+  vertices,
+  weights
+using Graphs.SimpleGraphs: SimpleDiGraph, SimpleEdge
+using .GraphsExtensions:
+  GraphsExtensions,
+  directed_graph,
+  incident_edges,
+  partitioned_vertices,
+  rename_vertices,
+  subgraph
+using SimpleTraits: SimpleTraits, @traitfn
+
 abstract type AbstractNamedGraph{V} <: AbstractGraph{V} end
 
 #
 # Required for interface
 #
 
-vertices(graph::AbstractNamedGraph) = not_implemented()
+Graphs.vertices(graph::AbstractNamedGraph) = not_implemented()
 parent_graph(graph::AbstractNamedGraph) = not_implemented()
 
 # TODO: Require this for the interface, or implement as:
@@ -12,10 +51,14 @@ parent_graph(graph::AbstractNamedGraph) = not_implemented()
 # ?
 parent_graph_type(graph::AbstractNamedGraph) = not_implemented()
 
-rem_vertex!(graph::AbstractNamedGraph, vertex) = not_implemented()
-add_vertex!(graph::AbstractNamedGraph, vertex) = not_implemented()
+Graphs.rem_vertex!(graph::AbstractNamedGraph, vertex) = not_implemented()
+Graphs.add_vertex!(graph::AbstractNamedGraph, vertex) = not_implemented()
 
-rename_vertices(f::Function, g::AbstractNamedGraph) = not_implemented()
+GraphsExtensions.rename_vertices(f::Function, g::AbstractNamedGraph) = not_implemented()
+
+function GraphsExtensions.permute_vertices(graph::AbstractNamedGraph, permutation)
+  return subgraph(graph, parent_vertices_to_vertices(graph, permutation))
+end
 
 # Convert vertex to parent vertex
 # Inverse map of `parent_vertex_to_vertex`.
@@ -25,15 +68,16 @@ vertex_to_parent_vertex(graph::AbstractNamedGraph, vertex) = not_implemented()
 # Use `vertices`, assumes `vertices` is indexed by a parent vertex (a Vector for linear indexed parent vertices, a dictionary in general).
 parent_vertex_to_vertex(graph::AbstractNamedGraph, parent_vertex) = not_implemented()
 
-# TODO: rename `edge_type`?
-edgetype(graph::AbstractNamedGraph) = not_implemented()
-directed_graph_type(G::Type{<:AbstractNamedGraph}) = not_implemented()
-undirected_graph_type(G::Type{<:AbstractNamedGraph}) = not_implemented()
+Graphs.edgetype(graph::AbstractNamedGraph) = not_implemented()
+
+# TODO: Define generic version in `GraphsExtensions`.
+GraphsExtensions.directed_graph_type(G::Type{<:AbstractNamedGraph}) = not_implemented()
+GraphsExtensions.undirected_graph_type(G::Type{<:AbstractNamedGraph}) = not_implemented()
 
 # In terms of `parent_graph_type`
 # is_directed(::Type{<:AbstractNamedGraph}) = not_implemented()
 
-convert_vertextype(::Type, ::AbstractNamedGraph) = not_implemented()
+GraphsExtensions.convert_vertextype(::Type, ::AbstractNamedGraph) = not_implemented()
 
 # TODO: implement as:
 #
@@ -46,16 +90,9 @@ convert_vertextype(::Type, ::AbstractNamedGraph) = not_implemented()
 # for e in edges(graph)
 #   add_edge!(graph_copy, e)
 # end
-copy(graph::AbstractNamedGraph) = not_implemented()
+Base.copy(graph::AbstractNamedGraph) = not_implemented()
 
-# This should be overloaded for multi-dimensional indexing.
-# Get the subset of vertices of the graph, for example
-# for an input slice `subvertices(graph, "X", :)`.
-function subvertices(graph::AbstractNamedGraph, vertices)
-  return not_implemented()
-end
-
-function merge_vertices!(
+function Graphs.merge_vertices!(
   graph::AbstractNamedGraph, merge_vertices; merged_vertex=first(merge_vertices)
 )
   return not_implemented()
@@ -81,10 +118,10 @@ function parent_vertex_to_vertex(graph::AbstractNamedGraph)
   return Base.Fix1(parent_vertex_to_vertex, graph)
 end
 
-zero(G::Type{<:AbstractNamedGraph}) = G()
+Base.zero(G::Type{<:AbstractNamedGraph}) = G()
 
 # TODO: Implement using `copyto!`?
-function directed_graph(graph::AbstractNamedGraph)
+function GraphsExtensions.directed_graph(graph::AbstractNamedGraph)
   digraph = directed_graph_type(typeof(graph))(vertices(graph))
   for e in edges(graph)
     add_edge!(digraph, e)
@@ -94,13 +131,9 @@ function directed_graph(graph::AbstractNamedGraph)
 end
 
 # Default, can overload
-eltype(graph::AbstractNamedGraph) = eltype(vertices(graph))
+Base.eltype(graph::AbstractNamedGraph) = eltype(vertices(graph))
 
 parent_eltype(graph::AbstractNamedGraph) = eltype(parent_graph(graph))
-
-function subvertices(graph::AbstractNamedGraph{V}, vertices::Vector{V}) where {V}
-  return vertices
-end
 
 function vertices_to_parent_vertices(graph::AbstractNamedGraph, vertices)
   return map(vertex_to_parent_vertex(graph), vertices)
@@ -154,12 +187,17 @@ function parent_edges_to_edges(graph::AbstractNamedGraph, parent_edges)
   return map(parent_edge_to_edge(graph), parent_edges)
 end
 
-function edges(graph::AbstractNamedGraph)
+function Graphs.edges(graph::AbstractNamedGraph)
   return parent_edges_to_edges(graph, parent_edges(graph))
 end
 
 # TODO: write in terms of a generic function.
-for f in [:outneighbors, :inneighbors, :all_neighbors, :neighbors]
+for f in [
+  :(Graphs.outneighbors),
+  :(Graphs.inneighbors),
+  :(Graphs.all_neighbors),
+  :(Graphs.neighbors),
+]
   @eval begin
     function $f(graph::AbstractNamedGraph, vertex)
       parent_vertices = $f(parent_graph(graph), vertex_to_parent_vertex(graph, vertex))
@@ -174,33 +212,42 @@ for f in [:outneighbors, :inneighbors, :all_neighbors, :neighbors]
   end
 end
 
-common_neighbors(g::AbstractNamedGraph, u, v) = intersect(neighbors(g, u), neighbors(g, v))
+function Graphs.common_neighbors(g::AbstractNamedGraph, u, v)
+  return intersect(neighbors(g, u), neighbors(g, v))
+end
 
-_indegree(graph::AbstractNamedGraph, vertex) = length(inneighbors(graph, vertex))
-_outdegree(graph::AbstractNamedGraph, vertex) = length(outneighbors(graph, vertex))
+namedgraph_indegree(graph::AbstractNamedGraph, vertex) = length(inneighbors(graph, vertex))
+function namedgraph_outdegree(graph::AbstractNamedGraph, vertex)
+  return length(outneighbors(graph, vertex))
+end
 
-indegree(graph::AbstractNamedGraph, vertex) = _indegree(graph, vertex)
-outdegree(graph::AbstractNamedGraph, vertex) = _outdegree(graph, vertex)
+Graphs.indegree(graph::AbstractNamedGraph, vertex) = namedgraph_indegree(graph, vertex)
+Graphs.outdegree(graph::AbstractNamedGraph, vertex) = namedgraph_outdegree(graph, vertex)
 
 # Fix for ambiguity error with `AbstractGraph` version
-indegree(graph::AbstractNamedGraph, vertex::Integer) = _indegree(graph, vertex)
-outdegree(graph::AbstractNamedGraph, vertex::Integer) = _outdegree(graph, vertex)
+function Graphs.indegree(graph::AbstractNamedGraph, vertex::Integer)
+  return namedgraph_indegree(graph, vertex)
+end
+function Graphs.outdegree(graph::AbstractNamedGraph, vertex::Integer)
+  return namedgraph_outdegree(graph, vertex)
+end
 
-@traitfn function _degree(graph::AbstractNamedGraph::IsDirected, vertex)
+@traitfn function namedgraph_degree(graph::AbstractNamedGraph::IsDirected, vertex)
   return indegree(graph, vertex) + outdegree(graph, vertex)
 end
-@traitfn _degree(graph::AbstractNamedGraph::(!IsDirected), vertex) = indegree(graph, vertex)
+@traitfn namedgraph_degree(graph::AbstractNamedGraph::(!IsDirected), vertex) =
+  indegree(graph, vertex)
 
-function degree(graph::AbstractNamedGraph, vertex)
-  return _degree(graph::AbstractNamedGraph, vertex)
+function Graphs.degree(graph::AbstractNamedGraph, vertex)
+  return namedgraph_degree(graph::AbstractNamedGraph, vertex)
 end
 
 # Fix for ambiguity error with `AbstractGraph` version
-function degree(graph::AbstractNamedGraph, vertex::Integer)
-  return _degree(graph::AbstractNamedGraph, vertex)
+function Graphs.degree(graph::AbstractNamedGraph, vertex::Integer)
+  return namedgraph_degree(graph::AbstractNamedGraph, vertex)
 end
 
-function degree_histogram(g::AbstractNamedGraph, degfn=degree)
+function Graphs.degree_histogram(g::AbstractNamedGraph, degfn=degree)
   hist = Dictionary{Int,Int}()
   for v in vertices(g)        # minimize allocations by
     for d in degfn(g, v)    # iterating over vertices
@@ -210,7 +257,7 @@ function degree_histogram(g::AbstractNamedGraph, degfn=degree)
   return hist
 end
 
-function _neighborhood(
+function namedgraph_neighborhood(
   graph::AbstractNamedGraph, vertex, d, distmx=weights(graph); dir=:out
 )
   parent_distmx = dist_matrix_to_parent_dist_matrix(graph, distmx)
@@ -222,25 +269,27 @@ function _neighborhood(
   ]
 end
 
-function neighborhood(graph::AbstractNamedGraph, vertex, d, distmx=weights(graph); dir=:out)
-  return _neighborhood(graph, vertex, d, distmx; dir)
+function Graphs.neighborhood(
+  graph::AbstractNamedGraph, vertex, d, distmx=weights(graph); dir=:out
+)
+  return namedgraph_neighborhood(graph, vertex, d, distmx; dir)
 end
 
 # Fix for ambiguity error with `AbstractGraph` version
-function neighborhood(
+function Graphs.neighborhood(
   graph::AbstractNamedGraph, vertex::Integer, d, distmx=weights(graph); dir=:out
 )
-  return _neighborhood(graph, vertex, d, distmx; dir)
+  return namedgraph_neighborhood(graph, vertex, d, distmx; dir)
 end
 
 # Fix for ambiguity error with `AbstractGraph` version
-function neighborhood(
+function Graphs.neighborhood(
   graph::AbstractNamedGraph, vertex::Integer, d, distmx::AbstractMatrix{<:Real}; dir=:out
 )
-  return _neighborhood(graph, vertex, d, distmx; dir)
+  return namedgraph_neighborhood(graph, vertex, d, distmx; dir)
 end
 
-function _neighborhood_dists(graph::AbstractNamedGraph, vertex, d, distmx; dir)
+function namedgraph_neighborhood_dists(graph::AbstractNamedGraph, vertex, d, distmx; dir)
   parent_distmx = dist_matrix_to_parent_dist_matrix(graph, distmx)
   parent_vertices_and_dists = neighborhood_dists(
     parent_graph(graph), vertex_to_parent_vertex(graph, vertex), d, parent_distmx; dir
@@ -251,83 +300,58 @@ function _neighborhood_dists(graph::AbstractNamedGraph, vertex, d, distmx; dir)
   ]
 end
 
-function neighborhood_dists(
+function Graphs.neighborhood_dists(
   graph::AbstractNamedGraph, vertex, d, distmx=weights(graph); dir=:out
 )
-  return _neighborhood_dists(graph, vertex, d, distmx; dir)
+  return namedgraph_neighborhood_dists(graph, vertex, d, distmx; dir)
 end
 
 # Fix for ambiguity error with `AbstractGraph` version
-function neighborhood_dists(
+function Graphs.neighborhood_dists(
   graph::AbstractNamedGraph, vertex::Integer, d, distmx=weights(graph); dir=:out
 )
-  return _neighborhood_dists(graph, vertex, d, distmx; dir)
+  return namedgraph_neighborhood_dists(graph, vertex, d, distmx; dir)
 end
 
 # Fix for ambiguity error with `AbstractGraph` version
-function neighborhood_dists(
+function Graphs.neighborhood_dists(
   graph::AbstractNamedGraph, vertex::Integer, d, distmx::AbstractMatrix{<:Real}; dir=:out
 )
-  return _neighborhood_dists(graph, vertex, d, distmx; dir)
+  return namedgraph_neighborhood_dists(graph, vertex, d, distmx; dir)
 end
 
-function _mincut(graph::AbstractNamedGraph, distmx)
+function namedgraph_mincut(graph::AbstractNamedGraph, distmx)
   parent_distmx = dist_matrix_to_parent_dist_matrix(graph, distmx)
-  parent_parity, bestcut = mincut(parent_graph(graph), parent_distmx)
+  parent_parity, bestcut = Graphs.mincut(parent_graph(graph), parent_distmx)
   return Dictionary(vertices(graph), parent_parity), bestcut
 end
 
-function mincut(graph::AbstractNamedGraph, distmx=weights(graph))
-  return _mincut(graph, distmx)
+function Graphs.mincut(graph::AbstractNamedGraph, distmx=weights(graph))
+  return namedgraph_mincut(graph, distmx)
 end
 
-function mincut(graph::AbstractNamedGraph, distmx::AbstractMatrix{<:Real})
-  return _mincut(graph, distmx)
+function Graphs.mincut(graph::AbstractNamedGraph, distmx::AbstractMatrix{<:Real})
+  return namedgraph_mincut(graph, distmx)
 end
 
-@traitfn function GraphsFlows.mincut(
-  graph::AbstractNamedGraph::IsDirected,
-  source,
-  target,
-  capacity_matrix=DefaultNamedCapacity(graph),
-  algorithm::GraphsFlows.AbstractFlowAlgorithm=PushRelabelAlgorithm(),
+# TODO: Make this more generic?
+function GraphsExtensions.partitioned_vertices(
+  g::AbstractNamedGraph; npartitions=nothing, nvertices_per_partition=nothing, kwargs...
 )
-  parent_part1, parent_part2, flow = GraphsFlows.mincut(
-    directed_graph(parent_graph(graph)),
-    vertex_to_parent_vertex(graph, source),
-    vertex_to_parent_vertex(graph, target),
-    dist_matrix_to_parent_dist_matrix(graph, capacity_matrix),
-    algorithm,
+  vertex_partitions = partitioned_vertices(
+    parent_graph(g); npartitions, nvertices_per_partition, kwargs...
   )
-  part1 = parent_vertices_to_vertices(graph, parent_part1)
-  part2 = parent_vertices_to_vertices(graph, parent_part2)
-  return (part1, part2, flow)
+  #[inv(vertex_to_parent_vertex(g))[v] for v in partitions]
+  # TODO: output the reverse of this dictionary (a Vector of Vector
+  # of the vertices in each partition).
+  # return Dictionary(vertices(g), partitions)
+  return [
+    parent_vertices_to_vertices(g, vertex_partition) for
+    vertex_partition in vertex_partitions
+  ]
 end
 
-@traitfn function GraphsFlows.mincut(
-  graph::AbstractNamedGraph::(!IsDirected),
-  source,
-  target,
-  capacity_matrix=DefaultNamedCapacity(graph),
-  algorithm::GraphsFlows.AbstractFlowAlgorithm=PushRelabelAlgorithm(),
-)
-  return GraphsFlows.mincut(
-    directed_graph(graph), source, target, _symmetrize(capacity_matrix), algorithm
-  )
-end
-
-function mincut_partitions(
-  graph::AbstractGraph,
-  source,
-  target,
-  capacity_matrix=DefaultNamedCapacity(graph),
-  algorithm::GraphsFlows.AbstractFlowAlgorithm=PushRelabelAlgorithm(),
-)
-  part1, part2, flow = GraphsFlows.mincut(graph, source, target, capacity_matrix, algorithm)
-  return part1, part2
-end
-
-function _a_star(
+function namedgraph_a_star(
   graph::AbstractNamedGraph,
   source,
   destination,
@@ -347,18 +371,20 @@ function _a_star(
   return parent_edges_to_edges(graph, parent_shortest_path)
 end
 
-function a_star(graph::AbstractNamedGraph, source, destination, args...)
-  return _a_star(graph, source, destination, args...)
+function Graphs.a_star(graph::AbstractNamedGraph, source, destination, args...)
+  return namedgraph_a_star(graph, source, destination, args...)
 end
 
 # Fix ambiguity error with `AbstractGraph` version
-function a_star(
+function Graphs.a_star(
   graph::AbstractNamedGraph{U}, source::Integer, destination::Integer, args...
 ) where {U<:Integer}
-  return _a_star(graph, source, destination, args...)
+  return namedgraph_a_star(graph, source, destination, args...)
 end
 
-function spfa_shortest_paths(graph::AbstractNamedGraph, vertex, distmx=weights(graph))
+function Graphs.spfa_shortest_paths(
+  graph::AbstractNamedGraph, vertex, distmx=weights(graph)
+)
   parent_distmx = dist_matrix_to_parent_dist_matrix(graph, distmx)
   parent_shortest_paths = spfa_shortest_paths(
     parent_graph(graph), vertex_to_parent_vertex(graph, vertex), parent_distmx
@@ -366,48 +392,48 @@ function spfa_shortest_paths(graph::AbstractNamedGraph, vertex, distmx=weights(g
   return Dictionary(vertices(graph), parent_shortest_paths)
 end
 
-function boruvka_mst(
+function Graphs.boruvka_mst(
   g::AbstractNamedGraph, distmx::AbstractMatrix{<:Real}=weights(g); minimize=true
 )
   parent_mst, weights = boruvka_mst(parent_graph(g), distmx; minimize)
   return parent_edges_to_edges(g, parent_mst), weights
 end
 
-function kruskal_mst(
+function Graphs.kruskal_mst(
   g::AbstractNamedGraph, distmx::AbstractMatrix{<:Real}=weights(g); minimize=true
 )
   parent_mst = kruskal_mst(parent_graph(g), distmx; minimize)
   return parent_edges_to_edges(g, parent_mst)
 end
 
-function prim_mst(g::AbstractNamedGraph, distmx::AbstractMatrix{<:Real}=weights(g))
+function Graphs.prim_mst(g::AbstractNamedGraph, distmx::AbstractMatrix{<:Real}=weights(g))
   parent_mst = prim_mst(parent_graph(g), distmx)
   return parent_edges_to_edges(g, parent_mst)
 end
 
-function add_edge!(graph::AbstractNamedGraph, edge::AbstractEdge)
+function Graphs.add_edge!(graph::AbstractNamedGraph, edge::AbstractEdge)
   add_edge!(parent_graph(graph), edge_to_parent_edge(graph, edge))
   return graph
 end
 
 # handles single-argument edge constructors such as pairs and tuples
-add_edge!(g::AbstractNamedGraph, edge) = add_edge!(g, edgetype(g)(edge))
-add_edge!(g::AbstractNamedGraph, src, dst) = add_edge!(g, edgetype(g)(src, dst))
+Graphs.add_edge!(g::AbstractNamedGraph, edge) = add_edge!(g, edgetype(g)(edge))
+Graphs.add_edge!(g::AbstractNamedGraph, src, dst) = add_edge!(g, edgetype(g)(src, dst))
 
-function rem_edge!(graph::AbstractNamedGraph, edge)
+function Graphs.rem_edge!(graph::AbstractNamedGraph, edge)
   rem_edge!(parent_graph(graph), edge_to_parent_edge(graph, edge))
   return graph
 end
 
-function has_edge(graph::AbstractNamedGraph, edge::AbstractNamedEdge)
+function Graphs.has_edge(graph::AbstractNamedGraph, edge::AbstractNamedEdge)
   return has_edge(parent_graph(graph), edge_to_parent_edge(graph, edge))
 end
 
 # handles two-argument edge constructors like src,dst
-has_edge(g::AbstractNamedGraph, edge) = has_edge(g, edgetype(g)(edge))
-has_edge(g::AbstractNamedGraph, src, dst) = has_edge(g, edgetype(g)(src, dst))
+Graphs.has_edge(g::AbstractNamedGraph, edge) = has_edge(g, edgetype(g)(edge))
+Graphs.has_edge(g::AbstractNamedGraph, src, dst) = has_edge(g, edgetype(g)(src, dst))
 
-function has_path(
+function Graphs.has_path(
   graph::AbstractNamedGraph, source, destination; exclude_vertices=vertextype(graph)[]
 )
   return has_path(
@@ -418,7 +444,7 @@ function has_path(
   )
 end
 
-function union(graph1::AbstractNamedGraph, graph2::AbstractNamedGraph)
+function Base.union(graph1::AbstractNamedGraph, graph2::AbstractNamedGraph)
   union_graph = promote_type(typeof(graph1), typeof(graph2))()
   union_vertices = union(vertices(graph1), vertices(graph2))
   for v in union_vertices
@@ -433,7 +459,7 @@ function union(graph1::AbstractNamedGraph, graph2::AbstractNamedGraph)
   return union_graph
 end
 
-function union(
+function Base.union(
   graph1::AbstractNamedGraph,
   graph2::AbstractNamedGraph,
   graph3::AbstractNamedGraph,
@@ -442,26 +468,26 @@ function union(
   return union(union(graph1, graph2), graph3, graph_rest...)
 end
 
-is_directed(G::Type{<:AbstractNamedGraph}) = is_directed(parent_graph_type(G))
+Graphs.is_directed(G::Type{<:AbstractNamedGraph}) = is_directed(parent_graph_type(G))
 
-is_directed(graph::AbstractNamedGraph) = is_directed(parent_graph(graph))
+Graphs.is_directed(graph::AbstractNamedGraph) = is_directed(parent_graph(graph))
 
-is_connected(graph::AbstractNamedGraph) = is_connected(parent_graph(graph))
+Graphs.is_connected(graph::AbstractNamedGraph) = is_connected(parent_graph(graph))
 
-is_cyclic(graph::AbstractNamedGraph) = is_cyclic(parent_graph(graph))
+Graphs.is_cyclic(graph::AbstractNamedGraph) = is_cyclic(parent_graph(graph))
 
-@traitfn function reverse(graph::AbstractNamedGraph::IsDirected)
+@traitfn function Base.reverse(graph::AbstractNamedGraph::IsDirected)
   reversed_parent_graph = reverse(parent_graph(graph))
   return h
 end
 
-@traitfn function reverse!(g::AbstractNamedGraph::IsDirected)
+@traitfn function Base.reverse!(g::AbstractNamedGraph::IsDirected)
   g.fadjlist, g.badjlist = g.badjlist, g.fadjlist
   return g
 end
 
-# TODO: Move to namedgraph.jl, or make the output generic?
-function blockdiag(graph1::AbstractNamedGraph, graph2::AbstractNamedGraph)
+# TODO: Move to `namedgraph.jl`, or make the output generic?
+function Graphs.blockdiag(graph1::AbstractNamedGraph, graph2::AbstractNamedGraph)
   new_parent_graph = blockdiag(parent_graph(graph1), parent_graph(graph2))
   new_vertices = vcat(vertices(graph1), vertices(graph2))
   @assert allunique(new_vertices)
@@ -469,20 +495,20 @@ function blockdiag(graph1::AbstractNamedGraph, graph2::AbstractNamedGraph)
 end
 
 # TODO: What `args` are needed?
-nv(graph::AbstractNamedGraph, args...) = nv(parent_graph(graph), args...)
+Graphs.nv(graph::AbstractNamedGraph, args...) = nv(parent_graph(graph), args...)
 # TODO: What `args` are needed?
-ne(graph::AbstractNamedGraph, args...) = ne(parent_graph(graph), args...)
+Graphs.ne(graph::AbstractNamedGraph, args...) = ne(parent_graph(graph), args...)
 # TODO: What `args` are needed?
-function adjacency_matrix(graph::AbstractNamedGraph, args...)
+function Graphs.adjacency_matrix(graph::AbstractNamedGraph, args...)
   return adjacency_matrix(parent_graph(graph), args...)
 end
 
-function connected_components(graph::AbstractNamedGraph)
+function Graphs.connected_components(graph::AbstractNamedGraph)
   parent_connected_components = connected_components(parent_graph(graph))
   return map(parent_vertices_to_vertices(graph), parent_connected_components)
 end
 
-function merge_vertices(
+function Graphs.merge_vertices(
   graph::AbstractNamedGraph, merge_vertices; merged_vertex=first(merge_vertices)
 )
   merged_graph = copy(graph)
@@ -509,7 +535,7 @@ end
 
 # Overload Graphs.tree. Used for bfs_tree and dfs_tree
 # traversal algorithms.
-function tree(graph::AbstractNamedGraph, parents)
+function Graphs.tree(graph::AbstractNamedGraph, parents)
   n = length(parents)
   # TODO: Use `directed_graph` here to make more generic?
   ## t = GenericNamedGraph(DiGraph(n), vertices(graph))
@@ -524,13 +550,13 @@ function tree(graph::AbstractNamedGraph, parents)
 end
 
 function namedgraph_bfs_tree(graph::AbstractNamedGraph, vertex; kwargs...)
-  return tree(graph, bfs_parents(graph, vertex; kwargs...))
+  return Graphs.tree(graph, bfs_parents(graph, vertex; kwargs...))
 end
 # Disambiguation from Graphs.bfs_tree
-function bfs_tree(graph::AbstractNamedGraph, vertex::Integer; kwargs...)
+function Graphs.bfs_tree(graph::AbstractNamedGraph, vertex::Integer; kwargs...)
   return namedgraph_bfs_tree(graph, vertex; kwargs...)
 end
-function bfs_tree(graph::AbstractNamedGraph, vertex; kwargs...)
+function Graphs.bfs_tree(graph::AbstractNamedGraph, vertex; kwargs...)
   return namedgraph_bfs_tree(graph, vertex; kwargs...)
 end
 
@@ -549,11 +575,11 @@ function namedgraph_bfs_parents(graph::AbstractNamedGraph, vertex; kwargs...)
   vertices_graph = parent_vertices_to_vertices(graph, parent_vertices(graph))
   return Dictionary(vertices_graph, parent_vertices_to_vertices(graph, parent_bfs_parents))
 end
-# Disambiguation from Graphs.bfs_tree
-function bfs_parents(graph::AbstractNamedGraph, vertex::Integer; kwargs...)
+# Disambiguation from Graphs.jl
+function Graphs.bfs_parents(graph::AbstractNamedGraph, vertex::Integer; kwargs...)
   return namedgraph_bfs_parents(graph, vertex; kwargs...)
 end
-function bfs_parents(graph::AbstractNamedGraph, vertex; kwargs...)
+function Graphs.bfs_parents(graph::AbstractNamedGraph, vertex; kwargs...)
   return namedgraph_bfs_parents(graph, vertex; kwargs...)
 end
 
@@ -561,7 +587,7 @@ end
 # Printing
 #
 
-function show(io::IO, mime::MIME"text/plain", graph::AbstractNamedGraph)
+function Base.show(io::IO, mime::MIME"text/plain", graph::AbstractNamedGraph)
   println(io, "$(typeof(graph)) with $(nv(graph)) vertices:")
   show(io, mime, vertices(graph))
   println(io, "\n")
@@ -573,13 +599,13 @@ function show(io::IO, mime::MIME"text/plain", graph::AbstractNamedGraph)
   return nothing
 end
 
-show(io::IO, graph::AbstractNamedGraph) = show(io, MIME"text/plain"(), graph)
+Base.show(io::IO, graph::AbstractNamedGraph) = show(io, MIME"text/plain"(), graph)
 
 # 
 # Convenience functions
 #
 
-function (g1::AbstractNamedGraph == g2::AbstractNamedGraph)
+function Base.:(==)(g1::AbstractNamedGraph, g2::AbstractNamedGraph)
   issetequal(vertices(g1), vertices(g2)) || return false
   for v in vertices(g1)
     issetequal(inneighbors(g1, v), inneighbors(g2, v)) || return false

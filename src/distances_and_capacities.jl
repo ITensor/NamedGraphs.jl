@@ -1,7 +1,16 @@
+using Dictionaries: AbstractDictionary
+using Graphs: Graphs, IsDirected, dst, edges, nv, src
+using .GraphsExtensions: directed_graph
+using LinearAlgebra: Symmetric
+using SimpleTraits: SimpleTraits, @traitfn
+using SparseArrays: sparse, spzeros
+
+# TODO: Move to `GraphsExtensions`.
 function _symmetrize(dist::AbstractMatrix)
   return sparse(Symmetric(dist))
 end
 
+# TODO: Move to `GraphsExtensions`.
 function _symmetrize(dist)
   symmetrized_dist = copy(dist)
   for k in keys(dist)
@@ -10,6 +19,7 @@ function _symmetrize(dist)
   return symmetrized_dist
 end
 
+# TODO: Move to `GraphsExtensions`.
 function _symmetrize(dist::AbstractDictionary)
   symmetrized_dist = copy(dist)
   for k in keys(dist)
@@ -21,7 +31,9 @@ end
 getindex_dist_matrix(dist_matrix, I...) = dist_matrix[I...]
 getindex_dist_matrix(dist_matrix::AbstractDictionary, I...) = dist_matrix[I]
 
-function _dist_matrix_to_parent_dist_matrix(graph::AbstractNamedGraph, dist_matrix)
+function namedgraph_dist_matrix_to_parent_dist_matrix(
+  graph::AbstractNamedGraph, dist_matrix
+)
   parent_dist_matrix = spzeros(valtype(dist_matrix), nv(graph), nv(graph))
   for e in edges(graph)
     parent_e = edge_to_parent_edge(graph, e)
@@ -35,13 +47,13 @@ end
 @traitfn function dist_matrix_to_parent_dist_matrix(
   graph::AbstractNamedGraph::IsDirected, dist_matrix
 )
-  return _dist_matrix_to_parent_dist_matrix(graph, dist_matrix)
+  return namedgraph_dist_matrix_to_parent_dist_matrix(graph, dist_matrix)
 end
 
 @traitfn function dist_matrix_to_parent_dist_matrix(
   graph::AbstractNamedGraph::(!IsDirected), dist_matrix
 )
-  return _symmetrize(_dist_matrix_to_parent_dist_matrix(graph, dist_matrix))
+  return _symmetrize(namedgraph_dist_matrix_to_parent_dist_matrix(graph, dist_matrix))
 end
 
 function dist_matrix_to_parent_dist_matrix(
@@ -70,9 +82,3 @@ end
 # Base.size(d::DefaultNamedCapacity) = (Int(d.nv), Int(d.nv))
 # Base.transpose(d::DefaultNamedCapacity) = DefaultNamedCapacity(reverse(d.flow_graph))
 # Base.adjoint(d::DefaultNamedCapacity) = DefaultNamedCapacity(reverse(d.flow_graph))
-
-@traitfn function dist_matrix_to_parent_dist_matrix(
-  graph::AbstractNamedGraph::IsDirected, dist_matrix::DefaultNamedCapacity
-)
-  return GraphsFlows.DefaultCapacity(graph)
-end

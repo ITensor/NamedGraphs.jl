@@ -1,18 +1,47 @@
-using Test
-using NamedGraphs
-using NamedGraphs:
+@eval module $(gensym())
+using Graphs:
+  center,
+  diameter,
+  edges,
+  has_vertex,
+  is_connected,
+  is_tree,
+  ne,
+  nv,
+  radius,
+  random_regular_graph,
+  rem_vertex!,
+  vertices
+using Metis: Metis
+using NamedGraphs: NamedEdge, NamedGraph
+using NamedGraphs.GraphsExtensions:
+  add_edges!,
+  add_vertices!,
+  boundary_edges,
+  default_root_vertex,
+  forest_cover,
+  is_path_graph,
+  is_self_loop,
   spanning_forest,
   spanning_tree,
-  forest_cover,
+  subgraph,
+  vertextype
+using NamedGraphs.NamedGraphGenerators:
+  named_comb_tree, named_grid, named_triangular_lattice_graph
+using NamedGraphs.PartitionedGraphs:
   PartitionEdge,
+  PartitionedGraph,
   PartitionVertex,
   boundary_partitionedges,
-  parent,
-  default_root_vertex,
-  triangular_lattice_graph,
-  add_edges!
-using Dictionaries
-using Graphs
+  partitioned_graph,
+  partitionedge,
+  partitionedges,
+  partitionvertex,
+  partitionvertices,
+  unpartitioned_graph
+using Dictionaries: Dictionary, dictionary
+using Pkg: Pkg
+using Test: @test, @testset
 
 @testset "Test Partitioned Graph Constructors" begin
   nx, ny = 10, 10
@@ -147,14 +176,13 @@ end
 end
 
 @testset "Test NamedGraphs Functions on Partitioned Graph" begin
-  functions = [is_tree, default_root_vertex, center, diameter, radius]
-  gs = [
+  functions = (is_tree, default_root_vertex, center, diameter, radius)
+  gs = (
     named_comb_tree((4, 4)),
     named_grid((2, 2, 2)),
     NamedGraph(random_regular_graph(12, 3)),
-    triangular_lattice_graph(7, 7),
-  ]
-
+    named_triangular_lattice_graph(7, 7),
+  )
   for f in functions
     for g in gs
       pg = PartitionedGraph(g, [vertices(g)])
@@ -165,4 +193,21 @@ end
       @test ne(partitioned_graph(pg)) == 0
     end
   end
+end
+
+@testset "Graph partitioning" begin
+  g = named_grid((4, 4))
+  npartitions = 4
+  backends = ["metis"]
+  if !Sys.iswindows()
+    # `KaHyPar` doesn't work on Windows.
+    Pkg.add("KaHyPar"; io=devnull)
+    push!(backends, "kahypar")
+  end
+  for backend in backends
+    pg = PartitionedGraph(g; npartitions, backend="metis")
+    @test pg isa PartitionedGraph
+    @test nv(partitioned_graph(pg)) == npartitions
+  end
+end
 end

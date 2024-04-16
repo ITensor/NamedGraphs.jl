@@ -1,7 +1,8 @@
-using Graphs
-using NamedGraphs
-using Random
-using Test
+@eval module $(gensym())
+using Graphs: add_edge!, add_vertex!, grid, has_edge, has_vertex, ne, nv
+using NamedGraphs: NamedGraph
+using NamedGraphs.GraphsExtensions: ⊔, disjoint_union, subgraph
+using Test: @test, @testset
 
 @testset "NamedGraph" begin
   parent_graph = grid((2, 2))
@@ -109,4 +110,5 @@ end
 
   @test ne(g) == 1
   @test has_edge(g, ("X", 1) => ("Y", 2))
+end
 end

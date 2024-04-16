@@ -1,7 +1,8 @@
-using Test
-using Graphs
-using NamedGraphs
-using NamedGraphs: decorate_graph_edges, decorate_graph_vertices, hexagonal_lattice_graph
+@eval module $(gensym())
+using Graphs: a_star, edges, vertices
+using NamedGraphs.GraphsExtensions: decorate_graph_edges, decorate_graph_vertices
+using NamedGraphs.NamedGraphGenerators: named_grid, named_hexagonal_lattice_graph
+using Test: @test, @testset
 
 @testset "Decorated Graphs" begin
   L = 4
@@ -30,7 +31,7 @@ using NamedGraphs: decorate_graph_edges, decorate_graph_vertices, hexagonal_latt
   @test length(a_star(g_2d_Lieb_heavy, (1, 1), (2, 2))) == 8
 
   #Create Hexagon (loops are size 6)
-  g_hexagon = hexagonal_lattice_graph(3, 6)
+  g_hexagon = named_hexagonal_lattice_graph(3, 6)
 
   #Create Heavy Hexagon (loops are size 12)
   g_heavy_hexagon = decorate_graph_edges(g_hexagon)
@@ -46,4 +47,5 @@ using NamedGraphs: decorate_graph_edges, decorate_graph_vertices, hexagonal_latt
   @test length(vertices(g_comb)) == 5 * length(vertices(g_1d))
   @test length(a_star(g_1d, (1, 1), (L, 1))) ==
     length(a_star(g_comb, ((1,), (1, 1)), ((1,), (L, 1))))
+end
 end

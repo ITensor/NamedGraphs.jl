@@ -1,5 +1,6 @@
-using Graphs
-using NamedGraphs
+using Graphs: grid, has_edge, has_vertex, nv
+using NamedGraphs: NamedGraph
+using NamedGraphs.GraphsExtensions: ⊔, subgraph
 
 parent_graph = grid((2, 2))
 vs = [("X", 1), ("X", 2), ("Y", 1), ("Y", 2)]
@@ -11,14 +12,14 @@ g = NamedGraph(parent_graph, vs)
 @show !has_edge(g, ("X", 2) => ("Y", 1))
 @show has_edge(g, ("X", 2) => ("Y", 2))
 
-g_sub = g[[("X", 1)]]
+g_sub = subgraph(g, [("X", 1)])
 
 @show has_vertex(g_sub, ("X", 1))
 @show !has_vertex(g_sub, ("X", 2))
 @show !has_vertex(g_sub, ("Y", 1))
 @show !has_vertex(g_sub, ("Y", 2))
 
-g_sub = g[[("X", 1), ("X", 2)]]
+g_sub = subgraph(g, [("X", 1), ("X", 2)])
 
 @show has_vertex(g_sub, ("X", 1))
 @show has_vertex(g_sub, ("X", 2))

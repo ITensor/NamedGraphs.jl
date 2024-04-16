@@ -1,8 +1,90 @@
-using Graphs
-using GraphsFlows
-using NamedGraphs
-using NamedGraphs.Dictionaries
-using Test
+@eval module $(gensym())
+using Dictionaries: Dictionary, Indices
+using Graphs:
+  Edge,
+  δ,
+  Δ,
+  a_star,
+  add_edge!,
+  add_vertex!,
+  adjacency_matrix,
+  bellman_ford_shortest_paths,
+  bfs_parents,
+  bfs_tree,
+  boruvka_mst,
+  center,
+  common_neighbors,
+  connected_components,
+  degree,
+  degree_histogram,
+  desopo_pape_shortest_paths,
+  dfs_parents,
+  dfs_tree,
+  diameter,
+  dijkstra_shortest_paths,
+  dst,
+  eccentricity,
+  edges,
+  edgetype,
+  floyd_warshall_shortest_paths,
+  grid,
+  has_edge,
+  has_path,
+  has_self_loops,
+  has_vertex,
+  indegree,
+  is_connected,
+  is_cyclic,
+  is_directed,
+  is_ordered,
+  johnson_shortest_paths,
+  kruskal_mst,
+  merge_vertices,
+  ne,
+  neighborhood,
+  neighborhood_dists,
+  neighbors,
+  nv,
+  outdegree,
+  path_digraph,
+  path_graph,
+  periphery,
+  prim_mst,
+  radius,
+  rem_vertex!,
+  spfa_shortest_paths,
+  src,
+  steiner_tree,
+  topological_sort_by_dfs,
+  vertices,
+  yen_k_shortest_paths
+using Graphs.SimpleGraphs: SimpleDiGraph
+using GraphsFlows: GraphsFlows
+using NamedGraphs: NamedEdge, NamedDiGraph, NamedGraph
+using NamedGraphs.GraphsExtensions:
+  GraphsExtensions,
+  ⊔,
+  boundary_edges,
+  boundary_vertices,
+  degrees,
+  eccentricities,
+  dijkstra_mst,
+  dijkstra_parents,
+  dijkstra_tree,
+  incident_edges,
+  indegrees,
+  inner_boundary_vertices,
+  mincut_partitions,
+  outdegrees,
+  outer_boundary_vertices,
+  permute_vertices,
+  rename_vertices,
+  subgraph,
+  symrcm_perm,
+  symrcm_permute
+using NamedGraphs.NamedGraphGenerators: named_binary_tree, named_grid, named_path_graph
+using SymRCM: SymRCM
+using Test: @test, @test_broken, @testset
 
 @testset "NamedEdge" begin
   @test is_ordered(NamedEdge("A", "B"))
@@ -504,7 +586,7 @@ end
     gp = symrcm_permute(g)
     @test g == gp
 
-    pp = symrcm(g)
+    pp = symrcm_perm(g)
     @test pp == reverse(invperm(p))
 
     gp′ = permute_vertices(g, pp)
@@ -567,4 +649,5 @@ end
       @test findfirst(x -> x == src(e), t) < findfirst(x -> x == dst(e), t)
     end
   end
+end
 end

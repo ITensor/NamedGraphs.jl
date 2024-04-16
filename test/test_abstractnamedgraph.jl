@@ -1,7 +1,11 @@
-using Test
-using Dictionaries
-using Graphs
-using NamedGraphs
+@eval module $(gensym())
+using Dictionaries: Dictionary
+using Graphs:
+  DiGraph, Graph, a_star, add_edge!, edges, grid, has_edge, has_vertex, rem_edge!, vertices
+using NamedGraphs: NamedGraphs, NamedDiGraph, NamedGraph
+using NamedGraphs.GraphsExtensions: rename_vertices
+using NamedGraphs.NamedGraphGenerators: named_grid
+using Test: @test, @testset
 
 @testset "AbstractNamedGraph equality" begin
   # NamedGraph
@@ -143,4 +147,5 @@ end
   @test has_edge(nddg_function, (1, "X") => (2, "X"))
   @test has_edge(nddg_function, (2, "X") => (2, "Y"))
   @test !has_edge(nddg_function, (2, "Y") => (2, "X"))
+end
 end
