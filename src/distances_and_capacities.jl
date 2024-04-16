@@ -1,8 +1,11 @@
 using Dictionaries: AbstractDictionary
 using Graphs: IsDirected, dst, edges, nv, src
 using .GraphsExtensions: directed_graph
-using GraphsFlows: GraphsFlows
+using LinearAlgebra: Symmetric
 using SparseArrays: sparse, spzeros
+
+# TODO: Move GraphsFlows to package extension.
+using GraphsFlows: GraphsFlows
 
 # TODO: Move to `GraphsExtensions`.
 function _symmetrize(dist::AbstractMatrix)

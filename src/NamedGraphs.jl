@@ -1,21 +1,4 @@
 module NamedGraphs
-# TODO: Delete this!
-using AbstractTrees
-using Dictionaries
-using Graphs
-using GraphsFlows
-using LinearAlgebra
-using SimpleTraits
-using SparseArrays
-using SplitApplyCombine
-using SymRCM
-using Suppressor
-
-using Graphs.SimpleGraphs
-
-# General utility functions
-not_implemented() = error("Not implemented")
-
 import Base:
   convert,
   copy,
@@ -102,6 +85,7 @@ import Graphs: AbstractEdge, src, dst, reverse, reverse!
 
 include("lib/Keys/src/Keys.jl")
 include("lib/GraphsExtensions/src/GraphsExtensions.jl")
+include("utils.jl")
 include("abstractnamededge.jl")
 include("namededge.jl")
 include("abstractnamedgraph.jl")
@@ -115,83 +99,11 @@ include("namedgraph.jl")
 include("generators/named_staticgraphs.jl")
 include("lib/PartitionedGraphs/src/PartitionedGraphs.jl")
 
-# TODO: reexport Graphs.jl (except for `Graphs.contract`)
-export NamedGraph,
-  NamedDiGraph,
-  NamedEdge,
-  PartitionedGraph,
-  PartitionEdge,
-  PartitionVertex,
-  Key,
-  ⊔,
-  named_binary_tree,
-  named_grid,
-  named_path_graph,
-  named_path_digraph,
-  # AbstractGraph
-  boundary_edges,
-  boundary_vertices,
-  child_vertices,
-  dijkstra_mst,
-  dijkstra_parents,
-  directed_graph,
-  edge_path,
-  inner_boundary_vertices,
-  is_leaf,
-  is_path_graph,
-  is_self_loop,
-  leaf_vertices,
-  outer_boundary_vertices,
-  permute_vertices,
-  parent_vertex,
-  subgraph,
-  symrcm,
-  symrcm_permute,
-  undirected_graph,
-  vertex_path,
-  vertextype,
-  # Graphs.jl
-  a_star,
-  adjacency_matrix,
-  center,
-  diameter,
-  dijkstra_shortest_paths,
-  dijkstra_tree,
-  disjoint_union,
-  eccentricity,
-  eccentricities,
-  incident_edges,
-  comb_tree,
-  named_comb_tree,
-  neighborhood,
-  neighborhood_dists,
-  neighbors,
-  nv,
-  partitioned_graph,
-  partitionedge,
-  partitionedges,
-  partitionvertex,
-  partitionvertices,
-  partitioned_vertices,
-  path_digraph,
-  path_graph,
-  periphery,
-  pre_order_dfs_vertices,
-  post_order_dfs_vertices,
-  post_order_dfs_edges,
-  radius,
-  rename_vertices,
-  degree,
-  degrees,
-  indegree,
-  indegrees,
-  is_tree,
-  outdegree,
-  outdegrees,
-  mincut_partitions,
-  steiner_tree,
-  unpartitioned_graph,
-  weights
+export NamedGraph, NamedDiGraph, NamedEdge
+
+# TODO: Move to `NamedGraphs.NamedGraphGenerators`.
+# TODO: Add `named_hex`, `named_triangular`, etc.
+export named_binary_tree, named_grid, named_path_graph, named_path_digraph
 
 using PackageExtensionCompat: @require_extensions
 function __init__()

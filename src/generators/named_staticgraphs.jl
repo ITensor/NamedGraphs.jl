@@ -1,4 +1,12 @@
-using Graphs: SimpleDiGraph, inneighbors, merge_vertices, outneighbors, rem_vertex!
+using Graphs:
+  SimpleDiGraph,
+  binary_tree,
+  grid,
+  inneighbors,
+  merge_vertices,
+  outneighbors,
+  path_graph,
+  rem_vertex!
 using .GraphsExtensions: add_edges!, rem_vertices!
 # TODO: Move to `GraphGenerators`?
 using .GraphsExtensions: comb_tree

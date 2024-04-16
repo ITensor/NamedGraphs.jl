@@ -1,3 +1,6 @@
+using Dictionaries: Dictionary
+using Graphs: Graphs, weights
+
 """
     struct NamedDijkstraState{V,T}
 

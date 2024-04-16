@@ -1,8 +1,10 @@
+using Dictionaries: set!
 using Graphs:
   Graphs,
   AbstractGraph,
   IsDirected,
   SimpleDiGraph,
+  SimpleEdge,
   add_edge!,
   adjacency_matrix,
   edges,
@@ -18,6 +20,7 @@ using .GraphsExtensions:
   rename_vertices,
   subgraph
 using GraphsFlows: GraphsFlows
+using SimpleTraits: SimpleTraits, @traitfn
 
 abstract type AbstractNamedGraph{V} <: AbstractGraph{V} end
 
