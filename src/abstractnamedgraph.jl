@@ -35,7 +35,6 @@ using .GraphsExtensions:
   partitioned_vertices,
   rename_vertices,
   subgraph
-using GraphsFlows: GraphsFlows
 using SimpleTraits: SimpleTraits, @traitfn
 
 abstract type AbstractNamedGraph{V} <: AbstractGraph{V} end
@@ -335,26 +334,6 @@ function Graphs.mincut(graph::AbstractNamedGraph, distmx::AbstractMatrix{<:Real}
   return namedgraph_mincut(graph, distmx)
 end
 
-# TODO: Move to `NamedGraphsGraphsFlowsExt`.
-@traitfn function GraphsFlows.mincut(
-  graph::AbstractNamedGraph::IsDirected,
-  source,
-  target,
-  capacity_matrix=DefaultNamedCapacity(graph),
-  algorithm::GraphsFlows.AbstractFlowAlgorithm=GraphsFlows.PushRelabelAlgorithm(),
-)
-  parent_part1, parent_part2, flow = GraphsFlows.mincut(
-    directed_graph(parent_graph(graph)),
-    vertex_to_parent_vertex(graph, source),
-    vertex_to_parent_vertex(graph, target),
-    dist_matrix_to_parent_dist_matrix(graph, capacity_matrix),
-    algorithm,
-  )
-  part1 = parent_vertices_to_vertices(graph, parent_part1)
-  part2 = parent_vertices_to_vertices(graph, parent_part2)
-  return (part1, part2, flow)
-end
-
 # TODO: Make this more generic?
 function GraphsExtensions.partitioned_vertices(
   g::AbstractNamedGraph; npartitions=nothing, nvertices_per_partition=nothing, kwargs...
@@ -370,31 +349,6 @@ function GraphsExtensions.partitioned_vertices(
     parent_vertices_to_vertices(g, vertex_partition) for
     vertex_partition in vertex_partitions
   ]
-end
-
-# TODO: Move to `NamedGraphsGraphsFlowsExt`.
-@traitfn function GraphsFlows.mincut(
-  graph::AbstractNamedGraph::(!IsDirected),
-  source,
-  target,
-  capacity_matrix=DefaultNamedCapacity(graph),
-  algorithm::GraphsFlows.AbstractFlowAlgorithm=GraphsFlows.PushRelabelAlgorithm(),
-)
-  return GraphsFlows.mincut(
-    directed_graph(graph), source, target, _symmetrize(capacity_matrix), algorithm
-  )
-end
-
-# TODO: Move to `NamedGraphsGraphsFlowsExt`.
-function GraphsExtensions.mincut_partitions(
-  graph::AbstractGraph,
-  source,
-  target,
-  capacity_matrix=DefaultNamedCapacity(graph),
-  algorithm::GraphsFlows.AbstractFlowAlgorithm=GraphsFlows.PushRelabelAlgorithm(),
-)
-  part1, part2, flow = GraphsFlows.mincut(graph, source, target, capacity_matrix, algorithm)
-  return part1, part2
 end
 
 function namedgraph_a_star(

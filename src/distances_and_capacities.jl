@@ -1,11 +1,9 @@
 using Dictionaries: AbstractDictionary
-using Graphs: IsDirected, dst, edges, nv, src
+using Graphs: Graphs, IsDirected, dst, edges, nv, src
 using .GraphsExtensions: directed_graph
 using LinearAlgebra: Symmetric
+using SimpleTraits: SimpleTraits, @traitfn
 using SparseArrays: sparse, spzeros
-
-# TODO: Move GraphsFlows to package extension.
-using GraphsFlows: GraphsFlows
 
 # TODO: Move to `GraphsExtensions`.
 function _symmetrize(dist::AbstractMatrix)
@@ -33,7 +31,6 @@ end
 getindex_dist_matrix(dist_matrix, I...) = dist_matrix[I...]
 getindex_dist_matrix(dist_matrix::AbstractDictionary, I...) = dist_matrix[I]
 
-# TODO: Move to `NamedGraphsGraphsFlowsExt`.
 function namedgraph_dist_matrix_to_parent_dist_matrix(
   graph::AbstractNamedGraph, dist_matrix
 )
@@ -85,9 +82,3 @@ end
 # Base.size(d::DefaultNamedCapacity) = (Int(d.nv), Int(d.nv))
 # Base.transpose(d::DefaultNamedCapacity) = DefaultNamedCapacity(reverse(d.flow_graph))
 # Base.adjoint(d::DefaultNamedCapacity) = DefaultNamedCapacity(reverse(d.flow_graph))
-
-@traitfn function dist_matrix_to_parent_dist_matrix(
-  graph::AbstractNamedGraph::IsDirected, dist_matrix::DefaultNamedCapacity
-)
-  return GraphsFlows.DefaultCapacity(graph)
-end

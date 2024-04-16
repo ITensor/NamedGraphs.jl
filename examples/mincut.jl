@@ -1,4 +1,5 @@
 using Graphs: path_graph
+using GraphsFlows: GraphsFlows
 using NamedGraphs: NamedGraph
 using NamedGraphs.GraphsExtensions: mincut_partitions
 

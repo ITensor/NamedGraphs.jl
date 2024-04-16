@@ -83,6 +83,7 @@ using NamedGraphs.GraphsExtensions:
   symrcm_perm,
   symrcm_permute
 using NamedGraphs.NamedGraphGenerators: named_binary_tree, named_grid, named_path_graph
+using SymRCM: SymRCM
 using Test: @test, @test_broken, @testset
 
 @testset "NamedEdge" begin
