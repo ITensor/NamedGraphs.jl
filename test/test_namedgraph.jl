@@ -91,7 +91,8 @@ using Test: @test, @test_broken, @testset
   @test AbstractNamedEdge(SimpleEdge(1, 2)) == NamedEdge(1, 2)
   @test is_ordered(NamedEdge("A", "B"))
   @test !is_ordered(NamedEdge("B", "A"))
-  @test rename_vertices(NamedEdge("A", "B"), Dict(["A" => "C", "B" => "D"])) == NamedEdge("C", "D")
+  @test rename_vertices(NamedEdge("A", "B"), Dict(["A" => "C", "B" => "D"])) ==
+    NamedEdge("C", "D")
   @test rename_vertices(SimpleEdge(1, 2), Dict([1 => "C", 2 => "D"])) == NamedEdge("C", "D")
   @test rename_vertices(v -> Dict(["A" => "C", "B" => "D"])[v], NamedEdge("A", "B")) == NamedEdge("C", "D")
   @test rename_vertices(v -> Dict([1 => "C", 2 => "D"])[v], SimpleEdge(1, 2)) == NamedEdge("C", "D")
