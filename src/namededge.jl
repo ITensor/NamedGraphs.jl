@@ -9,7 +9,9 @@ end
 NamedEdge(src::V, dst::V) where {V} = NamedEdge{V}(src, dst)
 NamedEdge(src, dst) = NamedEdge{promote_type(typeof(src), typeof(dst))}(src, dst)
 
-GraphsExtensions.convert_vertextype(vertextype::Type, ::Type{<:NamedEdge}) = NamedEdge{vertextype}
+function GraphsExtensions.convert_vertextype(vertextype::Type, ::Type{<:NamedEdge})
+  return NamedEdge{vertextype}
+end
 
 Graphs.src(e::NamedEdge) = e.src
 Graphs.dst(e::NamedEdge) = e.dst
