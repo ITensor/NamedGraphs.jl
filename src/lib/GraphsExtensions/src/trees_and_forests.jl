@@ -1,6 +1,6 @@
 using Graphs: IsDirected, bfs_tree, connected_components, edges, edgetype
 using .GraphsExtensions: random_bfs_tree, rem_edges, undirected_graph
-using SimpleTraits: SimpleTraits, @traitfn
+using SimpleTraits: SimpleTraits, Not, @traitfn,
 
 abstract type SpanningTreeAlgorithm end
 

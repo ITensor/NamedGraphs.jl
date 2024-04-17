@@ -35,7 +35,7 @@ using .GraphsExtensions:
   partitioned_vertices,
   rename_vertices,
   subgraph
-using SimpleTraits: SimpleTraits, @traitfn
+using SimpleTraits: SimpleTraits, Not, @traitfn
 
 abstract type AbstractNamedGraph{V} <: AbstractGraph{V} end
 

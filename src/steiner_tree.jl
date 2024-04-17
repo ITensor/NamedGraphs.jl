@@ -1,5 +1,5 @@
 using Graphs: Graphs, IsDirected, nv, steiner_tree
-using SimpleTraits: SimpleTraits, @traitfn
+using SimpleTraits: SimpleTraits, Not, @traitfn
 
 @traitfn function Graphs.steiner_tree(
   g::AbstractNamedGraph::(!IsDirected), term_vert, distmx=weights(g)

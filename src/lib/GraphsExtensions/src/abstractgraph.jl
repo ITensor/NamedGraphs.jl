@@ -24,7 +24,7 @@ using Graphs:
   rem_vertex!,
   weights
 using Graphs.SimpleGraphs: AbstractSimpleGraph
-using SimpleTraits: SimpleTraits, @traitfn
+using SimpleTraits: SimpleTraits, Not, @traitfn
 using SplitApplyCombine: groupfind
 
 not_implemented() = error("Not implemented")
@@ -131,12 +131,12 @@ end
 end
 
 # Alternative syntax to `getindex` for getting a subgraph
-function subgraph(graph::AbstractGraph, subvertices::Vector)
-  return induced_subgraph(graph, subvertices)[1]
+function subgraph(graph::AbstractGraph, vertices)
+  return induced_subgraph(graph, vertices)[1]
 end
 
 function subgraph(f::Function, graph::AbstractGraph)
-  return induced_subgraph(graph, filter(f, vertices(graph)))[1]
+  return subgraph(graph, filter(f, vertices(graph)))
 end
 
 function degrees(graph::AbstractGraph, vertices=vertices(graph))

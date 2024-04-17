@@ -14,7 +14,7 @@ using Graphs.SimpleGraphs: AbstractSimpleGraph
 using ..GraphGenerators: comb_tree
 using ..GraphsExtensions: add_edges!, rem_vertices!
 using ..NamedGraphs: NamedGraph
-using SimpleTraits: SimpleTraits, @traitfn
+using SimpleTraits: SimpleTraits, Not, @traitfn
 
 ## TODO: Bring this back in some form?
 ## TODO: Move to `GraphsExtensions`?
