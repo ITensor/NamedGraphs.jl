@@ -2,7 +2,7 @@ using Dictionaries: AbstractDictionary
 using Graphs: Graphs, IsDirected, dst, edges, nv, src
 using .GraphsExtensions: directed_graph
 using LinearAlgebra: Symmetric
-using SimpleTraits: SimpleTraits, @traitfn
+using SimpleTraits: SimpleTraits, Not, @traitfn
 using SparseArrays: sparse, spzeros
 
 # TODO: Move to `GraphsExtensions`.
