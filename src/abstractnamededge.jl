@@ -8,6 +8,8 @@ Base.eltype(::Type{<:AbstractNamedEdge{V}}) where {V} = V
 Graphs.src(e::AbstractNamedEdge) = not_implemented()
 Graphs.dst(e::AbstractNamedEdge) = not_implemented()
 
+AbstractNamedEdge(e::AbstractNamedEdge) = e
+
 function GraphsExtensions.convert_vertextype(
   ::Type{V}, E::Type{<:AbstractNamedEdge{V}}
 ) where {V}
@@ -49,6 +51,10 @@ function GraphsExtensions.rename_vertices(f::Function, e::AbstractNamedEdge)
   return set_vertices(e, f(src(e)), f(dst(e)))
 end
 
-function GraphsExtensions.rename_vertices(e::AbstractNamedEdge, name_map)
+function GraphsExtensions.rename_vertices(e::AbstractEdge, name_map)
   return rename_vertices(v -> name_map[v], e)
+end
+
+function GraphsExtensions.rename_vertices(f::Function, e::AbstractEdge)
+  return rename_vertices(f, AbstractNamedEdge(e))
 end

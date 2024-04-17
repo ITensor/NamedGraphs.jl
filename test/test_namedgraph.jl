@@ -58,9 +58,9 @@ using Graphs:
   topological_sort_by_dfs,
   vertices,
   yen_k_shortest_paths
-using Graphs.SimpleGraphs: SimpleDiGraph
+using Graphs.SimpleGraphs: SimpleDiGraph, SimpleEdge
 using GraphsFlows: GraphsFlows
-using NamedGraphs: NamedEdge, NamedDiGraph, NamedGraph
+using NamedGraphs: AbstractNamedEdge, NamedEdge, NamedDiGraph, NamedGraph
 using NamedGraphs.GraphsExtensions:
   GraphsExtensions,
   ⊔,
@@ -87,8 +87,17 @@ using SymRCM: SymRCM
 using Test: @test, @test_broken, @testset
 
 @testset "NamedEdge" begin
+  @test NamedEdge(SimpleEdge(1, 2)) == NamedEdge(1, 2)
+  @test AbstractNamedEdge(SimpleEdge(1, 2)) == NamedEdge(1, 2)
   @test is_ordered(NamedEdge("A", "B"))
   @test !is_ordered(NamedEdge("B", "A"))
+  @test rename_vertices(NamedEdge("A", "B"), Dict(["A" => "C", "B" => "D"])) ==
+    NamedEdge("C", "D")
+  @test rename_vertices(SimpleEdge(1, 2), Dict([1 => "C", 2 => "D"])) == NamedEdge("C", "D")
+  @test rename_vertices(v -> Dict(["A" => "C", "B" => "D"])[v], NamedEdge("A", "B")) ==
+    NamedEdge("C", "D")
+  @test rename_vertices(v -> Dict([1 => "C", 2 => "D"])[v], SimpleEdge(1, 2)) ==
+    NamedEdge("C", "D")
 end
 
 @testset "NamedGraph" begin
