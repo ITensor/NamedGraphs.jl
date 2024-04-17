@@ -94,8 +94,10 @@ using Test: @test, @test_broken, @testset
   @test rename_vertices(NamedEdge("A", "B"), Dict(["A" => "C", "B" => "D"])) ==
     NamedEdge("C", "D")
   @test rename_vertices(SimpleEdge(1, 2), Dict([1 => "C", 2 => "D"])) == NamedEdge("C", "D")
-  @test rename_vertices(v -> Dict(["A" => "C", "B" => "D"])[v], NamedEdge("A", "B")) == NamedEdge("C", "D")
-  @test rename_vertices(v -> Dict([1 => "C", 2 => "D"])[v], SimpleEdge(1, 2)) == NamedEdge("C", "D")
+  @test rename_vertices(v -> Dict(["A" => "C", "B" => "D"])[v], NamedEdge("A", "B")) ==
+    NamedEdge("C", "D")
+  @test rename_vertices(v -> Dict([1 => "C", 2 => "D"])[v], SimpleEdge(1, 2)) ==
+    NamedEdge("C", "D")
 end
 
 @testset "NamedGraph" begin
