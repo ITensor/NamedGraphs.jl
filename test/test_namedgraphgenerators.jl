@@ -9,6 +9,7 @@ using Test: @test, @testset
   g = named_hexagonal_lattice_graph(1, 1)
 
   #Should just be 1 hexagon
+  # TODO: Replace with `is_cycle_graph`.
   @test is_path_graph(g)
 
   #Check consistency with the output of hexagonal_lattice_graph(7,7) in networkx
@@ -24,6 +25,7 @@ using Test: @test, @testset
   g = named_triangular_lattice_graph(1, 1)
 
   #Should just be 1 triangle
+  # TODO: Replace with `is_cycle_graph`.
   @test is_path_graph(g)
 
   g = named_hexagonal_lattice_graph(2, 1)

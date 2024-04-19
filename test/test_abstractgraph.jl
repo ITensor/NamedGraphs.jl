@@ -2,7 +2,7 @@
 using Graphs: binary_tree, dfs_tree, edgetype, grid, path_graph
 using NamedGraphs.GraphGenerators: comb_tree
 using NamedGraphs.GraphsExtensions:
-  is_leaf,
+  is_leaf_vertex,
   is_path_graph,
   edge_path,
   leaf_vertices,
@@ -83,21 +83,21 @@ end
 @testset "Tree graph leaf vertices" begin
   # undirected trees
   g = comb_tree((3, 2))
-  @test is_leaf(g, 4)
-  @test !is_leaf(g, 1)
+  @test is_leaf_vertex(g, 4)
+  @test !is_leaf_vertex(g, 1)
   @test issetequal(leaf_vertices(g), [4, 5, 6])
 
   ng = named_comb_tree((3, 2))
-  @test is_leaf(ng, (1, 2))
-  @test is_leaf(ng, (2, 2))
-  @test !is_leaf(ng, (1, 1))
+  @test is_leaf_vertex(ng, (1, 2))
+  @test is_leaf_vertex(ng, (2, 2))
+  @test !is_leaf_vertex(ng, (1, 1))
   @test issetequal(leaf_vertices(ng), [(1, 2), (2, 2), (3, 2)])
 
   # directed trees
   dng = dfs_tree(ng, (2, 2))
-  @test is_leaf(dng, (1, 2))
-  @test !is_leaf(dng, (2, 2))
-  @test !is_leaf(dng, (1, 1))
+  @test is_leaf_vertex(dng, (1, 2))
+  @test !is_leaf_vertex(dng, (2, 2))
+  @test !is_leaf_vertex(dng, (1, 1))
   @test issetequal(leaf_vertices(dng), [(1, 2), (3, 2)])
 end
 end

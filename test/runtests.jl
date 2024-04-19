@@ -1,8 +1,6 @@
-using NamedGraphs
-using Test
-
+@eval module $(gensym())
+using Test: @testset
 test_path = joinpath(@__DIR__)
-
 test_files = filter(
   file -> startswith(file, "test_") && endswith(file, ".jl"), readdir(test_path)
 )
@@ -12,4 +10,5 @@ test_files = filter(
     println("Running test $(file_path)")
     include(file_path)
   end
+end
 end
