@@ -63,14 +63,14 @@ end
   ng = NamedGraph(g, string_names)
   # rename to integers
   vmap_int = Dictionary(vertices(ng), integer_names)
-  ng_int = rename_vertices(ng, vmap_int)
+  ng_int = rename_vertices(v -> vmap_int[v], ng)
   @test isa(ng_int, NamedGraph{Int})
   @test has_vertex(ng_int, 3)
   @test has_edge(ng_int, 1 => 2)
   @test has_edge(ng_int, 2 => 4)
   # rename to tuples
   vmap_tuple = Dictionary(vertices(ng), tuple_names)
-  ng_tuple = rename_vertices(ng, vmap_tuple)
+  ng_tuple = rename_vertices(v -> vmap_tuple[v], ng)
   @test isa(ng_tuple, NamedGraph{Tuple{String,Int}})
   @test has_vertex(ng_tuple, ("X", 1))
   @test has_edge(ng_tuple, ("X", 1) => ("X", 2))
@@ -86,7 +86,7 @@ end
   ndg = named_grid((2, 2))
   # rename to integers
   vmap_int = Dictionary(vertices(ndg), integer_names)
-  ndg_int = rename_vertices(ndg, vmap_int)
+  ndg_int = rename_vertices(v -> vmap_int[v], ndg)
   @test isa(ndg_int, NamedGraph{Int})
   @test has_vertex(ndg_int, 1)
   @test has_edge(ndg_int, 1 => 2)
@@ -94,7 +94,7 @@ end
   @test length(a_star(ndg_int, 1, 4)) == 2
   # rename to strings
   vmap_string = Dictionary(vertices(ndg), string_names)
-  ndg_string = rename_vertices(ndg, vmap_string)
+  ndg_string = rename_vertices(v -> vmap_string[v], ndg)
   @test isa(ndg_string, NamedGraph{String})
   @test has_vertex(ndg_string, "A")
   @test has_edge(ndg_string, "A" => "B")
@@ -102,7 +102,7 @@ end
   @test length(a_star(ndg_string, "A", "D")) == 2
   # rename to strings
   vmap_tuple = Dictionary(vertices(ndg), tuple_names)
-  ndg_tuple = rename_vertices(ndg, vmap_tuple)
+  ndg_tuple = rename_vertices(v -> vmap_tuple[v], ndg)
   @test isa(ndg_tuple, NamedGraph{Tuple{String,Int}})
   @test has_vertex(ndg_tuple, ("X", 1))
   @test has_edge(ndg_tuple, ("X", 1) => ("X", 2))
@@ -120,14 +120,14 @@ end
   nddg = NamedDiGraph(DiGraph(collect(edges(g))), vertices(ndg))
   # rename to integers
   vmap_int = Dictionary(vertices(nddg), integer_names)
-  nddg_int = rename_vertices(nddg, vmap_int)
+  nddg_int = rename_vertices(v -> vmap_int[v], nddg)
   @test isa(nddg_int, NamedDiGraph{Int})
   @test has_vertex(nddg_int, 1)
   @test has_edge(nddg_int, 1 => 2)
   @test has_edge(nddg_int, 2 => 4)
   # rename to strings
   vmap_string = Dictionary(vertices(nddg), string_names)
-  nddg_string = rename_vertices(nddg, vmap_string)
+  nddg_string = rename_vertices(v -> vmap_string[v], nddg)
   @test isa(nddg_string, NamedDiGraph{String})
   @test has_vertex(nddg_string, "A")
   @test has_edge(nddg_string, "A" => "B")
@@ -135,7 +135,7 @@ end
   @test !has_edge(nddg_string, "D" => "B")
   # rename to strings
   vmap_tuple = Dictionary(vertices(nddg), tuple_names)
-  nddg_tuple = rename_vertices(nddg, vmap_tuple)
+  nddg_tuple = rename_vertices(v -> vmap_tuple[v], nddg)
   @test isa(nddg_tuple, NamedDiGraph{Tuple{String,Int}})
   @test has_vertex(nddg_tuple, ("X", 1))
   @test has_edge(nddg_tuple, ("X", 1) => ("X", 2))

@@ -13,6 +13,7 @@ using AbstractTrees:
 using Dictionaries: Dictionary, Indices
 using Graphs:
   add_edge!,
+  add_vertex!,
   edges,
   edgetype,
   inneighbors,
@@ -24,8 +25,17 @@ using Graphs:
   rem_edge!,
   vertices
 using Graphs.SimpleGraphs:
-  SimpleDiGraph, SimpleEdge, SimpleGraph, grid, path_digraph, path_graph
+  SimpleDiGraph,
+  SimpleEdge,
+  SimpleGraph,
+  binary_tree,
+  cycle_digraph,
+  cycle_graph,
+  grid,
+  path_digraph,
+  path_graph
 using NamedGraphs: NamedGraph
+using NamedGraphs.GraphGenerators: binary_arborescence
 using NamedGraphs.GraphsExtensions:
   TreeGraph,
   ⊔,
@@ -33,27 +43,58 @@ using NamedGraphs.GraphsExtensions:
   add_edges,
   add_edges!,
   all_edges,
+  child_edges,
+  child_vertices,
   degrees,
   directed_graph,
   directed_graph_type,
   disjoint_union,
+  distance_to_leaves,
+  has_leaf_neighbor,
+  incident_edges,
   indegrees,
   is_arborescence,
+  is_binary_arborescence,
+  is_cycle_graph,
   is_ditree,
+  is_leaf_edge,
+  is_leaf_vertex,
   is_path_graph,
+  is_root_vertex,
+  is_rooted,
   is_self_loop,
+  leaf_vertices,
+  minimum_distance_to_leaves,
+  non_leaf_edges,
   outdegrees,
   permute_vertices,
   rem_edge,
   rem_edges,
   rem_edges!,
   rename_vertices,
+  root_vertex,
   subgraph,
   tree_graph_node,
   undirected_graph,
   undirected_graph_type,
   vertextype
-using Test: @test, @test_broken, @testset
+using Test: @test, @test_broken, @test_throws, @testset
+
+# TODO: Still need to test:
+# - post_order_dfs_vertices
+# - pre_order_dfs_vertices
+# - post_order_dfs_edges
+# - vertex_path
+# - edge_path
+# - parent_vertices
+# - parent_vertex
+# - parent_edges
+# - parent_edge
+# - mincut_partitions
+# - eccentricities
+# - decorate_graph_edges
+# - decorate_graph_vertices
+# - random_bfs_tree
 
 @testset "NamedGraphs.GraphsExtensions" begin
   # is_self_loop
@@ -100,16 +141,14 @@ using Test: @test, @test_broken, @testset
 
   # rename_vertices
   vs = ["a", "b", "c", "d"]
-  for g in (
-    rename_vertices(v -> vs[v], path_graph(4)),
-    rename_vertices(path_graph(4), Dict(eachindex(vs) .=> vs)),
-  )
-    @test nv(g) == 4
-    @test ne(g) == 3
-    @test issetequal(vertices(g), vs)
-    @test issetequal(edges(g), edgetype(g).(["a" => "b", "b" => "c", "c" => "d"]))
-    @test g isa NamedGraph
-  end
+  g = rename_vertices(v -> vs[v], NamedGraph(path_graph(4)))
+  @test nv(g) == 4
+  @test ne(g) == 3
+  @test issetequal(vertices(g), vs)
+  @test issetequal(edges(g), edgetype(g).(["a" => "b", "b" => "c", "c" => "d"]))
+  @test g isa NamedGraph
+  # Not defined for AbstractSimpleGraph.
+  @test_throws ErrorException rename_vertices(v -> vs[v], path_graph(4))
 
   # permute_vertices
   g = path_graph(4)
@@ -156,25 +195,20 @@ using Test: @test, @test_broken, @testset
   # TreeGraph
   # Binary tree:
   #       
-  #      7
+  #      1
   #     / \
   #    /   \
-  #   5     6
+  #   2     3
   #  / \   / \
-  # 1   2 3   4
+  # 4   5 6   7
   #
-  # with vertex 6 as root.
-  g = SimpleDiGraph(7)
-  add_edge!(g, 5 => 1)
-  add_edge!(g, 5 => 2)
-  add_edge!(g, 7 => 5)
-  add_edge!(g, 6 => 7)
-  add_edge!(g, 6 => 3)
-  add_edge!(g, 6 => 4)
+  # with vertex 1 as root.
+  g = binary_arborescence(3)
   @test is_arborescence(g)
+  @test is_binary_arborescence(g)
   @test is_ditree(g)
   g′ = copy(g)
-  add_edge!(g′, 5 => 6)
+  add_edge!(g′, 2 => 3)
   @test !is_arborescence(g′)
   @test !is_ditree(g′)
   t = TreeGraph(g)
@@ -182,33 +216,76 @@ using Test: @test, @test_broken, @testset
   @test ne(t) == 6
   @test nv(t) == 7
   @test vertices(t) == 1:7
-  @test issetequal(outneighbors(t, 6), [3, 4, 7])
-  @test isempty(inneighbors(t, 6))
-  @test only(inneighbors(t, 5)) == 7
-  @test edgetype(t) == SimpleEdge{Int}
+  @test issetequal(outneighbors(t, 1), [2, 3])
+  @test issetequal(outneighbors(t, 2), [4, 5])
+  @test issetequal(outneighbors(t, 3), [6, 7])
+  @test isempty(inneighbors(t, 1))
+  for v in 2:3
+    @test only(inneighbors(t, v)) == 1
+  end
+  for v in 4:5
+    @test only(inneighbors(t, v)) == 2
+  end
+  for v in 6:7
+    @test only(inneighbors(t, v)) == 3
+  end
+  @test edgetype(t) === SimpleEdge{Int}
   @test vertextype(t) == Int
-  @test tree_graph_node(g, 5) == IndexNode(t, 5)
-  @test rootindex(t) == 6
-  @test issetequal(childindices(t, 6), [3, 4, 7])
-  @test issetequal(childindices(t, 7), [5])
-  @test isempty(childindices(t, 2))
-  @test isnothing(parentindex(t, 6))
-  @test parentindex(t, 3) == 6
-  @test parentindex(t, 5) == 7
-  @test IndexNode(t) == IndexNode(t, 6)
-  @test tree_graph_node(g) == tree_graph_node(g, 6)
-  dfs_g = collect(nodevalues(PostOrderDFS(tree_graph_node(g, 6))))
-  @test length(dfs_g) == 7
-  @test issetequal(dfs_g[1:4], 1:4)
-  @test dfs_g[5:7] == [5, 7, 6]
-  @test issetequal(nodevalue.(children(tree_graph_node(g, 5))), 1:2)
-  @test isempty(children(tree_graph_node(g, 1)))
-  @test issetequal(nodevalue.(Leaves(tree_graph_node(g))), 1:4)
-  @test nodevalue(parent(tree_graph_node(g, 5))) == 7
+  @test nodevalue(t) == 1
+  for v in 1:7
+    @test tree_graph_node(g, v) == IndexNode(t, v)
+  end
+  @test rootindex(t) == 1
+  @test issetequal(nodevalue.(children(t)), 2:3)
+  @test issetequal(childindices(t, 1), 2:3)
+  @test issetequal(childindices(t, 2), 4:5)
+  @test issetequal(childindices(t, 3), 6:7)
+  for v in 4:7
+    @test isempty(childindices(t, v))
+  end
+  @test isnothing(parentindex(t, 1))
+  for v in 2:3
+    @test parentindex(t, v) == 1
+  end
+  for v in 4:5
+    @test parentindex(t, v) == 2
+  end
+  for v in 6:7
+    @test parentindex(t, v) == 3
+  end
+  @test IndexNode(t) == IndexNode(t, 1)
+  @test tree_graph_node(g) == tree_graph_node(g, 1)
+  for dfs_g in (
+    collect(nodevalues(PostOrderDFS(tree_graph_node(g, 1)))),
+    collect(nodevalues(PostOrderDFS(t))),
+  )
+    @test length(dfs_g) == 7
+    @test dfs_g == [4, 5, 2, 6, 7, 3, 1]
+  end
+  @test issetequal(nodevalue.(children(tree_graph_node(g, 1))), 2:3)
+  @test issetequal(nodevalue.(children(tree_graph_node(g, 2))), 4:5)
+  @test issetequal(nodevalue.(children(tree_graph_node(g, 3))), 6:7)
+  for v in 4:7
+    @test isempty(children(tree_graph_node(g, v)))
+  end
+  for n in (tree_graph_node(g), t)
+    @test issetequal(nodevalue.(Leaves(n)), 4:7)
+  end
+  @test issetequal(nodevalue.(Leaves(t)), 4:7)
+  @test isnothing(nodevalue(parent(tree_graph_node(g, 1))))
+  for v in 2:3
+    @test nodevalue(parent(tree_graph_node(g, v))) == 1
+  end
+  for v in 4:5
+    @test nodevalue(parent(tree_graph_node(g, v))) == 2
+  end
+  for v in 6:7
+    @test nodevalue(parent(tree_graph_node(g, v))) == 3
+  end
 
   # disjoint_union, ⊔
-  g1 = path_graph(3)
-  g2 = path_graph(3)
+  g1 = NamedGraph(path_graph(3))
+  g2 = NamedGraph(path_graph(3))
   for g in (
     disjoint_union(g1, g2),
     disjoint_union([g1, g2]),
@@ -235,17 +312,190 @@ using Test: @test, @test_broken, @testset
   end
 
   # is_path_graph
-  g = path_graph(4)
-  @test is_path_graph(g)
-  g = grid((3, 2))
-  @test !is_path_graph(g)
+  @test is_path_graph(path_graph(4))
+  @test !is_path_graph(cycle_graph(4))
+  # Only defined for undirected graphs at the moment.
+  @test_throws MethodError is_path_graph(path_digraph(4))
+  @test !is_path_graph(grid((3, 2)))
 
-  # TODO:
-  # - is_leaf_vertex
-  # - is_root_vertex
-  # - is_rooted
-  # - root_vertex
-  # - parent_vertex
+  # is_cycle_graph
+  @test is_cycle_graph(cycle_graph(4))
+  @test !is_cycle_graph(path_graph(4))
+  # Only defined for undirected graphs at the moment.
+  @test_throws MethodError is_cycle_graph(cycle_digraph(4))
+  @test !is_cycle_graph(grid((3, 2)))
+  @test is_cycle_graph(grid((2, 2)))
+
+  # incident_edges
+  g = path_graph(4)
+  @test issetequal(incident_edges(g, 2), SimpleEdge.([2 => 1, 2 => 3]))
+  @test issetequal(incident_edges(g, 2; dir=:out), SimpleEdge.([2 => 1, 2 => 3]))
+  @test issetequal(incident_edges(g, 2; dir=:in), SimpleEdge.([1 => 2, 3 => 2]))
+  # TODO: Only output out edges?
+  @test issetequal(
+    incident_edges(g, 2; dir=:both), SimpleEdge.([2 => 1, 1 => 2, 2 => 3, 3 => 2])
+  )
+
+  # is_leaf_vertex
+  g = binary_tree(3)
+  for v in 1:3
+    @test !is_leaf_vertex(g, v)
+  end
+  for v in 4:7
+    @test is_leaf_vertex(g, v)
+  end
+  g = binary_arborescence(3)
+  for v in 1:3
+    @test !is_leaf_vertex(g, v)
+  end
+  for v in 4:7
+    @test is_leaf_vertex(g, v)
+  end
+
+  # child_vertices
+  g = binary_arborescence(3)
+  @test issetequal(child_vertices(g, 1), 2:3)
+  @test issetequal(child_vertices(g, 2), 4:5)
+  @test issetequal(child_vertices(g, 3), 6:7)
+  for v in 4:7
+    @test isempty(child_vertices(g, v))
+  end
+
+  # child_edges
+  g = binary_arborescence(3)
+  @test issetequal(child_edges(g, 1), SimpleEdge.([1 => 2, 1 => 3]))
+  @test issetequal(child_edges(g, 2), SimpleEdge.([2 => 4, 2 => 5]))
+  @test issetequal(child_edges(g, 3), SimpleEdge.([3 => 6, 3 => 7]))
+  for v in 4:7
+    @test isempty(child_edges(g, v))
+  end
+
+  # leaf_vertices
+  g = binary_tree(3)
+  @test issetequal(leaf_vertices(g), 4:7)
+  g = binary_arborescence(3)
+  @test issetequal(leaf_vertices(g), 4:7)
+
+  # is_leaf_edge
+  g = binary_tree(3)
+  for e in [1 => 2, 1 => 3]
+    @test !is_leaf_edge(g, e)
+    @test !is_leaf_edge(g, reverse(e))
+  end
+  for e in [2 => 4, 2 => 5, 3 => 6, 3 => 7]
+    @test is_leaf_edge(g, e)
+    @test is_leaf_edge(g, reverse(e))
+  end
+  g = binary_arborescence(3)
+  for e in [1 => 2, 1 => 3]
+    @test !is_leaf_edge(g, e)
+    @test !is_leaf_edge(g, reverse(e))
+  end
+  for e in [2 => 4, 2 => 5, 3 => 6, 3 => 7]
+    @test is_leaf_edge(g, e)
+    @test !is_leaf_edge(g, reverse(e))
+  end
+
+  # has_leaf_neighbor
+  for g in (binary_tree(3), binary_arborescence(3))
+    for v in [1; 4:7]
+      @test !has_leaf_neighbor(g, v)
+    end
+    for v in 2:3
+      @test has_leaf_neighbor(g, v)
+    end
+  end
+
+  # non_leaf_edges
+  g = binary_tree(3)
+  es = collect(non_leaf_edges(g))
+  es = [es; reverse.(es)]
+  for e in SimpleEdge.([1 => 2, 1 => 3])
+    @test e in es
+    @test reverse(e) in es
+  end
+  for e in SimpleEdge.([2 => 4, 2 => 5, 3 => 6, 3 => 7])
+    @test !(e in es)
+    @test !(reverse(e) in es)
+  end
+  g = binary_arborescence(3)
+  es = collect(non_leaf_edges(g))
+  for e in SimpleEdge.([1 => 2, 1 => 3])
+    @test e in es
+    @test !(reverse(e) in es)
+  end
+  for e in SimpleEdge.([2 => 4, 2 => 5, 3 => 6, 3 => 7])
+    @test !(e in es)
+    @test !(reverse(e) in es)
+  end
+
+  # distance_to_leaves
+  g = binary_tree(3)
+  d = distance_to_leaves(g, 3)
+  d_ref = Dict([4 => 3, 5 => 3, 6 => 1, 7 => 1])
+  for v in keys(d)
+    @test is_leaf_vertex(g, v)
+    @test d[v] == d_ref[v]
+  end
+  g = binary_arborescence(3)
+  d = distance_to_leaves(g, 3)
+  d_ref = Dict([4 => typemax(Int), 5 => typemax(Int), 6 => 1, 7 => 1])
+  for v in keys(d)
+    @test is_leaf_vertex(g, v)
+    @test d[v] == d_ref[v]
+  end
+  d = distance_to_leaves(g, 1)
+  d_ref = Dict([4 => 2, 5 => 2, 6 => 2, 7 => 2])
+  for v in keys(d)
+    @test is_leaf_vertex(g, v)
+    @test d[v] == d_ref[v]
+  end
+
+  # minimum_distance_to_leaves
+  for g in (binary_tree(3), binary_arborescence(3))
+    @test minimum_distance_to_leaves(g, 1) == 2
+    @test minimum_distance_to_leaves(g, 3) == 1
+    @test minimum_distance_to_leaves(g, 7) == 0
+  end
+
+  # is_root_vertex
+  g = binary_arborescence(3)
+  @test is_root_vertex(g, 1)
+  for v in 2:7
+    @test !is_root_vertex(g, v)
+  end
+  g = binary_tree(3)
+  for v in vertices(g)
+    @test_throws MethodError is_root_vertex(g, v)
+  end
+
+  # is_rooted
+  @test is_rooted(binary_arborescence(3))
+  g = binary_arborescence(3)
+  add_edge!(g, 2 => 3)
+  @test is_rooted(g)
+  g = binary_arborescence(3)
+  add_vertex!(g)
+  add_edge!(g, 8 => 3)
+  @test !is_rooted(g)
+  @test is_rooted(path_digraph(4))
+  @test_throws MethodError is_rooted(binary_tree(3))
+
+  # is_binary_arborescence
+  @test is_binary_arborescence(binary_arborescence(3))
+  g = binary_arborescence(3)
+  add_vertex!(g)
+  add_edge!(g, 3 => 8)
+  @test !is_binary_arborescence(g)
+  @test_throws MethodError is_binary_arborescence(binary_tree(3))
+
+  # root_vertex
+  @test root_vertex(binary_arborescence(3)) == 1
+  # No root vertex of cyclic graph.
+  g = binary_arborescence(3)
+  add_edge!(g, 7 => 1)
+  @test_throws ErrorException root_vertex(g)
+  @test_throws MethodError root_vertex(binary_tree(3))
 
   # add_edge
   g = SimpleGraph(4)

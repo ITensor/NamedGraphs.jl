@@ -1,6 +1,6 @@
 @eval module $(gensym())
 using Graphs: edges, neighbors, vertices
-using NamedGraphs.GraphsExtensions: is_path_graph
+using NamedGraphs.GraphsExtensions: is_cycle_graph
 using NamedGraphs.NamedGraphGenerators:
   named_hexagonal_lattice_graph, named_triangular_lattice_graph
 using Test: @test, @testset
@@ -9,8 +9,7 @@ using Test: @test, @testset
   g = named_hexagonal_lattice_graph(1, 1)
 
   #Should just be 1 hexagon
-  # TODO: Replace with `is_cycle_graph`.
-  @test is_path_graph(g)
+  @test is_cycle_graph(g)
 
   #Check consistency with the output of hexagonal_lattice_graph(7,7) in networkx
   g = named_hexagonal_lattice_graph(7, 7)
@@ -25,8 +24,7 @@ using Test: @test, @testset
   g = named_triangular_lattice_graph(1, 1)
 
   #Should just be 1 triangle
-  # TODO: Replace with `is_cycle_graph`.
-  @test is_path_graph(g)
+  @test is_cycle_graph(g)
 
   g = named_hexagonal_lattice_graph(2, 1)
   dims = maximum(vertices(g))

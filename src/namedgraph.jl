@@ -62,12 +62,14 @@ function Graphs.rem_vertex!(graph::GenericNamedGraph, vertex)
 end
 
 function GraphsExtensions.rename_vertices(f::Function, g::GenericNamedGraph)
-  # TODO: Could be `set_vertices(g, f.(g.parent_vertex_to_vertex))`.
+  # TODO: Could be implemented as `set_vertices(g, f.(g.parent_vertex_to_vertex))`.
   return GenericNamedGraph(g.parent_graph, f.(g.parent_vertex_to_vertex))
 end
 
 function GraphsExtensions.rename_vertices(f::Function, g::AbstractSimpleGraph)
-  return rename_vertices(f, GenericNamedGraph(g))
+  return error(
+    "Can't rename the vertices of a graph of type `$(typeof(g)) <: AbstractSimpleGraph`, try converting to a named graph.",
+  )
 end
 
 function GraphsExtensions.convert_vertextype(V::Type, graph::GenericNamedGraph)

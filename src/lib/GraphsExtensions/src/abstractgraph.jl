@@ -1,4 +1,3 @@
-using AbstractTrees: AbstractTrees, IndexNode, PostOrderDFS, PreOrderDFS, nodevalue
 using Dictionaries: Dictionary, Indices, dictionary
 using Graphs:
   Graphs,
@@ -6,12 +5,14 @@ using Graphs:
   AbstractGraph,
   IsDirected,
   Δ,
+  a_star,
   add_edge!,
   add_vertex!,
   degree,
   dfs_tree,
   eccentricity,
   edgetype,
+  has_edge,
   indegree,
   induced_subgraph,
   inneighbors,
@@ -84,17 +85,6 @@ end
 vertextype(::Type{<:AbstractGraph{V}}) where {V} = V
 vertextype(graph::AbstractGraph) = vertextype(typeof(graph))
 
-# Function `f` maps original vertices `vᵢ` of `g`
-# to new vertices `f(vᵢ)` of the output graph.
-rename_vertices(f, g::AbstractGraph) = not_implemented()
-function rename_vertices(g::AbstractGraph, name_map)
-  return rename_vertices(Base.Fix1(getindex, name_map), g)
-end
-
-function permute_vertices(graph::AbstractGraph, permutation)
-  return not_implemented()
-end
-
 # Uniform interface for `outneighbors`, `inneighbors`, and `all_neighbors`
 function _neighbors(graph::AbstractGraph, vertex; dir=:out)
   if dir == :out
@@ -166,62 +156,18 @@ end
   return is_ditree(graph) && all(v -> indegree(graph, v) ≤ 1, vertices(graph))
 end
 
-# Tree view of a graph.
-abstract type AbstractTreeGraph{V} <: AbstractGraph{V} end
-parent_graph_type(type::Type{<:AbstractTreeGraph}) = not_implemented()
-parent_graph(graph::AbstractTreeGraph) = not_implemented()
-
-Graphs.is_directed(type::Type{<:AbstractTreeGraph}) = is_directed(parent_graph_type(type))
-Graphs.edgetype(graph::AbstractTreeGraph) = edgetype(parent_graph(graph))
-function Graphs.outneighbors(graph::AbstractTreeGraph, vertex)
-  return outneighbors(parent_graph(graph), vertex)
-end
-function Graphs.inneighbors(graph::AbstractTreeGraph, vertex)
-  return inneighbors(parent_graph(graph), vertex)
-end
-Graphs.nv(graph::AbstractTreeGraph) = nv(parent_graph(graph))
-Graphs.ne(graph::AbstractTreeGraph) = ne(parent_graph(graph))
-Graphs.vertices(graph::AbstractTreeGraph) = vertices(parent_graph(graph))
-
-struct TreeGraph{V,G<:AbstractGraph{V}} <: AbstractTreeGraph{V}
-  graph::G
-  global function _TreeGraph(g::AbstractGraph)
-    # No check for being a tree
-    return new{vertextype(g),typeof(g)}(g)
-  end
-end
-@traitfn function TreeGraph(g::AbstractGraph::IsDirected)
-  @assert is_arborescence(g)
-  return _TreeGraph(g)
-end
-@traitfn function TreeGraph(g::AbstractGraph::(!IsDirected))
-  @assert is_tree(g)
-  return _TreeGraph(g)
-end
-parent_graph(graph::TreeGraph) = getfield(graph, :graph)
-parent_graph_type(type::Type{<:TreeGraph}) = fieldtype(type, :graph)
-
-# Used for tree iteration.
-# Assumes the graph is a [rooted directed tree](https://en.wikipedia.org/wiki/Tree_(graph_theory)#Rooted_tree).
-tree_graph_node(g::TreeGraph, vertex) = IndexNode(g, vertex)
-function tree_graph_node(g::AbstractGraph, vertex)
-  return tree_graph_node(TreeGraph(g), vertex)
-end
-tree_graph_node(g::AbstractGraph) = tree_graph_node(g, root_vertex(g))
-AbstractTrees.rootindex(tree::AbstractTreeGraph) = root_vertex(tree)
-function AbstractTrees.nodevalue(tree::AbstractTreeGraph, node_index)
-  return node_index
-end
-function AbstractTrees.childindices(tree::AbstractTreeGraph, node_index)
-  return child_vertices(tree, node_index)
-end
-function AbstractTrees.parentindex(tree::AbstractTreeGraph, node_index)
-  return parent_vertex(tree, node_index)
-end
-
 #
 # Graph unions
 #
+
+# Function `f` maps original vertices `vᵢ` of `g`
+# to new vertices `f(vᵢ)` of the output graph.
+rename_vertices(f, g::AbstractGraph) = not_implemented()
+
+# TODO: Does this relabel the vertices and/or change the adjacency matrix?
+function permute_vertices(graph::AbstractGraph, permutation)
+  return not_implemented()
+end
 
 # https://en.wikipedia.org/wiki/Disjoint_union
 # Input maps the new index being appended to the vertices
@@ -252,25 +198,8 @@ function ⊔(graphs...; kwargs...)
   return disjoint_union(graphs...; kwargs...)
 end
 
-# vcat, hcat, hvncat
-# function vcat(graph1::AbstractGraph, graph2::AbstractGraph; kwargs...)
-#   return hvncat(1, graph1, graph2; kwargs...)
-# end
-# 
-# function hcat(graph1::AbstractGraph, graph2::AbstractGraph; kwargs...)
-#   return hvncat(2, graph1, graph2; kwargs...)
-# end
-# 
-# # TODO: define `disjoint_union(graphs...; dim::Int, new_dim_names)` to do a disjoint union
-# # of a number of graphs.
-# function disjoint_union(graph1::AbstractGraph, graph2::AbstractGraph; dim::Int=0, kwargs...)
-#   return hvncat(dim, graph1, graph2; kwargs...)
-# end
-
 """
-TODO: Make this more sophisticated, check that
-only two vertices have degree 1 and none have
-degree 0, meaning it is a path/linear graph:
+Check if an undirected graph is a path/linear graph:
 
 https://en.wikipedia.org/wiki/Path_graph
 
@@ -278,8 +207,16 @@ but not a path/linear forest:
 
 https://en.wikipedia.org/wiki/Linear_forest
 """
-function is_path_graph(graph::AbstractGraph)
+@traitfn function is_path_graph(graph::::(!IsDirected))
   return is_tree(graph) && (Δ(graph) == 2)
+end
+
+"""
+https://juliagraphs.org/Graphs.jl/dev/core_functions/simplegraphs_generators/#Graphs.SimpleGraphs.cycle_graph-Tuple%7BT%7D%20where%20T%3C:Integer
+https://en.wikipedia.org/wiki/Cycle_graph
+"""
+@traitfn function is_cycle_graph(graph::::(!IsDirected))
+  return all(==(2), degrees(graph))
 end
 
 function out_incident_edges(graph::AbstractGraph, vertex)
@@ -333,47 +270,110 @@ end
 # root = vertices(graph)[root_index]
 # map(nodevalue, Leaves(tree_graph_node(graph, root)))
 #
+@traitfn function is_leaf_vertex(graph::::(!IsDirected), vertex)
+  # @assert !is_cyclic(graph)
+  return isone(length(neighbors(graph, vertex)))
+end
+
+# Check if a vertex is a leaf.
+# Assumes the graph is a DAG.
+@traitfn function is_leaf_vertex(graph::::IsDirected, vertex)
+  # @assert !is_cyclic(graph)
+  return isempty(child_vertices(graph, vertex))
+end
+
+# Get the children of a vertex.
+# Assumes the graph is a DAG.
+@traitfn function child_vertices(graph::::IsDirected, vertex)
+  # @assert !is_cyclic(graph)
+  return outneighbors(graph, vertex)
+end
+
+# Get the edges from the input vertex towards the child vertices.
+# Assumes the graph is a DAG.
+@traitfn function child_edges(graph::::IsDirected, vertex)
+  # @assert !is_cyclic(graph)
+  return map(child -> edgetype(graph)(vertex, child), child_vertices(graph, vertex))
+end
+
 function leaf_vertices(graph::AbstractGraph)
   # @assert !is_cyclic(graph)
   return filter(v -> is_leaf_vertex(graph, v), vertices(graph))
 end
 
-"""Determine if an edge involves a leaf (at src or dst)"""
-function is_leaf_edge(g::AbstractGraph, e)
-  return is_leaf_vertex(g, src(e)) || is_leaf_vertex(g, dst(e))
+"""
+Determine if an edge involves a leaf (at src or dst)
+"""
+@traitfn function is_leaf_edge(g::::(!IsDirected), e::AbstractEdge)
+  return has_edge(g, e) && (is_leaf_vertex(g, src(e)) || is_leaf_vertex(g, dst(e)))
+end
+@traitfn function is_leaf_edge(g::::IsDirected, e::AbstractEdge)
+  return has_edge(g, e) && is_leaf_vertex(g, dst(e))
+end
+function is_leaf_edge(g::AbstractGraph, e::Pair)
+  return is_leaf_edge(g, edgetype(g)(e))
 end
 
-"""Determine if a node has any neighbors which are leaves"""
+"""
+Determine if a node has any neighbors which are leaves
+"""
 function has_leaf_neighbor(g::AbstractGraph, v)
-  return any(is_leaf_vertex, neighbors(g, v))
+  return any(w -> is_leaf_vertex(g, w), neighbors(g, v))
 end
 
-# TODO: This may not be a good definition, it could
-# have another definition as the complement of
-# `boundary_edges`.
-"""Get all edges which do not involve a leaf"""
-@traitfn function internal_edges(g::::(!IsDirected))
-  return filter(e -> !is_leaf_edge(g, e), edges(g))
+"""
+Get all edges which do not involve a leaf
+
+https://en.wikipedia.org/wiki/Tree_(graph_theory)#Definitions
+"""
+function non_leaf_edges(g::AbstractGraph)
+  return Iterators.filter(e -> !is_leaf_edge(g, e), edges(g))
 end
 
-"""Get distance of a vertex from a leaf"""
+"""
+Get distance of a vertex from a leaf
+"""
 function distance_to_leaves(g::AbstractGraph, v)
-  return map(leaf -> length(a_star(g, v, leaf)), leaf_vertices(g))
+  return map(Indices(leaf_vertices(g))) do leaf
+    v == leaf && return 0
+    path = a_star(g, v, leaf)
+    isempty(path) && return typemax(Int)
+    return length(path)
+  end
+end
+
+function minimum_distance_to_leaves(g::AbstractGraph, v)
+  return minimum(distance_to_leaves(g, v))
 end
 
 @traitfn function is_root_vertex(graph::::IsDirected, vertex)
-  return isnothing(parent_vertex(graph, vertex))
+  return isempty(parent_vertices(graph, vertex))
 end
 
 @traitfn function is_rooted(graph::::IsDirected)
-  return isone(count(is_root_vertex, vertices(graph)))
+  return isone(count(v -> is_root_vertex(graph, v), vertices(graph)))
+end
+
+@traitfn function is_binary_arborescence(graph::AbstractGraph::IsDirected)
+  (is_rooted(graph) && is_arborescence(graph)) || return false
+  for v in vertices(graph)
+    if length(child_vertices(graph, v)) > 2
+      return false
+    end
+  end
+  return true
 end
 
 """
-Return the root vertex of a rooted directed graph
+Return the root vertex of a rooted directed graph.
+
+This will return the first root vertex that is found,
+so won't error if there is more than one.
 """
 @traitfn function root_vertex(graph::::IsDirected)
-  @assert !is_cyclic(graph) "Graph must not have any cycles."
+  if is_cyclic(graph)
+    return error("Graph must not have any cycles.")
+  end
   v = first(vertices(graph))
   while !is_root_vertex(graph, v)
     v = parent_vertex(graph, v)
@@ -390,9 +390,22 @@ end
   return post_order_dfs_vertices(dfs_tree_graph, root_vertex)
 end
 
+# Traverse the tree using a [post-order depth-first search](https://en.wikipedia.org/wiki/Tree_traversal#Depth-first_search), returning the vertices.
+# Assumes the graph is a [rooted directed tree](https://en.wikipedia.org/wiki/Tree_(graph_theory)#Rooted_tree)
+@traitfn function post_order_dfs_vertices(graph::::IsDirected, root_vertex)
+  # @assert is_tree(graph)
+  # Outputs a rooted directed tree (https://en.wikipedia.org/wiki/Arborescence_(graph_theory))
+  return map(nodevalue, PostOrderDFS(tree_graph_node(graph, root_vertex)))
+end
+
 @traitfn function pre_order_dfs_vertices(graph::::(!IsDirected), root_vertex)
   dfs_tree_graph = dfs_tree(graph, root_vertex)
   return pre_order_dfs_vertices(dfs_tree_graph, root_vertex)
+end
+
+@traitfn function pre_order_dfs_vertices(graph::::IsDirected, root_vertex)
+  # @assert is_tree(graph)
+  return map(nodevalue, PreOrderDFS(tree_graph_node(graph, root_vertex)))
 end
 
 @traitfn function post_order_dfs_edges(graph::::(!IsDirected), root_vertex)
@@ -400,9 +413,15 @@ end
   return post_order_dfs_edges(dfs_tree_graph, root_vertex)
 end
 
-@traitfn function is_leaf_vertex(graph::::(!IsDirected), vertex)
-  # @assert !is_cyclic(graph)
-  return isone(length(neighbors(graph, vertex)))
+# Traverse the tree using a [post-order depth-first search](https://en.wikipedia.org/wiki/Tree_traversal#Depth-first_search), returning the edges where the source is the current vertex and the destination is the parent vertex.
+# Assumes the graph is a [rooted directed tree](https://en.wikipedia.org/wiki/Tree_(graph_theory)#Rooted_tree).
+# Returns a list of edges directed **towards the root vertex**!
+@traitfn function post_order_dfs_edges(graph::::IsDirected, root_vertex)
+  # @assert is_tree(graph)
+  vertices = post_order_dfs_vertices(graph, root_vertex)
+  # Remove the root vertex
+  pop!(vertices)
+  return map(vertex -> parent_edge(graph, vertex), vertices)
 end
 
 # Paths for undirected tree-like graphs
@@ -453,51 +472,6 @@ end
 @traitfn function parent_edge(graph::::IsDirected, vertex)
   parents = parent_edges(graph, vertex)
   return isempty(parents) ? nothing : only(parents)
-end
-
-# Get the children of a vertex.
-# Assumes the graph is a DAG.
-@traitfn function child_vertices(graph::::IsDirected, vertex)
-  # @assert !is_cyclic(graph)
-  return outneighbors(graph, vertex)
-end
-
-# Get the edges from the input vertex towards the child vertices.
-# Assumes the graph is a DAG.
-@traitfn function child_edges(graph::::IsDirected, vertex)
-  # @assert !is_cyclic(graph)
-  return map(child -> edgetype(graph)(vertex, child), child_vertices(graph, vertex))
-end
-
-# Check if a vertex is a leaf.
-# Assumes the graph is a DAG.
-@traitfn function is_leaf_vertex(graph::::IsDirected, vertex)
-  # @assert !is_cyclic(graph)
-  return isempty(child_vertices(graph, vertex))
-end
-
-# Traverse the tree using a [post-order depth-first search](https://en.wikipedia.org/wiki/Tree_traversal#Depth-first_search), returning the vertices.
-# Assumes the graph is a [rooted directed tree](https://en.wikipedia.org/wiki/Tree_(graph_theory)#Rooted_tree)
-@traitfn function post_order_dfs_vertices(graph::::IsDirected, root_vertex)
-  # @assert is_tree(graph)
-  # Outputs a rooted directed tree (https://en.wikipedia.org/wiki/Arborescence_(graph_theory))
-  return map(nodevalue, PostOrderDFS(tree_graph_node(graph, root_vertex)))
-end
-
-@traitfn function pre_order_dfs_vertices(graph::::IsDirected, root_vertex)
-  # @assert is_tree(graph)
-  return map(nodevalue, PreOrderDFS(tree_graph_node(graph, root_vertex)))
-end
-
-# Traverse the tree using a [post-order depth-first search](https://en.wikipedia.org/wiki/Tree_traversal#Depth-first_search), returning the edges where the source is the current vertex and the destination is the parent vertex.
-# Assumes the graph is a [rooted directed tree](https://en.wikipedia.org/wiki/Tree_(graph_theory)#Rooted_tree).
-# Returns a list of edges directed **towards the root vertex**!
-@traitfn function post_order_dfs_edges(graph::::IsDirected, root_vertex)
-  # @assert is_tree(graph)
-  vertices = post_order_dfs_vertices(graph, root_vertex)
-  # Remove the root vertex
-  pop!(vertices)
-  return map(vertex -> parent_edge(graph, vertex), vertices)
 end
 
 # Paths for directed tree-like graphs
