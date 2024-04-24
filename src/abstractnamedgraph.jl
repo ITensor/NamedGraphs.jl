@@ -61,12 +61,12 @@ function GraphsExtensions.permute_vertices(graph::AbstractNamedGraph, permutatio
 end
 
 # Convert vertex to parent vertex
-# Inverse map of `parent_vertex_to_vertex`.
-vertex_to_parent_vertex(graph::AbstractNamedGraph, vertex) = not_implemented()
+# Inverse map of `ordered_vertices`.
+vertex_to_ordinal_vertex(graph::AbstractNamedGraph, vertex) = not_implemented()
 
 # Convert parent vertex to vertex.
 # Use `vertices`, assumes `vertices` is indexed by a parent vertex (a Vector for linear indexed parent vertices, a dictionary in general).
-parent_vertex_to_vertex(graph::AbstractNamedGraph, parent_vertex) = not_implemented()
+ordered_vertices(graph::AbstractNamedGraph, parent_vertex) = not_implemented()
 
 Graphs.edgetype(graph::AbstractNamedGraph) = not_implemented()
 
@@ -111,11 +111,11 @@ parent_vertextype(graph::AbstractNamedGraph) = vertextype(ordinal_graph(graph))
 Graphs.SimpleDiGraph(graph::AbstractNamedGraph) = SimpleDiGraph(ordinal_graph(graph))
 
 # Convenient shorthands for using in higher order functions like `map`.
-function vertex_to_parent_vertex(graph::AbstractNamedGraph)
-  return Base.Fix1(vertex_to_parent_vertex, graph)
+function vertex_to_ordinal_vertex(graph::AbstractNamedGraph)
+  return Base.Fix1(vertex_to_ordinal_vertex, graph)
 end
-function parent_vertex_to_vertex(graph::AbstractNamedGraph)
-  return Base.Fix1(parent_vertex_to_vertex, graph)
+function ordered_vertices(graph::AbstractNamedGraph)
+  return Base.Fix1(ordered_vertices, graph)
 end
 
 Base.zero(G::Type{<:AbstractNamedGraph}) = G()
@@ -136,7 +136,7 @@ Base.eltype(graph::AbstractNamedGraph) = eltype(vertices(graph))
 parent_eltype(graph::AbstractNamedGraph) = eltype(ordinal_graph(graph))
 
 function vertices_to_parent_vertices(graph::AbstractNamedGraph, vertices)
-  return map(vertex_to_parent_vertex(graph), vertices)
+  return map(vertex_to_ordinal_vertex(graph), vertices)
 end
 
 function vertices_to_parent_vertices(graph::AbstractNamedGraph)
@@ -144,7 +144,7 @@ function vertices_to_parent_vertices(graph::AbstractNamedGraph)
 end
 
 function parent_vertices_to_vertices(graph::AbstractNamedGraph, parent_vertices)
-  return map(parent_vertex_to_vertex(graph), parent_vertices)
+  return map(ordered_vertices(graph), parent_vertices)
 end
 
 function parent_vertices_to_vertices(graph::AbstractNamedGraph)
@@ -156,8 +156,8 @@ parent_edges(graph::AbstractNamedGraph) = edges(ordinal_graph(graph))
 parent_edgetype(graph::AbstractNamedGraph) = edgetype(ordinal_graph(graph))
 
 function edge_to_parent_edge(graph::AbstractNamedGraph, edge::AbstractEdge)
-  parent_src = vertex_to_parent_vertex(graph, src(edge))
-  parent_dst = vertex_to_parent_vertex(graph, dst(edge))
+  parent_src = vertex_to_ordinal_vertex(graph, src(edge))
+  parent_dst = vertex_to_ordinal_vertex(graph, dst(edge))
   return parent_edgetype(graph)(parent_src, parent_dst)
 end
 
@@ -172,8 +172,8 @@ function edges_to_parent_edges(graph::AbstractNamedGraph, edges)
 end
 
 function parent_edge_to_edge(graph::AbstractNamedGraph, parent_edge::AbstractEdge)
-  source = parent_vertex_to_vertex(graph, src(parent_edge))
-  destination = parent_vertex_to_vertex(graph, dst(parent_edge))
+  source = ordered_vertices(graph, src(parent_edge))
+  destination = ordered_vertices(graph, dst(parent_edge))
   return edgetype(graph)(source, destination)
 end
 
@@ -200,13 +200,13 @@ for f in [
 ]
   @eval begin
     function $f(graph::AbstractNamedGraph, vertex)
-      parent_vertices = $f(ordinal_graph(graph), vertex_to_parent_vertex(graph, vertex))
+      parent_vertices = $f(ordinal_graph(graph), vertex_to_ordinal_vertex(graph, vertex))
       return parent_vertices_to_vertices(graph, parent_vertices)
     end
 
     # Ambiguity errors with Graphs.jl
     function $f(graph::AbstractNamedGraph, vertex::Integer)
-      parent_vertices = $f(ordinal_graph(graph), vertex_to_parent_vertex(graph, vertex))
+      parent_vertices = $f(ordinal_graph(graph), vertex_to_ordinal_vertex(graph, vertex))
       return parent_vertices_to_vertices(graph, parent_vertices)
     end
   end
@@ -262,10 +262,10 @@ function namedgraph_neighborhood(
 )
   parent_distmx = dist_matrix_to_parent_dist_matrix(graph, distmx)
   parent_vertices = neighborhood(
-    ordinal_graph(graph), vertex_to_parent_vertex(graph, vertex), d, parent_distmx; dir
+    ordinal_graph(graph), vertex_to_ordinal_vertex(graph, vertex), d, parent_distmx; dir
   )
   return [
-    parent_vertex_to_vertex(graph, parent_vertex) for parent_vertex in parent_vertices
+    ordered_vertices(graph, parent_vertex) for parent_vertex in parent_vertices
   ]
 end
 
@@ -292,10 +292,10 @@ end
 function namedgraph_neighborhood_dists(graph::AbstractNamedGraph, vertex, d, distmx; dir)
   parent_distmx = dist_matrix_to_parent_dist_matrix(graph, distmx)
   parent_vertices_and_dists = neighborhood_dists(
-    ordinal_graph(graph), vertex_to_parent_vertex(graph, vertex), d, parent_distmx; dir
+    ordinal_graph(graph), vertex_to_ordinal_vertex(graph, vertex), d, parent_distmx; dir
   )
   return [
-    (parent_vertex_to_vertex(graph, parent_vertex), dist) for
+    (ordered_vertices(graph, parent_vertex), dist) for
     (parent_vertex, dist) in parent_vertices_and_dists
   ]
 end
@@ -341,7 +341,7 @@ function GraphsExtensions.partitioned_vertices(
   vertex_partitions = partitioned_vertices(
     ordinal_graph(g); npartitions, nvertices_per_partition, kwargs...
   )
-  #[inv(vertex_to_parent_vertex(g))[v] for v in partitions]
+  #[inv(vertex_to_ordinal_vertex(g))[v] for v in partitions]
   # TODO: output the reverse of this dictionary (a Vector of Vector
   # of the vertices in each partition).
   # return Dictionary(vertices(g), partitions)
@@ -362,8 +362,8 @@ function namedgraph_a_star(
   parent_distmx = dist_matrix_to_parent_dist_matrix(graph, distmx)
   parent_shortest_path = a_star(
     ordinal_graph(graph),
-    vertex_to_parent_vertex(graph, source),
-    vertex_to_parent_vertex(graph, destination),
+    vertex_to_ordinal_vertex(graph, source),
+    vertex_to_ordinal_vertex(graph, destination),
     dist_matrix_to_parent_dist_matrix(graph, distmx),
     heuristic,
     SimpleEdge,
@@ -387,7 +387,7 @@ function Graphs.spfa_shortest_paths(
 )
   parent_distmx = dist_matrix_to_parent_dist_matrix(graph, distmx)
   parent_shortest_paths = spfa_shortest_paths(
-    ordinal_graph(graph), vertex_to_parent_vertex(graph, vertex), parent_distmx
+    ordinal_graph(graph), vertex_to_ordinal_vertex(graph, vertex), parent_distmx
   )
   return Dictionary(vertices(graph), parent_shortest_paths)
 end
@@ -438,8 +438,8 @@ function Graphs.has_path(
 )
   return has_path(
     ordinal_graph(graph),
-    vertex_to_parent_vertex(graph, source),
-    vertex_to_parent_vertex(graph, destination);
+    vertex_to_ordinal_vertex(graph, source),
+    vertex_to_ordinal_vertex(graph, destination);
     exclude_vertices=vertices_to_parent_vertices(graph, exclude_vertices),
   )
 end
@@ -564,7 +564,7 @@ end
 # vertex in the traversal/spanning tree.
 function namedgraph_bfs_parents(graph::AbstractNamedGraph, vertex; kwargs...)
   parent_bfs_parents = bfs_parents(
-    ordinal_graph(graph), vertex_to_parent_vertex(graph, vertex); kwargs...
+    ordinal_graph(graph), vertex_to_ordinal_vertex(graph, vertex); kwargs...
   )
   # Works around issue in this `Dictionary` constructor:
   # https://github.com/andyferris/Dictionaries.jl/blob/v0.4.1/src/Dictionary.jl#L139-L145

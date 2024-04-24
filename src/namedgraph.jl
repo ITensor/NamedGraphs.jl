@@ -16,22 +16,22 @@ using .GraphsExtensions:
 
 struct GenericNamedGraph{V,G<:AbstractSimpleGraph{Int}} <: AbstractNamedGraph{V}
   ordinal_graph::G
-  parent_vertex_to_vertex::Vector{V}
-  vertex_to_parent_vertex::Dictionary{V,Int}
+  ordered_vertices::Vector{V}
+  vertex_to_ordinal_vertex::Dictionary{V,Int}
 end
 
 # AbstractNamedGraph required interface.
 ordinal_graph_type(G::Type{<:GenericNamedGraph}) = fieldtype(G, :ordinal_graph)
 ordinal_graph(graph::GenericNamedGraph) = getfield(graph, :ordinal_graph)
-function vertex_to_parent_vertex(graph::GenericNamedGraph, vertex)
-  return graph.vertex_to_parent_vertex[vertex]
+function vertex_to_ordinal_vertex(graph::GenericNamedGraph, vertex)
+  return graph.vertex_to_ordinal_vertex[vertex]
 end
-function parent_vertex_to_vertex(graph::GenericNamedGraph, parent_vertex)
-  return graph.parent_vertex_to_vertex[parent_vertex]
+function ordered_vertices(graph::GenericNamedGraph, parent_vertex)
+  return graph.ordered_vertices[parent_vertex]
 end
 
 # TODO: Order them according to the internal ordering?
-Graphs.vertices(graph::GenericNamedGraph) = keys(graph.vertex_to_parent_vertex)
+Graphs.vertices(graph::GenericNamedGraph) = keys(graph.vertex_to_ordinal_vertex)
 
 function Graphs.add_vertex!(graph::GenericNamedGraph, vertex)
   if vertex ∈ vertices(graph)
@@ -39,9 +39,9 @@ function Graphs.add_vertex!(graph::GenericNamedGraph, vertex)
   end
   add_vertex!(graph.ordinal_graph)
   # Update the forward map
-  push!(graph.parent_vertex_to_vertex, vertex)
+  push!(graph.ordered_vertices, vertex)
   # Update the reverse map
-  insert!(graph.vertex_to_parent_vertex, vertex, nv(graph.ordinal_graph))
+  insert!(graph.vertex_to_ordinal_vertex, vertex, nv(graph.ordinal_graph))
   return true
 end
 
@@ -49,21 +49,21 @@ function Graphs.rem_vertex!(graph::GenericNamedGraph, vertex)
   if vertex ∉ vertices(graph)
     return false
   end
-  parent_vertex = graph.vertex_to_parent_vertex[vertex]
+  parent_vertex = graph.vertex_to_ordinal_vertex[vertex]
   rem_vertex!(graph.ordinal_graph, parent_vertex)
   # Insert the last vertex into the position of the vertex
   # that is being deleted, then remove the last vertex.
-  last_vertex = last(graph.parent_vertex_to_vertex)
-  graph.parent_vertex_to_vertex[parent_vertex] = last_vertex
-  last_vertex = pop!(graph.parent_vertex_to_vertex)
-  graph.vertex_to_parent_vertex[last_vertex] = parent_vertex
-  delete!(graph.vertex_to_parent_vertex, vertex)
+  last_vertex = last(graph.ordered_vertices)
+  graph.ordered_vertices[parent_vertex] = last_vertex
+  last_vertex = pop!(graph.ordered_vertices)
+  graph.vertex_to_ordinal_vertex[last_vertex] = parent_vertex
+  delete!(graph.vertex_to_ordinal_vertex, vertex)
   return true
 end
 
 function GraphsExtensions.rename_vertices(f::Function, g::GenericNamedGraph)
-  # TODO: Could be implemented as `set_vertices(g, f.(g.parent_vertex_to_vertex))`.
-  return GenericNamedGraph(g.ordinal_graph, f.(g.parent_vertex_to_vertex))
+  # TODO: Could be implemented as `set_vertices(g, f.(g.ordered_vertices))`.
+  return GenericNamedGraph(g.ordinal_graph, f.(g.ordered_vertices))
 end
 
 function GraphsExtensions.rename_vertices(f::Function, g::AbstractSimpleGraph)
@@ -74,7 +74,7 @@ end
 
 function GraphsExtensions.convert_vertextype(vertextype::Type, graph::GenericNamedGraph)
   return GenericNamedGraph(
-    ordinal_graph(graph), convert(Vector{vertextype}, graph.parent_vertex_to_vertex)
+    ordinal_graph(graph), convert(Vector{vertextype}, graph.ordered_vertices)
   )
 end
 
@@ -191,7 +191,7 @@ GenericNamedGraph() = GenericNamedGraph(Any[])
 # graph = set_ordinal_graph(graph, copy(ordinal_graph(graph)))
 # graph = set_vertices(graph, copy(vertices(graph)))
 function Base.copy(graph::GenericNamedGraph)
-  return GenericNamedGraph(copy(graph.ordinal_graph), copy(graph.parent_vertex_to_vertex))
+  return GenericNamedGraph(copy(graph.ordinal_graph), copy(graph.ordered_vertices))
 end
 
 Graphs.edgetype(G::Type{<:GenericNamedGraph}) = NamedEdge{vertextype(G)}

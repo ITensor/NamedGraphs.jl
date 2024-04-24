@@ -19,7 +19,7 @@ end
 # vertex in the traversal/spanning tree.
 function namedgraph_dfs_parents(graph::AbstractNamedGraph, vertex; kwargs...)
   parent_dfs_parents = dfs_parents(
-    ordinal_graph(graph), vertex_to_parent_vertex(graph, vertex); kwargs...
+    ordinal_graph(graph), vertex_to_ordinal_vertex(graph, vertex); kwargs...
   )
   # Works around issue in this `Dictionary` constructor:
   # https://github.com/andyferris/Dictionaries.jl/blob/v0.4.1/src/Dictionary.jl#L139-L145

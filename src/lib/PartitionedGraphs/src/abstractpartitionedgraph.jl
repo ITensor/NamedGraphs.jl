@@ -5,8 +5,8 @@ using ..NamedGraphs:
   AbstractNamedGraph,
   ordinal_graph,
   ordinal_graph_type,
-  parent_vertex_to_vertex,
-  vertex_to_parent_vertex
+  ordered_vertices,
+  vertex_to_ordinal_vertex
 using ..NamedGraphs.GraphsExtensions: GraphsExtensions, add_vertices!, rem_vertices!
 
 abstract type AbstractPartitionedGraph{V,PV} <: AbstractNamedGraph{V} end
@@ -47,11 +47,11 @@ Graphs.vertices(pg::AbstractPartitionedGraph) = vertices(unpartitioned_graph(pg)
 function NamedGraphs.ordinal_graph(pg::AbstractPartitionedGraph)
   return ordinal_graph(unpartitioned_graph(pg))
 end
-function NamedGraphs.vertex_to_parent_vertex(pg::AbstractPartitionedGraph, vertex)
-  return vertex_to_parent_vertex(unpartitioned_graph(pg), vertex)
+function NamedGraphs.vertex_to_ordinal_vertex(pg::AbstractPartitionedGraph, vertex)
+  return vertex_to_ordinal_vertex(unpartitioned_graph(pg), vertex)
 end
-function NamedGraphs.parent_vertex_to_vertex(pg::AbstractPartitionedGraph, parent_vertex)
-  return parent_vertex_to_vertex(unpartitioned_graph(pg), parent_vertex)
+function NamedGraphs.ordered_vertices(pg::AbstractPartitionedGraph, parent_vertex)
+  return ordered_vertices(unpartitioned_graph(pg), parent_vertex)
 end
 Graphs.edgetype(pg::AbstractPartitionedGraph) = edgetype(unpartitioned_graph(pg))
 function NamedGraphs.ordinal_graph_type(pg::AbstractPartitionedGraph)

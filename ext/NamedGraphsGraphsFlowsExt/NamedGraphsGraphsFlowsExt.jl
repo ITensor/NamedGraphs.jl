@@ -9,7 +9,7 @@ using NamedGraphs:
   dist_matrix_to_parent_dist_matrix,
   ordinal_graph,
   parent_vertices_to_vertices,
-  vertex_to_parent_vertex
+  vertex_to_ordinal_vertex
 using NamedGraphs.GraphsExtensions: GraphsExtensions, directed_graph
 using SimpleTraits: SimpleTraits, @traitfn
 
@@ -28,8 +28,8 @@ end
 )
   parent_part1, parent_part2, flow = GraphsFlows.mincut(
     directed_graph(ordinal_graph(graph)),
-    vertex_to_parent_vertex(graph, source),
-    vertex_to_parent_vertex(graph, target),
+    vertex_to_ordinal_vertex(graph, source),
+    vertex_to_ordinal_vertex(graph, target),
     dist_matrix_to_parent_dist_matrix(graph, capacity_matrix),
     algorithm,
   )
