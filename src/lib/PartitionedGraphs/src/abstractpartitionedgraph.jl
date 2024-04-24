@@ -4,8 +4,7 @@ using ..NamedGraphs:
   NamedGraphs,
   AbstractNamedGraph,
   ordinal_graph,
-  ordinal_graph_type,
-  ordered_vertices,
+  ordinal_vertex_to_vertex,
   vertex_to_ordinal_vertex
 using ..NamedGraphs.GraphsExtensions: GraphsExtensions, add_vertices!, rem_vertices!
 
@@ -50,13 +49,12 @@ end
 function NamedGraphs.vertex_to_ordinal_vertex(pg::AbstractPartitionedGraph, vertex)
   return vertex_to_ordinal_vertex(unpartitioned_graph(pg), vertex)
 end
-function NamedGraphs.ordered_vertices(pg::AbstractPartitionedGraph, parent_vertex)
-  return ordered_vertices(unpartitioned_graph(pg), parent_vertex)
+function NamedGraphs.ordinal_vertex_to_vertex(
+  pg::AbstractPartitionedGraph, ordinal_vertex::Integer
+)
+  return ordinal_vertex_to_vertex(unpartitioned_graph(pg), ordinal_vertex)
 end
 Graphs.edgetype(pg::AbstractPartitionedGraph) = edgetype(unpartitioned_graph(pg))
-function NamedGraphs.ordinal_graph_type(pg::AbstractPartitionedGraph)
-  return ordinal_graph_type(unpartitioned_graph(pg))
-end
 function Graphs.nv(pg::AbstractPartitionedGraph, pv::AbstractPartitionVertex)
   return length(vertices(pg, pv))
 end
@@ -81,7 +79,6 @@ function Graphs.add_edge!(pg::AbstractPartitionedGraph, edge::AbstractEdge)
   if src(pg_edge) != dst(pg_edge)
     add_edge!(partitioned_graph(pg), pg_edge)
   end
-
   return pg
 end
 

@@ -26,12 +26,10 @@ ordinal_graph(graph::GenericNamedGraph) = getfield(graph, :ordinal_graph)
 function vertex_to_ordinal_vertex(graph::GenericNamedGraph, vertex)
   return graph.vertex_to_ordinal_vertex[vertex]
 end
-function ordered_vertices(graph::GenericNamedGraph, parent_vertex)
-  return graph.ordered_vertices[parent_vertex]
+function ordinal_vertex_to_vertex(graph::GenericNamedGraph, ordinal_vertex::Integer)
+  return graph.ordered_vertices[ordinal_vertex]
 end
-
-# TODO: Order them according to the internal ordering?
-Graphs.vertices(graph::GenericNamedGraph) = keys(graph.vertex_to_ordinal_vertex)
+Graphs.vertices(graph::GenericNamedGraph) = graph.ordered_vertices
 
 function Graphs.add_vertex!(graph::GenericNamedGraph, vertex)
   if vertex ∈ vertices(graph)
@@ -49,14 +47,14 @@ function Graphs.rem_vertex!(graph::GenericNamedGraph, vertex)
   if vertex ∉ vertices(graph)
     return false
   end
-  parent_vertex = graph.vertex_to_ordinal_vertex[vertex]
-  rem_vertex!(graph.ordinal_graph, parent_vertex)
+  ordinal_vertex = graph.vertex_to_ordinal_vertex[vertex]
+  rem_vertex!(graph.ordinal_graph, ordinal_vertex)
   # Insert the last vertex into the position of the vertex
   # that is being deleted, then remove the last vertex.
   last_vertex = last(graph.ordered_vertices)
-  graph.ordered_vertices[parent_vertex] = last_vertex
+  graph.ordered_vertices[ordinal_vertex] = last_vertex
   last_vertex = pop!(graph.ordered_vertices)
-  graph.vertex_to_ordinal_vertex[last_vertex] = parent_vertex
+  graph.vertex_to_ordinal_vertex[last_vertex] = ordinal_vertex
   delete!(graph.vertex_to_ordinal_vertex, vertex)
   return true
 end

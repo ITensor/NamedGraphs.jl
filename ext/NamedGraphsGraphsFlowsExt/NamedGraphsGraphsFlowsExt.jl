@@ -6,14 +6,14 @@ using NamedGraphs:
   AbstractNamedGraph,
   DefaultNamedCapacity,
   _symmetrize,
-  dist_matrix_to_parent_dist_matrix,
+  dist_matrix_to_ordinal_dist_matrix,
   ordinal_graph,
-  parent_vertices_to_vertices,
+  ordinal_vertex_to_vertex,
   vertex_to_ordinal_vertex
 using NamedGraphs.GraphsExtensions: GraphsExtensions, directed_graph
 using SimpleTraits: SimpleTraits, @traitfn
 
-@traitfn function NamedGraphs.dist_matrix_to_parent_dist_matrix(
+@traitfn function NamedGraphs.dist_matrix_to_ordinal_dist_matrix(
   graph::AbstractNamedGraph::IsDirected, dist_matrix::DefaultNamedCapacity
 )
   return GraphsFlows.DefaultCapacity(graph)
@@ -26,15 +26,16 @@ end
   capacity_matrix=DefaultNamedCapacity(graph),
   algorithm::GraphsFlows.AbstractFlowAlgorithm=GraphsFlows.PushRelabelAlgorithm(),
 )
-  parent_part1, parent_part2, flow = GraphsFlows.mincut(
+  ordinal_part1, ordinal_part2, flow = GraphsFlows.mincut(
     directed_graph(ordinal_graph(graph)),
     vertex_to_ordinal_vertex(graph, source),
     vertex_to_ordinal_vertex(graph, target),
-    dist_matrix_to_parent_dist_matrix(graph, capacity_matrix),
+    dist_matrix_to_ordinal_dist_matrix(graph, capacity_matrix),
     algorithm,
   )
-  part1 = parent_vertices_to_vertices(graph, parent_part1)
-  part2 = parent_vertices_to_vertices(graph, parent_part2)
+  (part1, part2) = map((ordinal_part1, ordinal_part2)) do ordinal_part
+    return map(v -> ordinal_vertex_to_vertex(graph, v), ordinal_part)
+  end
   return (part1, part2, flow)
 end
 
