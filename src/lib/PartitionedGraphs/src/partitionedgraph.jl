@@ -52,7 +52,7 @@ function GraphsExtensions.partitioned_vertices(pg::PartitionedGraph)
   return getfield(pg, :partitioned_vertices)
 end
 which_partition(pg::PartitionedGraph) = getfield(pg, :which_partition)
-NamedGraphs.parent_graph_type(PG::Type{<:PartitionedGraph}) = fieldtype(PG, :graph)
+NamedGraphs.ordinal_graph_type(PG::Type{<:PartitionedGraph}) = fieldtype(PG, :graph)
 function Graphs.vertices(pg::PartitionedGraph, partitionvert::PartitionVertex)
   return partitioned_vertices(pg)[parent(partitionvert)]
 end

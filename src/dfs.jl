@@ -2,7 +2,7 @@ using Graphs: Graphs, dfs_parents, dfs_tree, topological_sort_by_dfs
 using SimpleTraits: SimpleTraits, Not, @traitfn
 
 @traitfn function Graphs.topological_sort_by_dfs(g::AbstractNamedGraph::IsDirected)
-  return parent_vertices_to_vertices(g, topological_sort_by_dfs(parent_graph(g)))
+  return parent_vertices_to_vertices(g, topological_sort_by_dfs(ordinal_graph(g)))
 end
 
 function namedgraph_dfs_tree(graph::AbstractNamedGraph, vertex; kwargs...)
@@ -19,7 +19,7 @@ end
 # vertex in the traversal/spanning tree.
 function namedgraph_dfs_parents(graph::AbstractNamedGraph, vertex; kwargs...)
   parent_dfs_parents = dfs_parents(
-    parent_graph(graph), vertex_to_parent_vertex(graph, vertex); kwargs...
+    ordinal_graph(graph), vertex_to_parent_vertex(graph, vertex); kwargs...
   )
   # Works around issue in this `Dictionary` constructor:
   # https://github.com/andyferris/Dictionaries.jl/blob/v0.4.1/src/Dictionary.jl#L139-L145

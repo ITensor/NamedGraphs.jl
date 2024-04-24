@@ -7,7 +7,7 @@ using NamedGraphs:
   DefaultNamedCapacity,
   _symmetrize,
   dist_matrix_to_parent_dist_matrix,
-  parent_graph,
+  ordinal_graph,
   parent_vertices_to_vertices,
   vertex_to_parent_vertex
 using NamedGraphs.GraphsExtensions: GraphsExtensions, directed_graph
@@ -27,7 +27,7 @@ end
   algorithm::GraphsFlows.AbstractFlowAlgorithm=GraphsFlows.PushRelabelAlgorithm(),
 )
   parent_part1, parent_part2, flow = GraphsFlows.mincut(
-    directed_graph(parent_graph(graph)),
+    directed_graph(ordinal_graph(graph)),
     vertex_to_parent_vertex(graph, source),
     vertex_to_parent_vertex(graph, target),
     dist_matrix_to_parent_dist_matrix(graph, capacity_matrix),

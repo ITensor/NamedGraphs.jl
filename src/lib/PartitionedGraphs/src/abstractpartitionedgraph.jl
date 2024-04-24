@@ -3,8 +3,8 @@ using Graphs:
 using ..NamedGraphs:
   NamedGraphs,
   AbstractNamedGraph,
-  parent_graph,
-  parent_graph_type,
+  ordinal_graph,
+  ordinal_graph_type,
   parent_vertex_to_vertex,
   vertex_to_parent_vertex
 using ..NamedGraphs.GraphsExtensions: GraphsExtensions, add_vertices!, rem_vertices!
@@ -34,7 +34,7 @@ function Graphs.vertices(
 ) where {V<:AbstractPartitionVertex}
   return not_implemented()
 end
-NamedGraphs.parent_graph_type(PG::Type{<:AbstractPartitionedGraph}) = not_implemented()
+NamedGraphs.ordinal_graph_type(PG::Type{<:AbstractPartitionedGraph}) = not_implemented()
 function GraphsExtensions.directed_graph_type(PG::Type{<:AbstractPartitionedGraph})
   return not_implemented()
 end
@@ -44,8 +44,8 @@ end
 
 #Functions for the abstract type
 Graphs.vertices(pg::AbstractPartitionedGraph) = vertices(unpartitioned_graph(pg))
-function NamedGraphs.parent_graph(pg::AbstractPartitionedGraph)
-  return parent_graph(unpartitioned_graph(pg))
+function NamedGraphs.ordinal_graph(pg::AbstractPartitionedGraph)
+  return ordinal_graph(unpartitioned_graph(pg))
 end
 function NamedGraphs.vertex_to_parent_vertex(pg::AbstractPartitionedGraph, vertex)
   return vertex_to_parent_vertex(unpartitioned_graph(pg), vertex)
@@ -54,8 +54,8 @@ function NamedGraphs.parent_vertex_to_vertex(pg::AbstractPartitionedGraph, paren
   return parent_vertex_to_vertex(unpartitioned_graph(pg), parent_vertex)
 end
 Graphs.edgetype(pg::AbstractPartitionedGraph) = edgetype(unpartitioned_graph(pg))
-function NamedGraphs.parent_graph_type(pg::AbstractPartitionedGraph)
-  return parent_graph_type(unpartitioned_graph(pg))
+function NamedGraphs.ordinal_graph_type(pg::AbstractPartitionedGraph)
+  return ordinal_graph_type(unpartitioned_graph(pg))
 end
 function Graphs.nv(pg::AbstractPartitionedGraph, pv::AbstractPartitionVertex)
   return length(vertices(pg, pv))

@@ -15,14 +15,14 @@ using .GraphsExtensions:
   GraphsExtensions, vertextype, directed_graph_type, undirected_graph_type
 
 struct GenericNamedGraph{V,G<:AbstractSimpleGraph{Int}} <: AbstractNamedGraph{V}
-  parent_graph::G
+  ordinal_graph::G
   parent_vertex_to_vertex::Vector{V}
   vertex_to_parent_vertex::Dictionary{V,Int}
 end
 
 # AbstractNamedGraph required interface.
-parent_graph_type(G::Type{<:GenericNamedGraph}) = fieldtype(G, :parent_graph)
-parent_graph(graph::GenericNamedGraph) = getfield(graph, :parent_graph)
+ordinal_graph_type(G::Type{<:GenericNamedGraph}) = fieldtype(G, :ordinal_graph)
+ordinal_graph(graph::GenericNamedGraph) = getfield(graph, :ordinal_graph)
 function vertex_to_parent_vertex(graph::GenericNamedGraph, vertex)
   return graph.vertex_to_parent_vertex[vertex]
 end
@@ -37,11 +37,11 @@ function Graphs.add_vertex!(graph::GenericNamedGraph, vertex)
   if vertex ∈ vertices(graph)
     return false
   end
-  add_vertex!(graph.parent_graph)
+  add_vertex!(graph.ordinal_graph)
   # Update the forward map
   push!(graph.parent_vertex_to_vertex, vertex)
   # Update the reverse map
-  insert!(graph.vertex_to_parent_vertex, vertex, nv(graph.parent_graph))
+  insert!(graph.vertex_to_parent_vertex, vertex, nv(graph.ordinal_graph))
   return true
 end
 
@@ -50,7 +50,7 @@ function Graphs.rem_vertex!(graph::GenericNamedGraph, vertex)
     return false
   end
   parent_vertex = graph.vertex_to_parent_vertex[vertex]
-  rem_vertex!(graph.parent_graph, parent_vertex)
+  rem_vertex!(graph.ordinal_graph, parent_vertex)
   # Insert the last vertex into the position of the vertex
   # that is being deleted, then remove the last vertex.
   last_vertex = last(graph.parent_vertex_to_vertex)
@@ -63,7 +63,7 @@ end
 
 function GraphsExtensions.rename_vertices(f::Function, g::GenericNamedGraph)
   # TODO: Could be implemented as `set_vertices(g, f.(g.parent_vertex_to_vertex))`.
-  return GenericNamedGraph(g.parent_graph, f.(g.parent_vertex_to_vertex))
+  return GenericNamedGraph(g.ordinal_graph, f.(g.parent_vertex_to_vertex))
 end
 
 function GraphsExtensions.rename_vertices(f::Function, g::AbstractSimpleGraph)
@@ -74,7 +74,7 @@ end
 
 function GraphsExtensions.convert_vertextype(vertextype::Type, graph::GenericNamedGraph)
   return GenericNamedGraph(
-    parent_graph(graph), convert(Vector{vertextype}, graph.parent_vertex_to_vertex)
+    ordinal_graph(graph), convert(Vector{vertextype}, graph.parent_vertex_to_vertex)
   )
 end
 
@@ -102,47 +102,47 @@ end
 
 # Inner constructor
 function GenericNamedGraph{V,G}(
-  parent_graph::AbstractSimpleGraph, vertices::Vector{V}
+  ordinal_graph::AbstractSimpleGraph, vertices::Vector{V}
 ) where {V,G}
-  @assert length(vertices) == nv(parent_graph)
+  @assert length(vertices) == nv(ordinal_graph)
   # Need to copy the vertices here, otherwise the Dictionary uses a view of the vertices
   return GenericNamedGraph{V,G}(
-    parent_graph, vertices, Dictionary(copy(vertices), eachindex(vertices))
+    ordinal_graph, vertices, Dictionary(copy(vertices), eachindex(vertices))
   )
 end
 
-function GenericNamedGraph{V,G}(parent_graph::AbstractSimpleGraph, vertices) where {V,G}
-  return GenericNamedGraph{V,G}(parent_graph, to_vertices(V, vertices))
+function GenericNamedGraph{V,G}(ordinal_graph::AbstractSimpleGraph, vertices) where {V,G}
+  return GenericNamedGraph{V,G}(ordinal_graph, to_vertices(V, vertices))
 end
 
-function GenericNamedGraph{V}(parent_graph::AbstractSimpleGraph, vertices) where {V}
-  return GenericNamedGraph{V,typeof(parent_graph)}(parent_graph, vertices)
+function GenericNamedGraph{V}(ordinal_graph::AbstractSimpleGraph, vertices) where {V}
+  return GenericNamedGraph{V,typeof(ordinal_graph)}(ordinal_graph, vertices)
 end
 
 function GenericNamedGraph{<:Any,G}(
-  parent_graph::AbstractSimpleGraph, vertices::Vector
+  ordinal_graph::AbstractSimpleGraph, vertices::Vector
 ) where {G}
-  return GenericNamedGraph{eltype(vertices),G}(parent_graph, vertices)
+  return GenericNamedGraph{eltype(vertices),G}(ordinal_graph, vertices)
 end
 
-function GenericNamedGraph{<:Any,G}(parent_graph::AbstractSimpleGraph, vertices) where {G}
-  return GenericNamedGraph{<:Any,G}(parent_graph, to_vertices(vertices))
+function GenericNamedGraph{<:Any,G}(ordinal_graph::AbstractSimpleGraph, vertices) where {G}
+  return GenericNamedGraph{<:Any,G}(ordinal_graph, to_vertices(vertices))
 end
 
-function GenericNamedGraph{<:Any,G}(parent_graph::AbstractSimpleGraph) where {G}
-  return GenericNamedGraph{<:Any,G}(parent_graph, vertices(parent_graph))
+function GenericNamedGraph{<:Any,G}(ordinal_graph::AbstractSimpleGraph) where {G}
+  return GenericNamedGraph{<:Any,G}(ordinal_graph, vertices(ordinal_graph))
 end
 
-function GenericNamedGraph(parent_graph::AbstractSimpleGraph, vertices::Vector)
-  return GenericNamedGraph{eltype(vertices)}(parent_graph, vertices)
+function GenericNamedGraph(ordinal_graph::AbstractSimpleGraph, vertices::Vector)
+  return GenericNamedGraph{eltype(vertices)}(ordinal_graph, vertices)
 end
 
-function GenericNamedGraph(parent_graph::AbstractSimpleGraph, vertices)
-  return GenericNamedGraph(parent_graph, to_vertices(vertices))
+function GenericNamedGraph(ordinal_graph::AbstractSimpleGraph, vertices)
+  return GenericNamedGraph(ordinal_graph, to_vertices(vertices))
 end
 
-function GenericNamedGraph(parent_graph::AbstractSimpleGraph)
-  return GenericNamedGraph(parent_graph, vertices(parent_graph))
+function GenericNamedGraph(ordinal_graph::AbstractSimpleGraph)
+  return GenericNamedGraph(ordinal_graph, vertices(ordinal_graph))
 end
 
 #
@@ -188,23 +188,23 @@ GenericNamedGraph{<:Any,G}() where {G} = GenericNamedGraph{<:Any,G}(Any[])
 GenericNamedGraph() = GenericNamedGraph(Any[])
 
 # TODO: implement as:
-# graph = set_parent_graph(graph, copy(parent_graph(graph)))
+# graph = set_ordinal_graph(graph, copy(ordinal_graph(graph)))
 # graph = set_vertices(graph, copy(vertices(graph)))
 function Base.copy(graph::GenericNamedGraph)
-  return GenericNamedGraph(copy(graph.parent_graph), copy(graph.parent_vertex_to_vertex))
+  return GenericNamedGraph(copy(graph.ordinal_graph), copy(graph.parent_vertex_to_vertex))
 end
 
 Graphs.edgetype(G::Type{<:GenericNamedGraph}) = NamedEdge{vertextype(G)}
 Graphs.edgetype(graph::GenericNamedGraph) = edgetype(typeof(graph))
 
 function GraphsExtensions.directed_graph_type(G::Type{<:GenericNamedGraph})
-  return GenericNamedGraph{vertextype(G),directed_graph_type(parent_graph_type(G))}
+  return GenericNamedGraph{vertextype(G),directed_graph_type(ordinal_graph_type(G))}
 end
 function GraphsExtensions.undirected_graph_type(G::Type{<:GenericNamedGraph})
-  return GenericNamedGraph{vertextype(G),undirected_graph_type(parent_graph_type(G))}
+  return GenericNamedGraph{vertextype(G),undirected_graph_type(ordinal_graph_type(G))}
 end
 
-Graphs.is_directed(G::Type{<:GenericNamedGraph}) = is_directed(parent_graph_type(G))
+Graphs.is_directed(G::Type{<:GenericNamedGraph}) = is_directed(ordinal_graph_type(G))
 
 # TODO: Implement an edgelist version
 function namedgraph_induced_subgraph(graph::AbstractGraph, subvertices)

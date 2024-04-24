@@ -18,7 +18,7 @@ using Test: @test, @testset
   add_edge!(ng2, "A" => "C")
   add_edge!(ng2, "B" => "D")
   add_edge!(ng2, "C" => "D")
-  @test NamedGraphs.parent_graph(ng1) != NamedGraphs.parent_graph(ng2)
+  @test NamedGraphs.ordinal_graph(ng1) != NamedGraphs.ordinal_graph(ng2)
   @test ng1 == ng2
   rem_edge!(ng2, "B" => "A")
   @test ng1 != ng2
@@ -32,7 +32,7 @@ using Test: @test, @testset
   add_edge!(ndg2, ("X", 1) => ("Y", 1))
   add_edge!(ndg2, ("X", 2) => ("Y", 2))
   add_edge!(ndg2, ("Y", 1) => ("Y", 2))
-  @test NamedGraphs.parent_graph(ndg1) != NamedGraphs.parent_graph(ndg2)
+  @test NamedGraphs.ordinal_graph(ndg1) != NamedGraphs.ordinal_graph(ndg2)
   @test ndg1 == ndg2
   rem_edge!(ndg2, ("Y", 1) => ("X", 1))
   @test ndg1 != ndg2
@@ -45,7 +45,7 @@ using Test: @test, @testset
   add_edge!(nddg2, ("X", 1) => ("Y", 1))
   add_edge!(nddg2, ("X", 2) => ("Y", 2))
   add_edge!(nddg2, ("Y", 1) => ("Y", 2))
-  @test NamedGraphs.parent_graph(nddg1) != NamedGraphs.parent_graph(nddg2)
+  @test NamedGraphs.ordinal_graph(nddg1) != NamedGraphs.ordinal_graph(nddg2)
   @test nddg1 == nddg2
   rem_edge!(nddg2, ("X", 1) => ("Y", 1))
   add_edge!(nddg2, ("Y", 1) => ("X", 1))

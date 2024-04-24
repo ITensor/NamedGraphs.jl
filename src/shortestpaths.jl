@@ -57,7 +57,7 @@ function namedgraph_dijkstra_shortest_paths(
   trackvertices=false,
 )
   parent_path_state = dijkstra_shortest_paths(
-    parent_graph(graph),
+    ordinal_graph(graph),
     vertices_to_parent_vertices(graph, srcs),
     dist_matrix_to_parent_dist_matrix(graph, distmx);
     allpaths,
