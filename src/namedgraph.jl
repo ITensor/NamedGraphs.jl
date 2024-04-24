@@ -72,9 +72,9 @@ function GraphsExtensions.rename_vertices(f::Function, g::AbstractSimpleGraph)
   )
 end
 
-function GraphsExtensions.convert_vertextype(V::Type, graph::GenericNamedGraph)
+function GraphsExtensions.convert_vertextype(vertextype::Type, graph::GenericNamedGraph)
   return GenericNamedGraph(
-    parent_graph(graph), convert(Vector{V}, graph.parent_vertex_to_vertex)
+    parent_graph(graph), convert(Vector{vertextype}, graph.parent_vertex_to_vertex)
   )
 end
 
@@ -92,8 +92,8 @@ function to_vertices(vertices::Tuple{Vararg{Integer}})
   return vec(Tuple.(CartesianIndices(vertices)))
 end
 to_vertices(vertices::Integer) = to_vertices(Base.OneTo(vertices))
-function to_vertices(V::Type, vertices)
-  return convert(Vector{V}, to_vertices(vertices))
+function to_vertices(vertextype::Type, vertices)
+  return convert(Vector{vertextype}, to_vertices(vertices))
 end
 
 #

@@ -45,6 +45,7 @@ using NamedGraphs.GraphsExtensions:
   all_edges,
   child_edges,
   child_vertices,
+  convert_vertextype,
   degrees,
   directed_graph,
   directed_graph_type,
@@ -97,6 +98,15 @@ using Test: @test, @test_broken, @test_throws, @testset
 # - random_bfs_tree
 
 @testset "NamedGraphs.GraphsExtensions" begin
+  # convert_vertextype
+  for g in (path_graph(4), path_digraph(4))
+    g_uint16 = convert_vertextype(UInt16, g)
+    @test g_uint16 == g
+    @test vertextype(g_uint16) == UInt16
+    @test issetequal(vertices(g_uint16), vertices(g))
+    @test issetequal(edges(g_uint16), edges(g))
+  end
+
   # is_self_loop
   @test is_self_loop(SimpleEdge(1, 1))
   @test !is_self_loop(SimpleEdge(1, 2))
