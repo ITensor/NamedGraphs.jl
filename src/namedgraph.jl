@@ -29,7 +29,10 @@ end
 function ordinal_vertex_to_vertex(graph::GenericNamedGraph, ordinal_vertex::Integer)
   return graph.ordered_vertices[ordinal_vertex]
 end
-Graphs.vertices(graph::GenericNamedGraph) = graph.ordered_vertices
+
+# TODO: Decide what this should output.
+# Graphs.vertices(graph::GenericNamedGraph) = graph.ordered_vertices
+Graphs.vertices(graph::GenericNamedGraph) = keys(graph.vertex_to_ordinal_vertex)
 
 function Graphs.add_vertex!(graph::GenericNamedGraph, vertex)
   if vertex ∈ vertices(graph)
