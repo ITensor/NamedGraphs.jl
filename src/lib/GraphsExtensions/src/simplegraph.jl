@@ -6,7 +6,18 @@ function graph_from_vertices(graph_type::Type{<:AbstractSimpleGraph}, vertices)
   return graph_type(length(vertices))
 end
 
+function convert_vertextype(vertextype::Type, graph::AbstractSimpleGraph)
+  return not_implemented()
+end
+
 using Graphs.SimpleGraphs: SimpleDiGraph, SimpleGraph
+
+function convert_vertextype(vertextype::Type, graph::SimpleGraph)
+  return SimpleGraph{vertextype}(graph)
+end
+function convert_vertextype(vertextype::Type, graph::SimpleDiGraph)
+  return SimpleDiGraph{vertextype}(graph)
+end
 
 directed_graph_type(G::Type{<:SimpleGraph}) = SimpleDiGraph{vertextype(G)}
 # TODO: Use traits to make this more general.
