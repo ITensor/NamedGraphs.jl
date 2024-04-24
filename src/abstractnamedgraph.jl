@@ -264,9 +264,7 @@ function namedgraph_neighborhood(
   parent_vertices = neighborhood(
     ordinal_graph(graph), vertex_to_ordinal_vertex(graph, vertex), d, parent_distmx; dir
   )
-  return [
-    ordered_vertices(graph, parent_vertex) for parent_vertex in parent_vertices
-  ]
+  return [ordered_vertices(graph, parent_vertex) for parent_vertex in parent_vertices]
 end
 
 function Graphs.neighborhood(
