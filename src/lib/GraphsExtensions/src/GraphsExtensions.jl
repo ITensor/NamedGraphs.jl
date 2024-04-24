@@ -1,5 +1,6 @@
 module GraphsExtensions
 include("abstractgraph.jl")
+include("abstracttrees.jl")
 include("boundary.jl")
 include("shortestpaths.jl")
 include("symrcm.jl")

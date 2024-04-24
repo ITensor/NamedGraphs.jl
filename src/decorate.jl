@@ -3,7 +3,7 @@ using Graphs.SimpleGraphs: SimpleGraph
 using .GraphsExtensions: GraphsExtensions, add_edges!
 
 function GraphsExtensions.decorate_graph_edges(
-  g::AbstractNamedGraph; edge_map::Function=Returns(SimpleGraph(1))
+  g::AbstractNamedGraph; edge_map::Function=Returns(NamedGraph(1))
 )
   g_dec = copy(g)
   es = edges(g_dec)
@@ -19,7 +19,7 @@ function GraphsExtensions.decorate_graph_edges(
 end
 
 function GraphsExtensions.decorate_graph_vertices(
-  g::AbstractNamedGraph; vertex_map::Function=Returns(SimpleGraph(1))
+  g::AbstractNamedGraph; vertex_map::Function=Returns(NamedGraph(1))
 )
   g_dec = copy(g)
   vs = vertices(g_dec)

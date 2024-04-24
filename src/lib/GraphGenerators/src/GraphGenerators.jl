@@ -1,6 +1,7 @@
 module GraphGenerators
 using Dictionaries: Dictionary
-using Graphs: SimpleGraph, add_edge!
+using Graphs: add_edge!, dst, edges, nv, src
+using Graphs.SimpleGraphs: SimpleDiGraph, SimpleGraph, binary_tree
 
 function comb_tree(dims::Tuple)
   @assert length(dims) == 2
@@ -27,5 +28,17 @@ function comb_tree(tooth_lengths::Vector{<:Integer})
     end
   end
   return graph
+end
+
+# TODO: More efficient implementation based
+# on the implementation of `binary_tree`.
+function binary_arborescence(k::Integer)
+  graph = binary_tree(k)
+  digraph = SimpleDiGraph(nv(graph))
+  for e in edges(graph)
+    @assert dst(e) > src(e)
+    add_edge!(digraph, e)
+  end
+  return digraph
 end
 end
