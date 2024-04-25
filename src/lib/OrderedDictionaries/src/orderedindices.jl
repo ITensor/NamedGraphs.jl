@@ -32,52 +32,47 @@ end
 Base.length(indices::OrderedIndices) = length(ordered_indices(indices))
 
 # https://github.com/andyferris/Dictionaries.jl/tree/master?tab=readme-ov-file#implementing-the-token-interface-for-abstractindices
-function Dictionaries.istokenizable(indices::OrderedIndices)
-  return Dictionaries.istokenizable(parent_indices(indices))
-end
-function Dictionaries.tokentype(indices::OrderedIndices)
-  return Dictionaries.tokentype(parent_indices(indices))
-end
+Dictionaries.istokenizable(indices::OrderedIndices) = true
+Dictionaries.tokentype(indices::OrderedIndices) = Int
 function Dictionaries.iteratetoken(indices::OrderedIndices, state...)
-  return Dictionaries.iteratetoken(parent_indices(indices), state...)
+  return iterate(Base.OneTo(length(indices)), state...)
 end
 function Dictionaries.iteratetoken_reverse(indices::OrderedIndices, state...)
-  return Dictionaries.iteratetoken_reverse(parent_indices(indices), state...)
+  return iterate(reverse(Base.OneTo(length(indices))), state...)
 end
-function Dictionaries.gettoken(dict::OrderedIndices, key)
-  return Dictionaries.gettoken(parent_indices(dict), key)
+function Dictionaries.gettoken(indices::OrderedIndices, key)
+  if !haskey(index_ordinals(indices), key)
+    return (false, 0)
+  end
+  return (true, index_ordinals(indices)[key])
 end
-function Dictionaries.gettokenvalue(dict::OrderedIndices, token)
-  return Dictionaries.gettokenvalue(parent_indices(dict), token)
+function Dictionaries.gettokenvalue(indices::OrderedIndices, token)
+  return ordered_indices(indices)[token]
 end
 
-function Dictionaries.isinsertable(dict::OrderedIndices)
-  return Dictionaries.isinsertable(parent_indices(dict))
-end
+Dictionaries.isinsertable(indices::OrderedIndices) = true
 function Dictionaries.gettoken!(indices::OrderedIndices{I}, key::I) where {I}
-  (hadtoken, token) = Dictionaries.gettoken!(index_ordinals(indices), key)
-  Dictionaries.settokenvalue!(
-    index_ordinals(indices),
-    token,
-    length(ordered_indices(indices)) + oneunit(length(ordered_indices(indices))),
-  )
-  if !hadtoken
-    push!(ordered_indices(indices), key)
+  (hadtoken, token) = Dictionaries.gettoken(indices, key)
+  if hadtoken
+    return (true, token)
   end
-  return (hadtoken, token)
+  push!(ordered_indices(indices), key)
+  token = length(ordered_indices(indices))
+  insert!(index_ordinals(indices), key, token)
+  return (false, token)
 end
-function Dictionaries.deletetoken!(inds::OrderedIndices, token)
-  len = length(inds)
-  index = Dictionaries.gettokenvalue(parent_indices(inds), token)
-  ordinal = Dictionaries.gettokenvalue(index_ordinals(inds), token)
+function Dictionaries.deletetoken!(indices::OrderedIndices, token)
+  len = length(indices)
+  ordinal = token
+  index = ordered_indices(indices)[ordinal]
   # Move the last vertex to the position of the deleted one.
   if ordinal < len
-    ordered_indices(inds)[ordinal] = last(ordered_indices(inds))
+    ordered_indices(indices)[ordinal] = last(ordered_indices(indices))
   end
-  last_index = pop!(ordered_indices(inds))
-  Dictionaries.deletetoken!(index_ordinals(inds), token)
+  last_index = pop!(ordered_indices(indices))
+  delete!(index_ordinals(indices), index)
   if ordinal < len
-    index_ordinals(inds)[last_index] = ordinal
+    index_ordinals(indices)[last_index] = ordinal
   end
-  return inds
+  return indices
 end
