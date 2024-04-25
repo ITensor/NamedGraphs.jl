@@ -54,7 +54,7 @@ function Graphs.rem_vertex!(graph::GenericNamedGraph, vertex)
   end
   one_based_vertex = vertex_to_one_based_vertex(graph, vertex)
   rem_vertex!(one_based_graph(graph), one_based_vertex)
-  delete!(vertices(graph), vertex)
+  return delete!(vertices(graph), vertex)
   ## # Insert the last vertex into the position of the vertex
   ## # that is being deleted, then remove the last vertex.
   ## last_vertex = last(graph.ordered_vertices)
@@ -115,7 +115,9 @@ function GenericNamedGraph{<:Any,G}(
   return GenericNamedGraph{eltype(vertices),G}(one_based_graph, vertices)
 end
 
-function GenericNamedGraph{<:Any,G}(one_based_graph::AbstractSimpleGraph) where {G<:AbstractSimpleGraph{Int}}
+function GenericNamedGraph{<:Any,G}(
+  one_based_graph::AbstractSimpleGraph
+) where {G<:AbstractSimpleGraph{Int}}
   return GenericNamedGraph{<:Any,G}(one_based_graph, vertices(one_based_graph))
 end
 
