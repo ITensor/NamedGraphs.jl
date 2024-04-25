@@ -1,6 +1,6 @@
 using Dictionaries: Dictionaries, AbstractIndices, Dictionary
 
-struct OrderedIndices{I} <: AbstractOrderedIndices{I}
+struct OrderedIndices{I} <: AbstractIndices{I}
   ordered_indices::Vector{I}
   index_ordinals::Dictionary{I,Int}
   function OrderedIndices{I}(indices) where {I}
@@ -22,6 +22,38 @@ index_ordinals(indices::OrderedIndices) = getfield(indices, :index_ordinals)
 # TODO: Better name for this?
 parent_indices(indices::OrderedIndices) = keys(index_ordinals(indices))
 
+# https://github.com/andyferris/Dictionaries.jl/tree/master?tab=readme-ov-file#abstractindices
+function Dictionaries.iterate(indices::OrderedIndices, state...)
+  return Dictionaries.iterate(ordered_indices(indices), state...)
+end
+function Base.in(index::I, indices::OrderedIndices{I}) where {I}
+  return in(index, parent_indices(indices))
+end
+Base.length(indices::OrderedIndices) = length(ordered_indices(indices))
+
+# https://github.com/andyferris/Dictionaries.jl/tree/master?tab=readme-ov-file#implementing-the-token-interface-for-abstractindices
+function Dictionaries.istokenizable(indices::OrderedIndices)
+  return Dictionaries.istokenizable(parent_indices(indices))
+end
+function Dictionaries.tokentype(indices::OrderedIndices)
+  return Dictionaries.tokentype(parent_indices(indices))
+end
+function Dictionaries.iteratetoken(indices::OrderedIndices, state...)
+  return Dictionaries.iteratetoken(parent_indices(indices), state...)
+end
+function Dictionaries.iteratetoken_reverse(indices::OrderedIndices, state...)
+  return Dictionaries.iteratetoken_reverse(parent_indices(indices), state...)
+end
+function Dictionaries.gettoken(dict::OrderedIndices, key)
+  return Dictionaries.gettoken(parent_indices(dict), key)
+end
+function Dictionaries.gettokenvalue(dict::OrderedIndices, token)
+  return Dictionaries.gettokenvalue(parent_indices(dict), token)
+end
+
+function Dictionaries.isinsertable(dict::OrderedIndices)
+  return Dictionaries.isinsertable(parent_indices(dict))
+end
 function Dictionaries.gettoken!(indices::OrderedIndices{I}, key::I) where {I}
   (hadtoken, token) = Dictionaries.gettoken!(index_ordinals(indices), key)
   Dictionaries.settokenvalue!(

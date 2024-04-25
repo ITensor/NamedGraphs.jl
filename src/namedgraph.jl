@@ -56,15 +56,8 @@ function Graphs.rem_vertex!(graph::GenericNamedGraph, vertex)
   end
   one_based_vertex = vertex_to_one_based_vertex(graph, vertex)
   rem_vertex!(one_based_graph(graph), one_based_vertex)
-  return delete!(vertices(graph), vertex)
-  ## # Insert the last vertex into the position of the vertex
-  ## # that is being deleted, then remove the last vertex.
-  ## last_vertex = last(graph.ordered_vertices)
-  ## graph.ordered_vertices[one_based_vertex] = last_vertex
-  ## last_vertex = pop!(graph.ordered_vertices)
-  ## graph.vertex_to_one_based_vertex[last_vertex] = one_based_vertex
-  ## delete!(graph.vertex_to_one_based_vertex, vertex)
-  ## return true
+  delete!(vertices(graph), vertex)
+  return graph
 end
 
 function GraphsExtensions.rename_vertices(f::Function, graph::GenericNamedGraph)
