@@ -13,6 +13,7 @@ using Graphs:
   eccentricity,
   edgetype,
   has_edge,
+  has_vertex,
   indegree,
   induced_subgraph,
   inneighbors,
@@ -84,6 +85,14 @@ end
 # Similar to `eltype`, but `eltype` doesn't work on types
 vertextype(::Type{<:AbstractGraph{V}}) where {V} = V
 vertextype(graph::AbstractGraph) = vertextype(typeof(graph))
+
+function has_vertices(graph::AbstractGraph, vertices)
+  return all(v -> has_vertex(graph, v), vertices)
+end
+
+function has_edges(graph::AbstractGraph, edges)
+  return all(e -> has_edge(graph, e), edges)
+end
 
 # Uniform interface for `outneighbors`, `inneighbors`, and `all_neighbors`
 function _neighbors(graph::AbstractGraph, vertex; dir=:out)

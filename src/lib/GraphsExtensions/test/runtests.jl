@@ -51,7 +51,9 @@ using NamedGraphs.GraphsExtensions:
   directed_graph_type,
   disjoint_union,
   distance_to_leaves,
+  has_edges,
   has_leaf_neighbor,
+  has_vertices,
   incident_edges,
   indegrees,
   is_arborescence,
@@ -98,6 +100,19 @@ using Test: @test, @test_broken, @test_throws, @testset
 # - random_bfs_tree
 
 @testset "NamedGraphs.GraphsExtensions" begin
+  # has_vertices
+  g = path_graph(4)
+  @test has_vertices(g, 1:3)
+  @test has_vertices(g, [2, 4])
+  @test !has_vertices(g, [2, 5])
+
+  # has_edges
+  g = path_graph(4)
+  @test has_edges(g, [1 => 2, 2 => 3, 3 => 4])
+  @test has_edges(g, [2 => 3])
+  @test !has_edges(g, [1 => 3])
+  @test !has_edges(g, [4 => 5])
+
   # convert_vertextype
   for g in (path_graph(4), path_digraph(4))
     g_uint16 = convert_vertextype(UInt16, g)

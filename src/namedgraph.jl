@@ -26,7 +26,9 @@ struct GenericNamedGraph{V,G<:AbstractSimpleGraph{Int}} <: AbstractNamedGraph{V}
 end
 
 # AbstractNamedGraph required interface.
-one_based_graph_type(G::Type{<:GenericNamedGraph}) = fieldtype(G, :one_based_graph)
+function one_based_graph_type(graph_type::Type{<:GenericNamedGraph})
+  return fieldtype(graph_type, :one_based_graph)
+end
 one_based_graph(graph::GenericNamedGraph) = getfield(graph, :one_based_graph)
 function vertex_to_one_based_vertex(graph::GenericNamedGraph, vertex)
   # TODO: Define a function `index_ordinal(ordinal_indices, index)`.
@@ -133,21 +135,25 @@ end
 # Tautological constructors
 #
 
-GenericNamedGraph{V,G}(graph::GenericNamedGraph{V,G}) where {V,G} = copy(graph)
+function GenericNamedGraph{V,G}(
+  graph::GenericNamedGraph{V,G}
+) where {V,G<:AbstractSimpleGraph{Int}}
+  return copy(graph)
+end
 
 #
 # Constructors from vertex names
 #
 
-function GenericNamedGraph{V,G}(vertices) where {V,G}
-  return GenericNamedGraph(G(length(vertices)), vertices)
+function GenericNamedGraph{V,G}(vertices) where {V,G<:AbstractSimpleGraph{Int}}
+  return GenericNamedGraph(G(length(to_vertices(vertices))), vertices)
 end
 
 function GenericNamedGraph{V}(vertices) where {V}
   return GenericNamedGraph{V,SimpleGraph{Int}}(vertices)
 end
 
-function GenericNamedGraph{<:Any,G}(vertices) where {G}
+function GenericNamedGraph{<:Any,G}(vertices) where {G<:AbstractSimpleGraph{Int}}
   return GenericNamedGraph{eltype(vertices),G}(vertices)
 end
 
@@ -159,11 +165,13 @@ end
 # Empty constructors
 #
 
-GenericNamedGraph{V,G}() where {V,G} = GenericNamedGraph{V,G}(V[])
+GenericNamedGraph{V,G}() where {V,G<:AbstractSimpleGraph{Int}} = GenericNamedGraph{V,G}(V[])
 
 GenericNamedGraph{V}() where {V} = GenericNamedGraph{V}(V[])
 
-GenericNamedGraph{<:Any,G}() where {G} = GenericNamedGraph{<:Any,G}(Any[])
+function GenericNamedGraph{<:Any,G}() where {G<:AbstractSimpleGraph{Int}}
+  return GenericNamedGraph{<:Any,G}(Any[])
+end
 
 GenericNamedGraph() = GenericNamedGraph(Any[])
 
@@ -174,17 +182,23 @@ function Base.copy(graph::GenericNamedGraph)
   return GenericNamedGraph(copy(one_based_graph(graph)), copy(vertices(graph)))
 end
 
-Graphs.edgetype(G::Type{<:GenericNamedGraph}) = NamedEdge{vertextype(G)}
+Graphs.edgetype(graph_type::Type{<:GenericNamedGraph}) = NamedEdge{vertextype(graph_type)}
 Graphs.edgetype(graph::GenericNamedGraph) = edgetype(typeof(graph))
 
-function GraphsExtensions.directed_graph_type(G::Type{<:GenericNamedGraph})
-  return GenericNamedGraph{vertextype(G),directed_graph_type(one_based_graph_type(G))}
+function GraphsExtensions.directed_graph_type(graph_type::Type{<:GenericNamedGraph})
+  return GenericNamedGraph{
+    vertextype(graph_type),directed_graph_type(one_based_graph_type(graph_type))
+  }
 end
-function GraphsExtensions.undirected_graph_type(G::Type{<:GenericNamedGraph})
-  return GenericNamedGraph{vertextype(G),undirected_graph_type(one_based_graph_type(G))}
+function GraphsExtensions.undirected_graph_type(graph_type::Type{<:GenericNamedGraph})
+  return GenericNamedGraph{
+    vertextype(graph_type),undirected_graph_type(one_based_graph_type(graph_type))
+  }
 end
 
-Graphs.is_directed(G::Type{<:GenericNamedGraph}) = is_directed(one_based_graph_type(G))
+function Graphs.is_directed(graph_type::Type{<:GenericNamedGraph})
+  return is_directed(one_based_graph_type(graph_type))
+end
 
 # TODO: Implement an edgelist version
 function namedgraph_induced_subgraph(graph::AbstractGraph, subvertices)
