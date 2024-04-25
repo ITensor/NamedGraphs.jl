@@ -1,6 +1,6 @@
 @eval module $(gensym())
 using Dictionaries: Dictionary
-using NamedGraphs.OrdinalIndexedDictionaries: OrderedIndices, each_ordinal_index
+using NamedGraphs.OrderedDictionaries: OrderedIndices, each_ordinal_index
 using NamedGraphs.OrdinalIndexing: th
 using Test: @test, @testset
 @testset "OrderedIndices" begin

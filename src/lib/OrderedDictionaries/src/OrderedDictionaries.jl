@@ -1,4 +1,4 @@
-module OrdinalIndexedDictionaries
+module OrderedDictionaries
 using Dictionaries: Dictionaries, AbstractIndices, Dictionary, gettoken
 
 struct OrderedIndices{I} <: AbstractIndices{I}
@@ -14,6 +14,8 @@ struct OrderedIndices{I} <: AbstractIndices{I}
   end
 end
 OrderedIndices(indices) = OrderedIndices{eltype(indices)}(indices)
+
+OrderedIndices{I}(indices::OrderedIndices{I}) where {I} = copy(indices)
 
 Base.@propagate_inbounds function Base.iterate(indices::OrderedIndices, state...)
   return iterate(indices.ordered_indices, state...)
