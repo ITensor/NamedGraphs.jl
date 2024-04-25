@@ -44,7 +44,7 @@ abstract type AbstractNamedGraph{V} <: AbstractGraph{V} end
 #
 
 Graphs.vertices(graph::AbstractNamedGraph) = not_implemented()
-ordinal_graph(graph::AbstractNamedGraph) = not_implemented()
+one_based_graph(graph::AbstractNamedGraph) = not_implemented()
 
 Graphs.rem_vertex!(graph::AbstractNamedGraph, vertex) = not_implemented()
 Graphs.add_vertex!(graph::AbstractNamedGraph, vertex) = not_implemented()
@@ -52,17 +52,17 @@ Graphs.add_vertex!(graph::AbstractNamedGraph, vertex) = not_implemented()
 GraphsExtensions.rename_vertices(f::Function, g::AbstractNamedGraph) = not_implemented()
 
 function GraphsExtensions.permute_vertices(graph::AbstractNamedGraph, permutation)
-  return subgraph(graph, map(v -> ordinal_vertex_to_vertex(graph, v), permutation))
+  return subgraph(graph, map(v -> one_based_vertex_to_vertex(graph, v), permutation))
 end
 
 # Convert vertex to ordinal (parent) vertex
-# Inverse map of `ordinal_vertex_to_vertex`.
-vertex_to_ordinal_vertex(graph::AbstractNamedGraph, vertex) = not_implemented()
+# Inverse map of `one_based_vertex_to_vertex`.
+vertex_to_one_based_vertex(graph::AbstractNamedGraph, vertex) = not_implemented()
 
 # Convert ordinal (parent) vertex to vertex.
 # Use `vertices`, assumes `vertices` is indexed by a parent vertex
 # (a Vector for linear indexed parent vertices, a dictionary in general).
-function ordinal_vertex_to_vertex(graph::AbstractNamedGraph, ordinal_vertex::Integer)
+function one_based_vertex_to_vertex(graph::AbstractNamedGraph, one_based_vertex::Integer)
   return not_implemented()
 end
 
@@ -72,14 +72,14 @@ Graphs.edgetype(graph::AbstractNamedGraph) = not_implemented()
 GraphsExtensions.directed_graph_type(G::Type{<:AbstractNamedGraph}) = not_implemented()
 GraphsExtensions.undirected_graph_type(G::Type{<:AbstractNamedGraph}) = not_implemented()
 
-# In terms of `ordinal_graph_type`
+# In terms of `one_based_graph_type`
 # is_directed(::Type{<:AbstractNamedGraph}) = not_implemented()
 
 GraphsExtensions.convert_vertextype(::Type, ::AbstractNamedGraph) = not_implemented()
 
 # TODO: implement as:
 #
-# graph = set_ordinal_graph(graph, copy(ordinal_graph(graph)))
+# graph = set_one_based_graph(graph, copy(one_based_graph(graph)))
 # graph = set_vertices(graph, copy(vertices(graph)))
 #
 # or:
@@ -100,16 +100,16 @@ end
 # Derived interface
 #
 
-ordinal_graph_type(graph::AbstractNamedGraph) = typeof(ordinal_graph(graph))
+one_based_graph_type(graph::AbstractNamedGraph) = typeof(one_based_graph(graph))
 
 function Graphs.has_vertex(graph::AbstractNamedGraph, vertex)
   # TODO: `vertices` should have fast lookup!
   return vertex ∈ vertices(graph)
 end
 
-ordinal_vertextype(graph::AbstractNamedGraph) = vertextype(ordinal_graph(graph))
+one_based_vertextype(graph::AbstractNamedGraph) = vertextype(one_based_graph(graph))
 
-Graphs.SimpleDiGraph(graph::AbstractNamedGraph) = SimpleDiGraph(ordinal_graph(graph))
+Graphs.SimpleDiGraph(graph::AbstractNamedGraph) = SimpleDiGraph(one_based_graph(graph))
 
 Base.zero(G::Type{<:AbstractNamedGraph}) = G()
 
@@ -126,32 +126,32 @@ end
 # Default, can overload
 Base.eltype(graph::AbstractNamedGraph) = eltype(vertices(graph))
 
-ordinal_vertices(graph::AbstractNamedGraph) = vertices(ordinal_graph(graph))
-ordinal_edges(graph::AbstractNamedGraph) = edges(ordinal_graph(graph))
-ordinal_edgetype(graph::AbstractNamedGraph) = edgetype(ordinal_graph(graph))
+one_based_vertices(graph::AbstractNamedGraph) = vertices(one_based_graph(graph))
+one_based_edges(graph::AbstractNamedGraph) = edges(one_based_graph(graph))
+one_based_edgetype(graph::AbstractNamedGraph) = edgetype(one_based_graph(graph))
 
-function edge_to_ordinal_edge(graph::AbstractNamedGraph, edge::AbstractEdge)
-  ordinal_src = vertex_to_ordinal_vertex(graph, src(edge))
-  ordinal_dst = vertex_to_ordinal_vertex(graph, dst(edge))
-  return ordinal_edgetype(graph)(ordinal_src, ordinal_dst)
+function edge_to_one_based_edge(graph::AbstractNamedGraph, edge::AbstractEdge)
+  one_based_src = vertex_to_one_based_vertex(graph, src(edge))
+  one_based_dst = vertex_to_one_based_vertex(graph, dst(edge))
+  return one_based_edgetype(graph)(one_based_src, one_based_dst)
 end
 
-function edge_to_ordinal_edge(graph::AbstractNamedGraph, edge)
-  return edge_to_ordinal_edge(graph, edgetype(graph)(edge))
+function edge_to_one_based_edge(graph::AbstractNamedGraph, edge)
+  return edge_to_one_based_edge(graph, edgetype(graph)(edge))
 end
 
-function ordinal_edge_to_edge(graph::AbstractNamedGraph, ordinal_edge::AbstractEdge)
-  source = ordinal_vertex_to_vertex(graph, src(ordinal_edge))
-  destination = ordinal_vertex_to_vertex(graph, dst(ordinal_edge))
+function one_based_edge_to_edge(graph::AbstractNamedGraph, one_based_edge::AbstractEdge)
+  source = one_based_vertex_to_vertex(graph, src(one_based_edge))
+  destination = one_based_vertex_to_vertex(graph, dst(one_based_edge))
   return edgetype(graph)(source, destination)
 end
 
-function ordinal_edge_to_edge(graph::AbstractNamedGraph, ordinal_edge)
-  return ordinal_edge_to_edge(graph, ordinal_edgetype(ordinal_edge))
+function one_based_edge_to_edge(graph::AbstractNamedGraph, one_based_edge)
+  return one_based_edge_to_edge(graph, one_based_edgetype(one_based_edge))
 end
 
 function Graphs.edges(graph::AbstractNamedGraph)
-  return map(e -> ordinal_edge_to_edge(graph, e), ordinal_edges(graph))
+  return map(e -> one_based_edge_to_edge(graph, e), one_based_edges(graph))
 end
 
 # TODO: write in terms of a generic function.
@@ -163,14 +163,18 @@ for f in [
 ]
   @eval begin
     function $f(graph::AbstractNamedGraph, vertex)
-      ordinal_vertices = $f(ordinal_graph(graph), vertex_to_ordinal_vertex(graph, vertex))
-      return map(v -> ordinal_vertex_to_vertex(graph, v), ordinal_vertices)
+      one_based_vertices = $f(
+        one_based_graph(graph), vertex_to_one_based_vertex(graph, vertex)
+      )
+      return map(v -> one_based_vertex_to_vertex(graph, v), one_based_vertices)
     end
 
     # Ambiguity errors with Graphs.jl
     function $f(graph::AbstractNamedGraph, vertex::Integer)
-      ordinal_vertices = $f(ordinal_graph(graph), vertex_to_ordinal_vertex(graph, vertex))
-      return map(v -> ordinal_vertex_to_vertex(graph, v), ordinal_vertices)
+      one_based_vertices = $f(
+        one_based_graph(graph), vertex_to_one_based_vertex(graph, vertex)
+      )
+      return map(v -> one_based_vertex_to_vertex(graph, v), one_based_vertices)
     end
   end
 end
@@ -223,12 +227,17 @@ end
 function namedgraph_neighborhood(
   graph::AbstractNamedGraph, vertex, d, distmx=weights(graph); dir=:out
 )
-  ordinal_distmx = dist_matrix_to_ordinal_dist_matrix(graph, distmx)
-  ordinal_vertices = neighborhood(
-    ordinal_graph(graph), vertex_to_ordinal_vertex(graph, vertex), d, ordinal_distmx; dir
+  one_based_distmx = dist_matrix_to_one_based_dist_matrix(graph, distmx)
+  one_based_vertices = neighborhood(
+    one_based_graph(graph),
+    vertex_to_one_based_vertex(graph, vertex),
+    d,
+    one_based_distmx;
+    dir,
   )
   return [
-    ordinal_vertex_to_vertex(graph, ordinal_vertex) for ordinal_vertex in ordinal_vertices
+    one_based_vertex_to_vertex(graph, one_based_vertex) for
+    one_based_vertex in one_based_vertices
   ]
 end
 
@@ -253,13 +262,17 @@ function Graphs.neighborhood(
 end
 
 function namedgraph_neighborhood_dists(graph::AbstractNamedGraph, vertex, d, distmx; dir)
-  ordinal_distmx = dist_matrix_to_ordinal_dist_matrix(graph, distmx)
-  ordinal_vertices_and_dists = neighborhood_dists(
-    ordinal_graph(graph), vertex_to_ordinal_vertex(graph, vertex), d, ordinal_distmx; dir
+  one_based_distmx = dist_matrix_to_one_based_dist_matrix(graph, distmx)
+  one_based_vertices_and_dists = neighborhood_dists(
+    one_based_graph(graph),
+    vertex_to_one_based_vertex(graph, vertex),
+    d,
+    one_based_distmx;
+    dir,
   )
   return [
-    (ordinal_vertex_to_vertex(graph, ordinal_vertex), dist) for
-    (ordinal_vertex, dist) in ordinal_vertices_and_dists
+    (one_based_vertex_to_vertex(graph, one_based_vertex), dist) for
+    (one_based_vertex, dist) in one_based_vertices_and_dists
   ]
 end
 
@@ -284,9 +297,9 @@ function Graphs.neighborhood_dists(
 end
 
 function namedgraph_mincut(graph::AbstractNamedGraph, distmx)
-  ordinal_distmx = dist_matrix_to_ordinal_dist_matrix(graph, distmx)
-  ordinal_parity, bestcut = Graphs.mincut(ordinal_graph(graph), ordinal_distmx)
-  return Dictionary(vertices(graph), ordinal_parity), bestcut
+  one_based_distmx = dist_matrix_to_one_based_dist_matrix(graph, distmx)
+  one_based_parity, bestcut = Graphs.mincut(one_based_graph(graph), one_based_distmx)
+  return Dictionary(vertices(graph), one_based_parity), bestcut
 end
 
 function Graphs.mincut(graph::AbstractNamedGraph, distmx=weights(graph))
@@ -302,14 +315,14 @@ function GraphsExtensions.partitioned_vertices(
   graph::AbstractNamedGraph; npartitions=nothing, nvertices_per_partition=nothing, kwargs...
 )
   vertex_partitions = partitioned_vertices(
-    ordinal_graph(graph); npartitions, nvertices_per_partition, kwargs...
+    one_based_graph(graph); npartitions, nvertices_per_partition, kwargs...
   )
-  #[inv(vertex_to_ordinal_vertex(g))[v] for v in partitions]
+  #[inv(vertex_to_one_based_vertex(g))[v] for v in partitions]
   # TODO: output the reverse of this dictionary (a Vector of Vector
   # of the vertices in each partition).
   # return Dictionary(vertices(g), partitions)
   return map(vertex_partitions) do vertex_partition
-    return map(v -> ordinal_vertex_to_vertex(graph, v), vertex_partition)
+    return map(v -> one_based_vertex_to_vertex(graph, v), vertex_partition)
   end
 end
 
@@ -321,16 +334,16 @@ function namedgraph_a_star(
   heuristic::Function=(v -> zero(eltype(distmx))),
   edgetype_to_return=edgetype(graph),
 )
-  ordinal_distmx = dist_matrix_to_ordinal_dist_matrix(graph, distmx)
-  ordinal_shortest_path = a_star(
-    ordinal_graph(graph),
-    vertex_to_ordinal_vertex(graph, source),
-    vertex_to_ordinal_vertex(graph, destination),
-    dist_matrix_to_ordinal_dist_matrix(graph, distmx),
+  one_based_distmx = dist_matrix_to_one_based_dist_matrix(graph, distmx)
+  one_based_shortest_path = a_star(
+    one_based_graph(graph),
+    vertex_to_one_based_vertex(graph, source),
+    vertex_to_one_based_vertex(graph, destination),
+    dist_matrix_to_one_based_dist_matrix(graph, distmx),
     heuristic,
     SimpleEdge,
   )
-  return map(e -> ordinal_edge_to_edge(graph, e), ordinal_shortest_path)
+  return map(e -> one_based_edge_to_edge(graph, e), one_based_shortest_path)
 end
 
 function Graphs.a_star(graph::AbstractNamedGraph, source, destination, args...)
@@ -347,34 +360,34 @@ end
 function Graphs.spfa_shortest_paths(
   graph::AbstractNamedGraph, vertex, distmx=weights(graph)
 )
-  ordinal_distmx = dist_matrix_to_ordinal_dist_matrix(graph, distmx)
-  ordinal_shortest_paths = spfa_shortest_paths(
-    ordinal_graph(graph), vertex_to_ordinal_vertex(graph, vertex), ordinal_distmx
+  one_based_distmx = dist_matrix_to_one_based_dist_matrix(graph, distmx)
+  one_based_shortest_paths = spfa_shortest_paths(
+    one_based_graph(graph), vertex_to_one_based_vertex(graph, vertex), one_based_distmx
   )
-  return Dictionary(vertices(graph), ordinal_shortest_paths)
+  return Dictionary(vertices(graph), one_based_shortest_paths)
 end
 
 function Graphs.boruvka_mst(
   g::AbstractNamedGraph, distmx::AbstractMatrix{<:Real}=weights(g); minimize=true
 )
-  ordinal_mst, weights = boruvka_mst(ordinal_graph(g), distmx; minimize)
-  return map(e -> ordinal_edge_to_edge(g, e), ordinal_mst), weights
+  one_based_mst, weights = boruvka_mst(one_based_graph(g), distmx; minimize)
+  return map(e -> one_based_edge_to_edge(g, e), one_based_mst), weights
 end
 
 function Graphs.kruskal_mst(
   g::AbstractNamedGraph, distmx::AbstractMatrix{<:Real}=weights(g); minimize=true
 )
-  ordinal_mst = kruskal_mst(ordinal_graph(g), distmx; minimize)
-  return map(e -> ordinal_edge_to_edge(g, e), ordinal_mst)
+  one_based_mst = kruskal_mst(one_based_graph(g), distmx; minimize)
+  return map(e -> one_based_edge_to_edge(g, e), one_based_mst)
 end
 
 function Graphs.prim_mst(g::AbstractNamedGraph, distmx::AbstractMatrix{<:Real}=weights(g))
-  ordinal_mst = prim_mst(ordinal_graph(g), distmx)
-  return map(e -> ordinal_edge_to_edge(g, e), ordinal_mst)
+  one_based_mst = prim_mst(one_based_graph(g), distmx)
+  return map(e -> one_based_edge_to_edge(g, e), one_based_mst)
 end
 
 function Graphs.add_edge!(graph::AbstractNamedGraph, edge::AbstractEdge)
-  add_edge!(ordinal_graph(graph), edge_to_ordinal_edge(graph, edge))
+  add_edge!(one_based_graph(graph), edge_to_one_based_edge(graph, edge))
   return graph
 end
 
@@ -383,12 +396,12 @@ Graphs.add_edge!(g::AbstractNamedGraph, edge) = add_edge!(g, edgetype(g)(edge))
 Graphs.add_edge!(g::AbstractNamedGraph, src, dst) = add_edge!(g, edgetype(g)(src, dst))
 
 function Graphs.rem_edge!(graph::AbstractNamedGraph, edge)
-  rem_edge!(ordinal_graph(graph), edge_to_ordinal_edge(graph, edge))
+  rem_edge!(one_based_graph(graph), edge_to_one_based_edge(graph, edge))
   return graph
 end
 
 function Graphs.has_edge(graph::AbstractNamedGraph, edge::AbstractNamedEdge)
-  return has_edge(ordinal_graph(graph), edge_to_ordinal_edge(graph, edge))
+  return has_edge(one_based_graph(graph), edge_to_one_based_edge(graph, edge))
 end
 
 # handles two-argument edge constructors like src,dst
@@ -399,10 +412,10 @@ function Graphs.has_path(
   graph::AbstractNamedGraph, source, destination; exclude_vertices=vertextype(graph)[]
 )
   return has_path(
-    ordinal_graph(graph),
-    vertex_to_ordinal_vertex(graph, source),
-    vertex_to_ordinal_vertex(graph, destination);
-    exclude_vertices=map(v -> vertex_to_ordinal_vertex(graph, v), exclude_vertices),
+    one_based_graph(graph),
+    vertex_to_one_based_vertex(graph, source),
+    vertex_to_one_based_vertex(graph, destination);
+    exclude_vertices=map(v -> vertex_to_one_based_vertex(graph, v), exclude_vertices),
   )
 end
 
@@ -430,16 +443,16 @@ function Base.union(
   return union(union(graph1, graph2), graph3, graph_rest...)
 end
 
-Graphs.is_directed(G::Type{<:AbstractNamedGraph}) = is_directed(ordinal_graph_type(G))
+Graphs.is_directed(G::Type{<:AbstractNamedGraph}) = is_directed(one_based_graph_type(G))
 
-Graphs.is_directed(graph::AbstractNamedGraph) = is_directed(ordinal_graph(graph))
+Graphs.is_directed(graph::AbstractNamedGraph) = is_directed(one_based_graph(graph))
 
-Graphs.is_connected(graph::AbstractNamedGraph) = is_connected(ordinal_graph(graph))
+Graphs.is_connected(graph::AbstractNamedGraph) = is_connected(one_based_graph(graph))
 
-Graphs.is_cyclic(graph::AbstractNamedGraph) = is_cyclic(ordinal_graph(graph))
+Graphs.is_cyclic(graph::AbstractNamedGraph) = is_cyclic(one_based_graph(graph))
 
 @traitfn function Base.reverse(graph::AbstractNamedGraph::IsDirected)
-  reversed_ordinal_graph = reverse(ordinal_graph(graph))
+  reversed_one_based_graph = reverse(one_based_graph(graph))
   return h
 end
 
@@ -450,25 +463,25 @@ end
 
 # TODO: Move to `namedgraph.jl`, or make the output generic?
 function Graphs.blockdiag(graph1::AbstractNamedGraph, graph2::AbstractNamedGraph)
-  new_ordinal_graph = blockdiag(ordinal_graph(graph1), ordinal_graph(graph2))
+  new_one_based_graph = blockdiag(one_based_graph(graph1), one_based_graph(graph2))
   new_vertices = vcat(vertices(graph1), vertices(graph2))
   @assert allunique(new_vertices)
-  return GenericNamedGraph(new_ordinal_graph, new_vertices)
+  return GenericNamedGraph(new_one_based_graph, new_vertices)
 end
 
 # TODO: What `args` are needed?
-Graphs.nv(graph::AbstractNamedGraph, args...) = nv(ordinal_graph(graph), args...)
+Graphs.nv(graph::AbstractNamedGraph, args...) = nv(one_based_graph(graph), args...)
 # TODO: What `args` are needed?
-Graphs.ne(graph::AbstractNamedGraph, args...) = ne(ordinal_graph(graph), args...)
+Graphs.ne(graph::AbstractNamedGraph, args...) = ne(one_based_graph(graph), args...)
 # TODO: What `args` are needed?
 function Graphs.adjacency_matrix(graph::AbstractNamedGraph, args...)
-  return adjacency_matrix(ordinal_graph(graph), args...)
+  return adjacency_matrix(one_based_graph(graph), args...)
 end
 
 function Graphs.connected_components(graph::AbstractNamedGraph)
-  ordinal_connected_components = connected_components(ordinal_graph(graph))
-  return map(ordinal_connected_components) do ordinal_connected_component
-    return map(v -> ordinal_vertex_to_vertex(graph, v), ordinal_connected_component)
+  one_based_connected_components = connected_components(one_based_graph(graph))
+  return map(one_based_connected_components) do one_based_connected_component
+    return map(v -> one_based_vertex_to_vertex(graph, v), one_based_connected_component)
   end
 end
 
@@ -527,8 +540,8 @@ end
 # Returns a Dictionary mapping a vertex to it's parent
 # vertex in the traversal/spanning tree.
 function namedgraph_bfs_parents(graph::AbstractNamedGraph, vertex; kwargs...)
-  ordinal_bfs_parents = bfs_parents(
-    ordinal_graph(graph), vertex_to_ordinal_vertex(graph, vertex); kwargs...
+  one_based_bfs_parents = bfs_parents(
+    one_based_graph(graph), vertex_to_one_based_vertex(graph, vertex); kwargs...
   )
   # Works around issue in this `Dictionary` constructor:
   # https://github.com/andyferris/Dictionaries.jl/blob/v0.4.1/src/Dictionary.jl#L139-L145
@@ -536,9 +549,9 @@ function namedgraph_bfs_parents(graph::AbstractNamedGraph, vertex; kwargs...)
   # TODO: Raise an issue with `Dictionaries.jl`.
   ## vertices_graph = Indices(collect(vertices(graph)))
   # This makes the vertices ordered according to the parent vertices.
-  vertices_graph = map(v -> ordinal_vertex_to_vertex(graph, v), ordinal_vertices(graph))
+  vertices_graph = map(v -> one_based_vertex_to_vertex(graph, v), one_based_vertices(graph))
   return Dictionary(
-    vertices_graph, map(v -> ordinal_vertex_to_vertex(graph, v), ordinal_bfs_parents)
+    vertices_graph, map(v -> one_based_vertex_to_vertex(graph, v), one_based_bfs_parents)
   )
 end
 # Disambiguation from Graphs.jl

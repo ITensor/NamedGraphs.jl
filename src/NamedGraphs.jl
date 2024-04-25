@@ -1,6 +1,8 @@
 module NamedGraphs
 include("lib/SimilarType/src/SimilarType.jl")
 include("lib/Keys/src/Keys.jl")
+include("lib/OrdinalIndexing/src/OrdinalIndexing.jl")
+include("lib/OrdinalIndexedDictionaries/src/OrdinalIndexedDictionaries.jl")
 include("lib/GraphGenerators/src/GraphGenerators.jl")
 include("lib/GraphsExtensions/src/GraphsExtensions.jl")
 include("utils.jl")

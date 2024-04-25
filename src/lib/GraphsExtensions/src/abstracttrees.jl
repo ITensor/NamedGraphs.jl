@@ -1,20 +1,22 @@
 # AbstractTreeGraph
 # Tree view of a graph.
 abstract type AbstractTreeGraph{V} <: AbstractGraph{V} end
-ordinal_graph_type(type::Type{<:AbstractTreeGraph}) = not_implemented()
-ordinal_graph(graph::AbstractTreeGraph) = not_implemented()
+one_based_graph_type(type::Type{<:AbstractTreeGraph}) = not_implemented()
+one_based_graph(graph::AbstractTreeGraph) = not_implemented()
 
-Graphs.is_directed(type::Type{<:AbstractTreeGraph}) = is_directed(ordinal_graph_type(type))
-Graphs.edgetype(graph::AbstractTreeGraph) = edgetype(ordinal_graph(graph))
+function Graphs.is_directed(type::Type{<:AbstractTreeGraph})
+  return is_directed(one_based_graph_type(type))
+end
+Graphs.edgetype(graph::AbstractTreeGraph) = edgetype(one_based_graph(graph))
 function Graphs.outneighbors(graph::AbstractTreeGraph, vertex)
-  return outneighbors(ordinal_graph(graph), vertex)
+  return outneighbors(one_based_graph(graph), vertex)
 end
 function Graphs.inneighbors(graph::AbstractTreeGraph, vertex)
-  return inneighbors(ordinal_graph(graph), vertex)
+  return inneighbors(one_based_graph(graph), vertex)
 end
-Graphs.nv(graph::AbstractTreeGraph) = nv(ordinal_graph(graph))
-Graphs.ne(graph::AbstractTreeGraph) = ne(ordinal_graph(graph))
-Graphs.vertices(graph::AbstractTreeGraph) = vertices(ordinal_graph(graph))
+Graphs.nv(graph::AbstractTreeGraph) = nv(one_based_graph(graph))
+Graphs.ne(graph::AbstractTreeGraph) = ne(one_based_graph(graph))
+Graphs.vertices(graph::AbstractTreeGraph) = vertices(one_based_graph(graph))
 
 # AbstractTrees
 using AbstractTrees:
@@ -60,5 +62,5 @@ end
   @assert is_tree(g)
   return _TreeGraph(g)
 end
-ordinal_graph(graph::TreeGraph) = getfield(graph, :graph)
-ordinal_graph_type(type::Type{<:TreeGraph}) = fieldtype(type, :graph)
+one_based_graph(graph::TreeGraph) = getfield(graph, :graph)
+one_based_graph_type(type::Type{<:TreeGraph}) = fieldtype(type, :graph)

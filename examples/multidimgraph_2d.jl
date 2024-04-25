@@ -2,10 +2,10 @@ using Graphs: grid, has_edge, has_vertex, nv
 using NamedGraphs: NamedGraph
 using NamedGraphs.GraphsExtensions: ⊔, subgraph
 
-ordinal_graph = grid((2, 2))
+one_based_graph = grid((2, 2))
 vs = [("X", 1), ("X", 2), ("Y", 1), ("Y", 2)]
 
-g = NamedGraph(ordinal_graph, vs)
+g = NamedGraph(one_based_graph, vs)
 
 @show has_vertex(g, ("X", 1))
 @show has_edge(g, ("X", 1) => ("X", 2))
@@ -42,9 +42,9 @@ g_sub = subgraph(v -> v[2] == 2, g)
 @show !has_vertex(g_sub, ("Y", 1))
 @show has_vertex(g_sub, ("Y", 2))
 
-ordinal_graph = grid((2, 2))
-g1 = NamedGraph(ordinal_graph, Tuple.(CartesianIndices((2, 2))))
-g2 = NamedGraph(ordinal_graph, Tuple.(CartesianIndices((2, 2))))
+one_based_graph = grid((2, 2))
+g1 = NamedGraph(one_based_graph, Tuple.(CartesianIndices((2, 2))))
+g2 = NamedGraph(one_based_graph, Tuple.(CartesianIndices((2, 2))))
 
 g_disjoint_union = g1 ⊔ g2
 

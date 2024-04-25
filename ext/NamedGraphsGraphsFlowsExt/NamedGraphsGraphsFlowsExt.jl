@@ -6,14 +6,14 @@ using NamedGraphs:
   AbstractNamedGraph,
   DefaultNamedCapacity,
   _symmetrize,
-  dist_matrix_to_ordinal_dist_matrix,
-  ordinal_graph,
-  ordinal_vertex_to_vertex,
-  vertex_to_ordinal_vertex
+  dist_matrix_to_one_based_dist_matrix,
+  one_based_graph,
+  one_based_vertex_to_vertex,
+  vertex_to_one_based_vertex
 using NamedGraphs.GraphsExtensions: GraphsExtensions, directed_graph
 using SimpleTraits: SimpleTraits, @traitfn
 
-@traitfn function NamedGraphs.dist_matrix_to_ordinal_dist_matrix(
+@traitfn function NamedGraphs.dist_matrix_to_one_based_dist_matrix(
   graph::AbstractNamedGraph::IsDirected, dist_matrix::DefaultNamedCapacity
 )
   return GraphsFlows.DefaultCapacity(graph)
@@ -26,15 +26,15 @@ end
   capacity_matrix=DefaultNamedCapacity(graph),
   algorithm::GraphsFlows.AbstractFlowAlgorithm=GraphsFlows.PushRelabelAlgorithm(),
 )
-  ordinal_part1, ordinal_part2, flow = GraphsFlows.mincut(
-    directed_graph(ordinal_graph(graph)),
-    vertex_to_ordinal_vertex(graph, source),
-    vertex_to_ordinal_vertex(graph, target),
-    dist_matrix_to_ordinal_dist_matrix(graph, capacity_matrix),
+  one_based_part1, one_based_part2, flow = GraphsFlows.mincut(
+    directed_graph(one_based_graph(graph)),
+    vertex_to_one_based_vertex(graph, source),
+    vertex_to_one_based_vertex(graph, target),
+    dist_matrix_to_one_based_dist_matrix(graph, capacity_matrix),
     algorithm,
   )
-  (part1, part2) = map((ordinal_part1, ordinal_part2)) do ordinal_part
-    return map(v -> ordinal_vertex_to_vertex(graph, v), ordinal_part)
+  (part1, part2) = map((one_based_part1, one_based_part2)) do one_based_part
+    return map(v -> one_based_vertex_to_vertex(graph, v), one_based_part)
   end
   return (part1, part2, flow)
 end

@@ -3,9 +3,9 @@ using Graphs:
 using ..NamedGraphs:
   NamedGraphs,
   AbstractNamedGraph,
-  ordinal_graph,
-  ordinal_vertex_to_vertex,
-  vertex_to_ordinal_vertex
+  one_based_graph,
+  one_based_vertex_to_vertex,
+  vertex_to_one_based_vertex
 using ..NamedGraphs.GraphsExtensions: GraphsExtensions, add_vertices!, rem_vertices!
 
 abstract type AbstractPartitionedGraph{V,PV} <: AbstractNamedGraph{V} end
@@ -33,7 +33,7 @@ function Graphs.vertices(
 ) where {V<:AbstractPartitionVertex}
   return not_implemented()
 end
-NamedGraphs.ordinal_graph_type(PG::Type{<:AbstractPartitionedGraph}) = not_implemented()
+NamedGraphs.one_based_graph_type(PG::Type{<:AbstractPartitionedGraph}) = not_implemented()
 function GraphsExtensions.directed_graph_type(PG::Type{<:AbstractPartitionedGraph})
   return not_implemented()
 end
@@ -43,16 +43,16 @@ end
 
 #Functions for the abstract type
 Graphs.vertices(pg::AbstractPartitionedGraph) = vertices(unpartitioned_graph(pg))
-function NamedGraphs.ordinal_graph(pg::AbstractPartitionedGraph)
-  return ordinal_graph(unpartitioned_graph(pg))
+function NamedGraphs.one_based_graph(pg::AbstractPartitionedGraph)
+  return one_based_graph(unpartitioned_graph(pg))
 end
-function NamedGraphs.vertex_to_ordinal_vertex(pg::AbstractPartitionedGraph, vertex)
-  return vertex_to_ordinal_vertex(unpartitioned_graph(pg), vertex)
+function NamedGraphs.vertex_to_one_based_vertex(pg::AbstractPartitionedGraph, vertex)
+  return vertex_to_one_based_vertex(unpartitioned_graph(pg), vertex)
 end
-function NamedGraphs.ordinal_vertex_to_vertex(
-  pg::AbstractPartitionedGraph, ordinal_vertex::Integer
+function NamedGraphs.one_based_vertex_to_vertex(
+  pg::AbstractPartitionedGraph, one_based_vertex::Integer
 )
-  return ordinal_vertex_to_vertex(unpartitioned_graph(pg), ordinal_vertex)
+  return one_based_vertex_to_vertex(unpartitioned_graph(pg), one_based_vertex)
 end
 Graphs.edgetype(pg::AbstractPartitionedGraph) = edgetype(unpartitioned_graph(pg))
 function Graphs.nv(pg::AbstractPartitionedGraph, pv::AbstractPartitionVertex)

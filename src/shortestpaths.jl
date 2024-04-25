@@ -24,11 +24,11 @@ function NamedDijkstraState(parents, dists, predecessors, pathcounts, closest_ve
   )
 end
 
-function ordinal_path_state_to_path_state(
-  graph::AbstractNamedGraph, ordinal_path_state::Graphs.DijkstraState
+function one_based_path_state_to_path_state(
+  graph::AbstractNamedGraph, one_based_path_state::Graphs.DijkstraState
 )
-  ordinal_path_state_parents = map(eachindex(ordinal_path_state.parents)) do i
-    pᵢ = ordinal_path_state.parents[i]
+  one_based_path_state_parents = map(eachindex(one_based_path_state.parents)) do i
+    pᵢ = one_based_path_state.parents[i]
     return iszero(pᵢ) ? i : pᵢ
   end
   # Works around issue in this `Dictionary` constructor:
@@ -37,18 +37,19 @@ function ordinal_path_state_to_path_state(
   # TODO: Raise an issue with `Dictionaries.jl`.
   ## graph_vertices = Indices(collect(vertices(graph)))
   # This makes the vertices ordered according to the parent vertices.
-  graph_vertices = map(v -> ordinal_vertex_to_vertex(graph, v), ordinal_vertices(graph))
+  graph_vertices = map(v -> one_based_vertex_to_vertex(graph, v), one_based_vertices(graph))
   return NamedDijkstraState(
     Dictionary(
       graph_vertices,
-      map(v -> ordinal_vertex_to_vertex(graph, v), ordinal_path_state_parents),
+      map(v -> one_based_vertex_to_vertex(graph, v), one_based_path_state_parents),
     ),
-    Dictionary(graph_vertices, ordinal_path_state.dists),
+    Dictionary(graph_vertices, one_based_path_state.dists),
     map(
-      x -> map(v -> ordinal_vertex_to_vertex(graph, v), x), ordinal_path_state.predecessors
+      x -> map(v -> one_based_vertex_to_vertex(graph, v), x),
+      one_based_path_state.predecessors,
     ),
-    Dictionary(graph_vertices, ordinal_path_state.pathcounts),
-    map(v -> ordinal_vertex_to_vertex(graph, v), ordinal_path_state.closest_vertices),
+    Dictionary(graph_vertices, one_based_path_state.pathcounts),
+    map(v -> one_based_vertex_to_vertex(graph, v), one_based_path_state.closest_vertices),
   )
 end
 
@@ -59,14 +60,14 @@ function namedgraph_dijkstra_shortest_paths(
   allpaths=false,
   trackvertices=false,
 )
-  ordinal_path_state = dijkstra_shortest_paths(
-    ordinal_graph(graph),
-    map(v -> vertex_to_ordinal_vertex(graph, v), srcs),
-    dist_matrix_to_ordinal_dist_matrix(graph, distmx);
+  one_based_path_state = dijkstra_shortest_paths(
+    one_based_graph(graph),
+    map(v -> vertex_to_one_based_vertex(graph, v), srcs),
+    dist_matrix_to_one_based_dist_matrix(graph, distmx);
     allpaths,
     trackvertices,
   )
-  return ordinal_path_state_to_path_state(graph, ordinal_path_state)
+  return one_based_path_state_to_path_state(graph, one_based_path_state)
 end
 
 function Graphs.dijkstra_shortest_paths(

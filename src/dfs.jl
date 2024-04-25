@@ -2,7 +2,9 @@ using Graphs: Graphs, dfs_parents, dfs_tree, topological_sort_by_dfs
 using SimpleTraits: SimpleTraits, Not, @traitfn
 
 @traitfn function Graphs.topological_sort_by_dfs(g::AbstractNamedGraph::IsDirected)
-  return map(v -> ordinal_vertex_to_vertex(g, v), topological_sort_by_dfs(ordinal_graph(g)))
+  return map(
+    v -> one_based_vertex_to_vertex(g, v), topological_sort_by_dfs(one_based_graph(g))
+  )
 end
 
 function namedgraph_dfs_tree(graph::AbstractNamedGraph, vertex; kwargs...)
@@ -18,8 +20,8 @@ end
 # Returns a Dictionary mapping a vertex to it's parent
 # vertex in the traversal/spanning tree.
 function namedgraph_dfs_parents(graph::AbstractNamedGraph, vertex; kwargs...)
-  ordinal_dfs_parents = dfs_parents(
-    ordinal_graph(graph), vertex_to_ordinal_vertex(graph, vertex); kwargs...
+  one_based_dfs_parents = dfs_parents(
+    one_based_graph(graph), vertex_to_one_based_vertex(graph, vertex); kwargs...
   )
   # Works around issue in this `Dictionary` constructor:
   # https://github.com/andyferris/Dictionaries.jl/blob/v0.4.1/src/Dictionary.jl#L139-L145
@@ -27,9 +29,9 @@ function namedgraph_dfs_parents(graph::AbstractNamedGraph, vertex; kwargs...)
   # TODO: Raise an issue with `Dictionaries.jl`.
   ## vertices_graph = Indices(collect(vertices(graph)))
   # This makes the vertices ordered according to the parent vertices.
-  vertices_graph = map(v -> ordinal_vertex_to_vertex(graph, v), ordinal_vertices(graph))
+  vertices_graph = map(v -> one_based_vertex_to_vertex(graph, v), one_based_vertices(graph))
   return Dictionary(
-    vertices_graph, map(v -> ordinal_vertex_to_vertex(graph, v), ordinal_dfs_parents)
+    vertices_graph, map(v -> one_based_vertex_to_vertex(graph, v), one_based_dfs_parents)
   )
 end
 # Disambiguation from Graphs.dfs_parents
