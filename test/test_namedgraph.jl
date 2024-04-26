@@ -66,6 +66,7 @@ using NamedGraphs.GraphsExtensions:
   ⊔,
   boundary_edges,
   boundary_vertices,
+  convert_vertextype,
   degrees,
   eccentricities,
   dijkstra_mst,
@@ -82,7 +83,8 @@ using NamedGraphs.GraphsExtensions:
   rename_vertices,
   subgraph,
   symrcm_perm,
-  symrcm_permute
+  symrcm_permute,
+  vertextype
 using NamedGraphs.NamedGraphGenerators: named_binary_tree, named_grid, named_path_graph
 using SymRCM: SymRCM
 using Test: @test, @test_broken, @testset
@@ -116,6 +118,15 @@ end
     @test isempty(common_neighbors(g, "A", "D"))
     @test degree(g, "A") == 1
     @test degree(g, "B") == 2
+
+    g = NamedGraph(grid((4,)), [2, 4, 6, 8])
+    g_t = convert_vertextype(UInt16, g)
+    @test g == g_t
+    @test nv(g_t) == 4
+    @test ne(g_t) == 3
+    @test vertextype(g_t) === UInt16
+    @test issetequal(vertices(g_t), UInt16[2, 4, 6, 8])
+    @test eltype(vertices(g_t)) === UInt16
 
     g = NamedGraph(grid((4,)), ["A", "B", "C", "D"])
     zg = zero(g)

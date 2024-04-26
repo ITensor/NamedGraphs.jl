@@ -73,7 +73,7 @@ end
 
 function GraphsExtensions.convert_vertextype(vertextype::Type, graph::GenericNamedGraph)
   return GenericNamedGraph(
-    position_graph(graph), convert(Vector{vertextype}, graph.ordered_vertices)
+    position_graph(graph), convert(Vector{vertextype}, ordered_vertices(graph))
   )
 end
 
