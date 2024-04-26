@@ -88,6 +88,11 @@ function Dictionaries.deletetoken!(indices::OrderedIndices, token)
   return indices
 end
 
+using Random: Random
+function Dictionaries.randtoken(rng::Random.AbstractRNG, indices::OrderedIndices)
+  return rand(rng, Base.OneTo(length(indices)))
+end
+
 # Circumvents https://github.com/andyferris/Dictionaries.jl/pull/140
 function Base.map(f, indices::OrderedIndices)
   return OrderedDictionary(indices, map(f, ordered_indices(indices)))
