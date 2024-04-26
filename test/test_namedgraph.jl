@@ -149,6 +149,22 @@ end
     rem_vertex!(g, "E")
     @test !has_vertex(g, "E")
 
+    g = NamedGraph(grid((4,)), ["A", "B", "C", "D"])
+    for gc in (NamedGraph(g), convert(NamedGraph, g))
+      @test gc == g
+      @test gc isa NamedGraph{String}
+      @test vertextype(gc) === vertextype(g)
+      @test issetequal(vertices(gc), vertices(g))
+      @test issetequal(edges(gc), edges(g))
+    end
+    for gc in (NamedGraph{Any}(g), convert(NamedGraph{Any}, g))
+      @test gc == g
+      @test gc isa NamedGraph{Any}
+      @test vertextype(gc) === Any
+      @test issetequal(vertices(gc), vertices(g))
+      @test issetequal(edges(gc), edges(g))
+    end
+
     io = IOBuffer()
     show(io, "text/plain", g)
     @test String(take!(io)) isa String

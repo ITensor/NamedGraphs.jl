@@ -169,6 +169,27 @@ end
 
 GenericNamedGraph() = GenericNamedGraph(Any[])
 
+function GenericNamedGraph(graph::GenericNamedGraph)
+  return GenericNamedGraph{vertextype(graph),position_graph_type(graph_type)}(graph)
+end
+function GenericNamedGraph{V}(graph::GenericNamedGraph) where {V}
+  return GenericNamedGraph{V,position_graph_type(graph_type)}(graph)
+end
+function GenericNamedGraph{<:Any,G}(
+  graph::GenericNamedGraph
+) where {G<:AbstractSimpleGraph{Int}}
+  return GenericNamedGraph{vertextype(graph),G}(graph)
+end
+function GenericNamedGraph{V,G}(
+  graph::GenericNamedGraph
+) where {V,G<:AbstractSimpleGraph{Int}}
+  return GenericNamedGraph{V,G}(copy(position_graph(graph)), copy(vertices(graph)))
+end
+
+function Base.convert(graph_type::Type{<:GenericNamedGraph}, graph::GenericNamedGraph)
+  return graph_type(graph)
+end
+
 # TODO: implement as:
 # graph = set_position_graph(graph, copy(position_graph(graph)))
 # graph = set_vertices(graph, copy(vertices(graph)))
