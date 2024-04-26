@@ -13,7 +13,7 @@ using Graphs:
 using Graphs.SimpleGraphs: AbstractSimpleGraph, SimpleDiGraph, SimpleGraph
 using .GraphsExtensions:
   GraphsExtensions, vertextype, directed_graph_type, undirected_graph_type
-using .OrderedDictionaries: OrderedIndices
+using .OrderedDictionaries: OrderedDictionaries, OrderedIndices
 using .OrdinalIndexing: th
 
 struct GenericNamedGraph{V,G<:AbstractSimpleGraph{Int}} <: AbstractNamedGraph{V}
@@ -30,10 +30,13 @@ function one_based_graph_type(graph_type::Type{<:GenericNamedGraph})
   return fieldtype(graph_type, :one_based_graph)
 end
 one_based_graph(graph::GenericNamedGraph) = getfield(graph, :one_based_graph)
+
+# TODO: Rename `vertex_positions(graph::GenericNamedGraph)`.
 function vertex_to_one_based_vertex(graph::GenericNamedGraph, vertex)
-  # TODO: Define a function `index_ordinal(ordinal_indices, index)`.
-  return vertices(graph).index_ordinals[vertex]
+  return OrderedDictionaries.index_positions(vertices(graph))[vertex]
 end
+
+# TODO: Rename `ordered_vertices(graph::GenericNamedGraph)`.
 function one_based_vertex_to_vertex(graph::GenericNamedGraph, one_based_vertex::Integer)
   return vertices(graph)[one_based_vertex * th]
 end
@@ -61,7 +64,9 @@ function Graphs.rem_vertex!(graph::GenericNamedGraph, vertex)
 end
 
 function GraphsExtensions.rename_vertices(f::Function, graph::GenericNamedGraph)
-  return GenericNamedGraph(one_based_graph(graph), f.(vertices(graph)))
+  # TODO: Fix broadcasting of `OrderedIndices`.
+  # return GenericNamedGraph(one_based_graph(graph), f.(vertices(graph)))
+  return GenericNamedGraph(one_based_graph(graph), map(f, vertices(graph)))
 end
 
 function GraphsExtensions.rename_vertices(f::Function, g::AbstractSimpleGraph)

@@ -357,6 +357,13 @@ function Graphs.a_star(
   return namedgraph_a_star(graph, source, destination, args...)
 end
 
+# Fix ambiguity error with `AbstractGraph` version
+function Graphs.a_star(
+  graph::AbstractNamedGraph, source::Integer, destination::Integer, args...
+)
+  return namedgraph_a_star(graph, source, destination, args...)
+end
+
 function Graphs.spfa_shortest_paths(
   graph::AbstractNamedGraph, vertex, distmx=weights(graph)
 )

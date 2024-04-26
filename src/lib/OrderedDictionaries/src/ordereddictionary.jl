@@ -17,7 +17,7 @@ function OrderedDictionary(indices, values)
   return OrderedDictionary(OrderedIndices(indices), Vector(values))
 end
 
-_values(dict::OrderedDictionary) = getfield(dict, :values)
+Base.values(dict::OrderedDictionary) = getfield(dict, :values)
 
 # https://github.com/andyferris/Dictionaries.jl/tree/master?tab=readme-ov-file#abstractdictionary
 Base.keys(dict::OrderedDictionary) = getfield(dict, :indices)
@@ -27,33 +27,19 @@ ordered_indices(dict::OrderedDictionary) = ordered_indices(keys(dict))
 # https://github.com/andyferris/Dictionaries.jl/tree/master?tab=readme-ov-file#implementing-the-token-interface-for-abstractdictionary
 Dictionaries.istokenizable(dict::OrderedDictionary) = Dictionaries.istokenizable(keys(dict))
 Base.@propagate_inbounds function Dictionaries.gettokenvalue(
-  dict::OrderedDictionary, (_slot, index)
+  dict::OrderedDictionary, token::Int
 )
-  return _values(dict)[index]
+  return values(dict)[token]
 end
-Base.@propagate_inbounds function Dictionaries.gettokenvalue(
-  dict::OrderedDictionary, index::Int
-)
-  return _values(dict)[index]
-end
-function Dictionaries.istokenassigned(dict::OrderedDictionary, (_slot, index))
-  return isassigned(_values(dict), index)
-end
-function Dictionaries.istokenassigned(dict::OrderedDictionary, index::Int)
-  return isassigned(_values(dict), index)
+function Dictionaries.istokenassigned(dict::OrderedDictionary, token::Int)
+  return isassigned(values(dict), token)
 end
 
 Dictionaries.issettable(dict::OrderedDictionary) = true
 Base.@propagate_inbounds function Dictionaries.settokenvalue!(
-  dict::OrderedDictionary{<:Any,T}, (_slot, index), value::T
+  dict::OrderedDictionary{<:Any,T}, token::Int, value::T
 ) where {T}
-  _values(dict)[index] = value
-  return dict
-end
-Base.@propagate_inbounds function Dictionaries.settokenvalue!(
-  dict::OrderedDictionary{<:Any,T}, index::Int, value::T
-) where {T}
-  _values(dict)[index] = value
+  values(dict)[token] = value
   return dict
 end
 
@@ -63,4 +49,9 @@ Dictionaries.deletetoken!(dict::OrderedDictionary, token) = error()
 
 function Base.similar(indices::OrderedIndices, type::Type)
   return OrderedDictionary(indices, Vector{type}(undef, length(indices)))
+end
+
+# Circumvents https://github.com/andyferris/Dictionaries.jl/pull/140
+function Base.map(f, dict::OrderedDictionary)
+  return OrderedDictionary(keys(dict), map(f, values(dict)))
 end

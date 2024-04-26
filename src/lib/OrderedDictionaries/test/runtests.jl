@@ -1,6 +1,7 @@
 @eval module $(gensym())
 using Dictionaries: Dictionary
-using NamedGraphs.OrderedDictionaries: OrderedDictionary, OrderedIndices, each_ordinal_index
+using NamedGraphs.OrderedDictionaries:
+  OrderedDictionaries, OrderedDictionary, OrderedIndices, each_ordinal_index
 using NamedGraphs.OrdinalIndexing: th
 using Test: @test, @testset
 @testset "OrderedDictionaries" begin
@@ -37,8 +38,9 @@ using Test: @test, @testset
     @test i[1th] == "x1"
     @test i[2th] == "x4"
     @test i[3th] == "x3"
-    @test i.ordered_indices == ["x1", "x4", "x3"]
-    @test i.index_ordinals == Dictionary(["x1", "x3", "x4"], [1, 3, 2])
+    @test OrderedDictionaries.ordered_indices(i) == ["x1", "x4", "x3"]
+    @test OrderedDictionaries.index_positions(i) ==
+      Dictionary(["x1", "x3", "x4"], [1, 3, 2])
 
     # Test for deleting the last index, this is a special
     # case in the code.
@@ -56,8 +58,9 @@ using Test: @test, @testset
     @test i[1th] == "x1"
     @test i[2th] == "x2"
     @test i[3th] == "x3"
-    @test i.ordered_indices == ["x1", "x2", "x3"]
-    @test i.index_ordinals == Dictionary(["x1", "x2", "x3"], [1, 2, 3])
+    @test OrderedDictionaries.ordered_indices(i) == ["x1", "x2", "x3"]
+    @test OrderedDictionaries.index_positions(i) ==
+      Dictionary(["x1", "x2", "x3"], [1, 2, 3])
 
     i = OrderedIndices(["x1", "x2", "x3", "x4"])
     d = Dictionary(["x1", "x2", "x3", "x4"], [:x1, :x2, :x3, :x4])
