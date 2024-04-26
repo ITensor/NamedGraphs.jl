@@ -4,10 +4,10 @@ using SimpleTraits: SimpleTraits, Not, @traitfn
 @traitfn function Graphs.steiner_tree(
   g::AbstractNamedGraph::(!IsDirected), term_vert, distmx=weights(g)
 )
-  parent_tree = steiner_tree(
-    parent_graph(g),
-    vertices_to_parent_vertices(g, term_vert),
-    dist_matrix_to_parent_dist_matrix(g, distmx),
+  position_tree = steiner_tree(
+    position_graph(g),
+    map(v -> vertex_positions(g)[v], term_vert),
+    dist_matrix_to_position_dist_matrix(g, distmx),
   )
-  return typeof(g)(parent_tree, parent_vertices_to_vertices(g, Base.OneTo(nv(parent_tree))))
+  return typeof(g)(position_tree, map(v -> ordered_vertices(g)[v], vertices(position_tree)))
 end

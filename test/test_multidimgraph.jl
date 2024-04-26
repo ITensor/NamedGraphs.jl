@@ -5,10 +5,10 @@ using NamedGraphs.GraphsExtensions: ⊔, disjoint_union, subgraph
 using Test: @test, @testset
 
 @testset "NamedGraph" begin
-  parent_graph = grid((2, 2))
+  position_graph = grid((2, 2))
   vertices = [("X", 1), ("X", 2), ("Y", 1), ("Y", 2)]
 
-  g = NamedGraph(parent_graph, vertices)
+  g = NamedGraph(position_graph, vertices)
 
   @test has_vertex(g, ("X", 1))
   @test has_edge(g, ("X", 1) => ("X", 2))
@@ -91,7 +91,7 @@ using Test: @test, @testset
 end
 
 @testset "NamedGraph add vertices" begin
-  parent_graph = grid((2, 2))
+  position_graph = grid((2, 2))
   vertices = [("X", 1), ("X", 2), ("Y", 1), ("Y", 2)]
   g = NamedGraph()
   add_vertex!(g, ("X", 1))

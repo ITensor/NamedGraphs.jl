@@ -71,6 +71,7 @@ using NamedGraphs.GraphsExtensions:
   dijkstra_mst,
   dijkstra_parents,
   dijkstra_tree,
+  has_vertices,
   incident_edges,
   indegrees,
   inner_boundary_vertices,
@@ -103,7 +104,6 @@ end
 @testset "NamedGraph" begin
   @testset "Basics" begin
     g = NamedGraph(grid((4,)), ["A", "B", "C", "D"])
-
     @test nv(g) == 4
     @test ne(g) == 3
     @test sum(g) == 3
@@ -114,18 +114,27 @@ end
     @test has_edge(g, "A" => "B")
     @test issetequal(common_neighbors(g, "A", "C"), ["B"])
     @test isempty(common_neighbors(g, "A", "D"))
+    @test degree(g, "A") == 1
+    @test degree(g, "B") == 2
 
+    g = NamedGraph(grid((4,)), ["A", "B", "C", "D"])
     zg = zero(g)
     @test zg isa NamedGraph{String}
     @test nv(zg) == 0
     @test ne(zg) == 0
 
-    @test degree(g, "A") == 1
-    @test degree(g, "B") == 2
-
+    g = NamedGraph(grid((4,)), ["A", "B", "C", "D"])
     add_vertex!(g, "E")
     @test has_vertex(g, "E")
+    @test nv(g) == 5
+    @test has_vertices(g, ["A", "B", "C", "D", "E"])
 
+    g = NamedGraph(grid((5,)), ["A", "B", "C", "D", "E"])
+    rem_vertex!(g, "E")
+    @test !has_vertex(g, "E")
+
+    g = NamedGraph(grid((4,)), ["A", "B", "C", "D"])
+    add_vertex!(g, "E")
     rem_vertex!(g, "E")
     @test !has_vertex(g, "E")
 
