@@ -48,11 +48,13 @@ end
 #Needed for interface
 partitioned_graph(pg::PartitionedGraph) = getfield(pg, :partitioned_graph)
 unpartitioned_graph(pg::PartitionedGraph) = getfield(pg, :graph)
+function unpartitioned_graph_type(graph_type::Type{<:PartitionedGraph})
+  return fieldtype(graph_type, :graph)
+end
 function GraphsExtensions.partitioned_vertices(pg::PartitionedGraph)
   return getfield(pg, :partitioned_vertices)
 end
 which_partition(pg::PartitionedGraph) = getfield(pg, :which_partition)
-NamedGraphs.one_based_graph_type(PG::Type{<:PartitionedGraph}) = fieldtype(PG, :graph)
 function Graphs.vertices(pg::PartitionedGraph, partitionvert::PartitionVertex)
   return partitioned_vertices(pg)[parent(partitionvert)]
 end

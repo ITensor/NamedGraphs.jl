@@ -31,32 +31,32 @@ end
 getindex_dist_matrix(dist_matrix, I...) = dist_matrix[I...]
 getindex_dist_matrix(dist_matrix::AbstractDictionary, I...) = dist_matrix[I]
 
-function namedgraph_dist_matrix_to_one_based_dist_matrix(
+function namedgraph_dist_matrix_to_position_dist_matrix(
   graph::AbstractNamedGraph, dist_matrix
 )
-  one_based_dist_matrix = spzeros(valtype(dist_matrix), nv(graph), nv(graph))
+  position_dist_matrix = spzeros(valtype(dist_matrix), nv(graph), nv(graph))
   for e in edges(graph)
-    one_based_e = edge_to_one_based_edge(graph, e)
-    one_based_dist_matrix[src(one_based_e), dst(one_based_e)] = getindex_dist_matrix(
+    position_e = edge_to_position_edge(graph, e)
+    position_dist_matrix[src(position_e), dst(position_e)] = getindex_dist_matrix(
       dist_matrix, src(e), dst(e)
     )
   end
-  return one_based_dist_matrix
+  return position_dist_matrix
 end
 
-@traitfn function dist_matrix_to_one_based_dist_matrix(
+@traitfn function dist_matrix_to_position_dist_matrix(
   graph::AbstractNamedGraph::IsDirected, dist_matrix
 )
-  return namedgraph_dist_matrix_to_one_based_dist_matrix(graph, dist_matrix)
+  return namedgraph_dist_matrix_to_position_dist_matrix(graph, dist_matrix)
 end
 
-@traitfn function dist_matrix_to_one_based_dist_matrix(
+@traitfn function dist_matrix_to_position_dist_matrix(
   graph::AbstractNamedGraph::(!IsDirected), dist_matrix
 )
-  return _symmetrize(namedgraph_dist_matrix_to_one_based_dist_matrix(graph, dist_matrix))
+  return _symmetrize(namedgraph_dist_matrix_to_position_dist_matrix(graph, dist_matrix))
 end
 
-function dist_matrix_to_one_based_dist_matrix(
+function dist_matrix_to_position_dist_matrix(
   graph::AbstractNamedGraph, distmx::Graphs.DefaultDistance
 )
   return distmx

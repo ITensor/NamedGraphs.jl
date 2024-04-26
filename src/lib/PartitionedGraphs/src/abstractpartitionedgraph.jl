@@ -1,18 +1,26 @@
 using Graphs:
-  Graphs, AbstractEdge, add_vertex!, dst, edgetype, has_vertex, rem_vertex!, src, vertices
-using ..NamedGraphs:
-  NamedGraphs,
-  AbstractNamedGraph,
-  one_based_graph,
-  one_based_vertex_to_vertex,
-  vertex_to_one_based_vertex
-using ..NamedGraphs.GraphsExtensions: GraphsExtensions, add_vertices!, rem_vertices!
+  Graphs,
+  AbstractEdge,
+  add_vertex!,
+  dst,
+  edgetype,
+  has_vertex,
+  is_directed,
+  rem_vertex!,
+  src,
+  vertices
+using ..NamedGraphs: NamedGraphs, AbstractNamedGraph
+using ..NamedGraphs.GraphsExtensions:
+  GraphsExtensions, add_vertices!, not_implemented, rem_vertices!
 
 abstract type AbstractPartitionedGraph{V,PV} <: AbstractNamedGraph{V} end
 
 #Needed for interface
 partitioned_graph(pg::AbstractPartitionedGraph) = not_implemented()
 unpartitioned_graph(pg::AbstractPartitionedGraph) = not_implemented()
+function unpartitioned_graph_type(pg::Type{<:AbstractPartitionedGraph})
+  return not_implemented()
+end
 partitionvertex(pg::AbstractPartitionedGraph, vertex) = not_implemented()
 partitionvertices(pg::AbstractPartitionedGraph, verts) = not_implemented()
 partitionvertices(pg::AbstractPartitionedGraph) = not_implemented()
@@ -22,6 +30,10 @@ insert_to_vertex_map!(pg::AbstractPartitionedGraph, vertex) = not_implemented()
 partitionedge(pg::AbstractPartitionedGraph, edge) = not_implemented()
 partitionedges(pg::AbstractPartitionedGraph, edges) = not_implemented()
 partitionedges(pg::AbstractPartitionedGraph) = not_implemented()
+function unpartitioned_graph_type(pg::AbstractPartitionedGraph)
+  return typeof(unpartitioned_graph(pg))
+end
+
 function Graphs.edges(pg::AbstractPartitionedGraph, partitionedge::AbstractPartitionEdge)
   return not_implemented()
 end
@@ -33,7 +45,6 @@ function Graphs.vertices(
 ) where {V<:AbstractPartitionVertex}
   return not_implemented()
 end
-NamedGraphs.one_based_graph_type(PG::Type{<:AbstractPartitionedGraph}) = not_implemented()
 function GraphsExtensions.directed_graph_type(PG::Type{<:AbstractPartitionedGraph})
   return not_implemented()
 end
@@ -41,18 +52,21 @@ function GraphsExtensions.undirected_graph_type(PG::Type{<:AbstractPartitionedGr
   return not_implemented()
 end
 
+# AbstractGraph interface.
+function Graphs.is_directed(graph_type::Type{<:AbstractPartitionedGraph})
+  return is_directed(unpartitioned_graph_type(graph_type))
+end
+
 #Functions for the abstract type
 Graphs.vertices(pg::AbstractPartitionedGraph) = vertices(unpartitioned_graph(pg))
-function NamedGraphs.one_based_graph(pg::AbstractPartitionedGraph)
-  return one_based_graph(unpartitioned_graph(pg))
+function NamedGraphs.position_graph(pg::AbstractPartitionedGraph)
+  return NamedGraphs.position_graph(unpartitioned_graph(pg))
 end
-function NamedGraphs.vertex_to_one_based_vertex(pg::AbstractPartitionedGraph, vertex)
-  return vertex_to_one_based_vertex(unpartitioned_graph(pg), vertex)
+function NamedGraphs.vertex_positions(pg::AbstractPartitionedGraph)
+  return NamedGraphs.vertex_positions(unpartitioned_graph(pg))
 end
-function NamedGraphs.one_based_vertex_to_vertex(
-  pg::AbstractPartitionedGraph, one_based_vertex::Integer
-)
-  return one_based_vertex_to_vertex(unpartitioned_graph(pg), one_based_vertex)
+function NamedGraphs.ordered_vertices(pg::AbstractPartitionedGraph)
+  return NamedGraphs.ordered_vertices(unpartitioned_graph(pg))
 end
 Graphs.edgetype(pg::AbstractPartitionedGraph) = edgetype(unpartitioned_graph(pg))
 function Graphs.nv(pg::AbstractPartitionedGraph, pv::AbstractPartitionVertex)
