@@ -92,6 +92,17 @@ using Test: @test, @testset
     @test i[ords[1]] == "x1"
     @test i[ords[2]] == "x2"
     @test i[ords[3]] == "x3"
+
+    i = OrderedIndices(["x1", "x2", "x3"])
+    d = Dictionary(["x1", "x2", "x3"], zeros(Int, 3))
+    for _ in 1:50
+      r = rand(i)
+      @test r ∈ i
+      d[r] += 1
+    end
+    for k in i
+      @test d[k] > 0
+    end
   end
   @testset "OrderedDictionaries" begin
     d = OrderedDictionary(["x1", "x2", "x3"], [1, 2, 3])
