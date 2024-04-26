@@ -1,5 +1,9 @@
 using Graphs.SimpleGraphs: AbstractSimpleGraph
 
+function permute_vertices(graph::AbstractSimpleGraph, permutation)
+  return graph[permutation]
+end
+
 # https://github.com/JuliaGraphs/Graphs.jl/issues/365
 function graph_from_vertices(graph_type::Type{<:AbstractSimpleGraph}, vertices)
   @assert vertices == Base.OneTo(length(vertices))

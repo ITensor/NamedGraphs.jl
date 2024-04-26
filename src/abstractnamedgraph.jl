@@ -51,7 +51,7 @@ Graphs.add_vertex!(graph::AbstractNamedGraph, vertex) = not_implemented()
 
 GraphsExtensions.rename_vertices(f::Function, g::AbstractNamedGraph) = not_implemented()
 
-# TODO: Is this a good definition?
+# TODO: Is this a good definition? Maybe make it generic to any graph?
 function GraphsExtensions.permute_vertices(graph::AbstractNamedGraph, permutation)
   return subgraph(graph, map(v -> ordered_vertices(graph)[v], permutation))
 end

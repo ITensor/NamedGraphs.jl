@@ -16,6 +16,7 @@ using Graphs:
   add_vertex!,
   edges,
   edgetype,
+  has_edge,
   inneighbors,
   is_cyclic,
   is_directed,
@@ -177,7 +178,29 @@ using Test: @test, @test_broken, @test_throws, @testset
 
   # permute_vertices
   g = path_graph(4)
-  @test_broken permute_vertices(g, [2, 1, 4, 3])
+  g_perm = permute_vertices(g, [2, 1, 4, 3])
+  @test nv(g_perm) == 4
+  @test ne(g_perm) == 3
+  @test vertices(g_perm) == 1:4
+  @test has_edge(g_perm, 1 => 2)
+  @test has_edge(g_perm, 2 => 1)
+  @test has_edge(g_perm, 1 => 4)
+  @test has_edge(g_perm, 4 => 1)
+  @test has_edge(g_perm, 3 => 4)
+  @test has_edge(g_perm, 4 => 3)
+  @test !has_edge(g_perm, 2 => 3)
+  @test !has_edge(g_perm, 3 => 2)
+  g = path_digraph(4)
+  g_perm = permute_vertices(g, [2, 1, 4, 3])
+  @test nv(g_perm) == 4
+  @test ne(g_perm) == 3
+  @test vertices(g_perm) == 1:4
+  @test has_edge(g_perm, 2 => 1)
+  @test !has_edge(g_perm, 1 => 2)
+  @test has_edge(g_perm, 1 => 4)
+  @test !has_edge(g_perm, 4 => 1)
+  @test has_edge(g_perm, 4 => 3)
+  @test !has_edge(g_perm, 3 => 4)
 
   # all_edges
   g = path_graph(4)
