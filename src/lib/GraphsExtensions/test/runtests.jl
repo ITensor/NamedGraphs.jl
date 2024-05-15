@@ -587,6 +587,6 @@ using Test: @test, @test_broken, @test_throws, @testset
   g = path_graph(L)
   @test only(vertices_at_distance(g, 1, L - 1)) == L
   @test only(next_nearest_neighbors(g, 1)) == 3
-  @test length(vertices_at_distance(g, 5, 3)) == 2
+  @test issetequal(vertices_at_distance(g, 5, 3), [2, 8])
 end
 end
