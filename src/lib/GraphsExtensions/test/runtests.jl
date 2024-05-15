@@ -69,6 +69,7 @@ using NamedGraphs.GraphsExtensions:
   is_self_loop,
   leaf_vertices,
   minimum_distance_to_leaves,
+  next_nearest_neighbors,
   non_leaf_edges,
   outdegrees,
   permute_vertices,
@@ -81,7 +82,8 @@ using NamedGraphs.GraphsExtensions:
   tree_graph_node,
   undirected_graph,
   undirected_graph_type,
-  vertextype
+  vertextype,
+  vertices_at_distance
 using Test: @test, @test_broken, @test_throws, @testset
 
 # TODO: Still need to test:
@@ -579,5 +581,12 @@ using Test: @test, @test_broken, @test_throws, @testset
   g′ = path_graph(4)
   rem_edges!(g′, [2 => 3, 3 => 4])
   @test g′ == g
+
+  #vertices at distance
+  L = 10
+  g = path_graph(L)
+  @test only(vertices_at_distance(g, 1, L - 1)) == L
+  @test only(next_nearest_neighbors(g, 1)) == 3
+  @test length(vertices_at_distance(g, 5, 3)) == 2
 end
 end
