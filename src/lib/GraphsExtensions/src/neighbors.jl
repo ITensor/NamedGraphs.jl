@@ -1,8 +1,10 @@
-using Graphs: AbstractGraph, neighborhood
+using Graphs: AbstractGraph, neighborhood_dists
 
-function nth_nearest_neighbors(g::AbstractGraph, v, n::Int)
-  isone(n) && return neighborhood(g, v, 1)
-  return setdiff(neighborhood(g, v, n), neighborhood(g, v, n - 1))
+function vertices_at_distance(g::AbstractGraph, vertex, n::Int)
+  neighborhood = [first(v) for v in neighborhood_dists(g, vertex, n)]
+  closer_neighborhood = [first(v) for v in neighborhood_dists(g, vertex, n - 1)]
+  iszero(n) && return neighborhood
+  return setdiff(neighborhood, closer_neighborhood)
 end
 
-next_nearest_neighbors(g::AbstractGraph, v) = nth_nearest_neighbors(g, v, 2)
+next_nearest_neighbors(g::AbstractGraph, v) = vertices_at_distance(g, v, 2)
