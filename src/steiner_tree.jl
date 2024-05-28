@@ -9,5 +9,9 @@ using SimpleTraits: SimpleTraits, Not, @traitfn
     map(v -> vertex_positions(g)[v], term_vert),
     dist_matrix_to_position_dist_matrix(g, distmx),
   )
-  return typeof(g)(position_tree, map(v -> ordered_vertices(g)[v], vertices(position_tree)))
+  tree = typeof(g)(position_tree, map(v -> ordered_vertices(g)[v], vertices(position_tree)))
+  for v in copy(vertices(tree))
+    iszero(degree(tree, v)) && rem_vertex!(tree, v)
+  end
+  return tree
 end

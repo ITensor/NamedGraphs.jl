@@ -675,7 +675,8 @@ end
     st = steiner_tree(g, terminal_vertices)
     es = [(1, 2) => (1, 3), (1, 3) => (1, 4), (1, 4) => (2, 4), (2, 4) => (3, 4)]
     @test ne(st) == 4
-    @test nv(st) == 12
+    @test nv(st) == 5
+    @test !any(v -> iszero(degree(st, v)), vertices(st))
     for e in es
       @test has_edge(st, e)
     end
