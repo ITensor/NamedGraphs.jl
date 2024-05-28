@@ -1,42 +1,26 @@
 # NamedGraphs
 
-
-
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://mtfishman.github.io/NamedGraphs.jl/stable)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://mtfishman.github.io/NamedGraphs.jl/dev)
 [![Build Status](https://github.com/mtfishman/NamedGraphs.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/mtfishman/NamedGraphs.jl/actions/workflows/CI.yml?query=branch%3Amain)
 [![Coverage](https://codecov.io/gh/mtfishman/NamedGraphs.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/mtfishman/NamedGraphs.jl)
 [![Code Style: Blue](https://img.shields.io/badge/code%20style-blue-4495d1.svg)](https://github.com/invenia/BlueStyle)
 
-
-
 ## Installation
-
-
 
 You can install the package using Julia's package manager:
 ```julia
 julia> ] add NamedGraphs
 ```
 
-
-
 ## Introduction
 
-
-
-This packages introduces graph types with named edges, which are built on top of the `Graph`/`SimpleGraph` type in the [Graphs.jl](https://github.com/JuliaGraphs/Graphs.jl) package that only have contiguous integer edges (i.e. linear indexing).
-
-
+This packages introduces graph types with named vertices, which are built on top of the `Graph`/`SimpleGraph` type in the [Graphs.jl](https://github.com/JuliaGraphs/Graphs.jl) package that only have contiguous integer vertices (i.e. linear indexing). By named verticse, one means that the vertices can be labelled by strings, tuples of integers, or other unique identifiers.
 
 There is a supertype `AbstractNamedGraph` that defines an interface and fallback implementations of standard
 Graphs.jl operations, and two implementations: `NamedGraph` and `NamedDiGraph`.
 
-
-
 ## `NamedGraph`
-
-
 
 `NamedGraph` simply takes a set of names for the vertices of the graph. For example:
 
@@ -91,13 +75,10 @@ and 1 edge(s):
 
 ```
 
-
 Internally, this type wraps a `SimpleGraph`, and stores a `Dictionary` from the [Dictionaries.jl](https://github.com/andyferris/Dictionaries.jl) package that maps the vertex names to the linear indices of the underlying `SimpleGraph`.
 
 
-
 Graph operations are implemented by mapping back and forth between the generalized named vertices and the linear index vertices of the `SimpleGraph`.
-
 
 
 It is natural to use tuples of integers as the names for the vertices of graphs with grid connectivities.
