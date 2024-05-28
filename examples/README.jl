@@ -15,7 +15,7 @@
 
 #' ## Introduction
 
-#' This packages introduces graph types with named vertices, which are built on top of the `Graph`/`SimpleGraph` type in the [Graphs.jl](https://github.com/JuliaGraphs/Graphs.jl) package that only have contiguous integer vertices (i.e. linear indexing). The vertex names can be strings, tuples of integers, or other unique identifiers. The vertex names can be strings, tuples of integers, or other unique identifiers.
+#' This packages introduces graph types with named vertices, which are built on top of the `Graph`/`SimpleGraph` type in the [Graphs.jl](https://github.com/JuliaGraphs/Graphs.jl) package that only have contiguous integer vertices (i.e. linear indexing). The vertex names can be strings, tuples of integers, or other unique identifiers (anything that is hashable).
 
 #' There is a supertype `AbstractNamedGraph` that defines an interface and fallback implementations of standard
 #' Graphs.jl operations, and two implementations: `NamedGraph` and `NamedDiGraph`.
