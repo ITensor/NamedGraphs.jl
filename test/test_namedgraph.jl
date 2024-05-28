@@ -675,7 +675,10 @@ end
     st = steiner_tree(g, terminal_vertices)
     es = [(1, 2) => (1, 3), (1, 3) => (1, 4), (1, 4) => (2, 4), (2, 4) => (3, 4)]
     @test ne(st) == 4
-    @test nv(st) == 12
+    @test nv(st) == 5
+    # Test that there are no degree-zero vertices in output:
+    zv = filter(v -> degree(st, v) == 0, vertices(st))
+    @test isempty(zv)
     for e in es
       @test has_edge(st, e)
     end
