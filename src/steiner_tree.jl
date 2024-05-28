@@ -9,13 +9,9 @@ using SimpleTraits: SimpleTraits, Not, @traitfn
     map(v -> vertex_positions(g)[v], term_vert),
     dist_matrix_to_position_dist_matrix(g, distmx),
   )
-  named_st = typeof(g)(
-    position_tree, map(v -> ordered_vertices(g)[v], vertices(position_tree))
-  )
-  # Detect and remove vertices of degree zero
-  zero_verts = filter(v -> degree(named_st, v) == 0, vertices(named_st))
-  for v in zero_verts
-    rem_vertex!(named_st, v)
+  tree = typeof(g)(position_tree, map(v -> ordered_vertices(g)[v], vertices(position_tree)))
+  for v in copy(vertices(tree))
+    iszero(degree(tree, v)) && rem_vertex!(tree, v)
   end
-  return named_st
+  return tree
 end
