@@ -677,8 +677,8 @@ end
     @test ne(st) == 4
     @test nv(st) == 5
     # Test that there are no degree-zero vertices in output:
-    zv = filter(v -> degree(st, v) == 0, vertices(st))
-    @test isempty(zv)
+    zero_deg_verts = filter(v -> degree(st, v) == 0, vertices(st))
+    @test isempty(zero_deg_verts)
     for e in es
       @test has_edge(st, e)
     end
