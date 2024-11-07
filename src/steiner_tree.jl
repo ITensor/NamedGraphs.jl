@@ -1,7 +1,7 @@
 using Graphs: Graphs, IsDirected, nv, steiner_tree
 using SimpleTraits: SimpleTraits, Not, @traitfn
 
-@traitfn function Graphs.steiner_tree(
+@traitfn function namedgraph_steiner_tree(
   g::AbstractNamedGraph::(!IsDirected), term_vert, distmx=weights(g)
 )
   position_tree = steiner_tree(
@@ -14,4 +14,16 @@ using SimpleTraits: SimpleTraits, Not, @traitfn
     iszero(degree(tree, v)) && rem_vertex!(tree, v)
   end
   return tree
+end
+
+@traitfn function Graphs.steiner_tree(
+  g::AbstractNamedGraph::(!IsDirected), term_vert, args...
+)
+  return namedgraph_steiner_tree(g, term_vert, args...)
+end
+
+@traitfn function Graphs.steiner_tree(
+  g::AbstractNamedGraph::(!IsDirected), term_vert::Vector{<:Integer}, args...
+)
+  return namedgraph_steiner_tree(g, term_vert, args...)
 end
