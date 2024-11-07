@@ -25,7 +25,7 @@ julia> ] add NamedGraphs
 
 
 
-This packages introduces graph types with named edges, which are built on top of the `Graph`/`SimpleGraph` type in the [Graphs.jl](https://github.com/JuliaGraphs/Graphs.jl) package that only have contiguous integer edges (i.e. linear indexing).
+This packages introduces graph types with named vertices, which are built on top of the `Graph`/`SimpleGraph` type in the [Graphs.jl](https://github.com/JuliaGraphs/Graphs.jl) package that only have contiguous integer vertices (i.e. linear indexing). The vertex names can be strings, tuples of integers, or other unique identifiers (anything that is hashable).
 
 
 
