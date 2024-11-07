@@ -679,6 +679,16 @@ end
     for e in es
       @test has_edge(st, e)
     end
+
+    g = named_path_graph(4)
+    terminal_vertices = [1, 3]
+    st = steiner_tree(g, terminal_vertices)
+    es = [1 => 2, 2 => 3]
+    @test ne(st) == 2
+    @test nv(st) == 3
+    for e in es
+      @test has_edge(st, e)
+    end
   end
   @testset "topological_sort_by_dfs" begin
     g = NamedDiGraph(["A", "B", "C", "D", "E", "F", "G"])
