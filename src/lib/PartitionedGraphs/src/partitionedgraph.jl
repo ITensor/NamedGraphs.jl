@@ -90,11 +90,11 @@ function partitionedges(pg::PartitionedGraph)
 end
 
 function Graphs.edges(pg::PartitionedGraph, partitionedge::PartitionEdge)
-  psrc_vs = vertices(pg, PartitionVertex(src(partitionedge)))
-  pdst_vs = vertices(pg, PartitionVertex(dst(partitionedge)))
-  psrc_subgraph = subgraph(unpartitioned_graph(pg), psrc_vs)
-  pdst_subgraph = subgraph(pg, pdst_vs)
-  full_subgraph = subgraph(pg, vcat(psrc_vs, pdst_vs))
+  psrc_vs = vertices(pg, src(partitionedge))
+  pdst_vs = vertices(pg, dst(partitionedge))
+  psrc_subgraph, _ = induced_subgraph(unpartitioned_graph(pg), psrc_vs)
+  pdst_subgraph, _ = induced_subgraph(pg, pdst_vs)
+  full_subgraph, _ = induced_subgraph(pg, vcat(psrc_vs, pdst_vs))
 
   return setdiff(edges(full_subgraph), vcat(edges(psrc_subgraph), edges(pdst_subgraph)))
 end
