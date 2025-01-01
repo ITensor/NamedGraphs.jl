@@ -52,6 +52,9 @@ using NamedGraphs.GraphsExtensions:
   directed_graph_type,
   disjoint_union,
   distance_to_leaves,
+  _eulerian_cycle,
+  eulerian_cycle,
+  eulerian_path,
   has_edges,
   has_leaf_neighbor,
   has_vertices,
@@ -68,6 +71,7 @@ using NamedGraphs.GraphsExtensions:
   is_rooted,
   is_self_loop,
   leaf_vertices,
+  make_all_degrees_even,
   minimum_distance_to_leaves,
   next_nearest_neighbors,
   non_leaf_edges,
@@ -588,5 +592,15 @@ using Test: @test, @test_broken, @test_throws, @testset
   @test only(vertices_at_distance(g, 1, L - 1)) == L
   @test only(next_nearest_neighbors(g, 1)) == 3
   @test issetequal(vertices_at_distance(g, 5, 3), [2, 8])
+
+  #Eulerian paths
+  g = path_graph(L)
+  path = eulerian_path(g, 1, L)
+  @test path == [edgetype(g)(i, i + 1) for i in 1:(L - 1)]
+
+  g = add_edge(g, L => 1)
+  cycle = eulerian_cycle(g, 1)
+  correct_cycle = vcat([edgetype(g)(i, i + 1) for i in 1:(L - 1)], [edgetype(g)(L, 1)])
+  @test cycle == correct_cycle || reverse(reverse.(cycle)) == correct_cycle
 end
 end
