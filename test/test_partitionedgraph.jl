@@ -28,6 +28,7 @@ using NamedGraphs.GraphsExtensions:
   vertextype
 using NamedGraphs.NamedGraphGenerators:
   named_comb_tree, named_grid, named_triangular_lattice_graph
+using NamedGraphs.OrderedDictionaries: OrderedDictionary
 using NamedGraphs.PartitionedGraphs:
   PartitionEdge,
   PartitionedGraph,
@@ -52,7 +53,7 @@ using Test: @test, @testset
   pg = PartitionedGraph(g, partitions)
   @test vertextype(partitioned_graph(pg)) == Int64
   @test vertextype(unpartitioned_graph(pg)) == vertextype(g)
-  @test isa(partitionvertices(pg), Dictionary{Int64,PartitionVertex{Int64}})
+  @test isa(partitionvertices(pg), OrderedDictionary{Int64,PartitionVertex{Int64}})
   @test isa(partitionedges(pg), Vector{PartitionEdge{Int64,NamedEdge{Int64}}})
   @test is_tree(partitioned_graph(pg))
   @test nv(pg) == nx * ny
@@ -67,7 +68,7 @@ using Test: @test, @testset
   @test vertextype(unpartitioned_graph(pg)) == vertextype(g)
   @test isa(
     partitionvertices(pg),
-    Dictionary{Tuple{Int64,Int64},PartitionVertex{Tuple{Int64,Int64}}},
+    OrderedDictionary{Tuple{Int64,Int64},PartitionVertex{Tuple{Int64,Int64}}},
   )
   @test isa(
     partitionedges(pg),
@@ -109,6 +110,7 @@ end
   inter_column_edges = [(1, 1, i) => (2, 1, i) for i in 1:nz]
   @test length(partitionedges(pg, inter_column_edges)) == 1
   @test length(partitionvertices(pg, [(1, 2, i) for i in 1:nz])) == 1
+  @test all([length(edges(pg, pe)) == nz for pe in partitionedges(pg)])
 
   boundary_sizes = [length(boundary_partitionedges(pg, pv)) for pv in partitionvertices(pg)]
   #Partitions into a square grid so each partition should have maximum 4 incoming edges and minimum 2
