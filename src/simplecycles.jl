@@ -34,9 +34,9 @@ function unique_cyclesubgraphs_limited_length(g::AbstractNamedGraph, max_cycle_s
 end
 
 """
-Enumerate all unqiue, connected edgesubgraphs without any leaf vertices (degree 1) and with Nedges < max_number_of_edges
+Enumerate all unqiue, connected edgesubgraphs without any leaf vertices (degree 1) and with Nedges <= max_number_of_edges
 """
-function edge_subgraphs_no_leaf_vertices(g::AbstractGraph, max_number_of_edges::Int64)
+function edgeinduced_subgraphs_no_leaves(g::AbstractNamedGraph, max_number_of_edges::Int64)
   edge_subgraphs = unique_cyclesubgraphs_limited_length(g, max_number_of_edges)
   isempty(edge_subgraphs) && return []
 
