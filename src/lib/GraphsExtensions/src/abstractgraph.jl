@@ -134,6 +134,13 @@ function subgraph(f::Function, graph::AbstractGraph)
   return subgraph(graph, filter(f, vertices(graph)))
 end
 
+function edge_subgraph(graph::AbstractGraph, es::Vector{<:AbstractEdge})
+  vs = unique(vcat(src.(es), dst.(es)))
+  g = subgraph(graph, vs)
+  g = rem_edges(g, edges(g))
+  return add_edges(g, es)
+end
+
 function degrees(graph::AbstractGraph, vertices=vertices(graph))
   return map(vertex -> degree(graph, vertex), vertices)
 end
