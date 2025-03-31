@@ -1,9 +1,7 @@
 using NamedGraphs: NamedGraphs
 using Documenter: Documenter, DocMeta, deploydocs, makedocs
 
-DocMeta.setdocmeta!(
-  NamedGraphs, :DocTestSetup, :(using NamedGraphs); recursive=true
-)
+DocMeta.setdocmeta!(NamedGraphs, :DocTestSetup, :(using NamedGraphs); recursive=true)
 
 include("make_index.jl")
 
@@ -19,6 +17,4 @@ makedocs(;
   pages=["Home" => "index.md", "Reference" => "reference.md"],
 )
 
-deploydocs(;
-  repo="github.com/ITensor/NamedGraphs.jl", devbranch="main", push_preview=true
-)
+deploydocs(; repo="github.com/ITensor/NamedGraphs.jl", devbranch="main", push_preview=true)
