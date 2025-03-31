@@ -1,104 +1,47 @@
-#' # NamedGraphs
+# # NamedGraphs.jl
+# 
+# [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://itensor.github.io/NamedGraphs.jl/stable/)
+# [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://itensor.github.io/NamedGraphs.jl/dev/)
+# [![Build Status](https://github.com/ITensor/NamedGraphs.jl/actions/workflows/Tests.yml/badge.svg?branch=main)](https://github.com/ITensor/NamedGraphs.jl/actions/workflows/Tests.yml?query=branch%3Amain)
+# [![Coverage](https://codecov.io/gh/ITensor/NamedGraphs.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/ITensor/NamedGraphs.jl)
+# [![Code Style: Blue](https://img.shields.io/badge/code%20style-blue-4495d1.svg)](https://github.com/invenia/BlueStyle)
+# [![Aqua](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
 
-#' [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://mtfishman.github.io/NamedGraphs.jl/stable)
-#' [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://mtfishman.github.io/NamedGraphs.jl/dev)
-#' [![Build Status](https://github.com/mtfishman/NamedGraphs.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/mtfishman/NamedGraphs.jl/actions/workflows/CI.yml?query=branch%3Amain)
-#' [![Coverage](https://codecov.io/gh/mtfishman/NamedGraphs.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/mtfishman/NamedGraphs.jl)
-#' [![Code Style: Blue](https://img.shields.io/badge/code%20style-blue-4495d1.svg)](https://github.com/invenia/BlueStyle)
+# ## Support
+#
+# {CCQ_LOGO}
+#
+# NamedGraphs.jl is supported by the Flatiron Institute, a division of the Simons Foundation.
 
-#' ## Installation
+# ## Installation instructions
 
-#' You can install the package using Julia's package manager:
-#' ```julia
-#' julia> ] add NamedGraphs
-#' ```
+# This package resides in the `ITensor/ITensorRegistry` local registry.
+# In order to install, simply add that registry through your package manager.
+# This step is only required once.
+#=
+```julia
+julia> using Pkg: Pkg
 
-#' ## Introduction
+julia> Pkg.Registry.add(url="https://github.com/ITensor/ITensorRegistry")
+```
+=#
+# or:
+#=
+```julia
+julia> Pkg.Registry.add(url="git@github.com:ITensor/ITensorRegistry.git")
+```
+=#
+# if you want to use SSH credentials, which can make it so you don't have to enter your Github ursername and password when registering packages.
 
-#' This packages introduces graph types with named vertices, which are built on top of the `Graph`/`SimpleGraph` type in the [Graphs.jl](https://github.com/JuliaGraphs/Graphs.jl) package that only have contiguous integer vertices (i.e. linear indexing). The vertex names can be strings, tuples of integers, or other unique identifiers (anything that is hashable).
+# Then, the package can be added as usual through the package manager:
 
-#' There is a supertype `AbstractNamedGraph` that defines an interface and fallback implementations of standard
-#' Graphs.jl operations, and two implementations: `NamedGraph` and `NamedDiGraph`.
+#=
+```julia
+julia> Pkg.add("NamedGraphs")
+```
+=#
 
-#' ## `NamedGraph`
-
-#' `NamedGraph` simply takes a set of names for the vertices of the graph. For example:
-#+ term=true
-
-using Graphs: grid, has_edge, has_vertex, neighbors
-using NamedGraphs: NamedGraph
-using NamedGraphs.GraphsExtensions: ⊔, disjoint_union, subgraph, rename_vertices
-g = NamedGraph(grid((4,)), ["A", "B", "C", "D"])
-
-#'Common operations are defined as you would expect:
-#+ term=true
-
-has_vertex(g, "A")
-has_edge(g, "A" => "B")
-has_edge(g, "A" => "C")
-neighbors(g, "B")
-subgraph(g, ["A", "B"])
-
-#' Internally, this type wraps a `SimpleGraph`, and stores a `Dictionary` from the [Dictionaries.jl](https://github.com/andyferris/Dictionaries.jl) package that maps the vertex names to the linear indices of the underlying `SimpleGraph`.
-
-#' Graph operations are implemented by mapping back and forth between the generalized named vertices and the linear index vertices of the `SimpleGraph`.
-
-#' It is natural to use tuples of integers as the names for the vertices of graphs with grid connectivities.
-#' For example:
-#+ term=true
-
-dims = (2, 2)
-g = NamedGraph(grid(dims), Tuple.(CartesianIndices(dims)))
-
-#' In the future we will provide a shorthand notation for this, such as `cartesian_graph(grid((2, 2)), (2, 2))`.
-#' Internally the vertices are all stored as tuples with a label in each dimension.
-
-#' Vertices can be referred to by their tuples:
-#+ term=true
-
-has_vertex(g, (1, 1))
-has_edge(g, (1, 1) => (2, 1))
-has_edge(g, (1, 1) => (2, 2))
-neighbors(g, (2, 2))
-
-#' You can use vertex names to get [induced subgraphs](https://juliagraphs.org/Graphs.jl/dev/core_functions/operators/#Graphs.induced_subgraph-Union{Tuple{T},%20Tuple{U},%20Tuple{T,%20AbstractVector{U}}}%20where%20{U%3C:Integer,%20T%3C:AbstractGraph}):
-#+ term=true
-
-subgraph(v -> v[1] == 1, g)
-subgraph(v -> v[2] == 2, g)
-subgraph(g, [(1, 1), (2, 2)])
-
-#' You can also take [disjoint unions](https://en.wikipedia.org/wiki/Disjoint_union) or concatenations of graphs:
-#+ term=true
-
-g₁ = g
-g₂ = g
-disjoint_union(g₁, g₂)
-g₁ ⊔ g₂ # Same as above
-
-#' The symbol `⊔` is just an alias for `disjoint_union` and can be written in the terminal
-#' or in your favorite [IDE with the appropriate Julia extension](https://julialang.org/) with `\sqcup<tab>`
-
-#' By default, this maps the vertices `v₁ ∈ vertices(g₁)` to `(v₁, 1)` and the vertices `v₂ ∈ vertices(g₂)`
-#' to `(v₂, 2)`, so the resulting vertices of the unioned graph will always be unique.
-#' The resulting graph will have no edges between vertices `(v₁, 1)` and `(v₂, 2)`, these would have to
-#' be added manually.
-
-#' The original graphs can be obtained from subgraphs:
-#+ term=true
-
-rename_vertices(first, subgraph(v -> v[2] == 1, g₁ ⊔ g₂))
-rename_vertices(first, subgraph(v -> v[2] == 2, g₁ ⊔ g₂))
-
-#' ## Generating this README
-
-#' This file was generated with [Weave.jl](https://github.com/JunoLab/Weave.jl) with the following commands:
-#+ eval=false
+# ## Examples
 
 using NamedGraphs: NamedGraphs
-using Weave: Weave
-Weave.weave(
-  joinpath(pkgdir(NamedGraphs), "examples", "README.jl");
-  doctype="github",
-  out_path=pkgdir(NamedGraphs),
-)
+# Examples go here.
