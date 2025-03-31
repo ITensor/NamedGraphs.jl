@@ -21,7 +21,7 @@ function unique_simplecycles_limited_length(g::AbstractNamedGraph, max_cycle_siz
   return cycles
 end
 
-function cycle_to_path(g::AbstractNamedGraph, cycle::Vector)
+function cycle_to_path(cycle::Vector)
   es = [NamedEdge(cycle[i] => cycle[i + 1]) for i in 1:(length(cycle) - 1)]
   final_edge = NamedEdge(first(cycle) => last(cycle))
   return vcat(es, final_edge)
@@ -29,7 +29,7 @@ end
 
 function unique_cyclesubgraphs_limited_length(g::AbstractNamedGraph, max_cycle_size::Int64)
   cycles = unique_simplecycles_limited_length(g, max_cycle_size)
-  paths = cycle_to_path.((g,), cycles)
+  paths = cycle_to_path.(cycles)
   return edge_subgraph.((g,), paths)
 end
 
