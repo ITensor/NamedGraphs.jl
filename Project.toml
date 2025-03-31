@@ -1,10 +1,11 @@
 name = "NamedGraphs"
 uuid = "678767b0-92e7-4007-89e4-4527a8725b19"
-authors = ["Matthew Fishman <mfishman@flatironinstitute.org> and contributors"]
-version = "0.6.4"
+authors = ["Matthew Fishman <mfishman@flatironinstitute.org>, Joseph Tindall <jtindall@flatironinstitute.org> and contributors"]
+version = "0.6.5"
 
 [deps]
 AbstractTrees = "1520ce14-60c1-5f80-bbc7-55ef81b5835c"
+Combinatorics = "861a8166-3701-5b0c-9a16-15d98fcdc6aa"
 Dictionaries = "85a47980-9c8c-11e8-2b9f-f7ca1fa99fb4"
 Graphs = "86223c79-3864-5bf0-83f7-82e725a168b6"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
@@ -29,6 +30,7 @@ NamedGraphsSymRCMExt = "SymRCM"
 
 [compat]
 AbstractTrees = "0.3, 0.4"
+Combinatorics = "1.0.2"
 Dictionaries = "0.4"
 Graphs = "1.8"
 GraphsFlows = "0.1.1"
