@@ -45,7 +45,7 @@ function edgeinduced_subgraphs_no_leaves(g::AbstractNamedGraph, max_number_of_ed
   max_genus = round(Int64, ceil(max_number_of_edges / min_loop_size))
   subgraph_components = collect(powerset(edge_subgraphs, 1, max_genus))
 
-  edge_subgraphs = []
+  edge_subgraphs = typeof(g)[]
   for sc in subgraph_components
     g = reduce(union, sc)
     if is_connected(g) && ne(g) <= max_number_of_edges && g ∉ edge_subgraphs
