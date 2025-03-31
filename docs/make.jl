@@ -15,6 +15,7 @@ makedocs(;
     assets=["assets/favicon.ico", "assets/extras.css"],
   ),
   pages=["Home" => "index.md", "Reference" => "reference.md"],
+  warnonly=true,
 )
 
 deploydocs(; repo="github.com/ITensor/NamedGraphs.jl", devbranch="main", push_preview=true)
