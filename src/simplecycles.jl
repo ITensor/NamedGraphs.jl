@@ -6,7 +6,7 @@ using SplitApplyCombine: group
 function Graphs.simplecycles_limited_length(g::AbstractNamedGraph, max_cycle_size::Int64)
   vs = collect(vertices(g))
   cycles = simplecycles_limited_length(position_graph(g), max_cycle_size)
-  cycles = [[vs[i] for i in cycle] for cycle in cycles]
+  cycles = map(cycle -> map(i -> vs[i], cycle), cycles)
   return cycles
 end
 
