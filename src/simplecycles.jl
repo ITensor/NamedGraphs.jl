@@ -40,7 +40,7 @@ Enumerate all unique, connected edgesubgraphs without any leaf vertices (degree 
 """
 function edgeinduced_subgraphs_no_leaves(g::AbstractNamedGraph, max_number_of_edges::Int64)
   edge_subgraphs = unique_cyclesubgraphs_limited_length(g, max_number_of_edges)
-  isempty(edge_subgraphs) && return []
+  isempty(edge_subgraphs) && return typeof(g)[]
 
   #Take powerset, but don't exceed max_number of edges and remove disconnected components
   min_loop_size = minimum(length.(edges.(edge_subgraphs)))
