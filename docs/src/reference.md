@@ -1,5 +1,5 @@
 # Reference
 
 ```@autodocs
-Modules = [NamedGraphs]
+Modules = [NamedGraphs, NamedGraphs.GraphsExtensions, NamedGraphs.NamedGraphGenerators, NamedGraphs.Keys]
 ```
