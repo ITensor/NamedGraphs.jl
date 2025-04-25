@@ -1,19 +1,20 @@
-using NamedGraphs
-using Documenter
+using NamedGraphs: NamedGraphs
+using Documenter: Documenter, DocMeta, deploydocs, makedocs
 
 DocMeta.setdocmeta!(NamedGraphs, :DocTestSetup, :(using NamedGraphs); recursive=true)
 
+include("make_index.jl")
+
 makedocs(;
   modules=[NamedGraphs],
-  authors="Matthew Fishman <mfishman@flatironinstitute.org> and contributors",
-  repo="https://github.com/mtfishman/NamedGraphs.jl/blob/{commit}{path}#{line}",
+  authors="ITensor developers <support@itensor.org> and contributors",
   sitename="NamedGraphs.jl",
   format=Documenter.HTML(;
-    prettyurls=get(ENV, "CI", "false") == "true",
-    canonical="https://mtfishman.github.io/NamedGraphs.jl",
-    assets=String[],
+    canonical="https://itensor.github.io/NamedGraphs.jl",
+    edit_link="main",
+    assets=["assets/favicon.ico", "assets/extras.css"],
   ),
-  pages=["Home" => "index.md"],
+  pages=["Home" => "index.md", "Reference" => "reference.md"],
 )
 
-deploydocs(; repo="github.com/mtfishman/NamedGraphs.jl", devbranch="main")
+deploydocs(; repo="github.com/ITensor/NamedGraphs.jl", devbranch="main", push_preview=true)
