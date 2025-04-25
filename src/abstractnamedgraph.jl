@@ -186,8 +186,9 @@ end
 @traitfn function namedgraph_degree(graph::AbstractNamedGraph::IsDirected, vertex)
   return indegree(graph, vertex) + outdegree(graph, vertex)
 end
-@traitfn namedgraph_degree(graph::AbstractNamedGraph::(!IsDirected), vertex) =
-  indegree(graph, vertex)
+@traitfn namedgraph_degree(graph::AbstractNamedGraph::(!IsDirected), vertex) = indegree(
+  graph, vertex
+)
 
 function Graphs.degree(graph::AbstractNamedGraph, vertex)
   return namedgraph_degree(graph::AbstractNamedGraph, vertex)
