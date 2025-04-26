@@ -3,7 +3,7 @@ using Graphs: AbstractGraph, edgetype
 using NamedGraphs: position_graph, vertices
 using NamedGraphs.GraphsExtensions: GraphsExtensions
 using SimpleGraphAlgorithms: SimpleGraphAlgorithms
-using SimpleGraphConverter: UG
+using SimpleGraphConverter: UndirectedGraph
 
 function SimpleGraphAlgorithms.edge_color(g::AbstractNamedGraph, k::Int64)
   pg, vs = position_graph(g), collect(vertices(g))
