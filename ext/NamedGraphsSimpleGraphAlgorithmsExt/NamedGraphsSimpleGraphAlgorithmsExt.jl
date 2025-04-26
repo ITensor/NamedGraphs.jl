@@ -5,7 +5,7 @@ using NamedGraphs.GraphsExtensions: GraphsExtensions
 using SimpleGraphAlgorithms: SimpleGraphAlgorithms
 using SimpleGraphConverter: UG
 
-function SimpleGraphAlgorithms.edge_color(g::AbstractGraph, k::Int64)
+function SimpleGraphAlgorithms.edge_color(g::AbstractNamedGraph, k::Int64)
   pg, vs = position_graph(g), collect(vertices(g))
   ec_dict = SimpleGraphAlgorithms.edge_color(UG(pg), k)
   # returns k vectors of edges which each contain the colored/commuting edges
