@@ -6,6 +6,7 @@ include("neighbors.jl")
 include("shortestpaths.jl")
 include("symrcm.jl")
 include("partitioning.jl")
+include("traversal.jl")
 include("trees_and_forests.jl")
 include("simplegraph.jl")
 end
