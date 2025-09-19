@@ -1,4 +1,3 @@
-@eval module $(gensym())
 using AbstractTrees:
   IndexNode,
   Leaves,
@@ -14,6 +13,7 @@ using Dictionaries: Dictionary, Indices
 using Graphs:
   add_edge!,
   add_vertex!,
+  dst,
   edges,
   edgetype,
   has_edge,
@@ -24,6 +24,7 @@ using Graphs:
   nv,
   outneighbors,
   rem_edge!,
+  src,
   vertices
 using Graphs.SimpleGraphs:
   SimpleDiGraph,
@@ -35,7 +36,7 @@ using Graphs.SimpleGraphs:
   grid,
   path_digraph,
   path_graph
-using NamedGraphs: NamedGraph
+using NamedGraphs: NamedDiGraph, NamedEdge, NamedGraph
 using NamedGraphs.GraphGenerators: binary_arborescence
 using NamedGraphs.GraphsExtensions:
   TreeGraph,
@@ -44,6 +45,8 @@ using NamedGraphs.GraphsExtensions:
   add_edges,
   add_edges!,
   all_edges,
+  arrange_edge,
+  arranged_edges,
   child_edges,
   child_vertices,
   convert_vertextype,
@@ -58,9 +61,11 @@ using NamedGraphs.GraphsExtensions:
   incident_edges,
   indegrees,
   is_arborescence,
+  is_arranged,
   is_binary_arborescence,
   is_cycle_graph,
   is_ditree,
+  is_edge_arranged,
   is_leaf_edge,
   is_leaf_vertex,
   is_path_graph,
@@ -588,5 +593,57 @@ using Test: @test, @test_broken, @test_throws, @testset
   @test only(vertices_at_distance(g, 1, L - 1)) == L
   @test only(next_nearest_neighbors(g, 1)) == 3
   @test issetequal(vertices_at_distance(g, 5, 3), [2, 8])
-end
+
+  @testset "arrange" begin
+    @testset "is_arranged, is_edge_arranged" begin
+      for (a, b) in [
+        (1, 2),
+        ([1], [2]),
+        ([1, 2], [2, 1]),
+        ([1, 2], [2]),
+        ([2], [2, 1]),
+        ((1,), (2,)),
+        ((1, 2), (2, 1)),
+        ((1, 2), (2,)),
+        ((2,), (2, 1)),
+        ("X", 1),
+        (("X",), (1, 2)),
+      ]
+        @test is_arranged(a, b)
+        @test !is_arranged(b, a)
+        @test is_edge_arranged(NamedEdge(a, b))
+        @test !is_edge_arranged(NamedEdge(b, a))
+        @test arrange_edge(NamedEdge(a, b)) == NamedEdge(a, b)
+        @test arrange_edge(NamedEdge(b, a)) == NamedEdge(a, b)
+        g = NamedGraph()
+        @test is_edge_arranged(g, NamedEdge(a, b))
+        @test !is_edge_arranged(g, NamedEdge(b, a))
+        @test arrange_edge(g, NamedEdge(a, b)) == NamedEdge(a, b)
+        @test arrange_edge(g, NamedEdge(b, a)) == NamedEdge(a, b)
+        dig = NamedDiGraph()
+        @test is_edge_arranged(dig, NamedEdge(a, b))
+        @test is_edge_arranged(dig, NamedEdge(b, a))
+        @test arrange_edge(dig, NamedEdge(a, b)) == NamedEdge(a, b)
+        @test arrange_edge(dig, NamedEdge(b, a)) == NamedEdge(b, a)
+      end
+      # Improve test coverage.
+      @test !is_arranged((), ())
+    end
+    @testset "arranged_edges" begin
+      vs = [1, 2, 3, 4]
+      es = [1 => 2, 2 => 3, 3 => 4]
+      # For undirected graphs, the edge ordering is based on the vertex ordering.
+      g = NamedGraph(reverse(vs))
+      add_edges!(g, es)
+      @test all(!is_edge_arranged, edges(g))
+      @test issetequal(arranged_edges(g), reverse.(edges(g)))
+
+      vs = [1, 2, 3, 4]
+      es = [2 => 1, 3 => 2, 4 => 3]
+      dig = NamedDiGraph(reverse(vs))
+      add_edges!(dig, es)
+      @test all(!is_edge_arranged, edges(dig))
+      @test issetequal(arranged_edges(dig), edges(dig))
+    end
+  end
 end

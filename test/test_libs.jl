@@ -13,7 +13,7 @@ libs = [
 ]
 @testset "Test lib $lib" for lib in libs
   path = joinpath(pkgdir(NamedGraphs), "src", "lib", String(lib), "test", "runtests.jl")
-  println("Runnint lib test $path")
+  println("Running lib test $path")
   include(path)
 end
 end
