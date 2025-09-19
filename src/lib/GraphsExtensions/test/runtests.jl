@@ -626,6 +626,8 @@ using Test: @test, @test_broken, @test_throws, @testset
         @test arrange_edge(dig, NamedEdge(a, b)) == NamedEdge(a, b)
         @test arrange_edge(dig, NamedEdge(b, a)) == NamedEdge(b, a)
       end
+      # Improve test coverage.
+      @test !is_arranged((), ())
     end
     @testset "arranged_edges" begin
       vs = [1, 2, 3, 4]
