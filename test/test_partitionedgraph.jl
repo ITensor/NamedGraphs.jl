@@ -32,6 +32,7 @@ using NamedGraphs.OrderedDictionaries: OrderedDictionary
 using NamedGraphs.PartitionedGraphs:
   PartitionEdge,
   PartitionedGraph,
+  PartitionedGraphView,
   PartitionVertex,
   boundary_partitionedges,
   partitioned_graph,
@@ -60,6 +61,11 @@ using Test: @test, @testset
   @test nv(partitioned_graph(pg)) == nx
   pg_c = copy(pg)
   @test pg_c == pg
+
+  #PartionedGraphView test
+  pgv = PartitionedGraphView(pg)
+  @test vertices(pgv) == parent.(partitionvertices(pg))
+  @test edges(pgv) == parent.(partitionedges(pg))
 
   #Same partitioning but with a dictionary constructor
   partition_dict = Dictionary([first(partition) for partition in partitions], partitions)
