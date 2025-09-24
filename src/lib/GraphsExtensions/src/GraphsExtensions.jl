@@ -8,4 +8,5 @@ include("symrcm.jl")
 include("partitioning.jl")
 include("trees_and_forests.jl")
 include("simplegraph.jl")
+include("arrange_edges.jl")
 end
