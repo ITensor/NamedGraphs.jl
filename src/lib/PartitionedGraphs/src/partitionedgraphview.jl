@@ -1,4 +1,4 @@
-struct PartitionedGraphView{PG}
+struct PartitionedGraphView{V,PG<:AbstractGraph{V}} <: AbstractGraph{V}
   value::PG
 end
 
