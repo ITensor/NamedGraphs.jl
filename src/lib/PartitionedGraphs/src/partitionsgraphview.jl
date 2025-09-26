@@ -19,10 +19,11 @@ for f in [
   :(Graphs.edges),
   :(Graphs.vertices),
   :(Graphs.rem_vertex!),
+  :(NamedGraphs.edgetype),
+  :(NamedGraphs.namedgraph_induced_subgraph),
+  :(NamedGraphs.ordered_vertices),
   :(NamedGraphs.position_graph),
   :(NamedGraphs.vertex_positions),
-  :(NamedGraphs.ordered_vertices),
-  :(NamedGraphs.edgetype),
   :(NamedGraphs.vertextype),
 ]
   @eval begin

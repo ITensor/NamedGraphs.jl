@@ -48,15 +48,17 @@ end
 function forest_cover(g::AbstractGraph; spanning_tree=spanning_tree)
   edges_collected = edgetype(g)[]
   remaining_edges = edges(g)
+  g_reduced = rem_edges(g, edges_collected)
   forests = typeof(g)[]
   while !isempty(remaining_edges)
-    g_reduced = rem_edges(g, edges_collected)
     g_reduced_spanning_forest = spanning_forest(g_reduced; spanning_tree)
-    push!(edges_collected, edges(g_reduced_spanning_forest)...)
-    push!(forests, g_reduced_spanning_forest)
-    setdiff!(remaining_edges, edges(g_reduced_spanning_forest))
+    edges_collected = [edges_collected; collect(edges(g_reduced_spanning_forest))]
+    g_reduced = rem_edges(g, edges_collected)
+    forests = [forests; [g_reduced_spanning_forest]]
+    remaining_edges = setdiff(remaining_edges, edges(g_reduced_spanning_forest))
   end
-  return forests
+  # Narrow the element type if possible.
+  return identity.(forests)
 end
 
 # TODO: Define in `NamedGraphs.PartitionedGraphs`.
