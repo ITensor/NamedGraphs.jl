@@ -1,10 +1,13 @@
 @eval module $(gensym())
 using Graphs:
+  a_star,
   center,
+  connected_components,
   diameter,
   edges,
   has_vertex,
   is_connected,
+  is_directed,
   is_tree,
   ne,
   neighbors,
@@ -14,7 +17,7 @@ using Graphs:
   rem_vertex!,
   vertices
 using Metis: Metis
-using NamedGraphs: NamedEdge, NamedGraph
+using NamedGraphs: NamedEdge, NamedGraph, NamedGraphs
 using NamedGraphs.GraphsExtensions:
   add_edges!,
   add_vertices!,
