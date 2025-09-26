@@ -1,5 +1,4 @@
 using Graphs:
-  AbstractGraph,
   Graphs,
   AbstractEdge,
   add_vertex!,
@@ -15,8 +14,6 @@ using ..NamedGraphs.GraphsExtensions:
   GraphsExtensions, add_vertices!, not_implemented, rem_vertices!
 
 abstract type AbstractPartitionedGraph{V,PV} <: AbstractNamedGraph{V} end
-
-partitions_graph(g::AbstractGraph) = typeof(g)(1)
 
 #Needed for interface
 partitions_graph(pg::AbstractPartitionedGraph) = not_implemented()

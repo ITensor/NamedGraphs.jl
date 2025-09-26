@@ -46,7 +46,7 @@ function PartitionedGraph(g::AbstractGraph; kwargs...)
 end
 
 #Needed for interface
-partitions_graph(pg::PartitionedGraph) = getfield(pg, :partitions_graph)
+partitions_graph(pg::PartitionedGraph) = PartitionsGraphView(pg)
 unpartitioned_graph(pg::PartitionedGraph) = getfield(pg, :graph)
 function unpartitioned_graph_type(graph_type::Type{<:PartitionedGraph})
   return fieldtype(graph_type, :graph)
@@ -70,7 +70,7 @@ function partitionvertices(pg::PartitionedGraph, verts)
 end
 
 function partitionvertices(pg::PartitionedGraph)
-  return PartitionVertex.(vertices(partitions_graph(pg)))
+  return PartitionVertex.(vertices(pg.partitions_graph))
 end
 
 function partitionedge(pg::PartitionedGraph, edge::AbstractEdge)
@@ -86,7 +86,7 @@ function partitionedges(pg::PartitionedGraph, edges::Vector)
 end
 
 function partitionedges(pg::PartitionedGraph)
-  return PartitionEdge.(edges(partitions_graph(pg)))
+  return PartitionEdge.(edges(pg.partitions_graph))
 end
 
 function Graphs.edges(pg::PartitionedGraph, partitionedge::PartitionEdge)
@@ -105,7 +105,7 @@ end
 
 function boundary_partitionedges(pg::PartitionedGraph, partitionvertices; kwargs...)
   return PartitionEdge.(
-    boundary_edges(partitions_graph(pg), parent.(partitionvertices); kwargs...)
+    boundary_edges(pg.partitions_graph, parent.(partitionvertices); kwargs...)
   )
 end
 
@@ -118,7 +118,7 @@ end
 function Base.copy(pg::PartitionedGraph)
   return PartitionedGraph(
     copy(unpartitioned_graph(pg)),
-    copy(partitions_graph(pg)),
+    copy(pg.partitions_graph),
     copy(partitioned_vertices(pg)),
     copy(which_partition(pg)),
   )
@@ -160,7 +160,7 @@ end
 function partitionedgraph_induced_subgraph(pg::PartitionedGraph, vertices::Vector)
   sub_pg_graph, _ = induced_subgraph(unpartitioned_graph(pg), vertices)
   sub_partitioned_vertices = copy(partitioned_vertices(pg))
-  for pv in NamedGraphs.vertices(partitions_graph(pg))
+  for pv in NamedGraphs.vertices(pg.partitions_graph)
     vs = intersect(vertices, sub_partitioned_vertices[pv])
     if !isempty(vs)
       sub_partitioned_vertices[pv] = vs

@@ -35,9 +35,9 @@ using NamedGraphs.NamedGraphGenerators:
 using NamedGraphs.OrderedDictionaries: OrderedDictionary
 using NamedGraphs.PartitionedGraphs:
   PartitionEdge,
+  PartitionVertex,
   PartitionedGraph,
   PartitionsGraphView,
-  PartitionVertex,
   boundary_partitionedges,
   partitions_graph,
   partitionedge,
@@ -66,7 +66,7 @@ using Test: @test, @testset
   pg_c = copy(pg)
   @test pg_c == pg
 
-  #PartionedGraphView test
+  #PartionsGraphView test
   pgv = PartitionsGraphView(pg)
   @test vertices(pgv) == parent.(partitionvertices(pg))
   @test edges(pgv) == parent.(partitionedges(pg))
