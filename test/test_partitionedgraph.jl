@@ -23,6 +23,7 @@ using NamedGraphs.GraphsExtensions:
   add_vertices!,
   boundary_edges,
   default_root_vertex,
+  edgetype,
   forest_cover,
   is_path_graph,
   is_self_loop,
@@ -72,6 +73,8 @@ using Test: @test, @testset
   @test edges(pgv) == parent.(partitionedges(pg))
   @test is_tree(pgv) == true
   @test neighbors(pgv, 1) == [2]
+  @test issetequal(vertices(subgraph(pgv, [2, 3, 4])), [2, 3, 4])
+  @test issetequal(edges(subgraph(pgv, [2, 3, 4])), edgetype(pgv).([2 => 3, 3 => 4]))
 
   #Same partitioning but with a dictionary constructor
   partition_dict = Dictionary([first(partition) for partition in partitions], partitions)
