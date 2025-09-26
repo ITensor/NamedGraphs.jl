@@ -5,5 +5,5 @@ include("abstractpartitionedgraph.jl")
 include("partitionvertex.jl")
 include("partitionedge.jl")
 include("partitionedgraph.jl")
-include("partitionedgraphview.jl")
+include("partitionsgraphview.jl")
 end

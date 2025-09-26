@@ -1,19 +1,23 @@
 @eval module $(gensym())
 using Graphs:
+  a_star,
   center,
+  connected_components,
   diameter,
   edges,
   has_vertex,
   is_connected,
+  is_directed,
   is_tree,
   ne,
+  neighbors,
   nv,
   radius,
   random_regular_graph,
   rem_vertex!,
   vertices
 using Metis: Metis
-using NamedGraphs: NamedEdge, NamedGraph
+using NamedGraphs: NamedEdge, NamedGraph, NamedGraphs
 using NamedGraphs.GraphsExtensions:
   add_edges!,
   add_vertices!,
@@ -32,10 +36,10 @@ using NamedGraphs.OrderedDictionaries: OrderedDictionary
 using NamedGraphs.PartitionedGraphs:
   PartitionEdge,
   PartitionedGraph,
-  PartitionedGraphView,
+  PartitionsGraphView,
   PartitionVertex,
   boundary_partitionedges,
-  partitioned_graph,
+  partitions_graph,
   partitionedge,
   partitionedges,
   partitionvertex,
@@ -52,25 +56,27 @@ using Test: @test, @testset
   #Partition it column-wise (into a 1D chain)
   partitions = [[(i, j) for j in 1:ny] for i in 1:nx]
   pg = PartitionedGraph(g, partitions)
-  @test vertextype(partitioned_graph(pg)) == Int64
+  @test vertextype(partitions_graph(pg)) == Int64
   @test vertextype(unpartitioned_graph(pg)) == vertextype(g)
   @test isa(partitionvertices(pg), OrderedDictionary{Int64,PartitionVertex{Int64}})
   @test isa(partitionedges(pg), Vector{PartitionEdge{Int64,NamedEdge{Int64}}})
-  @test is_tree(partitioned_graph(pg))
+  @test is_tree(partitions_graph(pg))
   @test nv(pg) == nx * ny
-  @test nv(partitioned_graph(pg)) == nx
+  @test nv(partitions_graph(pg)) == nx
   pg_c = copy(pg)
   @test pg_c == pg
 
   #PartionedGraphView test
-  pgv = PartitionedGraphView(pg)
+  pgv = PartitionsGraphView(pg)
   @test vertices(pgv) == parent.(partitionvertices(pg))
   @test edges(pgv) == parent.(partitionedges(pg))
+  @test is_tree(pgv) == true
+  @test neighbors(pgv, 1) == [2]
 
   #Same partitioning but with a dictionary constructor
   partition_dict = Dictionary([first(partition) for partition in partitions], partitions)
   pg = PartitionedGraph(g, partition_dict)
-  @test vertextype(partitioned_graph(pg)) == vertextype(g)
+  @test vertextype(partitions_graph(pg)) == vertextype(g)
   @test vertextype(unpartitioned_graph(pg)) == vertextype(g)
   @test isa(
     partitionvertices(pg),
@@ -80,19 +86,19 @@ using Test: @test, @testset
     partitionedges(pg),
     Vector{PartitionEdge{Tuple{Int64,Int64},NamedEdge{Tuple{Int64,Int64}}}},
   )
-  @test is_tree(partitioned_graph(pg))
+  @test is_tree(partitions_graph(pg))
   @test nv(pg) == nx * ny
-  @test nv(partitioned_graph(pg)) == nx
+  @test nv(partitions_graph(pg)) == nx
   pg_c = copy(pg)
   @test pg_c == pg
 
   #Partition the whole thing into just 1 vertex
   pg = PartitionedGraph([i for i in 1:nx])
-  @test unpartitioned_graph(pg) == partitioned_graph(pg)
+  @test unpartitioned_graph(pg) == partitions_graph(pg)
   @test nv(pg) == nx
-  @test nv(partitioned_graph(pg)) == nx
+  @test nv(partitions_graph(pg)) == nx
   @test ne(pg) == 0
-  @test ne(partitioned_graph(pg)) == 0
+  @test ne(partitions_graph(pg)) == 0
   pg_c = copy(pg)
   @test pg_c == pg
 end
@@ -138,22 +144,22 @@ end
 
   #Strip the middle column from pg via the partitioned graph vertex, and make a new pg
   rem_vertex!(pg, pv)
-  @test !is_connected(unpartitioned_graph(pg)) && !is_connected(partitioned_graph(pg))
-  @test parent(pv) ∉ vertices(partitioned_graph(pg))
+  @test !is_connected(unpartitioned_graph(pg)) && !is_connected(partitions_graph(pg))
+  @test parent(pv) ∉ vertices(partitions_graph(pg))
   @test !has_vertex(pg, pv)
   @test nv(pg) == (nx - 1) * ny
-  @test nv(partitioned_graph(pg)) == nx - 1
-  @test !is_tree(partitioned_graph(pg))
+  @test nv(partitions_graph(pg)) == nx - 1
+  @test !is_tree(partitions_graph(pg))
 
   #Add the column back to the in place graph
   add_vertices!(pg, v_set, pv)
   add_edges!(pg, edges_involving_v_set)
-  @test is_connected(pg.graph) && is_path_graph(partitioned_graph(pg))
-  @test parent(pv) ∈ vertices(partitioned_graph(pg))
+  @test is_connected(pg.graph) && is_path_graph(partitions_graph(pg))
+  @test parent(pv) ∈ vertices(partitions_graph(pg))
   @test has_vertex(pg, pv)
-  @test is_tree(partitioned_graph(pg))
+  @test is_tree(partitions_graph(pg))
   @test nv(pg) == nx * ny
-  @test nv(partitioned_graph(pg)) == nx
+  @test nv(partitions_graph(pg)) == nx
 end
 
 @testset "Test Partitioned Graph Subgraph Functionality" begin
@@ -173,7 +179,7 @@ end
   pg_2 = subgraph(pg, subgraph_vertices)
   @test pg_1 == pg_2
   @test nv(pg_1) == length(subgraph_vertices)
-  @test nv(partitioned_graph(pg_1)) == length(subgraph_partitioned_vertices)
+  @test nv(partitions_graph(pg_1)) == length(subgraph_partitioned_vertices)
 
   subgraph_partitioned_vertex = 3
   subgraph_vertices = partitions[subgraph_partitioned_vertex]
@@ -196,9 +202,9 @@ end
       pg = PartitionedGraph(g, [vertices(g)])
       @test f(pg) == f(unpartitioned_graph(pg))
       @test nv(pg) == nv(g)
-      @test nv(partitioned_graph(pg)) == 1
+      @test nv(partitions_graph(pg)) == 1
       @test ne(pg) == ne(g)
-      @test ne(partitioned_graph(pg)) == 0
+      @test ne(partitions_graph(pg)) == 0
     end
   end
 end
@@ -215,7 +221,7 @@ end
   for backend in backends
     pg = PartitionedGraph(g; npartitions, backend="metis")
     @test pg isa PartitionedGraph
-    @test nv(partitioned_graph(pg)) == npartitions
+    @test nv(partitions_graph(pg)) == npartitions
   end
 end
 end
