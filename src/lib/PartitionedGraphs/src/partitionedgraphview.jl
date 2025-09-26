@@ -1,10 +1,9 @@
 struct PartitionedGraphView{V,PG<:AbstractGraph{V}} <: AbstractGraph{V}
-  value::PG
+  partitioned_graph::PG
 end
 
-value(pgv::PartitionedGraphView) = pgv.value
-Base.copy(pgv::PartitionedGraphView) = PartitionedGraphView(copy(value(pgv)))
-PartitionedGraph(pgv::PartitionedGraphView) = value(pgv)
+PartitionedGraph(pgv::PartitionedGraphView) = pgv.partitioned_graph
+Base.copy(pgv::PartitionedGraphView) = PartitionedGraphView(copy(PartitionedGraph(pgv)))
 
 #Functionality that behaves differently
 for f in [
