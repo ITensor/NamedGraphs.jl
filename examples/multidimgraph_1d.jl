@@ -47,8 +47,8 @@ g_union = g ⊔ g
 
 # TODO: Implement
 ## g_hcat = [g;; g]
-## 
+##
 ## @show nv(g_hcat) == 8
 ## @show ne(g_hcat) == 6
-## 
+##
 ## @show has_vertex(g_hcat, ("A", 1))

@@ -2,15 +2,15 @@ using Graphs: Graphs
 using .GraphsExtensions: GraphsExtensions
 
 struct NamedEdge{V} <: AbstractNamedEdge{V}
-  src::V
-  dst::V
-  NamedEdge{V}(src, dst) where {V} = new{V}(src, dst)
+    src::V
+    dst::V
+    NamedEdge{V}(src, dst) where {V} = new{V}(src, dst)
 end
 NamedEdge(src::V, dst::V) where {V} = NamedEdge{V}(src, dst)
 NamedEdge(src, dst) = NamedEdge{promote_type(typeof(src), typeof(dst))}(src, dst)
 
 function GraphsExtensions.convert_vertextype(vertextype::Type, ::Type{<:NamedEdge})
-  return NamedEdge{vertextype}
+    return NamedEdge{vertextype}
 end
 
 Graphs.src(e::NamedEdge) = e.src
