@@ -1,7 +1,7 @@
 using Graphs: Graphs, AbstractEdge, dst, src
 
-struct PartitionEdge{V,E<:AbstractEdge{V}} <: AbstractPartitionEdge{V}
-  edge::E
+struct PartitionEdge{V, E <: AbstractEdge{V}} <: AbstractPartitionEdge{V}
+    edge::E
 end
 
 Base.parent(pe::PartitionEdge) = getfield(pe, :edge)

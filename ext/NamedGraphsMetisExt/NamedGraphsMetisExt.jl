@@ -18,11 +18,11 @@ The partition algorithm is defined by the `alg` keyword:
  - :RECURSIVE: multilevel recursive bisection
 """
 function GraphsExtensions.partitioned_vertices(
-  ::Backend"metis", g::AbstractSimpleGraph, npartitions::Integer; alg="recursive", kwargs...
-)
-  metis_alg = METIS_ALGS[alg]
-  partitioned_verts = Metis.partition(g, npartitions; alg=metis_alg, kwargs...)
-  return groupfind(Int.(partitioned_verts))
+        ::Backend"metis", g::AbstractSimpleGraph, npartitions::Integer; alg = "recursive", kwargs...
+    )
+    metis_alg = METIS_ALGS[alg]
+    partitioned_verts = Metis.partition(g, npartitions; alg = metis_alg, kwargs...)
+    return groupfind(Int.(partitioned_verts))
 end
 
 end

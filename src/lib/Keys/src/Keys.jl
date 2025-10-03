@@ -16,7 +16,7 @@ which could represent partitioning a set of vertices
 ```
 """
 struct Key{K}
-  I::K
+    I::K
 end
 Key(I...) = Key(I)
 

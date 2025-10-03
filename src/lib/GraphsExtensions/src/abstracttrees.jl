@@ -5,14 +5,14 @@ position_graph_type(type::Type{<:AbstractTreeGraph}) = not_implemented()
 position_graph(graph::AbstractTreeGraph) = not_implemented()
 
 function Graphs.is_directed(type::Type{<:AbstractTreeGraph})
-  return is_directed(position_graph_type(type))
+    return is_directed(position_graph_type(type))
 end
 Graphs.edgetype(graph::AbstractTreeGraph) = edgetype(position_graph(graph))
 function Graphs.outneighbors(graph::AbstractTreeGraph, vertex)
-  return outneighbors(position_graph(graph), vertex)
+    return outneighbors(position_graph(graph), vertex)
 end
 function Graphs.inneighbors(graph::AbstractTreeGraph, vertex)
-  return inneighbors(position_graph(graph), vertex)
+    return inneighbors(position_graph(graph), vertex)
 end
 Graphs.nv(graph::AbstractTreeGraph) = nv(position_graph(graph))
 Graphs.ne(graph::AbstractTreeGraph) = ne(position_graph(graph))
@@ -20,13 +20,13 @@ Graphs.vertices(graph::AbstractTreeGraph) = vertices(position_graph(graph))
 
 # AbstractTrees
 using AbstractTrees:
-  AbstractTrees, IndexNode, PostOrderDFS, PreOrderDFS, children, nodevalue
+    AbstractTrees, IndexNode, PostOrderDFS, PreOrderDFS, children, nodevalue
 
 # Used for tree iteration.
 # Assumes the graph is a [rooted directed tree](https://en.wikipedia.org/wiki/Tree_(graph_theory)#Rooted_tree).
 tree_graph_node(g::AbstractTreeGraph, vertex) = IndexNode(g, vertex)
 function tree_graph_node(g::AbstractGraph, vertex)
-  return tree_graph_node(TreeGraph(g), vertex)
+    return tree_graph_node(TreeGraph(g), vertex)
 end
 tree_graph_node(g::AbstractGraph) = tree_graph_node(g, root_vertex(g))
 
@@ -37,30 +37,30 @@ AbstractTrees.nodevalue(g::AbstractTreeGraph) = nodevalue(tree_graph_node(g))
 
 AbstractTrees.rootindex(tree::AbstractTreeGraph) = root_vertex(tree)
 function AbstractTrees.nodevalue(tree::AbstractTreeGraph, node_index)
-  return node_index
+    return node_index
 end
 function AbstractTrees.childindices(tree::AbstractTreeGraph, node_index)
-  return child_vertices(tree, node_index)
+    return child_vertices(tree, node_index)
 end
 function AbstractTrees.parentindex(tree::AbstractTreeGraph, node_index)
-  return parent_vertex(tree, node_index)
+    return parent_vertex(tree, node_index)
 end
 
 # TreeGraph
-struct TreeGraph{V,G<:AbstractGraph{V}} <: AbstractTreeGraph{V}
-  graph::G
-  global function _TreeGraph(g::AbstractGraph)
-    # No check for being a tree
-    return new{vertextype(g),typeof(g)}(g)
-  end
+struct TreeGraph{V, G <: AbstractGraph{V}} <: AbstractTreeGraph{V}
+    graph::G
+    global function _TreeGraph(g::AbstractGraph)
+        # No check for being a tree
+        return new{vertextype(g), typeof(g)}(g)
+    end
 end
 @traitfn function TreeGraph(g::AbstractGraph::IsDirected)
-  @assert is_arborescence(g)
-  return _TreeGraph(g)
+    @assert is_arborescence(g)
+    return _TreeGraph(g)
 end
 @traitfn function TreeGraph(g::AbstractGraph::(!IsDirected))
-  @assert is_tree(g)
-  return _TreeGraph(g)
+    @assert is_tree(g)
+    return _TreeGraph(g)
 end
 position_graph(graph::TreeGraph) = getfield(graph, :graph)
 position_graph_type(type::Type{<:TreeGraph}) = fieldtype(type, :graph)

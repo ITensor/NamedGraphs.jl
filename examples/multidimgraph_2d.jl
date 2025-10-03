@@ -51,9 +51,9 @@ g_disjoint_union = g1 ⊔ g2
 @show nv(g_disjoint_union) == 8
 
 ## g_vcat = [g1; g2]
-## 
+##
 ## @show nv(g_vcat) == 8
-## 
+##
 ## g_hcat = [g1;; g2]
-## 
+##
 ## @show nv(g_hcat) == 8
