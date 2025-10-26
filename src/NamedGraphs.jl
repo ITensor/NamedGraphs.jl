@@ -20,7 +20,7 @@ include("namedgraph.jl")
 include("lib/NamedGraphGenerators/src/NamedGraphGenerators.jl")
 include("lib/PartitionedGraphs/src/PartitionedGraphs.jl")
 
-export AbstractNamedGraphs, NamedDiGraph, NamedEdge, NamedGraph
+export AbstractNamedGraph, NamedDiGraph, NamedEdge, NamedGraph
 
 using PackageExtensionCompat: @require_extensions
 function __init__()
