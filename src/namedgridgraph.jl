@@ -64,9 +64,9 @@ end
 ishypertorus(g::NamedGridGraph{<:Any, ishypertorus}) where {ishypertorus} = ishypertorus
 grid_size(g::NamedGridGraph) = g.grid_size
 grid_ndims(::Type{<:NamedGridGraph{N}}) where {N} = N
+Graphs.is_directed(G::Type{<:NamedGridGraph}) = false
 
 # Derived functions
-Graphs.is_directed(G::Type{<:NamedGridGraph}) = false
 Graphs.edgetype(G::Type{<:NamedGridGraph}) = edgetype_grid(G)
 Graphs.edgetype(g::NamedGridGraph) = edgetype_grid(g)
 Graphs.nv(g::NamedGridGraph) = nv_grid(g)
