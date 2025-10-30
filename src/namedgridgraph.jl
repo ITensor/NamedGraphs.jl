@@ -1,4 +1,4 @@
-using Graphs: Graphs, edgetype, has_edge, has_vertex, vertices
+using Graphs: Graphs, edgetype, has_edge, has_vertex, neighbors, vertices
 
 # Helper functions
 oneelement_tuple(j::Int, N) = ntuple(i -> i == j ? 1 : 0, N)
@@ -49,7 +49,7 @@ end
 function has_edge_grid(g, s, d)
     has_vertex(g, s) || return false
     has_vertex(g, d) || return false
-    return d in neighbors(s)
+    return d in neighbors(g, s)
 end
 inneighbors_grid(g, v) = neighbors_grid(g, v)
 outneighbors_grid(g, v) = neighbors_grid(g, v)
