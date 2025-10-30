@@ -1,4 +1,4 @@
-using Graphs: Graphs, edgetype, has_edge, has_vertex, neighbors, vertices
+using Graphs: Graphs, edgetype, has_vertex, neighbors, vertices
 
 # Helper functions
 oneelement_tuple(j::Int, N) = ntuple(i -> i == j ? 1 : 0, N)
@@ -66,7 +66,7 @@ grid_size(g::NamedGridGraph) = g.grid_size
 grid_ndims(::Type{<:NamedGridGraph{N}}) where {N} = N
 
 # Derived functions
-Graphs.is_directed(G:Type{<:NamedGridGraph}) = is_directed_grid(G)
+Graphs.is_directed(G::Type{<:NamedGridGraph}) = is_directed_grid(G)
 Graphs.is_directed(g::NamedGridGraph) = is_directed_grid(g)
 Graphs.edgetype(G::Type{<:NamedGridGraph}) = edgetype_grid(G)
 Graphs.edgetype(g::NamedGridGraph) = edgetype_grid(g)
