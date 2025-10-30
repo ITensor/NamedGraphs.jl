@@ -7,12 +7,12 @@ oneelement_tuple(j::Int, N) = ntuple(i -> i == j ? 1 : 0, N)
 ishypertorus(g) = error("Not implemented.")
 grid_size(g) = error("Not implemented.")
 grid_ndims(G::Type) = error("Not implemented")
+is_directed_grid(G::Type) = error("Not implemented")
 
 # Derived interface functions
 grid_length(g) = prod(grid_size(g))
 grid_ndims(g) = length(grid_size(g))
 grid_ndims(::Type{<:NamedGridGraph{N}}) where {N} = N
-is_directed_grid(G::Type) = false
 nv_grid(g) = grid_length(g)
 vertices_grid(g) = Tuple.(CartesianIndices(grid_size(g)))
 has_vertex_grid(g, v) = CartesianIndex(v) in CartesianIndices(grid_size(g))
@@ -66,8 +66,7 @@ grid_size(g::NamedGridGraph) = g.grid_size
 grid_ndims(::Type{<:NamedGridGraph{N}}) where {N} = N
 
 # Derived functions
-Graphs.is_directed(G::Type{<:NamedGridGraph}) = is_directed_grid(G)
-Graphs.is_directed(g::NamedGridGraph) = is_directed_grid(g)
+Graphs.is_directed(G::Type{<:NamedGridGraph}) = false
 Graphs.edgetype(G::Type{<:NamedGridGraph}) = edgetype_grid(G)
 Graphs.edgetype(g::NamedGridGraph) = edgetype_grid(g)
 Graphs.nv(g::NamedGridGraph) = nv_grid(g)
