@@ -7,7 +7,7 @@ oneelement_tuple(j::Int, N) = ntuple(i -> i == j ? 1 : 0, N)
 ishypertorus(g) = error("Not implemented.")
 grid_size(g) = error("Not implemented.")
 grid_ndims(G::Type) = error("Not implemented")
-is_directed_grid(G::Type) = error("Not implemented")
+is_directed_grid(G::Type) = false
 
 # Derived interface functions
 grid_length(g) = prod(grid_size(g))
