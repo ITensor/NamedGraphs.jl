@@ -1,9 +1,12 @@
 @eval module $(gensym())
-using Graphs: edges, neighbors, vertices
-using NamedGraphs.GraphsExtensions: is_cycle_graph
-using NamedGraphs.NamedGraphGenerators:
+
+using Graphs: a_star, add_edge!, add_vertex!, edges, edgetype, has_edge, has_vertex, ne,
+    neighbors, nv, rem_edge!, rem_vertex!, vertices
+using NamedGraphs: NamedEdge
+using NamedGraphs.GraphsExtensions: is_cycle_graph, vertextype
+using NamedGraphs.NamedGraphGenerators: NamedGridGraph, named_grid,
     named_hexagonal_lattice_graph, named_triangular_lattice_graph
-using Test: @test, @testset
+using Test: @test, @test_throws, @testset
 
 @testset "Named Graph Generators" begin
     g = named_hexagonal_lattice_graph(1, 1)
@@ -44,4 +47,26 @@ using Test: @test, @testset
     degree_dist = [length(neighbors(g, v)) for v in vertices(g)]
     @test all(d -> d == 6, degree_dist)
 end
+
+@testset "NamedGridGraph" begin
+    g = NamedGridGraph((4, 4))
+    @test nv(g) == length(vertices(g)) == 16
+    @test ne(g) == length(edges(g)) == 24
+    @test edgetype(g) == NamedEdge{Tuple{Int, Int}}
+    @test vertextype(g) == Tuple{Int, Int}
+    @test has_vertex(g, (2, 3))
+    @test has_edge(g, (2, 3) => (2, 4))
+    @test issetequal(vertices(g), Tuple.(CartesianIndices((4, 4))))
+    @test issetequal(collect(edges(g)), edges(named_grid((4, 4))))
+    @test a_star(g, (1, 1), (2, 2)) == NamedEdge.([(1, 1) => (2, 1), (2, 1) => (2, 2)])
+    @test_throws ErrorException add_vertex!(g, (1, 1))
+    @test_throws ErrorException rem_vertex!(g, (1, 1))
+    @test_throws ErrorException add_edge!(g, (1, 1) => (1, 2))
+    @test_throws ErrorException rem_edge!(g, (1, 1) => (1, 2))
+
+    g = NamedGridGraph((4, 4), true)
+    degree_dist = [length(neighbors(g, v)) for v in vertices(g)]
+    @test all(d -> d == 4, degree_dist)
+end
+
 end

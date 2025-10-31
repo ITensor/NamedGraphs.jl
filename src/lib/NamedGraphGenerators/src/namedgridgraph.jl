@@ -1,4 +1,6 @@
-using Graphs: Graphs, AbstractEdge, edgetype, has_vertex, neighbors, vertices
+using Dictionaries: Dictionary
+using Graphs: Graphs, AbstractEdge, AbstractEdgeIter, dst, edgetype, has_edge, has_vertex,
+    ne, neighbors, src, vertices
 using ..NamedGraphs: NamedGraphs, AbstractNamedEdge, AbstractNamedGraph, NamedEdge,
     PositionGraphView
 
@@ -11,12 +13,40 @@ grid_size(g) = error("Not implemented.")
 grid_ndims(G::Type) = error("Not implemented")
 is_directed_grid(G::Type) = false
 
+# Edge iterator
+struct NamedGridEdgeIter{G} <: AbstractEdgeIter
+    g::G
+end
+Base.eltype(::Type{NamedGridEdgeIter{G}}) where {G} = edgetype(G)
+
+function grid_edge_generator(g)
+    return (edgetype(g)(s, d) for s in vertices(g) for d in plus_neighbors(g, s))
+end
+function Base.iterate(eiter::NamedGridEdgeIter{G}) where {G}
+    gen = grid_edge_generator(eiter.g)
+    initial = iterate(gen)
+    isnothing(initial) && return nothing
+    edge, state = initial
+    return edge, (gen, state)
+end
+function Base.iterate(eiter::NamedGridEdgeIter, (gen, state))
+    result = iterate(gen, state)
+    isnothing(result) && return nothing
+    edge, newstate = result
+    return edge, (gen, newstate)
+end
+Base.length(eiter::NamedGridEdgeIter) = ne(eiter.g)
+Base.in(e, eiter::NamedGridEdgeIter) = has_edge(eiter.g, e)
+Base.show(io::IO, eiter::NamedGridEdgeIter) = show(io, collect(eiter))
+
 # Derived interface functions
 grid_length(g) = prod(grid_size(g))
 grid_ndims(g) = length(grid_size(g))
 nv_grid(g) = grid_length(g)
 vertices_grid(g) = Tuple.(CartesianIndices(grid_size(g)))
 has_vertex_grid(g, v) = CartesianIndex(v) in CartesianIndices(grid_size(g))
+add_vertex_grid!(g, v) = error("Can't add vertices to immutable graph.")
+rem_vertex_grid!(g, v) = error("Can't remove vertices to immutable graph.")
 edgetype_grid(G::Type) = NamedEdge{NTuple{grid_ndims(G), Int}}
 edgetype_grid(g) = NamedEdge{NTuple{grid_ndims(g), Int}}
 function ne_grid(g)
@@ -44,28 +74,23 @@ function minus_neighbors(g, v)
     end
     return ns
 end
-function neighbors_grid(g, v)
-    return [minus_neighbors(g, v); plus_neighbors(g, v)]
-end
+neighbors_grid(g, v) = [minus_neighbors(g, v); plus_neighbors(g, v)]
 function has_edge_grid(g, s, d)
     has_vertex(g, s) || return false
     has_vertex(g, d) || return false
     return d in neighbors(g, s)
 end
-function has_edge_grid(g, e)
-    return has_edge(g, edgetype(g)(e))
-end
-function has_edge_grid(g, e::AbstractEdge)
-    return has_edge(g, src(e), dst(e))
-end
+has_edge_grid(g, e) = has_edge(g, edgetype(g)(e))
+has_edge_grid(g, e::AbstractEdge) = has_edge(g, src(e), dst(e))
 add_edge_grid!(g, s, d) = error("Can't add edges to immutable graph.")
 add_edge_grid!(g, e) = add_edge_grid!(g, edgetype(g)(e))
 add_edge_grid!(g, e::AbstractEdge) = add_edge_grid!(g, src(e), dst(e))
+rem_edge_grid!(g, s, d) = error("Can't remove edges to immutable graph.")
+rem_edge_grid!(g, e) = rem_edge_grid!(g, edgetype(g)(e))
+rem_edge_grid!(g, e::AbstractEdge) = rem_edge_grid!(g, src(e), dst(e))
 inneighbors_grid(g, v) = neighbors_grid(g, v)
 outneighbors_grid(g, v) = neighbors_grid(g, v)
-function edges_grid(g)
-    return (edgetype(g)(s, d) for s in vertices(g) for d in plus_neighbors(g, s))
-end
+edges_grid(g) = NamedGridEdgeIter(g)
 
 struct NamedGridGraph{N, ishypertorus} <: AbstractNamedGraph{NTuple{N, Int}}
     grid_size::NTuple{N, Int}
