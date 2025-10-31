@@ -1,4 +1,6 @@
-using Graphs: Graphs, edgetype, has_vertex, neighbors, vertices
+using Graphs: Graphs, AbstractEdge, edgetype, has_vertex, neighbors, vertices
+using ..NamedGraphs: NamedGraphs, AbstractNamedEdge, AbstractNamedGraph, NamedEdge,
+    PositionGraphView
 
 # Helper functions
 oneelement_tuple(j::Int, N) = ntuple(i -> i == j ? 1 : 0, N)
@@ -12,13 +14,12 @@ is_directed_grid(G::Type) = false
 # Derived interface functions
 grid_length(g) = prod(grid_size(g))
 grid_ndims(g) = length(grid_size(g))
-grid_ndims(::Type{<:NamedGridGraph{N}}) where {N} = N
 nv_grid(g) = grid_length(g)
 vertices_grid(g) = Tuple.(CartesianIndices(grid_size(g)))
 has_vertex_grid(g, v) = CartesianIndex(v) in CartesianIndices(grid_size(g))
 edgetype_grid(G::Type) = NamedEdge{NTuple{grid_ndims(G), Int}}
 edgetype_grid(g) = NamedEdge{NTuple{grid_ndims(g), Int}}
-function ne_grid(g::NamedGridGraph)
+function ne_grid(g)
     ne_g = grid_ndims(g) * grid_length(g)
     if !ishypertorus(g)
         ne_g -= sum(sᵢ -> div(grid_length(g), sᵢ), grid_size(g))
@@ -26,7 +27,7 @@ function ne_grid(g::NamedGridGraph)
     return ne_g
 end
 function plus_neighbors(g, v)
-    ns = [v .+ oneelement_tuple(d, length(v)) for d in 1:grid_ndims(g)]
+    ns = [v .+ oneelement_tuple(d, length(v)) for d in Base.OneTo(grid_ndims(g))]
     if !ishypertorus(g)
         ns = filter(ns) do n
             return CartesianIndex(n) in CartesianIndices(grid_size(g))
@@ -51,6 +52,15 @@ function has_edge_grid(g, s, d)
     has_vertex(g, d) || return false
     return d in neighbors(g, s)
 end
+function has_edge_grid(g, e)
+    return has_edge(g, edgetype(g)(e))
+end
+function has_edge_grid(g, e::AbstractEdge)
+    return has_edge(g, src(e), dst(e))
+end
+add_edge_grid!(g, s, d) = error("Can't add edges to immutable graph.")
+add_edge_grid!(g, e) = add_edge_grid!(g, edgetype(g)(e))
+add_edge_grid!(g, e::AbstractEdge) = add_edge_grid!(g, src(e), dst(e))
 inneighbors_grid(g, v) = neighbors_grid(g, v)
 outneighbors_grid(g, v) = neighbors_grid(g, v)
 function edges_grid(g)
@@ -60,8 +70,16 @@ end
 struct NamedGridGraph{N, ishypertorus} <: AbstractNamedGraph{NTuple{N, Int}}
     grid_size::NTuple{N, Int}
 end
+function NamedGridGraph(grid_size::NTuple{N, Int}, ishypertorus::Bool = false) where {N}
+    return NamedGridGraph{N, ishypertorus}(grid_size)
+end
 # Minimal interface functions
-ishypertorus(g::NamedGridGraph{<:Any, ishypertorus}) where {ishypertorus} = ishypertorus
+NamedGraphs.position_graph(g::NamedGridGraph) = PositionGraphView(g)
+function NamedGraphs.vertex_positions(g::NamedGridGraph)
+    return Dictionary(Tuple.(CartesianIndices(grid_size(g))), 1:nv(g))
+end
+NamedGraphs.ordered_vertices(g::NamedGridGraph) = vertices(g)
+ishypertorus(g::NamedGridGraph{<:Any, istorus}) where {istorus} = istorus
 grid_size(g::NamedGridGraph) = g.grid_size
 grid_ndims(::Type{<:NamedGridGraph{N}}) where {N} = N
 Graphs.is_directed(G::Type{<:NamedGridGraph}) = false
@@ -73,7 +91,17 @@ Graphs.nv(g::NamedGridGraph) = nv_grid(g)
 Graphs.ne(g::NamedGridGraph) = ne_grid(g)
 Graphs.vertices(g::NamedGridGraph) = vertices_grid(g)
 Graphs.has_vertex(g::NamedGridGraph, v) = has_vertex_grid(g, v)
+Graphs.add_vertex!(g::NamedGridGraph, v) = add_vertex_grid!(g, v)
+Graphs.rem_vertex!(g::NamedGridGraph, v) = rem_vertex_grid!(g, v)
 Graphs.has_edge(g::NamedGridGraph, s, d) = has_edge_grid(g, s, d)
+Graphs.has_edge(g::NamedGridGraph, e) = has_edge_grid(g, e)
+Graphs.has_edge(g::NamedGridGraph, e::AbstractNamedEdge) = has_edge_grid(g, e)
+Graphs.add_edge!(g::NamedGridGraph, s, d) = add_edge_grid!(g, s, d)
+Graphs.add_edge!(g::NamedGridGraph, e) = add_edge_grid!(g, e)
+Graphs.add_edge!(g::NamedGridGraph, e::AbstractNamedEdge) = add_edge_grid!(g, e)
+Graphs.rem_edge!(g::NamedGridGraph, s, d) = rem_edge_grid!(g, s, d)
+Graphs.rem_edge!(g::NamedGridGraph, e) = rem_edge_grid!(g, e)
+Graphs.rem_edge!(g::NamedGridGraph, e::AbstractNamedEdge) = rem_edge_grid!(g, e)
 Graphs.neighbors(g::NamedGridGraph, v) = neighbors_grid(g, v)
 Graphs.inneighbors(g::NamedGridGraph, v) = inneighbors_grid(g, v)
 Graphs.outneighbors(g::NamedGridGraph, v) = outneighbors_grid(g, v)
