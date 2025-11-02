@@ -6,9 +6,6 @@ using ..GraphsExtensions: add_edges!, rem_vertices!
 using ..NamedGraphs: NamedGraph
 using SimpleTraits: SimpleTraits, Not, @traitfn
 
-export named_binary_tree, named_comb_tree, named_grid, named_hexagonal_lattice_graph,
-    named_path_digraph, named_path_graph, named_triangular_lattice_graph
-
 ## TODO: Bring this back in some form?
 ## TODO: Move to `GraphsExtensions`?
 ## @traitfn function parent(tree::AbstractSimpleGraph::IsDirected, v::Integer)
