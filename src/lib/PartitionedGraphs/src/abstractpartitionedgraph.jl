@@ -16,7 +16,7 @@ using ..NamedGraphs.GraphsExtensions:
 abstract type AbstractPartitionedGraph{V, PV} <: AbstractNamedGraph{V} end
 
 #Needed for interface
-partitions_graph(pg::AbstractPartitionedGraph) = not_implemented()
+quotient_graph(pg::AbstractPartitionedGraph) = not_implemented()
 unpartitioned_graph(pg::AbstractPartitionedGraph) = not_implemented()
 function unpartitioned_graph_type(pg::Type{<:AbstractPartitionedGraph})
     return not_implemented()
@@ -75,11 +75,11 @@ end
 function Graphs.has_vertex(
         pg::AbstractPartitionedGraph, partitionvertex::AbstractPartitionVertex
     )
-    return has_vertex(partitions_graph(pg), parent(partitionvertex))
+    return has_vertex(quotient_graph(pg), parent(partitionvertex))
 end
 
 function Graphs.has_edge(pg::AbstractPartitionedGraph, partitionedge::AbstractPartitionEdge)
-    return has_edge(partitions_graph(pg), parent(partitionedge))
+    return has_edge(quotient_graph(pg), parent(partitionedge))
 end
 
 function is_boundary_edge(pg::AbstractPartitionedGraph, edge::AbstractEdge)
@@ -91,17 +91,17 @@ function Graphs.add_edge!(pg::AbstractPartitionedGraph, edge::AbstractEdge)
     add_edge!(unpartitioned_graph(pg), edge)
     pg_edge = parent(partitionedge(pg, edge))
     if src(pg_edge) != dst(pg_edge)
-        add_edge!(partitions_graph(pg), pg_edge)
+        add_edge!(quotient_graph(pg), pg_edge)
     end
     return pg
 end
 
 function Graphs.rem_edge!(pg::AbstractPartitionedGraph, edge::AbstractEdge)
     pg_edge = partitionedge(pg, edge)
-    if has_edge(partitions_graph(pg), pg_edge)
+    if has_edge(quotient_graph(pg), pg_edge)
         g_edges = edges(pg, pg_edge)
         if length(g_edges) == 1
-            rem_edge!(partitions_graph(pg), pg_edge)
+            rem_edge!(quotient_graph(pg), pg_edge)
         end
     end
     return rem_edge!(unpartitioned_graph(pg), edge)
@@ -118,7 +118,7 @@ function Graphs.add_vertex!(
         pg::AbstractPartitionedGraph, vertex, partitionvertex::AbstractPartitionVertex
     )
     add_vertex!(unpartitioned_graph(pg), vertex)
-    add_vertex!(partitions_graph(pg), parent(partitionvertex))
+    add_vertex!(quotient_graph(pg), parent(partitionvertex))
     insert_to_vertex_map!(pg, vertex, partitionvertex)
     return pg
 end
@@ -148,7 +148,7 @@ function Graphs.rem_vertex!(pg::AbstractPartitionedGraph, vertex)
     delete_from_vertex_map!(pg, pv, vertex)
     rem_vertex!(unpartitioned_graph(pg), vertex)
     if !haskey(partitioned_vertices(pg), parent(pv))
-        rem_vertex!(partitions_graph(pg), parent(pv))
+        rem_vertex!(quotient_graph(pg), parent(pv))
     end
     return pg
 end
@@ -174,7 +174,7 @@ end
 
 function Base.:(==)(pg1::AbstractPartitionedGraph, pg2::AbstractPartitionedGraph)
     if unpartitioned_graph(pg1) != unpartitioned_graph(pg2) ||
-            partitions_graph(pg1) != partitions_graph(pg2)
+            quotient_graph(pg1) != quotient_graph(pg2)
         return false
     end
     for v in vertices(pg1)

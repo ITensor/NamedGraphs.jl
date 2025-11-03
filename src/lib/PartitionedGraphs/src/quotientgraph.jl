@@ -1,16 +1,16 @@
-struct PartitionsGraphView{V, G <: AbstractGraph{V}} <: AbstractNamedGraph{V}
+struct QuotientGraph{V, G <: AbstractGraph{V}} <: AbstractNamedGraph{V}
     graph::G
 end
 
-Base.copy(g::PartitionsGraphView) = PartitionsGraphView(copy(g.graph))
+Base.copy(g::QuotientGraph) = QuotientGraph(copy(g.graph))
 
 using Graphs: AbstractGraph
-partitions_graph(g::AbstractGraph) = PartitionsGraphView(PartitionedGraph(g, [vertices(g)]))
+quotient_graph(g::AbstractGraph) = QuotientGraph(PartitionedGraph(g, [vertices(g)]))
 
 # Graphs.jl and NamedGraphs.jl interface overloads for `PartitionsGraphView` wrapping
 # a `PartitionedGraph`.
 function NamedGraphs.position_graph_type(
-        type::Type{<:PartitionsGraphView{V, G}}
+        type::Type{<:QuotientGraph{V, G}}
     ) where {V, G <: PartitionedGraph{V}}
     return fieldtype(fieldtype(fieldtype(type, :graph), :partitions_graph), :position_graph)
 end
@@ -28,7 +28,7 @@ for f in [
     ]
     @eval begin
         function $f(
-                g::PartitionsGraphView{V, G}, args...; kwargs...
+                g::QuotientGraph{V, G}, args...; kwargs...
             ) where {V, G <: PartitionedGraph{V}}
             return $f(g.graph.partitions_graph, args...; kwargs...)
         end

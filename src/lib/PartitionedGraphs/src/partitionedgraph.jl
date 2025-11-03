@@ -46,7 +46,7 @@ function PartitionedGraph(g::AbstractGraph; kwargs...)
 end
 
 #Needed for interface
-partitions_graph(pg::PartitionedGraph) = PartitionsGraphView(pg)
+quotient_graph(pg::PartitionedGraph) = QuotientGraph(pg)
 unpartitioned_graph(pg::PartitionedGraph) = getfield(pg, :graph)
 function unpartitioned_graph_type(graph_type::Type{<:PartitionedGraph})
     return fieldtype(graph_type, :graph)
