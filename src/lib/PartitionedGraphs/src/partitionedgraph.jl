@@ -55,43 +55,43 @@ function GraphsExtensions.partitioned_vertices(pg::PartitionedGraph)
     return getfield(pg, :partitioned_vertices)
 end
 which_partition(pg::PartitionedGraph) = getfield(pg, :which_partition)
-function Graphs.vertices(pg::PartitionedGraph, partitionvert::PartitionVertex)
-    return partitioned_vertices(pg)[parent(partitionvert)]
+function Graphs.vertices(pg::PartitionedGraph, supervertex::SuperVertex)
+    return partitioned_vertices(pg)[parent(supervertex)]
 end
-function Graphs.vertices(pg::PartitionedGraph, partitionverts::Vector{<:PartitionVertex})
-    return unique(reduce(vcat, Iterators.map(pv -> vertices(pg, pv), partitionverts)))
+function Graphs.vertices(pg::PartitionedGraph, supervertices::Vector{<:SuperVertex})
+    return unique(reduce(vcat, Iterators.map(sv -> vertices(pg, sv), supervertices)))
 end
-function partitionvertex(pg::PartitionedGraph, vertex)
-    return PartitionVertex(which_partition(pg)[vertex])
-end
-
-function partitionvertices(pg::PartitionedGraph, verts)
-    return unique(partitionvertex(pg, v) for v in verts)
+function supervertex(pg::PartitionedGraph, vertex)
+    return SuperVertex(which_partition(pg)[vertex])
 end
 
-function partitionvertices(pg::PartitionedGraph)
-    return PartitionVertex.(vertices(pg.partitions_graph))
+function supervertices(pg::PartitionedGraph, verts)
+    return unique(supervertex(pg, v) for v in verts)
 end
 
-function partitionedge(pg::PartitionedGraph, edge::AbstractEdge)
-    return PartitionEdge(
-        parent(partitionvertex(pg, src(edge))) => parent(partitionvertex(pg, dst(edge)))
+function supervertices(pg::PartitionedGraph)
+    return SuperVertex.(vertices(pg.partitions_graph))
+end
+
+function superedge(pg::PartitionedGraph, edge::AbstractEdge)
+    return SuperEdge(
+        parent(supervertex(pg, src(edge))) => parent(supervertex(pg, dst(edge)))
     )
 end
 
-partitionedge(pg::PartitionedGraph, p::Pair) = partitionedge(pg, edgetype(pg)(p))
+superedge(pg::PartitionedGraph, p::Pair) = superedge(pg, edgetype(pg)(p))
 
-function partitionedges(pg::PartitionedGraph, edges::Vector)
-    return filter(!is_self_loop, unique([partitionedge(pg, e) for e in edges]))
+function superedges(pg::PartitionedGraph, edges::Vector)
+    return filter(!is_self_loop, unique([superedge(pg, e) for e in edges]))
 end
 
-function partitionedges(pg::PartitionedGraph)
-    return PartitionEdge.(edges(pg.partitions_graph))
+function superedges(pg::PartitionedGraph)
+    return SuperEdge.(edges(pg.partitions_graph))
 end
 
-function Graphs.edges(pg::PartitionedGraph, partitionedge::PartitionEdge)
-    psrc_vs = vertices(pg, src(partitionedge))
-    pdst_vs = vertices(pg, dst(partitionedge))
+function Graphs.edges(pg::PartitionedGraph, superedge::SuperEdge)
+    psrc_vs = vertices(pg, src(superedge))
+    pdst_vs = vertices(pg, dst(superedge))
     psrc_subgraph, _ = induced_subgraph(unpartitioned_graph(pg), psrc_vs)
     pdst_subgraph, _ = induced_subgraph(pg, pdst_vs)
     full_subgraph, _ = induced_subgraph(pg, vcat(psrc_vs, pdst_vs))
@@ -99,20 +99,20 @@ function Graphs.edges(pg::PartitionedGraph, partitionedge::PartitionEdge)
     return setdiff(edges(full_subgraph), vcat(edges(psrc_subgraph), edges(pdst_subgraph)))
 end
 
-function Graphs.edges(pg::PartitionedGraph, partitionedges::Vector{<:PartitionEdge})
-    return unique(reduce(vcat, [edges(pg, pe) for pe in partitionedges]))
+function Graphs.edges(pg::PartitionedGraph, superedges::Vector{<:SuperEdge})
+    return unique(reduce(vcat, [edges(pg, se) for se in superedges]))
 end
 
-function boundary_partitionedges(pg::PartitionedGraph, partitionvertices; kwargs...)
-    return PartitionEdge.(
-        boundary_edges(pg.partitions_graph, parent.(partitionvertices); kwargs...)
+function boundary_superedges(pg::PartitionedGraph, supervertices; kwargs...)
+    return SuperEdge.(
+        boundary_edges(pg.partitions_graph, parent.(supervertices); kwargs...)
     )
 end
 
-function boundary_partitionedges(
-        pg::PartitionedGraph, partitionvertex::PartitionVertex; kwargs...
+function boundary_superedges(
+        pg::PartitionedGraph, supervertex::SuperVertex; kwargs...
     )
-    return boundary_partitionedges(pg, [partitionvertex]; kwargs...)
+    return boundary_superedges(pg, [supervertex]; kwargs...)
 end
 
 function Base.copy(pg::PartitionedGraph)
@@ -125,13 +125,13 @@ function Base.copy(pg::PartitionedGraph)
 end
 
 function insert_to_vertex_map!(
-        pg::PartitionedGraph, vertex, partitionvertex::PartitionVertex
+        pg::PartitionedGraph, vertex, supervertex::SuperVertex
     )
-    pv = parent(partitionvertex)
+    pv = parent(supervertex)
     if pv ∉ keys(partitioned_vertices(pg))
         insert!(partitioned_vertices(pg), pv, [vertex])
     else
-        partitioned_vertices(pg)[pv] = unique(vcat(vertices(pg, partitionvertex), [vertex]))
+        partitioned_vertices(pg)[pv] = unique(vcat(vertices(pg, supervertex), [vertex]))
     end
 
     insert!(which_partition(pg), vertex, pv)
@@ -139,12 +139,12 @@ function insert_to_vertex_map!(
 end
 
 function delete_from_vertex_map!(pg::PartitionedGraph, vertex)
-    pv = partitionvertex(pg, vertex)
-    return delete_from_vertex_map!(pg, pv, vertex)
+    sv = supervertex(pg, vertex)
+    return delete_from_vertex_map!(pg, sv, vertex)
 end
 
 function delete_from_vertex_map!(
-        pg::PartitionedGraph, partitioned_vertex::PartitionVertex, vertex
+        pg::PartitionedGraph, partitioned_vertex::SuperVertex, vertex
     )
     vs = vertices(pg, partitioned_vertex)
     delete!(partitioned_vertices(pg), parent(partitioned_vertex))
@@ -173,9 +173,9 @@ function partitionedgraph_induced_subgraph(pg::PartitionedGraph, vertices::Vecto
 end
 
 function partitionedgraph_induced_subgraph(
-        pg::PartitionedGraph, partitionverts::Vector{<:PartitionVertex}
+        pg::PartitionedGraph, supervertices::Vector{<:SuperVertex}
     )
-    return induced_subgraph(pg, vertices(pg, partitionverts))
+    return induced_subgraph(pg, vertices(pg, supervertices))
 end
 
 function Graphs.induced_subgraph(pg::PartitionedGraph, vertices)
