@@ -17,6 +17,7 @@ include("distances_and_capacities.jl")
 include("steiner_tree.jl")
 include("dfs.jl")
 include("namedgraph.jl")
+include("positiongraphview.jl")
 include("lib/NamedGraphGenerators/src/NamedGraphGenerators.jl")
 include("lib/PartitionedGraphs/src/PartitionedGraphs.jl")
 

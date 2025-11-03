@@ -548,10 +548,7 @@ function Base.show(io::IO, mime::MIME"text/plain", graph::AbstractNamedGraph)
     show(io, mime, vertices(graph))
     println(io, "\n")
     println(io, "and $(ne(graph)) edge(s):")
-    for e in edges(graph)
-        show(io, mime, e)
-        println(io)
-    end
+    show(io, mime, collect(edges(graph)))
     return nothing
 end
 

@@ -16,6 +16,7 @@ using Test: @test, @testset
     @testset "NamedGraphGenerators" begin
         exports = [
             :NamedGraphGenerators,
+            :NamedGridGraph,
             :named_binary_tree,
             :named_comb_tree,
             :named_grid,
