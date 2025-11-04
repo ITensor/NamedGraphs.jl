@@ -1,8 +1,8 @@
 using Graphs: AbstractGraph
 
-struct QuotientGraph{V, G <: AbstractGraph{V}} <: AbstractNamedGraph{V}
+struct QuotientGraph{V, G <: AbstractPartitionedGraph{V}} <: AbstractNamedGraph{V}
     graph::G
-    QuotientGraph(g::G) where {V, G<:AbstractPartitionedGraph{V}} = new{V,G}(g)
+    QuotientGraph(g::G) where {V, G <: AbstractPartitionedGraph{V}} = new{V, G}(g)
 end
 
 Base.copy(g::QuotientGraph) = QuotientGraph(copy(g.graph))
