@@ -1,11 +1,12 @@
+using Graphs: AbstractGraph
+
 struct QuotientGraph{V, G <: AbstractGraph{V}} <: AbstractNamedGraph{V}
     graph::G
+    QuotientGraph(g::G) where {V, G<:AbstractPartitionedGraph{V}} = new{V,G}(g)
 end
 
 Base.copy(g::QuotientGraph) = QuotientGraph(copy(g.graph))
-
-using Graphs: AbstractGraph
-quotient_graph(g::AbstractGraph) = QuotientGraph(PartitionedGraph(g, [vertices(g)]))
+QuotientGraph(g::AbstractGraph) = QuotientGraph(PartitionedGraph(g, [vertices(g)]))
 
 # Graphs.jl and NamedGraphs.jl interface overloads for `PartitionsGraphView` wrapping
 # a `PartitionedGraph`.
