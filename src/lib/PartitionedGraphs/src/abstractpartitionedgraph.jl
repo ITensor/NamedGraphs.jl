@@ -18,8 +18,8 @@ using ..NamedGraphs.GraphsExtensions:
 partitioned_vertices(g::AbstractGraph) = [vertices(g)]
 
 # Don't need to overload this
-partitioned_vertices(g::AbstractGraph, sv::AbstractSuperVertex) = partitioned_vertices(g)[parent(sv)]
-function partitioned_vertices(g::AbstractGraph, svs::Vector{<:AbstractSuperVertex}) 
+partitioned_vertices(g::AbstractGraph, sv::SuperVertex) = partitioned_vertices(g)[parent(sv)]
+function partitioned_vertices(g::AbstractGraph, svs::Vector{<:SuperVertex}) 
     return mapreduce(sv -> partitioned_vertices(g, sv), vcat, svs)
 end
 
@@ -146,10 +146,10 @@ Graphs.vertices(pg::AbstractPartitionedGraph) = vertices(unpartitioned_graph(pg)
 Return the set of vertices in the partitioned graph `pg` that correspond to the super vertex
 `supervertex` or set of super vertices `supervertex`.
 """
-function Graphs.vertices(pg::AbstractGraph, supervertex::AbstractSuperVertex)
+function Graphs.vertices(pg::AbstractGraph, supervertex::SuperVertex)
     return partitioned_vertices(pg)[parent(supervertex)]
 end
-function Graphs.vertices(pg::AbstractPartitionedGraph, supervertices::Vector{<:AbstractSuperVertex})
+function Graphs.vertices(pg::AbstractPartitionedGraph, supervertices::Vector{<:SuperVertex})
     return unique(reduce(vcat, Iterators.map(sv -> vertices(pg, sv), supervertices)))
 end
 
@@ -204,7 +204,7 @@ end
 
 #Vertex addition and removal. I think it's important not to allow addition of a vertex without specification of PV
 function Graphs.add_vertex!(
-        pg::AbstractPartitionedGraph, vertex, supervertex::AbstractSuperVertex
+        pg::AbstractPartitionedGraph, vertex, supervertex::SuperVertex
     )
     add_vertex!(unpartitioned_graph(pg), vertex)
     add_vertex!(QuotientView(pg), parent(supervertex))
@@ -215,7 +215,7 @@ end
 function GraphsExtensions.add_vertices!(
         pg::AbstractPartitionedGraph,
         vertices::Vector,
-        supervertices::Vector{<:AbstractSuperVertex},
+        supervertices::Vector{<:SuperVertex},
     )
     @assert length(vertices) == length(supervertices)
     for (v, sv) in zip(vertices, supervertices)
@@ -226,13 +226,13 @@ function GraphsExtensions.add_vertices!(
 end
 
 function GraphsExtensions.add_vertices!(
-        pg::AbstractPartitionedGraph, vertices::Vector, supervertex::AbstractSuperVertex
+        pg::AbstractPartitionedGraph, vertices::Vector, supervertex::SuperVertex
     )
     add_vertices!(pg, vertices, fill(supervertex, length(vertices)))
     return pg
 end
 
-function Graphs.rem_vertex!(pg::AbstractPartitionedGraph, vertex::AbstractSuperVertex)
+function Graphs.rem_vertex!(pg::AbstractPartitionedGraph, vertex::SuperVertex)
     return rem_super_vertex!(pg, vertex)
 end
     
@@ -256,13 +256,13 @@ function Base.:(==)(pg1::AbstractPartitionedGraph, pg2::AbstractPartitionedGraph
 end
 
 function GraphsExtensions.subgraph(
-        pg::AbstractPartitionedGraph, supervertex::AbstractSuperVertex
+        pg::AbstractPartitionedGraph, supervertex::SuperVertex
     )
     return first(induced_subgraph(unpartitioned_graph(pg), vertices(pg, [supervertex])))
 end
 
 function Graphs.induced_subgraph(
-        pg::AbstractPartitionedGraph, supervertex::AbstractSuperVertex
+        pg::AbstractPartitionedGraph, supervertex::SuperVertex
     )
     return subgraph(pg, supervertex), nothing
 end
