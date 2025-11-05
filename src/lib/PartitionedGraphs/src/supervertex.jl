@@ -25,5 +25,3 @@ function rem_super_vertex!(g::AbstractGraph, sv::SuperVertex)
 end
 
 Graphs.rem_vertex!(g::AbstractGraph, sv::SuperVertex) = rem_super_vertex!(g, sv)
-
-GraphsExtensions.rem_vertex(g, sv) = rem_vertex!(copy(g), sv)

@@ -24,5 +24,3 @@ function Graphs.rem_edge!(g::AbstractGraph, se::SuperEdge)
     rem_edges!(g, edges_to_remove)
     return g
 end
-
-GraphsExtensions.rem_edge(g, sv) = rem_edge!(copy(g), sv)

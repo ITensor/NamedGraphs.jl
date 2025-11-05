@@ -27,23 +27,11 @@ function NamedGraphs.position_graph_type(
     return position_graph_type(quotient_graph_type(type))
 end
 
-function Graphs.rem_vertex!(qg::QuotientView, v)
-    g = qg.graph
-    rem_vertex!(g, super_vertex_type(g)(v))
-end
-function Graphs.rem_edge!(qg::QuotientView, v)
-    g = qg.graph
-    rem_edge!(g, super_edge_type(g)(v))
-end
+Graphs.rem_vertex!(qg::QuotientView, v) = rem_vertex!(qg.graph, SuperVertex(v))
+Graphs.rem_edge!(qg::QuotientView, v) = rem_edge!(qg.graph, SuperEdge(v))
 
-function Graphs.add_vertex!(qg::QuotientView, v)
-    g = qg.graph
-    add_vertex!(g, super_vertex_type(g)(v))
-end
-function Graphs.add_edge!(qg::QuotientView, v)
-    g = qg.graph
-    add_edge!(g, super_edge_type(g)(v))
-end
+Graphs.add_vertex!(qg::QuotientView, v) = add_vertex!(qg.graph, SuperVertex(v))
+Graphs.add_edge!(qg::QuotientView, v) = add_edge!(qg.graph, SuperEdge(v))
 
 for f in [
         :(NamedGraphs.edgetype),
