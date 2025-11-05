@@ -27,14 +27,14 @@ const KAHYPAR_ALGS = Dict(
 )
 
 """
-partitioned_vertices(::Backend"kahypar", g::Graph, npartiations::Integer; objective="edge_cut", alg="kway", kwargs...)
+partitions(::Backend"kahypar", g::Graph, npartiations::Integer; objective="edge_cut", alg="kway", kwargs...)
 
 - default_configuration => "cut_kKaHyPar_sea20.ini"
 - :edge_cut => "cut_kKaHyPar_sea20.ini"
 - :connectivity => "km1_kKaHyPar_sea20.ini"
 - imbalance::Number=0.03
 """
-function GraphsExtensions.partitioned_vertices(
+function GraphsExtensions.partitions(
         ::Backend"kahypar",
         g::AbstractSimpleGraph,
         npartitions::Integer;

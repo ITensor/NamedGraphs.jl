@@ -10,14 +10,14 @@ GraphsExtensions.set_partitioning_backend!(Backend"metis"())
 const METIS_ALGS = Dict(["kway" => :KWAY, "recursive" => :RECURSIVE])
 
 """
-    partitioned_vertices(::Backend"metis", g::AbstractGraph, npartitions::Integer; alg="recursive")
+    partitions(::Backend"metis", g::AbstractGraph, npartitions::Integer; alg="recursive")
 
 Partition the graph `G` in `n` parts.
 The partition algorithm is defined by the `alg` keyword:
  - :KWAY: multilevel k-way partitioning
  - :RECURSIVE: multilevel recursive bisection
 """
-function GraphsExtensions.partitioned_vertices(
+function GraphsExtensions.partitions(
         ::Backend"metis", g::AbstractSimpleGraph, npartitions::Integer; alg = "recursive", kwargs...
     )
     metis_alg = METIS_ALGS[alg]

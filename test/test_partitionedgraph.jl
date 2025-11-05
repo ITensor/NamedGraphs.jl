@@ -36,7 +36,7 @@ using NamedGraphs.NamedGraphGenerators:
 using NamedGraphs.OrderedDictionaries: OrderedDictionary
 using NamedGraphs.PartitionedGraphs:
     PartitionedGraph,
-    QuotientGraph,
+    QuotientView,
     SuperEdge,
     SuperVertex,
     boundary_superedges,
@@ -56,18 +56,18 @@ using Test: @test, @testset
     #Partition it column-wise (into a 1D chain)
     partitions = [[(i, j) for j in 1:ny] for i in 1:nx]
     pg = PartitionedGraph(g, partitions)
-    @test vertextype(QuotientGraph(pg)) == Int64
+    @test vertextype(QuotientView(pg)) == Int64
     @test vertextype(unpartitioned_graph(pg)) == vertextype(g)
     @test isa(supervertices(pg), OrderedDictionary{Int64, SuperVertex{Int64}})
     @test isa(superedges(pg), Vector{SuperEdge{Int64, NamedEdge{Int64}}})
-    @test is_tree(QuotientGraph(pg))
+    @test is_tree(QuotientView(pg))
     @test nv(pg) == nx * ny
-    @test nv(QuotientGraph(pg)) == nx
+    @test nv(QuotientView(pg)) == nx
     pg_c = copy(pg)
     @test pg_c == pg
 
     #PartionsGraphView test
-    pgv = QuotientGraph(pg)
+    pgv = QuotientView(pg)
     @test vertices(pgv) == parent.(supervertices(pg))
     @test edges(pgv) == parent.(superedges(pg))
     @test is_tree(pgv) == true
@@ -78,7 +78,7 @@ using Test: @test, @testset
     #Same partitioning but with a dictionary constructor
     partition_dict = Dictionary([first(partition) for partition in partitions], partitions)
     pg = PartitionedGraph(g, partition_dict)
-    @test vertextype(QuotientGraph(pg)) == vertextype(g)
+    @test vertextype(QuotientView(pg)) == vertextype(g)
     @test vertextype(unpartitioned_graph(pg)) == vertextype(g)
     @test isa(
         supervertices(pg),
@@ -88,19 +88,19 @@ using Test: @test, @testset
         superedges(pg),
         Vector{SuperEdge{Tuple{Int64, Int64}, NamedEdge{Tuple{Int64, Int64}}}},
     )
-    @test is_tree(QuotientGraph(pg))
+    @test is_tree(QuotientView(pg))
     @test nv(pg) == nx * ny
-    @test nv(QuotientGraph(pg)) == nx
+    @test nv(QuotientView(pg)) == nx
     pg_c = copy(pg)
     @test pg_c == pg
 
     #Partition the whole thing into just 1 vertex
     pg = PartitionedGraph([i for i in 1:nx])
-    @test unpartitioned_graph(pg) == QuotientGraph(pg)
+    @test unpartitioned_graph(pg) == QuotientView(pg)
     @test nv(pg) == nx
-    @test nv(QuotientGraph(pg)) == nx
+    @test nv(QuotientView(pg)) == nx
     @test ne(pg) == 0
-    @test ne(QuotientGraph(pg)) == 0
+    @test ne(QuotientView(pg)) == 0
     pg_c = copy(pg)
     @test pg_c == pg
 end
@@ -146,22 +146,23 @@ end
 
     #Strip the middle column from pg via the partitioned graph vertex, and make a new pg
     rem_vertex!(pg, pv)
-    @test !is_connected(unpartitioned_graph(pg)) && !is_connected(QuotientGraph(pg))
-    @test parent(pv) ∉ vertices(QuotientGraph(pg))
+    @test !is_connected(unpartitioned_graph(pg)) && !is_connected(QuotientView(pg))
+    @test parent(pv) ∉ vertices(QuotientView(pg))
     @test !has_vertex(pg, pv)
     @test nv(pg) == (nx - 1) * ny
-    @test nv(QuotientGraph(pg)) == nx - 1
-    @test !is_tree(QuotientGraph(pg))
+    @test nv(QuotientView(pg)) == nx - 1
+    @test !is_tree(QuotientView(pg))
 
     #Add the column back to the in place graph
     add_vertices!(pg, v_set, pv)
     add_edges!(pg, edges_involving_v_set)
-    @test is_connected(pg.graph) && is_path_graph(QuotientGraph(pg))
-    @test parent(pv) ∈ vertices(QuotientGraph(pg))
+    @test is_connected(pg.graph) 
+    @test is_path_graph(QuotientView(pg))
+    @test parent(pv) ∈ vertices(QuotientView(pg))
     @test has_vertex(pg, pv)
-    @test is_tree(QuotientGraph(pg))
+    @test is_tree(QuotientView(pg))
     @test nv(pg) == nx * ny
-    @test nv(QuotientGraph(pg)) == nx
+    @test nv(QuotientView(pg)) == nx
 end
 
 @testset "Test Partitioned Graph Subgraph Functionality" begin
@@ -183,7 +184,7 @@ end
     pg_2 = subgraph(pg, subgraph_vertices)
     @test pg_1 == pg_2
     @test nv(pg_1) == length(subgraph_vertices)
-    @test nv(QuotientGraph(pg_1)) == length(subgraph_partitioned_vertices)
+    @test nv(QuotientView(pg_1)) == length(subgraph_partitioned_vertices)
 
     subgraph_partitioned_vertex = 3
     subgraph_vertices = partitions[subgraph_partitioned_vertex]
@@ -206,9 +207,9 @@ end
             pg = PartitionedGraph(g, [vertices(g)])
             @test f(pg) == f(unpartitioned_graph(pg))
             @test nv(pg) == nv(g)
-            @test nv(QuotientGraph(pg)) == 1
+            @test nv(QuotientView(pg)) == 1
             @test ne(pg) == ne(g)
-            @test ne(QuotientGraph(pg)) == 0
+            @test ne(QuotientView(pg)) == 0
         end
     end
 end
@@ -225,7 +226,7 @@ end
     for backend in backends
         pg = PartitionedGraph(g; npartitions, backend = "metis")
         @test pg isa PartitionedGraph
-        @test nv(QuotientGraph(pg)) == npartitions
+        @test nv(QuotientView(pg)) == npartitions
     end
 end
 end

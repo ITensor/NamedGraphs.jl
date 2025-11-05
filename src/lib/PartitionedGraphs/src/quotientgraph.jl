@@ -1,25 +1,51 @@
-using Graphs: AbstractGraph
+using Graphs: AbstractGraph, rem_vertex!, vertices, edges
+using .GraphsExtensions: add_edges!
+using ..NamedGraphs: NamedGraph, position_graph_type
 
-struct QuotientGraph{V, G <: AbstractPartitionedGraph{V}} <: AbstractNamedGraph{V}
+struct QuotientView{V, G <: AbstractGraph{V}} <: AbstractNamedGraph{V}
     graph::G
-    QuotientGraph(g::G) where {V, G <: AbstractPartitionedGraph{V}} = new{V, G}(g)
 end
 
-Base.copy(g::QuotientGraph) = QuotientGraph(copy(g.graph))
-QuotientGraph(g::AbstractGraph) = QuotientGraph(PartitionedGraph(g, [vertices(g)]))
+function quotient_graph(g::QuotientView)
+    qg = NamedGraph(vertices(g))
+    add_edges!(qg, edges(g))
+    return qg
+end
+
+quotient_graph_type(::Type{<:QuotientView{V}}) where {V} = NamedGraph{V}
+
+Graphs.vertices(qg::QuotientView) = quotient_vertices(qg.graph)
+Graphs.edges(qg::QuotientView) = quotient_edges(qg.graph)
+
+Base.copy(g::QuotientView) = QuotientView(copy(g.graph))
 
 # Graphs.jl and NamedGraphs.jl interface overloads for `PartitionsGraphView` wrapping
 # a `PartitionedGraph`.
 function NamedGraphs.position_graph_type(
-        type::Type{<:QuotientGraph{V, G}}
+        type::Type{<:QuotientView{V, G}}
     ) where {V, G <: PartitionedGraph{V}}
-    return fieldtype(fieldtype(fieldtype(type, :graph), :partitions_graph), :position_graph)
+    return position_graph_type(quotient_graph_type(type))
 end
+
+function Graphs.rem_vertex!(qg::QuotientView, v)
+    g = qg.graph
+    rem_vertex!(g, super_vertex_type(g)(v))
+end
+function Graphs.rem_edge!(qg::QuotientView, v)
+    g = qg.graph
+    rem_edge!(g, super_edge_type(g)(v))
+end
+
+function Graphs.add_vertex!(qg::QuotientView, v)
+    g = qg.graph
+    add_vertex!(g, super_vertex_type(g)(v))
+end
+function Graphs.add_edge!(qg::QuotientView, v)
+    g = qg.graph
+    add_edge!(g, super_edge_type(g)(v))
+end
+
 for f in [
-        :(Graphs.add_vertex!),
-        :(Graphs.edges),
-        :(Graphs.vertices),
-        :(Graphs.rem_vertex!),
         :(NamedGraphs.edgetype),
         :(NamedGraphs.namedgraph_induced_subgraph),
         :(NamedGraphs.ordered_vertices),
@@ -29,9 +55,10 @@ for f in [
     ]
     @eval begin
         function $f(
-                g::QuotientGraph{V, G}, args...; kwargs...
-            ) where {V, G <: PartitionedGraph{V}}
-            return $f(g.graph.partitions_graph, args...; kwargs...)
+                g::QuotientView{V, G}, args...; kwargs...
+            ) where {V, G}
+            return $f(quotient_graph(g), args...; kwargs...)
         end
     end
 end
+

@@ -32,7 +32,7 @@ using .GraphsExtensions:
     GraphsExtensions,
     directed_graph,
     incident_edges,
-    partitioned_vertices,
+    partitions,
     rename_vertices,
     subgraph
 using SimpleTraits: SimpleTraits, Not, @traitfn
@@ -91,8 +91,8 @@ GraphsExtensions.convert_vertextype(::Type, ::AbstractNamedGraph) = not_implemen
 Base.copy(graph::AbstractNamedGraph) = not_implemented()
 
 function Graphs.merge_vertices!(
-        graph::AbstractNamedGraph, merge_vertices; merged_vertex = first(merge_vertices)
-    )
+    graph::AbstractNamedGraph, merge_vertices; merged_vertex=first(merge_vertices)
+)
     return not_implemented()
 end
 
@@ -144,11 +144,11 @@ end
 
 # TODO: write in terms of a generic function.
 for f in [
-        :(Graphs.outneighbors),
-        :(Graphs.inneighbors),
-        :(Graphs.all_neighbors),
-        :(Graphs.neighbors),
-    ]
+    :(Graphs.outneighbors),
+    :(Graphs.inneighbors),
+    :(Graphs.all_neighbors),
+    :(Graphs.neighbors),
+]
     @eval begin
         function $f(graph::AbstractNamedGraph, vertex)
             position_vertices = $f(position_graph(graph), vertex_positions(graph)[vertex])
@@ -199,8 +199,8 @@ function Graphs.degree(graph::AbstractNamedGraph, vertex::Integer)
     return namedgraph_degree(graph::AbstractNamedGraph, vertex)
 end
 
-function Graphs.degree_histogram(g::AbstractNamedGraph, degfn = degree)
-    hist = Dictionary{Int, Int}()
+function Graphs.degree_histogram(g::AbstractNamedGraph, degfn=degree)
+    hist = Dictionary{Int,Int}()
     for v in vertices(g)        # minimize allocations by
         for d in degfn(g, v)    # iterating over vertices
             set!(hist, d, get(hist, d, 0) + 1)
@@ -210,8 +210,8 @@ function Graphs.degree_histogram(g::AbstractNamedGraph, degfn = degree)
 end
 
 function namedgraph_neighborhood(
-        graph::AbstractNamedGraph, vertex, d, distmx = weights(graph); dir = :out
-    )
+    graph::AbstractNamedGraph, vertex, d, distmx=weights(graph); dir=:out
+)
     position_distmx = dist_matrix_to_position_dist_matrix(graph, distmx)
     position_vertices = neighborhood(
         position_graph(graph), vertex_positions(graph)[vertex], d, position_distmx; dir
@@ -220,22 +220,22 @@ function namedgraph_neighborhood(
 end
 
 function Graphs.neighborhood(
-        graph::AbstractNamedGraph, vertex, d, distmx = weights(graph); dir = :out
-    )
+    graph::AbstractNamedGraph, vertex, d, distmx=weights(graph); dir=:out
+)
     return namedgraph_neighborhood(graph, vertex, d, distmx; dir)
 end
 
 # Fix for ambiguity error with `AbstractGraph` version
 function Graphs.neighborhood(
-        graph::AbstractNamedGraph, vertex::Integer, d, distmx = weights(graph); dir = :out
-    )
+    graph::AbstractNamedGraph, vertex::Integer, d, distmx=weights(graph); dir=:out
+)
     return namedgraph_neighborhood(graph, vertex, d, distmx; dir)
 end
 
 # Fix for ambiguity error with `AbstractGraph` version
 function Graphs.neighborhood(
-        graph::AbstractNamedGraph, vertex::Integer, d, distmx::AbstractMatrix{<:Real}; dir = :out
-    )
+    graph::AbstractNamedGraph, vertex::Integer, d, distmx::AbstractMatrix{<:Real}; dir=:out
+)
     return namedgraph_neighborhood(graph, vertex, d, distmx; dir)
 end
 
@@ -246,27 +246,27 @@ function namedgraph_neighborhood_dists(graph::AbstractNamedGraph, vertex, d, dis
     )
     return [
         (ordered_vertices(graph)[position_vertex], dist) for
-            (position_vertex, dist) in position_vertices_and_dists
+        (position_vertex, dist) in position_vertices_and_dists
     ]
 end
 
 function Graphs.neighborhood_dists(
-        graph::AbstractNamedGraph, vertex, d, distmx = weights(graph); dir = :out
-    )
+    graph::AbstractNamedGraph, vertex, d, distmx=weights(graph); dir=:out
+)
     return namedgraph_neighborhood_dists(graph, vertex, d, distmx; dir)
 end
 
 # Fix for ambiguity error with `AbstractGraph` version
 function Graphs.neighborhood_dists(
-        graph::AbstractNamedGraph, vertex::Integer, d, distmx = weights(graph); dir = :out
-    )
+    graph::AbstractNamedGraph, vertex::Integer, d, distmx=weights(graph); dir=:out
+)
     return namedgraph_neighborhood_dists(graph, vertex, d, distmx; dir)
 end
 
 # Fix for ambiguity error with `AbstractGraph` version
 function Graphs.neighborhood_dists(
-        graph::AbstractNamedGraph, vertex::Integer, d, distmx::AbstractMatrix{<:Real}; dir = :out
-    )
+    graph::AbstractNamedGraph, vertex::Integer, d, distmx::AbstractMatrix{<:Real}; dir=:out
+)
     return namedgraph_neighborhood_dists(graph, vertex, d, distmx; dir)
 end
 
@@ -276,7 +276,7 @@ function namedgraph_mincut(graph::AbstractNamedGraph, distmx)
     return Dictionary(vertices(graph), position_parity), bestcut
 end
 
-function Graphs.mincut(graph::AbstractNamedGraph, distmx = weights(graph))
+function Graphs.mincut(graph::AbstractNamedGraph, distmx=weights(graph))
     return namedgraph_mincut(graph, distmx)
 end
 
@@ -285,10 +285,10 @@ function Graphs.mincut(graph::AbstractNamedGraph, distmx::AbstractMatrix{<:Real}
 end
 
 # TODO: Make this more generic?
-function GraphsExtensions.partitioned_vertices(
-        graph::AbstractNamedGraph; npartitions = nothing, nvertices_per_partition = nothing, kwargs...
-    )
-    vertex_partitions = partitioned_vertices(
+function GraphsExtensions.partitions(
+    graph::AbstractNamedGraph; npartitions=nothing, nvertices_per_partition=nothing, kwargs...
+)
+    vertex_partitions = partitions(
         position_graph(graph); npartitions, nvertices_per_partition, kwargs...
     )
     # TODO: output the reverse of this dictionary (a Vector of Vector
@@ -300,13 +300,13 @@ function GraphsExtensions.partitioned_vertices(
 end
 
 function namedgraph_a_star(
-        graph::AbstractNamedGraph,
-        source,
-        destination,
-        distmx = weights(graph),
-        heuristic::Function = (v -> zero(eltype(distmx))),
-        edgetype_to_return = edgetype(graph),
-    )
+    graph::AbstractNamedGraph,
+    source,
+    destination,
+    distmx=weights(graph),
+    heuristic::Function=(v -> zero(eltype(distmx))),
+    edgetype_to_return=edgetype(graph),
+)
     position_distmx = dist_matrix_to_position_dist_matrix(graph, distmx)
     position_shortest_path = a_star(
         position_graph(graph),
@@ -325,21 +325,21 @@ end
 
 # Fix ambiguity error with `AbstractGraph` version
 function Graphs.a_star(
-        graph::AbstractNamedGraph{U}, source::Integer, destination::Integer, args...
-    ) where {U <: Integer}
+    graph::AbstractNamedGraph{U}, source::Integer, destination::Integer, args...
+) where {U<:Integer}
     return namedgraph_a_star(graph, source, destination, args...)
 end
 
 # Fix ambiguity error with `AbstractGraph` version
 function Graphs.a_star(
-        graph::AbstractNamedGraph, source::Integer, destination::Integer, args...
-    )
+    graph::AbstractNamedGraph, source::Integer, destination::Integer, args...
+)
     return namedgraph_a_star(graph, source, destination, args...)
 end
 
 function Graphs.spfa_shortest_paths(
-        graph::AbstractNamedGraph, vertex, distmx = weights(graph)
-    )
+    graph::AbstractNamedGraph, vertex, distmx=weights(graph)
+)
     position_distmx = dist_matrix_to_position_dist_matrix(graph, distmx)
     position_shortest_paths = spfa_shortest_paths(
         position_graph(graph), vertex_positions(graph)[vertex], position_distmx
@@ -348,20 +348,20 @@ function Graphs.spfa_shortest_paths(
 end
 
 function Graphs.boruvka_mst(
-        g::AbstractNamedGraph, distmx::AbstractMatrix{<:Real} = weights(g); minimize = true
-    )
+    g::AbstractNamedGraph, distmx::AbstractMatrix{<:Real}=weights(g); minimize=true
+)
     position_mst, weights = boruvka_mst(position_graph(g), distmx; minimize)
     return map(e -> position_edge_to_edge(g, e), position_mst), weights
 end
 
 function Graphs.kruskal_mst(
-        g::AbstractNamedGraph, distmx::AbstractMatrix{<:Real} = weights(g); minimize = true
-    )
+    g::AbstractNamedGraph, distmx::AbstractMatrix{<:Real}=weights(g); minimize=true
+)
     position_mst = kruskal_mst(position_graph(g), distmx; minimize)
     return map(e -> position_edge_to_edge(g, e), position_mst)
 end
 
-function Graphs.prim_mst(g::AbstractNamedGraph, distmx::AbstractMatrix{<:Real} = weights(g))
+function Graphs.prim_mst(g::AbstractNamedGraph, distmx::AbstractMatrix{<:Real}=weights(g))
     position_mst = prim_mst(position_graph(g), distmx)
     return map(e -> position_edge_to_edge(g, e), position_mst)
 end
@@ -386,13 +386,13 @@ Graphs.has_edge(g::AbstractNamedGraph, edge) = has_edge(g, edgetype(g)(edge))
 Graphs.has_edge(g::AbstractNamedGraph, src, dst) = has_edge(g, edgetype(g)(src, dst))
 
 function Graphs.has_path(
-        graph::AbstractNamedGraph, source, destination; exclude_vertices = vertextype(graph)[]
-    )
+    graph::AbstractNamedGraph, source, destination; exclude_vertices=vertextype(graph)[]
+)
     return has_path(
         position_graph(graph),
         vertex_positions(graph)[source],
         vertex_positions(graph)[destination];
-        exclude_vertices = map(v -> vertex_positions(graph)[v], exclude_vertices),
+        exclude_vertices=map(v -> vertex_positions(graph)[v], exclude_vertices),
     )
 end
 
@@ -412,11 +412,11 @@ function Base.union(graph1::AbstractNamedGraph, graph2::AbstractNamedGraph)
 end
 
 function Base.union(
-        graph1::AbstractNamedGraph,
-        graph2::AbstractNamedGraph,
-        graph3::AbstractNamedGraph,
-        graph_rest::AbstractNamedGraph...,
-    )
+    graph1::AbstractNamedGraph,
+    graph2::AbstractNamedGraph,
+    graph3::AbstractNamedGraph,
+    graph_rest::AbstractNamedGraph...,
+)
     return union(union(graph1, graph2), graph3, graph_rest...)
 end
 
@@ -463,12 +463,12 @@ function Graphs.connected_components(graph::AbstractNamedGraph)
 end
 
 function Graphs.merge_vertices(
-        graph::AbstractNamedGraph, merge_vertices; merged_vertex = first(merge_vertices)
-    )
+    graph::AbstractNamedGraph, merge_vertices; merged_vertex=first(merge_vertices)
+)
     merged_graph = copy(graph)
     add_vertex!(merged_graph, merged_vertex)
     for vertex in merge_vertices
-        for e in incident_edges(graph, vertex; dir = :both)
+        for e in incident_edges(graph, vertex; dir=:both)
             merged_edge = rename_vertices(v -> v == vertex ? merged_vertex : v, e)
             if src(merged_edge) ≠ dst(merged_edge)
                 add_edge!(merged_graph, merged_edge)
