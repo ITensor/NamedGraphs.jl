@@ -52,8 +52,8 @@ function partitioned_edges(g::AbstractGraph, pvs = partitioned_vertices(g))
     end
     return rv
 end
-partitioned_edges(g::AbstractGraph, se::AbstractSuperEdge) = partitioned_edges(g)[parent(se)]
-function partitioned_edges(g::AbstractGraph, ses::Vector{<:AbstractSuperEdge}) 
+partitioned_edges(g::AbstractGraph, se::SuperEdge) = partitioned_edges(g)[parent(se)]
+function partitioned_edges(g::AbstractGraph, ses::Vector{<:SuperEdge}) 
     return mapreduce(se -> partitioned_edges(g, se), vcat, ses)
 end
 
@@ -140,8 +140,8 @@ end
 Graphs.vertices(pg::AbstractPartitionedGraph) = vertices(unpartitioned_graph(pg))
 
 """
-    vertices(pg::AbstractPartitionedGraph, supervertex::AbstractSuperEdge)
-    vertices(pg::AbstractPartitionedGraph, supervertices::Vector{AbstractSuperEdge})
+    vertices(pg::AbstractPartitionedGraph, supervertex::SuperEdge)
+    vertices(pg::AbstractPartitionedGraph, supervertices::Vector{SuperEdge})
 
 Return the set of vertices in the partitioned graph `pg` that correspond to the super vertex
 `supervertex` or set of super vertices `supervertex`.
@@ -156,13 +156,13 @@ end
 Graphs.edges(pg::AbstractPartitionedGraph) = edges(unpartitioned_graph(pg))
 
 """
-    edges(pg::AbstractPartitionedGraph, superedge::AbstractSuperEdge)
-    edges(pg::AbstractPartitionedGraph, superedges::Vector{AbstractSuperEdge})
+    edges(pg::AbstractPartitionedGraph, superedge::SuperEdge)
+    edges(pg::AbstractPartitionedGraph, superedges::Vector{SuperEdge})
 
 Return the set of edges in the partitioned graph `pg` that correspond to the super edge `
 superedge` or set of super edges `superedges`.
 """
-function Graphs.edges(pg::AbstractPartitionedGraph, superedge::AbstractSuperEdge)
+function Graphs.edges(pg::AbstractPartitionedGraph, superedge::SuperEdge)
     psrc_vs = vertices(pg, src(superedge))
     pdst_vs = vertices(pg, dst(superedge))
     psrc_subgraph, _ = induced_subgraph(unpartitioned_graph(pg), psrc_vs)
@@ -171,7 +171,7 @@ function Graphs.edges(pg::AbstractPartitionedGraph, superedge::AbstractSuperEdge
 
     return setdiff(edges(full_subgraph), vcat(edges(psrc_subgraph), edges(pdst_subgraph)))
 end
-function Graphs.edges(pg::AbstractPartitionedGraph, superedges::Vector{<:AbstractSuperEdge})
+function Graphs.edges(pg::AbstractPartitionedGraph, superedges::Vector{<:SuperEdge})
     return unique(reduce(vcat, [edges(pg, se) for se in superedges]))
 end
 

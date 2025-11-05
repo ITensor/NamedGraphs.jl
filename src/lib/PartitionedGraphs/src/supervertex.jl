@@ -1,4 +1,6 @@
+using Graphs: AbstractGraph, Graphs, nv
 using ..NamedGraphs: AbstractNamedGraph
+using ..NamedGraphs.GraphsExtensions: GraphsExtensions, rem_vertices!
 
 struct SuperVertex{V}
     vertex::V
