@@ -30,9 +30,6 @@ end
 Graphs.rem_vertex!(qg::QuotientView, v) = rem_vertex!(qg.graph, SuperVertex(v))
 Graphs.rem_edge!(qg::QuotientView, v) = rem_edge!(qg.graph, SuperEdge(v))
 
-Graphs.add_vertex!(qg::QuotientView, v) = add_vertex!(qg.graph, SuperVertex(v))
-Graphs.add_edge!(qg::QuotientView, v) = add_edge!(qg.graph, SuperEdge(v))
-
 for f in [
         :(NamedGraphs.edgetype),
         :(NamedGraphs.namedgraph_induced_subgraph),

@@ -14,46 +14,50 @@ using ..NamedGraphs: NamedGraphs, AbstractNamedGraph
 using ..NamedGraphs.GraphsExtensions:
     GraphsExtensions, add_vertices!, not_implemented, rem_vertices!, subgraph
 
-# Essential method for the interface
+# Essential methods for fast quotient graph construction.
 partitioned_vertices(g::AbstractGraph) = [vertices(g)]
+quotient_edges(g::AbstractGraph, pvs = partitioned_vertices(g)) = keys(partitioned_edges(g, pvs))
 
+# Overload this for fast inverse mapping for vertices and edges
+find_quotient_vertex(g::AbstractGraph, vertex) = find_quotient_vertex(partitioned_vertices(g), vertex)
 
-# Optional functions for the interface
-
-## Return the partition that a vertex belongs to
-function findpartition(pvs, vertex)
+function find_quotient_vertex(pvs, vertex)
     rv = findfirst(pv -> vertex ∈ pv, pvs)
     if isnothing(rv)
         error("Vertex $vertex not found in any partition.")
     end
     return rv
 end
-findpartition(g::AbstractGraph, vertex) = findpartition(partitioned_vertices(g), vertex)
 
-function partitioned_edges(g::AbstractGraph, pvs = partitioned_vertices(g))
+function find_quotient_edge(g::AbstractGraph, edge, pvs = nothing)
+    if !has_edge(g, edge)
+        throw(ArgumentError("Graph does not have an edge $edge"))
+    end
+    gp = isnothing(pvs) ? g : pvs
+    qv_src = find_quotient_vertex(gp, src(edge))
+    qv_dst = find_quotient_vertex(gp, dst(edge))
+    return NamedEdge(qv_src => qv_dst)
+end
 
-    SVT = keytype(pvs)
-    ET = edgetype(g)
-    rv = Dictionary{NamedEdge{SVT}, Vector{ET}}()
+function partitioned_edges(g::AbstractGraph, pvs = nothing)
+    if isnothing(pvs) 
+        pvs = partitioned_vertices(g)
+    end
+
+    rv = Dictionary{NamedEdge{keytype(pvs)}, Vector{edgetype(g)}}()
 
     for e in edges(g)
-        pv_src = findpartition(pvs, src(e))
-        pv_dst = findpartition(pvs, dst(e))
-        se = NamedEdge(pv_src => pv_dst)
+        se = find_quotient_edge(g, e, pvs)
         if is_self_loop(se)
             continue
         end
         push!(get!(rv, se, typeof(e)[]), e)
     end
+
     return rv
-end
-partitioned_edges(g::AbstractGraph, se::SuperEdge) = partitioned_edges(g)[parent(se)]
-function partitioned_edges(g::AbstractGraph, ses::Vector{<:SuperEdge}) 
-    return mapreduce(se -> partitioned_edges(g, se), vcat, ses)
 end
 
 quotient_vertices(g) = keys(partitioned_vertices(g))
-quotient_edges(g, pvs = partitioned_vertices(g)) = keys(partitioned_edges(g, pvs))
 
 function quotient_graph(g::AbstractGraph)
     qg = NamedGraph(quotient_vertices(g))
@@ -67,13 +71,10 @@ function quotient_graph(g::AbstractGraph, pvs)
     return qg
 end
 
-supervertex(pg::AbstractGraph, vertex) = SuperVertex(findpartition(pg, vertex))
-supervertices(pg::AbstractGraph) = SuperVertex.(quotient_vertices(pg))
-
-function superedge(pg::AbstractGraph, edge::AbstractEdge)
-    return SuperEdge(findpartition(pg, src(edge)) => findpartition(pg, dst(edge)))
+function is_boundary_edge(pg::AbstractGraph, edge::AbstractEdge)
+    p_edge = superedge(pg, edge)
+    return src(p_edge) == dst(p_edge)
 end
-superedges(pg::AbstractGraph) = SuperEdge.(quotient_edges(pg))
 
 function boundary_superedges(pg::AbstractGraph, supervertices; kwargs...)
     return SuperEdge.(
@@ -85,12 +86,6 @@ function boundary_superedges(
         pg::AbstractGraph, supervertex::SuperVertex; kwargs...
     )
     return boundary_superedges(pg, [supervertex]; kwargs...)
-end
-
-function partitionedgraph_induced_subgraph(
-        pg::AbstractGraph, supervertices::Vector{<:SuperVertex}
-    )
-    return induced_subgraph(pg, vertices(pg, supervertices))
 end
 
 """
@@ -105,15 +100,6 @@ abstract type AbstractPartitionedGraph{V, PV} <: AbstractNamedGraph{V} end
 unpartitioned_graph(::AbstractPartitionedGraph) = not_implemented()
 Base.copy(::AbstractPartitionedGraph) = not_implemented()
 
-super_vertex_type(::Type{<:AbstractPartitionedGraph}) = not_implemented()
-super_edge_type(::Type{<:AbstractPartitionedGraph}) = not_implemented()
-
-supervertex(::AbstractPartitionedGraph, vertex) = not_implemented()
-superedge(::AbstractPartitionedGraph, edge) = not_implemented()
-
-delete_from_vertex_map!(::AbstractPartitionedGraph, vertex) = not_implemented()
-insert_to_vertex_map!(::AbstractPartitionedGraph, vertex) = not_implemented()
-
 function unpartitioned_graph_type(::Type{<:AbstractPartitionedGraph})
     return not_implemented()
 end
@@ -124,32 +110,10 @@ function GraphsExtensions.undirected_graph_type(::Type{<:AbstractPartitionedGrap
     return not_implemented()
 end
 
-# Derived (by default)
-super_vertex_type(pg::AbstractPartitionedGraph) = super_vertex_type(typeof(pg))
-super_edge_type(pg::AbstractPartitionedGraph) = super_edge_type(typeof(pg))
-
 function unpartitioned_graph_type(pg::AbstractPartitionedGraph)
     return typeof(unpartitioned_graph(pg))
 end
 
-"""
-    supervertices(pg::AbstractPartitionedGraph, vs = vertices(pg))
-
-Return all unique super vertices corresponding to the set vertices `vs` of the graph `pg`.
-"""
-function supervertices(pg::AbstractPartitionedGraph, vs = vertices(pg))
-    return unique(map(v -> supervertex(pg,v), vs))
-end
-
-"""
-    superedges(pg::AbstractPartitionedGraph, es = edges(pg))
-
-Return all unique super edges corresponding to the set edges `es` of the graph `pg`.
-"""
-function superedges(pg::AbstractPartitionedGraph, es = edges(pg))
-    return filter!(!is_self_loop, unique(map(e -> superedge(pg, e), es)))
-end
-superedge(pg::AbstractPartitionedGraph, p::Pair) = superedge(pg, edgetype(pg)(p))
 
 # AbstractGraph interface.
 function Graphs.is_directed(graph_type::Type{<:AbstractPartitionedGraph})
@@ -158,42 +122,7 @@ end
 
 #Functions for the abstract type
 Graphs.vertices(pg::AbstractPartitionedGraph) = vertices(unpartitioned_graph(pg))
-
-"""
-    vertices(pg::AbstractPartitionedGraph, supervertex::SuperEdge)
-    vertices(pg::AbstractPartitionedGraph, supervertices::Vector{SuperEdge})
-
-Return the set of vertices in the partitioned graph `pg` that correspond to the super vertex
-`supervertex` or set of super vertices `supervertex`.
-"""
-function Graphs.vertices(pg::AbstractGraph, supervertex::SuperVertex)
-    return partitioned_vertices(pg)[parent(supervertex)]
-end
-function Graphs.vertices(pg::AbstractPartitionedGraph, supervertices::Vector{<:SuperVertex})
-    return unique(reduce(vcat, Iterators.map(sv -> vertices(pg, sv), supervertices)))
-end
-
 Graphs.edges(pg::AbstractPartitionedGraph) = edges(unpartitioned_graph(pg))
-
-"""
-    edges(pg::AbstractPartitionedGraph, superedge::SuperEdge)
-    edges(pg::AbstractPartitionedGraph, superedges::Vector{SuperEdge})
-
-Return the set of edges in the partitioned graph `pg` that correspond to the super edge `
-superedge` or set of super edges `superedges`.
-"""
-function Graphs.edges(pg::AbstractPartitionedGraph, superedge::SuperEdge)
-    psrc_vs = vertices(pg, src(superedge))
-    pdst_vs = vertices(pg, dst(superedge))
-    psrc_subgraph, _ = induced_subgraph(unpartitioned_graph(pg), psrc_vs)
-    pdst_subgraph, _ = induced_subgraph(pg, pdst_vs)
-    full_subgraph, _ = induced_subgraph(pg, vcat(psrc_vs, pdst_vs))
-
-    return setdiff(edges(full_subgraph), vcat(edges(psrc_subgraph), edges(pdst_subgraph)))
-end
-function Graphs.edges(pg::AbstractPartitionedGraph, superedges::Vector{<:SuperEdge})
-    return unique(reduce(vcat, [edges(pg, se) for se in superedges]))
-end
 
 function NamedGraphs.position_graph(pg::AbstractPartitionedGraph)
     return NamedGraphs.position_graph(unpartitioned_graph(pg))
@@ -205,32 +134,6 @@ function NamedGraphs.ordered_vertices(pg::AbstractPartitionedGraph)
     return NamedGraphs.ordered_vertices(unpartitioned_graph(pg))
 end
 Graphs.edgetype(pg::AbstractPartitionedGraph) = edgetype(unpartitioned_graph(pg))
-
-function is_boundary_edge(pg::AbstractPartitionedGraph, edge::AbstractEdge)
-    p_edge = superedge(pg, edge)
-    return src(p_edge) == dst(p_edge)
-end
-
-function Graphs.rem_edge!(pg::AbstractPartitionedGraph, edge::AbstractEdge)
-    pg_edge = superedge(pg, edge)
-    if has_edge(QuotientView(pg), pg_edge)
-        g_edges = edges(pg, pg_edge)
-        if length(g_edges) == 1
-            rem_edge!(QuotientView(pg), pg_edge)
-        end
-    end
-    return rem_edge!(unpartitioned_graph(pg), edge)
-end
-
-#Vertex addition and removal. I think it's important not to allow addition of a vertex without specification of PV
-function Graphs.add_vertex!(
-        pg::AbstractPartitionedGraph, vertex, supervertex::SuperVertex
-    )
-    add_vertex!(unpartitioned_graph(pg), vertex)
-    add_vertex!(QuotientView(pg), parent(supervertex))
-    insert_to_vertex_map!(pg, vertex, supervertex)
-    return pg
-end
 
 function GraphsExtensions.add_vertices!(
         pg::AbstractPartitionedGraph,
@@ -252,13 +155,9 @@ function GraphsExtensions.add_vertices!(
     return pg
 end
 
-function Graphs.rem_vertex!(pg::AbstractPartitionedGraph, vertex::SuperVertex)
-    return rem_super_vertex!(pg, vertex)
-end
-    
-Graphs.rem_vertex!(::AbstractPartitionedGraph, vertex) = not_implemented()
+Graphs.rem_vertex!(::AbstractPartitionedGraph{V}, vertex::V) where {V} = not_implemented()
 
-function Graphs.add_vertex!(pg::AbstractPartitionedGraph, vertex)
+function Graphs.add_vertex!(::AbstractPartitionedGraph, vertex)
     return error("Need to specify a partition where the new vertex will go.")
 end
 
@@ -275,9 +174,7 @@ function Base.:(==)(pg1::AbstractPartitionedGraph, pg2::AbstractPartitionedGraph
     return true
 end
 
-function GraphsExtensions.subgraph(
-        pg::AbstractPartitionedGraph, supervertex::SuperVertex
-    )
+function GraphsExtensions.subgraph( pg::AbstractPartitionedGraph, supervertex::SuperVertex)
     return first(induced_subgraph(unpartitioned_graph(pg), vertices(pg, [supervertex])))
 end
 

@@ -3,6 +3,7 @@ using Graphs:
     AbstractEdge, AbstractGraph, add_edge!, edges, has_edge, induced_subgraph, vertices, dst, src, edgetype
 using .GraphsExtensions: GraphsExtensions, boundary_edges, is_self_loop, partitions
 using ..NamedGraphs: NamedEdge, NamedGraph
+using ..NamedGraphs.OrderedDictionaries: OrderedDictionary
 
 # TODO: Parametrize `partitioned_vertices` and `which_partition`,
 # see https://github.com/mtfishman/NamedGraphs.jl/issues/63.
@@ -13,11 +14,12 @@ struct PartitionedGraph{V, PV, G <: AbstractGraph{V}, NV} <: AbstractPartitioned
     which_partition::Dictionary{V, PV}
 end
 
+# Interface overloads
 partitioned_vertices(pg::PartitionedGraph) = pg.partitioned_vertices
-
-quotient_graph(pg::PartitionedGraph) = pg.quotient_graph
 quotient_edges(pg::PartitionedGraph) = edges(pg.quotient_graph)
 quotient_vertices(pg::PartitionedGraph) = vertices(pg.quotient_graph)
+find_quotient_vertex(pg::PartitionedGraph, vertex) = pg.which_partition[vertex]
+quotient_graph(pg::PartitionedGraph) = pg.quotient_graph
 
 Graphs.edgetype(::Type{<:PartitionedGraph{V,PV,G}}) where {V,PV,G} = edgetype(G)
 
@@ -60,7 +62,6 @@ unpartitioned_graph(pg::PartitionedGraph) = getfield(pg, :graph)
 function unpartitioned_graph_type(graph_type::Type{<:PartitionedGraph})
     return fieldtype(graph_type, :graph)
 end
-findpartition(pg::PartitionedGraph, vertex) = pg.which_partition[vertex]
 
 function Base.copy(pg::PartitionedGraph)
     return PartitionedGraph(
@@ -85,34 +86,42 @@ function insert_to_vertex_map!(
 end
 
 function delete_from_vertex_map!(pg::PartitionedGraph{V}, vertex::V) where {V}
-    sv = supervertex(pg, vertex)
+    sv = find_quotient_vertex(pg, vertex)
     return delete_from_vertex_map!(pg, sv, vertex)
 end
 
 function delete_from_vertex_map!(
-    pg::PartitionedGraph{V}, partitioned_vertex::SuperVertex, vertex::V
+    pg::PartitionedGraph{V}, sv::SuperVertex, vertex::V
 ) where {V}
-    vs = vertices(pg, partitioned_vertex)
+    return delete_from_vertex_map!(pg, parent(sv), vertex)
+end
 
-    delete!(pg.partitioned_vertices, parent(partitioned_vertex))
+function delete_from_vertex_map!(
+    pg::PartitionedGraph{V, PV}, qv::PV, vertex::V
+) where {V, PV}
+
+    vs = partitioned_vertices(pg)[qv]
+
+    delete!(pg.partitioned_vertices, qv)
 
     if length(vs) != 1
-        insert!(pg.partitioned_vertices, parent(partitioned_vertex), setdiff(vs, [vertex]))
+        insert!(pg.partitioned_vertices, qv, setdiff(vs, [vertex]))
     end
 
     delete!(pg.which_partition, vertex)
-    return partitioned_vertex
+    return pg
 end
 
 function Graphs.rem_vertex!(pg::PartitionedGraph{V}, vertex::V) where {V}
-    sv = supervertex(pg, vertex)
+    qv = find_quotient_vertex(pg, vertex)
 
-    delete_from_vertex_map!(pg, sv, vertex)
+    delete_from_vertex_map!(pg, qv, vertex)
 
-    rem_vertex!(unpartitioned_graph(pg), vertex)
+    rem_vertex!(pg.graph, vertex)
 
-    if !haskey(partitioned_vertices(pg), parent(sv))
-        rem_vertex!(pg.quotient_graph, parent(sv))
+    # If the super-vertex is now empty, remove it from the quotient graph
+    if !haskey(pg.partitioned_vertices, qv)
+        rem_vertex!(pg.quotient_graph, qv)
     end
 
     return pg
@@ -125,14 +134,31 @@ function Graphs.add_vertex!(pg::PartitionedGraph{V}, vertex::V, sv::SuperVertex)
     return pg
 end
 
-function Graphs.add_edge!(pg::PartitionedGraph, edge)
+function Graphs.add_edge!(pg::PartitionedGraph, edge::AbstractEdge)
     @assert edge isa edgetype(pg)
     add_edge!(pg.graph, edge)
-    pg_edge = parent(superedge(pg, edge))
+    pg_edge = find_quotient_edge(pg, edge)
     if src(pg_edge) != dst(pg_edge)
         add_edge!(pg.quotient_graph, pg_edge)
     end
     return pg
+end
+
+function Graphs.rem_edge!(pg::PartitionedGraph, se::SuperEdge) 
+    return rem_edge!(pg.quotient_graph, parent(se))
+end
+function Graphs.rem_edge!(pg::PartitionedGraph, edge::AbstractEdge)
+    @assert edge isa edgetype(pg)
+    # This already checks if the edge is in pg
+    se = superedge(pg, edge)
+    if se in quotient_edges(pg)
+        g_edges = edges(pg, se)
+        if length(g_edges) == 1
+            # Remove the entire super-edge
+            return rem_edge!(pg, se)
+        end
+    end
+    return rem_edge!(pg.graph, edge)
 end
 
 ### PartitionedGraph Specific Functions
@@ -149,10 +175,6 @@ function partitionedgraph_induced_subgraph(pg::PartitionedGraph, vertices::Vecto
     end
 
     return PartitionedGraph(sub_pg_graph, sub_partitioned_vertices), nothing
-end
-
-function Graphs.induced_subgraph(pg::PartitionedGraph, vertices)
-    return partitionedgraph_induced_subgraph(pg, vertices)
 end
 
 # Fixes ambiguity error with `Graphs.jl`.
