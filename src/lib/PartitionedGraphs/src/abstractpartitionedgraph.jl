@@ -17,11 +17,6 @@ using ..NamedGraphs.GraphsExtensions:
 # Essential method for the interface
 partitioned_vertices(g::AbstractGraph) = [vertices(g)]
 
-# Don't need to overload this
-partitioned_vertices(g::AbstractGraph, sv::SuperVertex) = partitioned_vertices(g)[parent(sv)]
-function partitioned_vertices(g::AbstractGraph, svs::Vector{<:SuperVertex}) 
-    return mapreduce(sv -> partitioned_vertices(g, sv), vcat, svs)
-end
 
 # Optional functions for the interface
 
@@ -72,6 +67,31 @@ function quotient_graph(g::AbstractGraph, pvs)
     return qg
 end
 
+supervertex(pg::AbstractGraph, vertex) = SuperVertex(findpartition(pg, vertex))
+supervertices(pg::AbstractGraph) = SuperVertex.(quotient_vertices(pg))
+
+function superedge(pg::AbstractGraph, edge::AbstractEdge)
+    return SuperEdge(findpartition(pg, src(edge)) => findpartition(pg, dst(edge)))
+end
+superedges(pg::AbstractGraph) = SuperEdge.(quotient_edges(pg))
+
+function boundary_superedges(pg::AbstractGraph, supervertices; kwargs...)
+    return SuperEdge.(
+        boundary_edges(quotient_graph(pg), parent.(supervertices); kwargs...)
+    )
+end
+
+function boundary_superedges(
+        pg::AbstractGraph, supervertex::SuperVertex; kwargs...
+    )
+    return boundary_superedges(pg, [supervertex]; kwargs...)
+end
+
+function partitionedgraph_induced_subgraph(
+        pg::AbstractGraph, supervertices::Vector{<:SuperVertex}
+    )
+    return induced_subgraph(pg, vertices(pg, supervertices))
+end
 
 """
 abstract type AbstractPartitionedGraph{V, PV} <: AbstractNamedGraph{V}

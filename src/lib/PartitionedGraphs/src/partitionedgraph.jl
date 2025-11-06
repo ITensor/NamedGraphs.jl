@@ -19,9 +19,6 @@ quotient_graph(pg::PartitionedGraph) = pg.quotient_graph
 quotient_edges(pg::PartitionedGraph) = edges(pg.quotient_graph)
 quotient_vertices(pg::PartitionedGraph) = vertices(pg.quotient_graph)
 
-super_vertex_type(::Type{<:PartitionedGraph{V}}) where {V} = SuperVertex{V}
-super_edge_type(G::Type{<:PartitionedGraph{V}}) where {V} = SuperEdge{V, edgetype(G)}
-
 Graphs.edgetype(::Type{<:PartitionedGraph{V,PV,G}}) where {V,PV,G} = edgetype(G)
 
 ##Constructors.
@@ -65,37 +62,11 @@ function unpartitioned_graph_type(graph_type::Type{<:PartitionedGraph})
 end
 findpartition(pg::PartitionedGraph, vertex) = pg.which_partition[vertex]
 
-function supervertex(pg::PartitionedGraph, vertex)
-    return SuperVertex(findpartition(pg, vertex))
-end
-
-supervertices(pg::PartitionedGraph) = SuperVertex.(vertices(quotient_graph(pg)))
-
-function superedge(pg::PartitionedGraph, edge::AbstractEdge)
-    return SuperEdge(
-        parent(supervertex(pg, src(edge))) => parent(supervertex(pg, dst(edge)))
-    )
-end
-
-superedges(pg::PartitionedGraph) = map(SuperEdge, edges(QuotientView(pg)))
-
-function boundary_superedges(pg::PartitionedGraph, supervertices; kwargs...)
-    return SuperEdge.(
-        boundary_edges(quotient_graph(pg), parent.(supervertices); kwargs...)
-    )
-end
-
-function boundary_superedges(
-        pg::PartitionedGraph, supervertex::SuperVertex; kwargs...
-    )
-    return boundary_superedges(pg, [supervertex]; kwargs...)
-end
-
 function Base.copy(pg::PartitionedGraph)
     return PartitionedGraph(
-        copy(unpartitioned_graph(pg)),
-        copy(quotient_graph(pg)),
-        copy(partitioned_vertices(pg)),
+        copy(pg.graph),
+        copy(pg.quotient_graph),
+        copy(pg.partitioned_vertices),
         copy(pg.which_partition),
     )
 end
@@ -168,7 +139,7 @@ end
 function partitionedgraph_induced_subgraph(pg::PartitionedGraph, vertices::Vector)
     sub_pg_graph, _ = induced_subgraph(unpartitioned_graph(pg), vertices)
     sub_partitioned_vertices = copy(partitioned_vertices(pg))
-    for pv in NamedGraphs.vertices(QuotientView(pg))
+    for pv in quotient_vertices(pg)
         vs = intersect(vertices, sub_partitioned_vertices[pv])
         if !isempty(vs)
             sub_partitioned_vertices[pv] = vs
@@ -178,12 +149,6 @@ function partitionedgraph_induced_subgraph(pg::PartitionedGraph, vertices::Vecto
     end
 
     return PartitionedGraph(sub_pg_graph, sub_partitioned_vertices), nothing
-end
-
-function partitionedgraph_induced_subgraph(
-        pg::PartitionedGraph, supervertices::Vector{<:SuperVertex}
-    )
-    return induced_subgraph(pg, vertices(pg, supervertices))
 end
 
 function Graphs.induced_subgraph(pg::PartitionedGraph, vertices)
