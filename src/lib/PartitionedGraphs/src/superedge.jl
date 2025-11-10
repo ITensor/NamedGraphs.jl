@@ -1,4 +1,4 @@
-using Graphs: AbstractGraph, Graphs, AbstractEdge, dst, src, ne
+using Graphs: AbstractGraph, Graphs, AbstractEdge, dst, src, ne, has_edge
 using ..NamedGraphs: AbstractNamedEdge
 using ..NamedGraphs.GraphsExtensions: GraphsExtensions, not_implemented, rem_edges!, rem_edge
 
@@ -34,20 +34,26 @@ Return the set of edges in the partitioned graph `pg` that correspond to the sup
 superedge` or set of super edges `superedges`.
 """
 function Graphs.edges(pg::AbstractGraph, superedge::SuperEdge)
-    return partitioned_edges(pg)[parent(superedge)]
+
+    pes = partitioned_edges(pg)
+    defval = edgetype(pg)[]
+
+    rv = get(pes, parent(superedge), defval)
+    if !is_directed(quotient_graph_type(pg)) && isempty(rv)
+        append!(rv, get(pes, reverse(parent(superedge)), defval))
+    end
+    return rv
 end
 function Graphs.edges(pg::AbstractGraph, superedges::Vector{<:SuperEdge})
     return unique(reduce(vcat, [edges(pg, se) for se in superedges]))
 end
 
-function Graphs.has_edge(g::AbstractGraph, se::SuperEdge)
-    return parent(se) in quotient_edges(g)
-end
+has_superedge(g::AbstractGraph, se::SuperEdge) = has_edge(quotient_graph(g), parent(se))
 
 Graphs.ne(g::AbstractGraph, se::SuperEdge) = length(quotient_edges(g, se))
 
-function Graphs.rem_edge!(g::AbstractGraph, se::SuperEdge)
-    edges_to_remove = partitioned_edges(g, se)
-    rem_edges!(g, edges_to_remove)
-    return g
+function GraphsExtensions.rem_edges!(g::AbstractGraph, sv::SuperEdge)
+    rv = rem_edges!(g, edges(g, sv))
+    return rv
 end
+rem_superedge!(pg::AbstractGraph, sv::SuperEdge) = rem_edges!(pg, sv)

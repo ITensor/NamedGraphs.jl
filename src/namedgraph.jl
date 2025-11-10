@@ -198,7 +198,6 @@ function Base.copy(graph::GenericNamedGraph)
 end
 
 Graphs.edgetype(graph_type::Type{<:GenericNamedGraph}) = NamedEdge{vertextype(graph_type)}
-Graphs.edgetype(graph::GenericNamedGraph) = edgetype(typeof(graph))
 
 function GraphsExtensions.directed_graph_type(graph_type::Type{<:GenericNamedGraph})
     return GenericNamedGraph{

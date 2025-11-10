@@ -66,7 +66,8 @@ vertex_positions(graph::AbstractNamedGraph) = not_implemented()
 # returns the corresponding vertex.
 ordered_vertices(graph::AbstractNamedGraph) = not_implemented()
 
-Graphs.edgetype(graph::AbstractNamedGraph) = not_implemented()
+Graphs.edgetype(graph::AbstractNamedGraph) = edgetype(typeof(graph))
+Graphs.edgetype(::Type{<:AbstractNamedGraph}) = not_implemented()
 
 # TODO: Define generic version in `GraphsExtensions`.
 GraphsExtensions.directed_graph_type(G::Type{<:AbstractNamedGraph}) = not_implemented()

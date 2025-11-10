@@ -1,3 +1,4 @@
+using Dictionaries: Dictionary
 using Graphs:
     AbstractEdge,
     AbstractGraph,
@@ -12,11 +13,31 @@ using Graphs:
     vertices
 using ..NamedGraphs: NamedGraphs, AbstractNamedGraph
 using ..NamedGraphs.GraphsExtensions:
-    GraphsExtensions, add_vertices!, not_implemented, rem_vertices!, subgraph
+    GraphsExtensions, add_vertices!, not_implemented, rem_vertices!, subgraph, vertextype
 
-# Essential methods for fast quotient graph construction.
+# For you own graph type `g`, you should define a method for this function is you
+# desire custom partitioning.
 partitioned_vertices(g::AbstractGraph) = [vertices(g)]
-quotient_edges(g::AbstractGraph, pvs = partitioned_vertices(g)) = keys(partitioned_edges(g, pvs))
+
+# For fast quotient edge checking and graph construction, one should overload this function.
+function quotient_graph(g::AbstractGraph, pvs = nothing)
+    if isnothing(pvs) === nothing
+        pvs = partitioned_vertices(g)
+    end
+
+    qg = NamedGraph(keys(pvs))
+
+    for e in edges(g)
+        qv_src = find_quotient_vertex(pvs, src(e))
+        qv_dst = find_quotient_vertex(pvs, dst(e))
+        qe = NamedEdge(qv_src => qv_dst)
+        if qv_src != qv_dst && !has_edge(qg, qe)
+            add_edge!(qg, qe)
+        end
+    end
+
+    return qg
+end
 
 # Overload this for fast inverse mapping for vertices and edges
 find_quotient_vertex(g::AbstractGraph, vertex) = find_quotient_vertex(partitioned_vertices(g), vertex)
@@ -36,40 +57,33 @@ function find_quotient_edge(g::AbstractGraph, edge, pvs = nothing)
     gp = isnothing(pvs) ? g : pvs
     qv_src = find_quotient_vertex(gp, src(edge))
     qv_dst = find_quotient_vertex(gp, dst(edge))
-    return NamedEdge(qv_src => qv_dst)
+    return quotient_edgetype(g)(qv_src => qv_dst)
 end
 
 function partitioned_edges(g::AbstractGraph, pvs = nothing)
-    if isnothing(pvs) 
+    if isnothing(pvs)
         pvs = partitioned_vertices(g)
     end
 
-    rv = Dictionary{NamedEdge{keytype(pvs)}, Vector{edgetype(g)}}()
+    dict = Dictionary{quotient_edgetype(g), Vector{edgetype(g)}}()
 
     for e in edges(g)
-        se = find_quotient_edge(g, e, pvs)
-        if is_self_loop(se)
+        qe = find_quotient_edge(g, e, pvs)
+        if is_self_loop(qe)
             continue
         end
-        push!(get!(rv, se, typeof(e)[]), e)
+        push!(get!(dict, qe, edgetype(g)[]), e)
     end
 
-    return rv
+    return dict
 end
 
-quotient_vertices(g) = keys(partitioned_vertices(g))
-
-function quotient_graph(g::AbstractGraph)
-    qg = NamedGraph(quotient_vertices(g))
-    add_edges!(qg, quotient_edges(g))
-    return qg
+function quotient_vertices(g, pvs = partitioned_vertices(g))
+    qg = quotient_graph_type(g)(keys(pvs))
+    return vertices(qg)
 end
-
-function quotient_graph(g::AbstractGraph, pvs)
-    qg = NamedGraph(keys(pvs))
-    add_edges!(qg, quotient_edges(g, pvs))
-    return qg
-end
+quotient_edges(g::AbstractGraph) = edges(quotient_graph(g))
+quotient_edges(g::AbstractGraph, pvs) = edges(quotient_graph(g, pvs))
 
 function is_boundary_edge(pg::AbstractGraph, edge::AbstractEdge)
     p_edge = superedge(pg, edge)
@@ -87,6 +101,11 @@ function boundary_superedges(
     )
     return boundary_superedges(pg, [supervertex]; kwargs...)
 end
+
+quotient_graph_type(g) = quotient_graph_type(typeof(g))
+quotient_graph_type(::Type{<:AbstractGraph{V}}) where {V} = NamedGraph{V}
+quotient_vertextype(G) = vertextype(quotient_graph_type(G))
+quotient_edgetype(G) = edgetype(quotient_graph_type(G))
 
 """
 abstract type AbstractPartitionedGraph{V, PV} <: AbstractNamedGraph{V}
@@ -174,8 +193,8 @@ function Base.:(==)(pg1::AbstractPartitionedGraph, pg2::AbstractPartitionedGraph
     return true
 end
 
-function GraphsExtensions.subgraph( pg::AbstractPartitionedGraph, supervertex::SuperVertex)
-    return first(induced_subgraph(unpartitioned_graph(pg), vertices(pg, [supervertex])))
+function GraphsExtensions.subgraph(pg::AbstractPartitionedGraph, supervertex::SuperVertex)
+    return first(induced_subgraph(unpartitioned_graph(pg), vertices(pg, supervertex)))
 end
 
 function Graphs.induced_subgraph(

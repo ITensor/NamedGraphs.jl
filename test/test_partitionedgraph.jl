@@ -44,7 +44,9 @@ using NamedGraphs.PartitionedGraphs:
     superedges,
     supervertex,
     supervertices,
-    unpartitioned_graph
+    unpartitioned_graph,
+    rem_supervertex!,
+    has_supervertex
 using Dictionaries: Dictionary, dictionary
 using Pkg: Pkg
 using Test: @test, @testset
@@ -145,7 +147,7 @@ end
     edges_involving_v_set = boundary_edges(g, v_set)
 
     #Strip the middle column from pg via the partitioned graph vertex, and make a new pg
-    rem_vertex!(pg, pv)
+    rem_supervertex!(pg, pv)
     @test !is_connected(unpartitioned_graph(pg)) && !is_connected(QuotientView(pg))
     @test parent(pv) ∉ vertices(QuotientView(pg))
     @test !has_vertex(pg, pv)
@@ -159,7 +161,7 @@ end
     @test is_connected(pg.graph) 
     @test is_path_graph(QuotientView(pg))
     @test parent(pv) ∈ vertices(QuotientView(pg))
-    @test has_vertex(pg, pv)
+    @test has_supervertex(pg, pv)
     @test is_tree(QuotientView(pg))
     @test nv(pg) == nx * ny
     @test nv(QuotientView(pg)) == nx
