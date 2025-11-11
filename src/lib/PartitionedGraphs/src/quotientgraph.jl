@@ -2,8 +2,9 @@ using Graphs: AbstractGraph, rem_vertex!, rem_edge!, vertices, edges
 using .GraphsExtensions: add_edges!
 using ..NamedGraphs: NamedGraph, position_graph_type
 
-struct QuotientView{V, G <: AbstractGraph{V}} <: AbstractNamedGraph{V}
+struct QuotientView{V, G <: AbstractGraph} <: AbstractNamedGraph{V}
     graph::G
+    QuotientView(graph::G) where {G} = new{quotient_vertextype(G), G}(graph)
 end
 
 Base.parent(qg::QuotientView) = qg.graph
@@ -15,7 +16,6 @@ function Base.convert(GT::Type{<:AbstractGraph}, g::QuotientView)
     return qg
 end
 
-NamedGraphs.vertextype(Q::Type{<:QuotientView}) = quotient_vertextype(parent_graph_type(Q))
 NamedGraphs.edgetype(Q::Type{<:QuotientView}) = quotient_edgetype(parent_graph_type(Q))
 
 Graphs.vertices(qg::QuotientView) = quotient_vertices(parent(qg))
@@ -25,9 +25,7 @@ Base.copy(g::QuotientView) = QuotientView(copy(parent(g)))
 
 # Graphs.jl and NamedGraphs.jl interface overloads for `PartitionsGraphView` wrapping
 # a `PartitionedGraph`.
-function NamedGraphs.position_graph_type(
-        type::Type{<:QuotientView{V, G}}
-    ) where {V, G <: PartitionedGraph{V}}
+function NamedGraphs.position_graph_type(type::Type{<:QuotientView})
     return position_graph_type(quotient_graph_type(parent_graph_type(type)))
 end
 
