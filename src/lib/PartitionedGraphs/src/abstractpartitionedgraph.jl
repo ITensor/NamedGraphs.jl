@@ -15,7 +15,7 @@ using ..NamedGraphs: NamedGraphs, AbstractNamedGraph
 using ..NamedGraphs.GraphsExtensions:
     GraphsExtensions, add_vertices!, not_implemented, rem_vertices!, subgraph, vertextype
 
-# For you own graph type `g`, you should define a method for this function is you
+# For you own graph type `g`, you should define a method for this function if you
 # desire custom partitioning.
 partitioned_vertices(g::AbstractGraph) = [vertices(g)]
 
@@ -27,7 +27,7 @@ function quotient_graph(g::AbstractGraph)
     for e in edges(g)
         qv_src = quotient_vertex(g, src(e))
         qv_dst = quotient_vertex(g, dst(e))
-        qe = NamedEdge(qv_src => qv_dst)
+        qe = qv_src => qv_dst
         if qv_src != qv_dst && !has_edge(qg, qe)
             add_edge!(qg, qe)
         end
