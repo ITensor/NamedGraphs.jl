@@ -97,7 +97,7 @@ function boundary_superedges(
 end
 
 quotient_graph_type(g) = quotient_graph_type(typeof(g))
-quotient_graph_type(::Type{<:AbstractGraph{V}}) where {V} = NamedGraph{V}
+quotient_graph_type(::Type{<:AbstractGraph}) = NamedGraph{Int}
 quotient_vertextype(G) = vertextype(quotient_graph_type(G))
 quotient_edgetype(G) = edgetype(quotient_graph_type(G))
 
