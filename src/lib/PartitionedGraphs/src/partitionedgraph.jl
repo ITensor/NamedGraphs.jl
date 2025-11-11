@@ -17,7 +17,7 @@ end
 # Interface overloads
 partitioned_vertices(pg::PartitionedGraph) = pg.partitioned_vertices
 quotient_graph(pg::PartitionedGraph) = pg.quotient_graph
-find_quotient_vertex(pg::PartitionedGraph, vertex) = pg.which_partition[vertex]
+quotient_vertex(pg::PartitionedGraph, vertex) = pg.which_partition[vertex]
 
 quotient_graph_type(::Type{<:AbstractPartitionedGraph{V, PV}}) where {V, PV} = NamedGraph{PV}
 
@@ -80,7 +80,7 @@ function insert_to_vertex_map!(
 end
 
 function delete_from_vertex_map!(pg::PartitionedGraph{V}, vertex::V) where {V}
-    sv = find_quotient_vertex(pg, vertex)
+    sv = quotient_vertex(pg, vertex)
     return delete_from_vertex_map!(pg, sv, vertex)
 end
 
@@ -107,7 +107,7 @@ function delete_from_vertex_map!(
 end
 
 function Graphs.rem_vertex!(pg::PartitionedGraph{V}, vertex::V) where {V}
-    qv = find_quotient_vertex(pg, vertex)
+    qv = quotient_vertex(pg, vertex)
 
     delete_from_vertex_map!(pg, qv, vertex)
 
@@ -131,7 +131,7 @@ end
 function Graphs.add_edge!(pg::PartitionedGraph, edge::AbstractEdge)
     @assert edge isa edgetype(pg)
     add_edge!(pg.graph, edge)
-    pg_edge = find_quotient_edge(pg, edge)
+    pg_edge = quotient_edge(pg, edge)
     if src(pg_edge) != dst(pg_edge)
         add_edge!(pg.quotient_graph, pg_edge)
     end

@@ -6,7 +6,7 @@ struct SuperEdge{V, E <: AbstractEdge{V}} <: AbstractNamedEdge{V}
     edge::E
 end
 
-superedge(pg::AbstractGraph, edge::AbstractEdge) = SuperEdge(find_quotient_edge(pg, edge))
+superedge(pg::AbstractGraph, edge::AbstractEdge) = SuperEdge(quotient_edge(pg, edge))
 superedge(pg::AbstractGraph, p::Pair) = superedge(pg, edgetype(pg)(p))
 
 """

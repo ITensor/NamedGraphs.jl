@@ -25,8 +25,8 @@ function quotient_graph(g::AbstractGraph)
     qg = NamedGraph(quotient_vertices(g))
 
     for e in edges(g)
-        qv_src = find_quotient_vertex(g, src(e))
-        qv_dst = find_quotient_vertex(g, dst(e))
+        qv_src = quotient_vertex(g, src(e))
+        qv_dst = quotient_vertex(g, dst(e))
         qe = NamedEdge(qv_src => qv_dst)
         if qv_src != qv_dst && !has_edge(qg, qe)
             add_edge!(qg, qe)
@@ -37,7 +37,7 @@ function quotient_graph(g::AbstractGraph)
 end
 
 # Overload this for fast inverse mapping for vertices and edges
-function find_quotient_vertex(g, vertex)
+function quotient_vertex(g, vertex)
     pvs = partitioned_vertices(g)
     rv = findfirst(pv -> vertex ∈ pv, pvs)
     if isnothing(rv)
@@ -46,12 +46,12 @@ function find_quotient_vertex(g, vertex)
     return rv
 end
 
-function find_quotient_edge(g::AbstractGraph, edge)
+function quotient_edge(g::AbstractGraph, edge)
     if !has_edge(g, edge)
         throw(ArgumentError("Graph does not have an edge $edge"))
     end
-    qv_src = find_quotient_vertex(g, src(edge))
-    qv_dst = find_quotient_vertex(g, dst(edge))
+    qv_src = quotient_vertex(g, src(edge))
+    qv_dst = quotient_vertex(g, dst(edge))
     return quotient_edgetype(g)(qv_src => qv_dst)
 end
 
@@ -61,7 +61,7 @@ function partitioned_edges(g::AbstractGraph)
 
     for e in edges(g)
 
-        qe = find_quotient_edge(g, e)
+        qe = quotient_edge(g, e)
 
         if is_self_loop(qe)
             continue

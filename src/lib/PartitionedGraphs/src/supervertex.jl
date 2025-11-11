@@ -8,7 +8,7 @@ end
 
 Base.parent(sv::SuperVertex) = getfield(sv, :vertex)
 
-supervertex(g::AbstractGraph, vertex) = SuperVertex(find_quotient_vertex(g, vertex))
+supervertex(g::AbstractGraph, vertex) = SuperVertex(quotient_vertex(g, vertex))
 
 """
     supervertices(g::AbstractGraph, vs = vertices(pg))
