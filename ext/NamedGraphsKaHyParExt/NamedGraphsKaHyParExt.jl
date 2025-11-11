@@ -27,7 +27,7 @@ const KAHYPAR_ALGS = Dict(
 )
 
 """
-partition_vertices(::Backend"kahypar", g::Graph, npartiations::Integer; objective="edge_cut", alg="kway", kwargs...)
+    partition_vertices(::Backend"kahypar", g::Graph, npartiations::Integer; objective="edge_cut", alg="kway", kwargs...)
 
 - default_configuration => "cut_kKaHyPar_sea20.ini"
 - :edge_cut => "cut_kKaHyPar_sea20.ini"
