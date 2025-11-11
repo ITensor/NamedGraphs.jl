@@ -1,6 +1,6 @@
-using Graphs: AbstractGraph, Graphs, nv
-using ..NamedGraphs: AbstractNamedGraph
-using ..NamedGraphs.GraphsExtensions: GraphsExtensions, rem_vertices!
+using Graphs: AbstractGraph, Graphs, nv, induced_subgraph
+using ..NamedGraphs: NamedGraphs, AbstractNamedGraph
+using ..NamedGraphs.GraphsExtensions: GraphsExtensions, rem_vertices!, subgraph
 
 struct SuperVertex{V}
     vertex::V
@@ -44,23 +44,11 @@ end
 
 Graphs.nv(g::AbstractGraph, sv::SuperVertex) = length(vertices(g, sv))
 
-function Graphs.induced_subgraph(
-        g::AbstractGraph, supervertices::Union{SuperVertex, Vector{<:SuperVertex}}
-    )
-    return induced_subgraph(g, vertices(g, supervertices))
-end
-function Graphs.induced_subgraph(
-        g::AbstractNamedGraph, svs::Union{SuperVertex, Vector{<:SuperVertex}}
-    )
-    gsvs = supervertices(g)
-    if length(setdiff(gsvs, [svs;])) == length(gsvs)
-        throw(ArgumentError("One or more supervertices not found in graph"))
-    end
-    return induced_subgraph(g, vertices(g, svs))
-end
-
-
 function GraphsExtensions.rem_vertices!(g::AbstractGraph, sv::SuperVertex)
     return rem_vertices!(g, vertices(g, sv))
 end
 rem_supervertex!(pg::AbstractGraph, sv::SuperVertex) = rem_vertices!(pg, sv)
+
+function NamedGraphs.to_vertices(g::AbstractGraph, sv::Union{SV, Vector{SV}}) where {SV <: SuperVertex}
+    return vertices(g, sv)
+end

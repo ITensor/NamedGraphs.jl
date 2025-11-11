@@ -171,12 +171,6 @@ function Base.:(==)(pg1::AbstractPartitionedGraph, pg2::AbstractPartitionedGraph
     return true
 end
 
-function GraphsExtensions.subgraph(pg::AbstractPartitionedGraph, supervertex::SuperVertex)
-    return first(induced_subgraph(unpartitioned_graph(pg), vertices(pg, supervertex)))
-end
-
-function Graphs.induced_subgraph(
-        pg::AbstractPartitionedGraph, supervertex::SuperVertex
-    )
-    return subgraph(pg, supervertex), nothing
+function NamedGraphs._induced_subgraph(pg::AbstractPartitionedGraph, vlist)
+    return NamedGraphs._induced_subgraph(unpartitioned_graph(pg), vlist)
 end

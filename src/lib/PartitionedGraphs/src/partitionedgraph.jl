@@ -1,7 +1,7 @@
 using Dictionaries: Dictionary
 using Graphs:
     AbstractEdge, AbstractGraph, add_edge!, edges, has_edge, induced_subgraph, vertices, dst, src, edgetype
-using ..NamedGraphs: NamedEdge, NamedGraph
+using ..NamedGraphs: NamedGraphs, NamedEdge, NamedGraph
 using ..NamedGraphs.GraphsExtensions: GraphsExtensions, boundary_edges, is_self_loop, partition_vertices
 using ..NamedGraphs.OrderedDictionaries: OrderedDictionary
 
@@ -153,11 +153,11 @@ function Graphs.rem_edge!(pg::PartitionedGraph, edge::AbstractEdge)
 end
 
 ### PartitionedGraph Specific Functions
-function partitionedgraph_induced_subgraph(pg::PartitionedGraph, vertices::Vector)
-    sub_pg_graph, _ = induced_subgraph(unpartitioned_graph(pg), vertices)
+function partitionedgraph_induced_subgraph(pg::PartitionedGraph, vlist)
+    sub_pg_graph, _ = induced_subgraph(unpartitioned_graph(pg), vlist)
     sub_partitioned_vertices = copy(partitioned_vertices(pg))
     for pv in quotient_vertices(pg)
-        vs = intersect(vertices, sub_partitioned_vertices[pv])
+        vs = intersect(vlist, sub_partitioned_vertices[pv])
         if !isempty(vs)
             sub_partitioned_vertices[pv] = vs
         else
@@ -168,7 +168,6 @@ function partitionedgraph_induced_subgraph(pg::PartitionedGraph, vertices::Vecto
     return PartitionedGraph(sub_pg_graph, sub_partitioned_vertices), nothing
 end
 
-# Fixes ambiguity error with `Graphs.jl`.
-function Graphs.induced_subgraph(pg::PartitionedGraph, vertices::Vector{<:Integer})
-    return partitionedgraph_induced_subgraph(pg, vertices)
+function NamedGraphs._induced_subgraph(pg::PartitionedGraph, vlist)
+    return partitionedgraph_induced_subgraph(pg, vlist)
 end
