@@ -14,6 +14,8 @@ struct PartitionedGraph{V, PV, G <: AbstractGraph, P} <: AbstractPartitionedGrap
     which_partition::Dictionary{V, PV}
 end
 
+partitionedgraph(g::AbstractGraph, partition) = PartitionedGraph(g, partition)
+
 # Interface overloads
 partitioned_vertices(pg::PartitionedGraph) = pg.partitioned_vertices
 quotient_graph(pg::PartitionedGraph) = pg.quotient_graph

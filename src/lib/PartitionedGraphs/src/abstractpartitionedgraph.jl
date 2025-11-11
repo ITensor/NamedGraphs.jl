@@ -109,6 +109,10 @@ an underlying graph *without* any partitioning. One should also define:
 """
 abstract type AbstractPartitionedGraph{V, PV} <: AbstractNamedGraph{V} end
 
+departition(pg::AbstractPartitionedGraph) = unpartitioned_graph(pg)
+unpartition(pg::AbstractGraph) = pg
+unpartition(pg::AbstractPartitionedGraph) = unpartition(departition(pg))
+
 # Required for interface
 unpartitioned_graph(::AbstractPartitionedGraph) = not_implemented()
 Base.copy(::AbstractPartitionedGraph) = not_implemented()
