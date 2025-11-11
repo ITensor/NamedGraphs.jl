@@ -7,7 +7,7 @@ using ..NamedGraphs.OrderedDictionaries: OrderedDictionary
 
 # TODO: Parametrize `partitioned_vertices` and `which_partition`,
 # see https://github.com/mtfishman/NamedGraphs.jl/issues/63.
-struct PartitionedGraph{V, PV, G <: AbstractGraph{V}, P} <: AbstractPartitionedGraph{V, PV}
+struct PartitionedGraph{V, PV, G <: AbstractGraph, P} <: AbstractPartitionedGraph{V, PV}
     graph::G
     quotient_graph::NamedGraph{PV}
     partitioned_vertices::P
@@ -24,9 +24,9 @@ quotient_graph_type(::Type{<:AbstractPartitionedGraph{V, PV}}) where {V, PV} = N
 Graphs.edgetype(::Type{<:PartitionedGraph{V, PV, G}}) where {V, PV, G} = edgetype(G)
 
 ##Constructors.
-function PartitionedGraph(g::AbstractGraph{V}, partitioned_vertices) where {V}
+function PartitionedGraph(g::AbstractGraph, partitioned_vertices)
     pvs = keys(partitioned_vertices)
-    which_partition = Dictionary{V, eltype(pvs)}()
+    which_partition = Dictionary{vertextype(g), eltype(pvs)}()
     for v in vertices(g)
         v_pvs = Set(findall(pv -> v ∈ pv, partitioned_vertices))
         @assert length(v_pvs) == 1
