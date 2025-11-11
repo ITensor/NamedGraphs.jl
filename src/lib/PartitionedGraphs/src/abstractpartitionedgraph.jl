@@ -109,7 +109,7 @@ an underlying graph *without* any partitioning. One should also define:
 """
 abstract type AbstractPartitionedGraph{V, PV} <: AbstractNamedGraph{V} end
 
-#Needed for interface
+# Required for interface
 unpartitioned_graph(::AbstractPartitionedGraph) = not_implemented()
 Base.copy(::AbstractPartitionedGraph) = not_implemented()
 
