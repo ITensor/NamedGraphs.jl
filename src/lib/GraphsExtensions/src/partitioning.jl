@@ -70,5 +70,3 @@ function partition_vertices(
         Backend(backend), g, _npartitions(g, npartitions, nvertices_per_partition); kwargs...
     )
 end
-
-# partitionings(g::AbstractGraph) = [vertices(g)]
