@@ -121,7 +121,7 @@ function Graphs.rem_vertex!(pg::PartitionedGraph{V}, vertex::V) where {V}
     return pg
 end
 
-function Graphs.add_vertex!(pg::PartitionedGraph{V}, vertex::V, sv::SuperVertex) where {V}
+function Graphs.add_vertex!(pg::PartitionedGraph{V}, sv::SuperVertex, vertex::V) where {V}
     add_vertex!(pg.graph, vertex)
     add_vertex!(pg.quotient_graph, parent(sv))
     insert_to_vertex_map!(pg, vertex, sv)

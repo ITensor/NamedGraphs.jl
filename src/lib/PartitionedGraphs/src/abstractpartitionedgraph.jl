@@ -174,6 +174,10 @@ function Graphs.add_vertex!(::AbstractPartitionedGraph, vertex)
     return error("Need to specify a partition where the new vertex will go.")
 end
 
+function Graphs.add_vertex!(pg::AbstractPartitionedGraph, ssv::SubSuperVertex)
+    return add_vertex!(pg, ssv.vertex, ssv.subvertex)
+end
+
 function Base.:(==)(pg1::AbstractPartitionedGraph, pg2::AbstractPartitionedGraph)
     if unpartitioned_graph(pg1) != unpartitioned_graph(pg2) ||
             QuotientView(pg1) != QuotientView(pg2)

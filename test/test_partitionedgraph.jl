@@ -156,7 +156,7 @@ end
     @test !is_tree(QuotientView(pg))
 
     #Add the column back to the in place graph
-    add_vertices!(pg, v_set, pv)
+    add_vertices!(pg, map(v -> pv[v], v_set))
     add_edges!(pg, edges_involving_v_set)
     @test is_connected(pg.graph) 
     @test is_path_graph(QuotientView(pg))
