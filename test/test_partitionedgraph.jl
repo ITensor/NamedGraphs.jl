@@ -49,7 +49,7 @@ using NamedGraphs.PartitionedGraphs:
     has_supervertex
 using Dictionaries: Dictionary, dictionary
 using Pkg: Pkg
-using Test: @test, @testset
+using Test: @test, @testset, @test_throws
 
 @testset "Test Partitioned Graph Constructors" begin
     nx, ny = 10, 10
@@ -92,7 +92,13 @@ using Test: @test, @testset
     )
     @test is_tree(QuotientView(pg))
     @test nv(pg) == nx * ny
+    @test nv(pg, SuperVertex((1, 1))) == ny
+    @test_throws ArgumentError nv(pg, SuperVertex((11,11)))
     @test nv(QuotientView(pg)) == nx
+    @test ne(pg) == (nx - 1) * ny + nx * (ny - 1)
+    @test ne(pg, SuperEdge((1, 1) => (2, 1))) == ny
+    @test_throws ArgumentError ne(pg, SuperEdge((1, 1) => (1, 2)))
+    @test ne(QuotientView(pg)) == 9
     pg_c = copy(pg)
     @test pg_c == pg
 

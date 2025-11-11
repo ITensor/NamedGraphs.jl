@@ -42,6 +42,9 @@ function Graphs.edges(pg::AbstractGraph, superedge::SuperEdge)
     if !is_directed(quotient_graph_type(pg)) && isempty(rv)
         append!(rv, get(pes, reverse(parent(superedge)), defval))
     end
+
+    isempty(rv) && throw(ArgumentError("Super edge $superedge not in graph"))
+
     return rv
 end
 function Graphs.edges(pg::AbstractGraph, superedges::Vector{<:SuperEdge})
@@ -50,7 +53,7 @@ end
 
 has_superedge(g::AbstractGraph, se::SuperEdge) = has_edge(quotient_graph(g), parent(se))
 
-Graphs.ne(g::AbstractGraph, se::SuperEdge) = length(quotient_edges(g, se))
+Graphs.ne(g::AbstractGraph, se::SuperEdge) = length(edges(g, se))
 
 function GraphsExtensions.rem_edges!(g::AbstractGraph, sv::SuperEdge)
     rv = rem_edges!(g, edges(g, sv))

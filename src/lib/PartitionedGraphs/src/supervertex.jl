@@ -26,7 +26,12 @@ Return the set of vertices in the graph `g` associated with the super vertex
 `supervertex` or set of super vertices `supervertices`.
 """
 function Graphs.vertices(g::AbstractGraph, supervertex::SuperVertex)
-    return partitioned_vertices(g)[parent(supervertex)]
+    qv = parent(supervertex)
+
+    pvs = partitioned_vertices(g)
+    haskey(pvs, qv) || throw(ArgumentError("Super vertex $supervertex not in graph"))
+
+    return pvs[qv]
 end
 function Graphs.vertices(g::AbstractGraph, supervertices::Vector{<:SuperVertex})
     return unique(mapreduce(sv -> vertices(g, sv), vcat, supervertices))

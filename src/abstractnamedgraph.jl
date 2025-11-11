@@ -447,13 +447,10 @@ function Graphs.blockdiag(graph1::AbstractNamedGraph, graph2::AbstractNamedGraph
     return GenericNamedGraph(new_position_graph, new_vertices)
 end
 
-# TODO: What `args` are needed?
-Graphs.nv(graph::AbstractNamedGraph, args...) = nv(position_graph(graph), args...)
-# TODO: What `args` are needed?
-Graphs.ne(graph::AbstractNamedGraph, args...) = ne(position_graph(graph), args...)
-# TODO: What `args` are needed?
-function Graphs.adjacency_matrix(graph::AbstractNamedGraph, args...)
-    return adjacency_matrix(position_graph(graph), args...)
+Graphs.nv(graph::AbstractNamedGraph) = nv(position_graph(graph))
+Graphs.ne(graph::AbstractNamedGraph) = ne(position_graph(graph))
+function Graphs.adjacency_matrix(graph::AbstractNamedGraph)
+    return adjacency_matrix(position_graph(graph))
 end
 
 function Graphs.connected_components(graph::AbstractNamedGraph)
