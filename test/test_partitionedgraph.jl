@@ -1,10 +1,13 @@
 @eval module $(gensym())
 using Graphs:
+    AbstractGraph,
+    Graphs,
     a_star,
     center,
     connected_components,
     diameter,
     edges,
+    has_edge,
     has_vertex,
     is_connected,
     is_directed,
@@ -35,18 +38,27 @@ using NamedGraphs.NamedGraphGenerators:
     named_comb_tree, named_grid, named_triangular_lattice_graph
 using NamedGraphs.OrderedDictionaries: OrderedDictionary
 using NamedGraphs.PartitionedGraphs:
+    AbstractPartitionedGraph,
     PartitionedGraph,
+    PartitionedGraphs,
+    PartitionedView,
     QuotientView,
     SuperEdge,
     SuperVertex,
     boundary_superedges,
+    departition,
+    has_supervertex,
+    partitioned_edges,
+    partitioned_vertices,
+    partitionedgraph,
+    quotient_graph,
+    rem_supervertex!,
     superedge,
     superedges,
     supervertex,
     supervertices,
-    unpartitioned_graph,
-    rem_supervertex!,
-    has_supervertex
+    unpartition,
+    unpartitioned_graph
 using Dictionaries: Dictionary, dictionary
 using Pkg: Pkg
 using Test: @test, @testset, @test_throws
@@ -236,5 +248,100 @@ end
         @test pg isa PartitionedGraph
         @test nv(QuotientView(pg)) == npartitions
     end
+end
+
+# Not an AbstractPartitionedGraph
+struct MyGraph{V, P} <: AbstractGraph{V}
+    g::NamedGraph{V}
+    partitioned_vertices::P
+end
+struct MyFastGraph{V, PV, QG, PE} <: AbstractGraph{V}
+    g::NamedGraph{V}
+    partitioned_vertices::PV
+    quotient_graph::QG
+    partitioned_edges::PE
+end
+
+Graphs.edges(mg::MyGraph) = edges(mg.g)
+Graphs.vertices(mg::MyGraph) = vertices(mg.g)
+
+Graphs.edgetype(mg::MyGraph) = edgetype(mg.g)
+Graphs.has_edge(mg::MyGraph, e) = has_edge(mg.g, e)
+
+PartitionedGraphs.partitioned_vertices(mg::MyGraph) = mg.partitioned_vertices
+
+PartitionedGraphs.partitioned_vertices(mg::MyFastGraph) = mg.partitioned_vertices
+PartitionedGraphs.quotient_graph(mg::MyFastGraph) = mg.quotient_graph
+PartitionedGraphs.partitioned_edges(mg::MyFastGraph) = mg.partitioned_edges
+
+struct WrapperGraph{V, G <: AbstractGraph{V}} <: AbstractGraph{V}
+    g::G
+end
+
+Graphs.edges(wg::WrapperGraph) = edges(wg.g)
+Graphs.vertices(wg::WrapperGraph) = vertices(wg.g)
+
+PartitionedGraphs.partitioned_vertices(wg::WrapperGraph) = partitioned_vertices(wg.g)
+
+@testset "Partitioning of non-partitioned graphs" begin
+    nx, ny = 4, 4
+
+    g = named_grid((nx, ny))
+
+    partitions = [[(i, j) for j in 1:ny] for i in 1:nx]
+
+    @test nv(QuotientView(g)) == 1
+    @test ne(QuotientView(g)) == 0
+
+    @test nv(PartitionedView(g, partitions)) == nx * ny
+    @test ne(PartitionedView(g, partitions)) == (nx - 1) * ny + nx * (ny - 1)
+
+    @test nv(QuotientView(PartitionedView(g, partitions))) == nx
+    @test ne(QuotientView(PartitionedView(g, partitions))) == ny - 1
+
+    qg = quotient_graph(PartitionedView(g, partitions))
+    pes = partitioned_edges(PartitionedView(g, partitions))
+
+    mg = MyGraph(g, partitions)
+    @test nv(QuotientView(mg)) == nx
+    @test ne(QuotientView(mg)) == ny - 1
+
+    @test quotient_graph(mg) == qg
+    @test partitioned_edges(mg) == pes
+
+    mfg = MyFastGraph(g, partitions, qg, pes)
+
+    # Test overloads are working correctly.
+    @test partitioned_vertices(mfg) === partitions
+    @test quotient_graph(mfg) === qg
+    @test partitioned_edges(mfg) === pes
+end
+
+@testset "Nesting partitions" begin
+    nx, ny, nz = 3, 4, 5
+    g = named_grid((nx, ny, nz))
+
+    # First partition: columns along z-axis
+    p1 = Dict((i, j) => [(i, j, k) for k in 1:nz] for i in 1:nx for j in 1:ny)
+    # Second partition: columns along y-axis
+    p2 = [[(i, j, k) for j in 1:ny] for i in 1:nx for k in 1:nz]
+
+    wg = WrapperGraph(g)
+    pwg1 = partitionedgraph(wg, p1)
+    @test nv(QuotientView(pwg1)) == nx * ny
+    pwg2 = partitionedgraph(wg, p2)
+    @test nv(QuotientView(pwg2)) == nx * nz
+
+    pwg1_2 = partitionedgraph(pwg2, p1)
+    @test nv(QuotientView(pwg1)) == nx * ny
+    pwg2_1 = partitionedgraph(pwg1, p2)
+    @test nv(QuotientView(pwg2)) == nx * nz
+
+    @test departition(pwg1_2) == pwg2
+    @test departition(pwg2_1) == pwg1
+    @test unpartition(pwg1_2) == wg
+
+    p1q = [[(i, j) for j in 1:ny] for i in 1:nx]
+    partitionedgraph(QuotientView(pwg1), p1q)
 end
 end
