@@ -93,7 +93,7 @@ using Test: @test, @testset, @test_throws
     @test is_tree(QuotientView(pg))
     @test nv(pg) == nx * ny
     @test nv(pg, SuperVertex((1, 1))) == ny
-    @test_throws ArgumentError nv(pg, SuperVertex((11,11)))
+    @test_throws ArgumentError nv(pg, SuperVertex((11, 11)))
     @test nv(QuotientView(pg)) == nx
     @test ne(pg) == (nx - 1) * ny + nx * (ny - 1)
     @test ne(pg, SuperEdge((1, 1) => (2, 1))) == ny
@@ -164,7 +164,7 @@ end
     #Add the column back to the in place graph
     add_vertices!(pg, map(v -> pv[v], v_set))
     add_edges!(pg, edges_involving_v_set)
-    @test is_connected(pg.graph) 
+    @test is_connected(pg.graph)
     @test is_path_graph(QuotientView(pg))
     @test parent(pv) ∈ vertices(QuotientView(pg))
     @test has_supervertex(pg, pv)
