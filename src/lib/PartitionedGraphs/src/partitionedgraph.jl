@@ -7,10 +7,10 @@ using ..NamedGraphs.OrderedDictionaries: OrderedDictionary
 
 # TODO: Parametrize `partitioned_vertices` and `which_partition`,
 # see https://github.com/mtfishman/NamedGraphs.jl/issues/63.
-struct PartitionedGraph{V, PV, G <: AbstractGraph{V}} <: AbstractPartitionedGraph{V, PV}
+struct PartitionedGraph{V, PV, G <: AbstractGraph{V}, P} <: AbstractPartitionedGraph{V, PV}
     graph::G
     quotient_graph::NamedGraph{PV}
-    partitioned_vertices::Dictionary{PV, Vector{V}}
+    partitioned_vertices::P
     which_partition::Dictionary{V, PV}
 end
 
@@ -36,7 +36,7 @@ function PartitionedGraph(g::AbstractGraph{V}, partitioned_vertices) where {V}
     return PartitionedGraph(
         g,
         qg,
-        to_partitioned_vertices(partitioned_vertices),
+        Dictionary(partitioned_vertices),
         which_partition
     )
 end
