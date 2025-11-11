@@ -148,26 +148,6 @@ function NamedGraphs.ordered_vertices(pg::AbstractPartitionedGraph)
 end
 Graphs.edgetype(pg::AbstractPartitionedGraph) = edgetype(unpartitioned_graph(pg))
 
-function GraphsExtensions.add_vertices!(
-        pg::AbstractPartitionedGraph,
-        vertices::Vector,
-        supervertices::Vector{<:SuperVertex},
-    )
-    @assert length(vertices) == length(supervertices)
-    for (v, sv) in zip(vertices, supervertices)
-        add_vertex!(pg, v, sv)
-    end
-
-    return pg
-end
-
-function GraphsExtensions.add_vertices!(
-        pg::AbstractPartitionedGraph, vertices::Vector, supervertex::SuperVertex
-    )
-    add_vertices!(pg, vertices, fill(supervertex, length(vertices)))
-    return pg
-end
-
 Graphs.rem_vertex!(::AbstractPartitionedGraph{V}, vertex::V) where {V} = not_implemented()
 
 function Graphs.add_vertex!(::AbstractPartitionedGraph, vertex)
@@ -175,7 +155,7 @@ function Graphs.add_vertex!(::AbstractPartitionedGraph, vertex)
 end
 
 function Graphs.add_vertex!(pg::AbstractPartitionedGraph, ssv::SubSuperVertex)
-    return add_vertex!(pg, ssv.vertex, ssv.subvertex)
+    return add_subsupervertex!(pg, ssv.vertex, ssv.subvertex)
 end
 
 function Base.:(==)(pg1::AbstractPartitionedGraph, pg2::AbstractPartitionedGraph)
