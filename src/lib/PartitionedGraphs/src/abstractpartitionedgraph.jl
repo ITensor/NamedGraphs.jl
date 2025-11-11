@@ -79,7 +79,7 @@ function quotient_vertices(g)
 end
 quotient_edges(g::AbstractGraph) = edges(quotient_graph(g))
 
-function is_boundary_edge(pg::AbstractGraph, edge)
+function is_partition_boundary_edge(pg::AbstractGraph, edge)
     p_edge = superedge(pg, edge)
     return src(p_edge) != dst(p_edge)
 end
