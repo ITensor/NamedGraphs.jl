@@ -54,7 +54,7 @@ function _npartitions(
     return error("Must specify either `npartitions` or `nvertices_per_partition`")
 end
 
-function partitions(
+function partition_vertices(
         g::AbstractSimpleGraph;
         npartitions = nothing,
         nvertices_per_partition = nothing,
@@ -66,7 +66,7 @@ function partitions(
     if (_npartitions(g, npartitions, nvertices_per_partition) == 1)
         return group(v -> 1, collect(vertices(g)))
     end
-    return partitions(
+    return partition_vertices(
         Backend(backend), g, _npartitions(g, npartitions, nvertices_per_partition); kwargs...
     )
 end

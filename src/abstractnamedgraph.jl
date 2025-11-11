@@ -32,7 +32,7 @@ using .GraphsExtensions:
     GraphsExtensions,
     directed_graph,
     incident_edges,
-    partitions,
+    partition_vertices,
     rename_vertices,
     subgraph
 using SimpleTraits: SimpleTraits, Not, @traitfn
@@ -286,10 +286,10 @@ function Graphs.mincut(graph::AbstractNamedGraph, distmx::AbstractMatrix{<:Real}
 end
 
 # TODO: Make this more generic?
-function GraphsExtensions.partitions(
+function GraphsExtensions.partition_vertices(
     graph::AbstractNamedGraph; npartitions=nothing, nvertices_per_partition=nothing, kwargs...
 )
-    vertex_partitions = partitions(
+    vertex_partitions = partition_vertices(
         position_graph(graph); npartitions, nvertices_per_partition, kwargs...
     )
     # TODO: output the reverse of this dictionary (a Vector of Vector
