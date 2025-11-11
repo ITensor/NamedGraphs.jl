@@ -32,11 +32,11 @@ function PartitionedGraph(g::AbstractGraph{V}, partitioned_vertices) where {V}
         @assert length(v_pvs) == 1
         insert!(which_partition, v, first(v_pvs))
     end
-    qg = quotient_graph(g, partitioned_vertices)
+    qg = quotient_graph(PartitionedView(g, partitioned_vertices))
     return PartitionedGraph(
         g,
         qg,
-        map(v -> [v;], Dictionary(partitioned_vertices)),
+        to_partitioned_vertices(partitioned_vertices),
         which_partition
     )
 end

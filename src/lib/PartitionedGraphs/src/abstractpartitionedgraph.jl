@@ -20,16 +20,13 @@ using ..NamedGraphs.GraphsExtensions:
 partitioned_vertices(g::AbstractGraph) = [vertices(g)]
 
 # For fast quotient edge checking and graph construction, one should overload this function.
-function quotient_graph(g::AbstractGraph, pvs = nothing)
-    if isnothing(pvs) === nothing
-        pvs = partitioned_vertices(g)
-    end
+function quotient_graph(g::AbstractGraph)
 
-    qg = NamedGraph(keys(pvs))
+    qg = NamedGraph(quotient_vertices(g))
 
     for e in edges(g)
-        qv_src = find_quotient_vertex(pvs, src(e))
-        qv_dst = find_quotient_vertex(pvs, dst(e))
+        qv_src = find_quotient_vertex(g, src(e))
+        qv_dst = find_quotient_vertex(g, dst(e))
         qe = NamedEdge(qv_src => qv_dst)
         if qv_src != qv_dst && !has_edge(qg, qe)
             add_edge!(qg, qe)
@@ -40,9 +37,8 @@ function quotient_graph(g::AbstractGraph, pvs = nothing)
 end
 
 # Overload this for fast inverse mapping for vertices and edges
-find_quotient_vertex(g::AbstractGraph, vertex) = find_quotient_vertex(partitioned_vertices(g), vertex)
-
-function find_quotient_vertex(pvs, vertex)
+function find_quotient_vertex(g, vertex)
+    pvs = partitioned_vertices(g)
     rv = findfirst(pv -> vertex ∈ pv, pvs)
     if isnothing(rv)
         error("Vertex $vertex not found in any partition.")
@@ -50,25 +46,23 @@ function find_quotient_vertex(pvs, vertex)
     return rv
 end
 
-function find_quotient_edge(g::AbstractGraph, edge, pvs = nothing)
+function find_quotient_edge(g::AbstractGraph, edge)
     if !has_edge(g, edge)
         throw(ArgumentError("Graph does not have an edge $edge"))
     end
-    gp = isnothing(pvs) ? g : pvs
-    qv_src = find_quotient_vertex(gp, src(edge))
-    qv_dst = find_quotient_vertex(gp, dst(edge))
+    qv_src = find_quotient_vertex(g, src(edge))
+    qv_dst = find_quotient_vertex(g, dst(edge))
     return quotient_edgetype(g)(qv_src => qv_dst)
 end
 
-function partitioned_edges(g::AbstractGraph, pvs = nothing)
-    if isnothing(pvs)
-        pvs = partitioned_vertices(g)
-    end
+function partitioned_edges(g::AbstractGraph)
 
     dict = Dictionary{quotient_edgetype(g), Vector{edgetype(g)}}()
 
     for e in edges(g)
-        qe = find_quotient_edge(g, e, pvs)
+
+        qe = find_quotient_edge(g, e)
+
         if is_self_loop(qe)
             continue
         end
@@ -78,12 +72,12 @@ function partitioned_edges(g::AbstractGraph, pvs = nothing)
     return dict
 end
 
-function quotient_vertices(g, pvs = partitioned_vertices(g))
-    qg = quotient_graph_type(g)(keys(pvs))
+function quotient_vertices(g)
+    QGT = quotient_graph_type(g)
+    qg = QGT(keys(partitioned_vertices(g)))
     return vertices(qg)
 end
 quotient_edges(g::AbstractGraph) = edges(quotient_graph(g))
-quotient_edges(g::AbstractGraph, pvs) = edges(quotient_graph(g, pvs))
 
 function is_boundary_edge(pg::AbstractGraph, edge::AbstractEdge)
     p_edge = superedge(pg, edge)
