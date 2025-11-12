@@ -109,9 +109,16 @@ an underlying graph *without* any partitioning. One should also define:
 """
 abstract type AbstractPartitionedGraph{V, PV} <: AbstractNamedGraph{V} end
 
+# Remove one layer of partitioning.
 departition(pg::AbstractPartitionedGraph) = unpartitioned_graph(pg)
-unpartition(pg::AbstractGraph) = pg
-unpartition(pg::AbstractPartitionedGraph) = unpartition(departition(pg))
+departition(g::AbstractGraph) = g
+
+# Recursively remove all layers of partitioning.
+function unpartition(pg::AbstractGraph)
+    g = departition(pg)
+    g === pg && return pg
+    return unpartition(g)
+end
 
 # Required for interface
 unpartitioned_graph(::AbstractPartitionedGraph) = not_implemented()
