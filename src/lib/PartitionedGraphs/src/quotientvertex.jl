@@ -8,11 +8,26 @@ end
 
 Base.parent(sv::QuotientVertex) = getfield(sv, :vertex)
 
+# Overload this for fast inverse mapping for vertices and edges
+function quotientvertex(g, vertex)
+    pvs = partitioned_vertices(g)
+    rv = findfirst(pv -> vertex ∈ pv, pvs)
+    if isnothing(rv)
+        error("Vertex $vertex not found in any partition.")
+    end
+    return QuotientVertex(rv)
+end
+
 """
     quotientvertices(g::AbstractGraph, vs = vertices(pg))
 
 Return all unique quotient vertices corresponding to the set vertices `vs` of the graph `pg`.
 """
+function quotientvertices(g)
+    QGT = quotient_graph_type(g)
+    qg = QGT(keys(partitioned_vertices(g)))
+    return map(QuotientVertex, vertices(qg))
+end
 quotientvertices(g::AbstractGraph, vs) = unique(map(v -> quotientvertex(g, v), vs))
 
 """

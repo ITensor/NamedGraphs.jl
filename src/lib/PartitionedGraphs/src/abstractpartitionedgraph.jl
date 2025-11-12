@@ -36,25 +36,6 @@ function quotient_graph(g::AbstractGraph)
     return qg
 end
 
-# Overload this for fast inverse mapping for vertices and edges
-function quotientvertex(g, vertex)
-    pvs = partitioned_vertices(g)
-    rv = findfirst(pv -> vertex ∈ pv, pvs)
-    if isnothing(rv)
-        error("Vertex $vertex not found in any partition.")
-    end
-    return QuotientVertex(rv)
-end
-
-function quotientedge(g::AbstractGraph, edge)
-    if !has_edge(g, edge)
-        throw(ArgumentError("Graph does not have an edge $edge"))
-    end
-    qv_src = parent(quotientvertex(g, src(edge)))
-    qv_dst = parent(quotientvertex(g, dst(edge)))
-    return QuotientEdge(quotient_graph_edgetype(g)(qv_src => qv_dst))
-end
-
 function partitioned_edges(g::AbstractGraph)
 
     dict = Dictionary{quotient_graph_edgetype(g), Vector{edgetype(g)}}()
@@ -70,12 +51,6 @@ function partitioned_edges(g::AbstractGraph)
     end
 
     return dict
-end
-
-function quotientvertices(g)
-    QGT = quotient_graph_type(g)
-    qg = QGT(keys(partitioned_vertices(g)))
-    return map(QuotientVertex, vertices(qg))
 end
 
 function is_partition_boundary_edge(pg::AbstractGraph, edge)
@@ -100,6 +75,11 @@ quotient_graph_type(g) = quotient_graph_type(typeof(g))
 quotient_graph_type(::Type{<:AbstractGraph}) = NamedGraph{Int}
 quotient_graph_vertextype(G) = vertextype(quotient_graph_type(G))
 quotient_graph_edgetype(G) = edgetype(quotient_graph_type(G))
+
+# Additional interface functions
+
+add_subquotientvertex!(pg::AbstractGraph, quotientvertex, vertex) = not_implemented()
+
 
 """
 abstract type AbstractPartitionedGraph{V, PV} <: AbstractNamedGraph{V}

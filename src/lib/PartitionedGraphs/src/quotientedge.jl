@@ -6,31 +6,48 @@ struct QuotientEdge{V, E <: AbstractEdge{V}} <: AbstractNamedEdge{V}
     edge::E
 end
 
-quotientedge(pg::AbstractGraph, p::Pair) = quotientedge(pg, edgetype(pg)(p))
+QuotientEdge(p::Pair) = QuotientEdge(NamedEdge(first(p) => last(p)))
+QuotientEdge(vsrc, vdst) = QuotientEdge(vsrc => vdst)
+
+Base.parent(se::QuotientEdge) = getfield(se, :edge)
+Graphs.src(se::QuotientEdge) = QuotientVertex(src(parent(se)))
+Graphs.dst(se::QuotientEdge) = QuotientVertex(dst(parent(se)))
+Base.reverse(se::QuotientEdge) = QuotientEdge(reverse(parent(se)))
 
 """
-    quotientedges(pg::AbstractPartitionedGraph, es = edges(pg))
+    quotientedge(g::AbstractGraph{V}, edge) -> QuotientEdge{V}
 
-Return all unique quotient edges corresponding to the set edges `es` of the graph `pg`.
+Return the the quotient edge corresponding to `edge` of the graph `g`. Note,
+the returned quotient edge may be a self-loop.
+
+See also: [`quotientedges`](@ref), [`quotienttvertex`](@ref).
+"""
+quotientedge(pg::AbstractGraph, p::Pair) = quotientedge(pg, edgetype(pg)(p))
+function quotientedge(g::AbstractGraph, edge)
+    if !has_edge(g, edge)
+        throw(ArgumentError("Graph does not have an edge $edge"))
+    end
+    qv_src = parent(quotientvertex(g, src(edge)))
+    qv_dst = parent(quotientvertex(g, dst(edge)))
+    return QuotientEdge(quotient_graph_edgetype(g)(qv_src => qv_dst))
+end
+
+"""
+    quotientedges(g::AbstractGraph, es = edges(pg))
+
+Return all unique quotient edges corresponding to the set of edges `es` of the graph `g`.
 """
 quotientedges(g::AbstractGraph) = QuotientEdge.(edges(quotient_graph(g)))
 function quotientedges(pg::AbstractGraph, es)
     return filter!(!is_self_loop, unique(map(e -> quotientedge(pg, e), es)))
 end
 
-Base.parent(se::QuotientEdge) = getfield(se, :edge)
-Graphs.src(se::QuotientEdge) = QuotientVertex(src(parent(se)))
-Graphs.dst(se::QuotientEdge) = QuotientVertex(dst(parent(se)))
-QuotientEdge(p::Pair) = QuotientEdge(NamedEdge(first(p) => last(p)))
-QuotientEdge(vsrc, vdst) = QuotientEdge(vsrc => vdst)
-Base.reverse(se::QuotientEdge) = QuotientEdge(reverse(parent(se)))
-
 """
-    edges(pg::AbstractGraph, quotientedge::QuotientEdge)
-    edges(pg::AbstractGraph, quotientedges::Vector{QuotientEdge})
+    edges(g::AbstractGraph, quotientedge::QuotientEdge)
+    edges(g::AbstractGraph, quotientedges::Vector{QuotientEdge})
 
-Return the set of edges in the partitioned graph `pg` that correspond to the quotient edge `
-quotientedge` or set of quotient edges `quotientedges`.
+Return the set of edges in the graph `g` that correspond to a single quotient edge or
+a list of quotient edges.
 """
 function Graphs.edges(pg::AbstractGraph, quotientedge::QuotientEdge)
 
@@ -50,12 +67,31 @@ function Graphs.edges(pg::AbstractGraph, quotientedges::Vector{<:QuotientEdge})
     return unique(reduce(vcat, [edges(pg, se) for se in quotientedges]))
 end
 
+"""
+    has_quotientedge(g::AbstractGraph, qe::QuotientEdge) -> Bool
+
+Returns true if the quotient edge `qe` exists in the quotient graph of `g`.
+"""
 has_quotientedge(g::AbstractGraph, se::QuotientEdge) = has_edge(quotient_graph(g), parent(se))
 
+"""
+    ne(g::AbstractGraph, qe::QuotientEdge) -> Int
+
+Returns the number of edges in `g` that correspond to the quotient edge `qe`.
+
+See also: [`nv`](@ref).
+"""
 Graphs.ne(g::AbstractGraph, se::QuotientEdge) = length(edges(g, se))
 
+
+"""
+    rem_edges!(g::AbstractGraph, qe::QuotientEdge) -> Int
+
+Remove, in place, all the edges of `g` that correspond to the quotient edge `qe`.
+"""
 function GraphsExtensions.rem_edges!(g::AbstractGraph, sv::QuotientEdge)
     rv = rem_edges!(g, edges(g, sv))
     return rv
 end
-rem_quotientedge!(pg::AbstractGraph, sv::QuotientEdge) = rem_edges!(pg, sv)
+
+rem_quotientedge!(g::AbstractGraph, sv::QuotientEdge) = rem_edges!(g, sv)
