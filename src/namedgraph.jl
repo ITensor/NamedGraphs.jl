@@ -81,6 +81,7 @@ end
 # Constructors from `AbstractSimpleGraph`
 #
 
+to_vertices(graph, vertices) = to_vertices(vertices)
 to_vertices(vertices) = vertices
 to_vertices(vertices::AbstractArray) = vec(vertices)
 to_vertices(vertices::Integer) = Base.OneTo(vertices)
@@ -97,7 +98,7 @@ function GenericNamedGraph{V, G}(
         position_graph::AbstractSimpleGraph, vertices
     ) where {V, G <: AbstractSimpleGraph{Int}}
     return GenericNamedGraph{V, G}(
-        convert(G, position_graph), OrderedIndices{V}(to_vertices(vertices))
+        convert(G, position_graph), OrderedIndices{V}(to_vertices(position_graph, vertices))
     )
 end
 
@@ -198,7 +199,6 @@ function Base.copy(graph::GenericNamedGraph)
 end
 
 Graphs.edgetype(graph_type::Type{<:GenericNamedGraph}) = NamedEdge{vertextype(graph_type)}
-Graphs.edgetype(graph::GenericNamedGraph) = edgetype(typeof(graph))
 
 function GraphsExtensions.directed_graph_type(graph_type::Type{<:GenericNamedGraph})
     return GenericNamedGraph{
@@ -229,11 +229,15 @@ function namedgraph_induced_subgraph(graph::AbstractGraph, subvertices)
     return subgraph, nothing
 end
 
-function Graphs.induced_subgraph(graph::AbstractNamedGraph, subvertices)
-    return namedgraph_induced_subgraph(graph, subvertices)
+function Graphs.induced_subgraph(graph::AbstractNamedGraph, vlist)
+    return _induced_subgraph(graph, to_vertices(graph, vlist))
+end
+# For method ambiguity resolution with Graphs.jl
+function Graphs.induced_subgraph(graph::AbstractNamedGraph, vlist::AbstractVector{<:Integer})
+    return _induced_subgraph(graph, to_vertices(graph, vlist))
 end
 
-function Graphs.induced_subgraph(graph::AbstractNamedGraph, subvertices::Vector{<:Integer})
+function _induced_subgraph(graph::AbstractNamedGraph, subvertices)
     return namedgraph_induced_subgraph(graph, subvertices)
 end
 

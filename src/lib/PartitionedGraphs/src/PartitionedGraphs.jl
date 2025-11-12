@@ -1,9 +1,9 @@
 module PartitionedGraphs
-include("abstractpartitionvertex.jl")
-include("abstractpartitionedge.jl")
+include("supervertex.jl")
+include("subsupervertex.jl")
+include("superedge.jl")
 include("abstractpartitionedgraph.jl")
-include("partitionvertex.jl")
-include("partitionedge.jl")
+include("partitionedview.jl")
 include("partitionedgraph.jl")
-include("partitionsgraphview.jl")
+include("quotientgraph.jl")
 end

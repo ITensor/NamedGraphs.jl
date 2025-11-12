@@ -32,7 +32,7 @@ using .GraphsExtensions:
     GraphsExtensions,
     directed_graph,
     incident_edges,
-    partitioned_vertices,
+    partition_vertices,
     rename_vertices,
     subgraph
 using SimpleTraits: SimpleTraits, Not, @traitfn
@@ -66,7 +66,8 @@ vertex_positions(graph::AbstractNamedGraph) = not_implemented()
 # returns the corresponding vertex.
 ordered_vertices(graph::AbstractNamedGraph) = not_implemented()
 
-Graphs.edgetype(graph::AbstractNamedGraph) = not_implemented()
+Graphs.edgetype(graph::AbstractNamedGraph) = edgetype(typeof(graph))
+Graphs.edgetype(::Type{<:AbstractNamedGraph}) = not_implemented()
 
 # TODO: Define generic version in `GraphsExtensions`.
 GraphsExtensions.directed_graph_type(G::Type{<:AbstractNamedGraph}) = not_implemented()
@@ -285,10 +286,10 @@ function Graphs.mincut(graph::AbstractNamedGraph, distmx::AbstractMatrix{<:Real}
 end
 
 # TODO: Make this more generic?
-function GraphsExtensions.partitioned_vertices(
+function GraphsExtensions.partition_vertices(
         graph::AbstractNamedGraph; npartitions = nothing, nvertices_per_partition = nothing, kwargs...
     )
-    vertex_partitions = partitioned_vertices(
+    vertex_partitions = partition_vertices(
         position_graph(graph); npartitions, nvertices_per_partition, kwargs...
     )
     # TODO: output the reverse of this dictionary (a Vector of Vector
@@ -446,13 +447,10 @@ function Graphs.blockdiag(graph1::AbstractNamedGraph, graph2::AbstractNamedGraph
     return GenericNamedGraph(new_position_graph, new_vertices)
 end
 
-# TODO: What `args` are needed?
-Graphs.nv(graph::AbstractNamedGraph, args...) = nv(position_graph(graph), args...)
-# TODO: What `args` are needed?
-Graphs.ne(graph::AbstractNamedGraph, args...) = ne(position_graph(graph), args...)
-# TODO: What `args` are needed?
-function Graphs.adjacency_matrix(graph::AbstractNamedGraph, args...)
-    return adjacency_matrix(position_graph(graph), args...)
+Graphs.nv(graph::AbstractNamedGraph) = nv(position_graph(graph))
+Graphs.ne(graph::AbstractNamedGraph) = ne(position_graph(graph))
+function Graphs.adjacency_matrix(graph::AbstractNamedGraph)
+    return adjacency_matrix(position_graph(graph))
 end
 
 function Graphs.connected_components(graph::AbstractNamedGraph)
