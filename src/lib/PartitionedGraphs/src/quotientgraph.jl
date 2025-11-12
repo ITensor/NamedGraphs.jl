@@ -4,7 +4,7 @@ using ..NamedGraphs: NamedGraph, position_graph_type
 
 struct QuotientView{V, G <: AbstractGraph} <: AbstractNamedGraph{V}
     graph::G
-    QuotientView(graph::G) where {G} = new{quotient_vertextype(G), G}(graph)
+    QuotientView(graph::G) where {G} = new{quotient_graph_vertextype(G), G}(graph)
 end
 
 Base.parent(qg::QuotientView) = qg.graph
@@ -16,10 +16,10 @@ function Base.convert(GT::Type{<:AbstractGraph}, g::QuotientView)
     return qg
 end
 
-NamedGraphs.edgetype(Q::Type{<:QuotientView}) = quotient_edgetype(parent_graph_type(Q))
+NamedGraphs.edgetype(Q::Type{<:QuotientView}) = quotient_graph_edgetype(parent_graph_type(Q))
 
-Graphs.vertices(qg::QuotientView) = quotient_vertices(parent(qg))
-Graphs.edges(qg::QuotientView) = quotient_edges(parent(qg))
+Graphs.vertices(qg::QuotientView) = parent.(quotientvertices(parent(qg)))
+Graphs.edges(qg::QuotientView) = parent.(quotientedges(parent(qg)))
 
 Base.copy(g::QuotientView) = QuotientView(copy(parent(g)))
 
@@ -30,11 +30,11 @@ function NamedGraphs.position_graph_type(type::Type{<:QuotientView})
 end
 
 function Graphs.rem_vertex!(qg::QuotientView, v)
-    rem_supervertex!(parent(qg), SuperVertex(v))
+    rem_quotientvertex!(parent(qg), QuotientVertex(v))
     return qg
 end
 function Graphs.rem_edge!(qg::QuotientView, v)
-    rem_superedge!(parent(qg), SuperEdge(v))
+    rem_quotientedge!(parent(qg), QuotientEdge(v))
     return qg
 end
 

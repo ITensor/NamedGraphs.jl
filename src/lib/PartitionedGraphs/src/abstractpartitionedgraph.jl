@@ -22,11 +22,11 @@ partitioned_vertices(g::AbstractGraph) = [vertices(g)]
 # For fast quotient edge checking and graph construction, one should overload this function.
 function quotient_graph(g::AbstractGraph)
 
-    qg = NamedGraph(quotient_vertices(g))
+    qg = NamedGraph(map(parent, quotientvertices(g)))
 
     for e in edges(g)
-        qv_src = quotient_vertex(g, src(e))
-        qv_dst = quotient_vertex(g, dst(e))
+        qv_src = parent(quotientvertex(g, src(e)))
+        qv_dst = parent(quotientvertex(g, dst(e)))
         qe = qv_src => qv_dst
         if qv_src != qv_dst && !has_edge(qg, qe)
             add_edge!(qg, qe)
@@ -37,31 +37,31 @@ function quotient_graph(g::AbstractGraph)
 end
 
 # Overload this for fast inverse mapping for vertices and edges
-function quotient_vertex(g, vertex)
+function quotientvertex(g, vertex)
     pvs = partitioned_vertices(g)
     rv = findfirst(pv -> vertex ∈ pv, pvs)
     if isnothing(rv)
         error("Vertex $vertex not found in any partition.")
     end
-    return rv
+    return QuotientVertex(rv)
 end
 
-function quotient_edge(g::AbstractGraph, edge)
+function quotientedge(g::AbstractGraph, edge)
     if !has_edge(g, edge)
         throw(ArgumentError("Graph does not have an edge $edge"))
     end
-    qv_src = quotient_vertex(g, src(edge))
-    qv_dst = quotient_vertex(g, dst(edge))
-    return quotient_edgetype(g)(qv_src => qv_dst)
+    qv_src = parent(quotientvertex(g, src(edge)))
+    qv_dst = parent(quotientvertex(g, dst(edge)))
+    return QuotientEdge(quotient_graph_edgetype(g)(qv_src => qv_dst))
 end
 
 function partitioned_edges(g::AbstractGraph)
 
-    dict = Dictionary{quotient_edgetype(g), Vector{edgetype(g)}}()
+    dict = Dictionary{quotient_graph_edgetype(g), Vector{edgetype(g)}}()
 
     for e in edges(g)
 
-        qe = quotient_edge(g, e)
+        qe = parent(quotientedge(g, e))
 
         if is_self_loop(qe)
             continue
@@ -72,34 +72,34 @@ function partitioned_edges(g::AbstractGraph)
     return dict
 end
 
-function quotient_vertices(g)
+function quotientvertices(g)
     QGT = quotient_graph_type(g)
     qg = QGT(keys(partitioned_vertices(g)))
-    return vertices(qg)
+    return map(QuotientVertex, vertices(qg))
 end
-quotient_edges(g::AbstractGraph) = edges(quotient_graph(g))
 
 function is_partition_boundary_edge(pg::AbstractGraph, edge)
-    p_edge = superedge(pg, edge)
+    p_edge = quotientedge(pg, edge)
     return src(p_edge) != dst(p_edge)
 end
 
-function boundary_superedges(pg::AbstractGraph, supervertices; kwargs...)
-    return SuperEdge.(
-        boundary_edges(quotient_graph(pg), parent.(supervertices); kwargs...)
+function boundary_quotientedges(pg::AbstractGraph, quotientvertices; kwargs...)
+    return QuotientEdge.(
+        boundary_edges(quotient_graph(pg), parent.(quotientvertices); kwargs...)
     )
 end
 
-function boundary_superedges(
-        pg::AbstractGraph, supervertex::SuperVertex; kwargs...
+function boundary_quotientedges(
+        pg::AbstractGraph, quotientvertex::QuotientVertex; kwargs...
     )
-    return boundary_superedges(pg, [supervertex]; kwargs...)
+    return boundary_quotientedges(pg, [quotientvertex]; kwargs...)
 end
 
 quotient_graph_type(g) = quotient_graph_type(typeof(g))
+# TODO::
 quotient_graph_type(::Type{<:AbstractGraph}) = NamedGraph{Int}
-quotient_vertextype(G) = vertextype(quotient_graph_type(G))
-quotient_edgetype(G) = edgetype(quotient_graph_type(G))
+quotient_graph_vertextype(G) = vertextype(quotient_graph_type(G))
+quotient_graph_edgetype(G) = edgetype(quotient_graph_type(G))
 
 """
 abstract type AbstractPartitionedGraph{V, PV} <: AbstractNamedGraph{V}
@@ -165,8 +165,8 @@ function Graphs.add_vertex!(::AbstractPartitionedGraph, vertex)
     return error("Need to specify a partition where the new vertex will go.")
 end
 
-function Graphs.add_vertex!(pg::AbstractPartitionedGraph, ssv::SubSuperVertex)
-    return add_subsupervertex!(pg, ssv.vertex, ssv.subvertex)
+function Graphs.add_vertex!(pg::AbstractPartitionedGraph, ssv::SubQuotientVertex)
+    return add_subquotientvertex!(pg, ssv.vertex, ssv.subvertex)
 end
 
 function Base.:(==)(pg1::AbstractPartitionedGraph, pg2::AbstractPartitionedGraph)
@@ -175,7 +175,7 @@ function Base.:(==)(pg1::AbstractPartitionedGraph, pg2::AbstractPartitionedGraph
         return false
     end
     for v in vertices(pg1)
-        if supervertex(pg1, v) != supervertex(pg2, v)
+        if quotientvertex(pg1, v) != quotientvertex(pg2, v)
             return false
         end
     end
