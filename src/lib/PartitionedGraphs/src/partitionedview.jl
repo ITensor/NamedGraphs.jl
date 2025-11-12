@@ -1,5 +1,3 @@
-using ..OrderedDictionaries: OrderedIndices
-
 struct PartitionedView{V, PV, G <: AbstractGraph{V}, P} <: AbstractPartitionedGraph{V, PV}
     graph::G
     partitioned_vertices::P
