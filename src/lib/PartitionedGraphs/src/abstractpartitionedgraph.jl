@@ -11,7 +11,7 @@ using Graphs:
     rem_vertex!,
     src,
     vertices
-using ..NamedGraphs: NamedGraphs, AbstractNamedGraph
+using ..NamedGraphs: NamedGraphs, AbstractNamedGraph, NamedGraph
 using ..NamedGraphs.GraphsExtensions:
     GraphsExtensions, add_vertices!, not_implemented, rem_vertices!, subgraph, vertextype
 
@@ -22,7 +22,7 @@ partitioned_vertices(g::AbstractGraph) = [vertices(g)]
 # For fast quotient edge checking and graph construction, one should overload this function.
 function quotient_graph(g::AbstractGraph)
 
-    qg = NamedGraph(map(parent, quotientvertices(g)))
+    qg = NamedGraph(keys(partitioned_vertices(g)))
 
     for e in edges(g)
         qv_src = parent(quotientvertex(g, src(e)))
@@ -70,11 +70,24 @@ function boundary_quotientedges(
     return boundary_quotientedges(pg, [quotientvertex]; kwargs...)
 end
 
-quotient_graph_type(g) = quotient_graph_type(typeof(g))
-# TODO::
-quotient_graph_type(::Type{<:AbstractGraph}) = NamedGraph{Int}
+# This method should not be overloaded by users
+function quotient_graph_type(g)
+    try
+        return quotient_graph_type(typeof(g))
+    catch e
+        if e isa ErrorException
+            return typeof(quotient_graph(g))
+        else
+            rethrow(e)
+        end
+    end
+end
+quotient_graph_type(::Type{<:AbstractGraph}) = not_implemented()
 quotient_graph_vertextype(G) = vertextype(quotient_graph_type(G))
 quotient_graph_edgetype(G) = edgetype(quotient_graph_type(G))
+
+# The NamedGraph concrete type has no partitioning:
+quotient_graph_type(::Type{<:NamedGraph}) = NamedGraph{Int}
 
 # Additional interface functions
 

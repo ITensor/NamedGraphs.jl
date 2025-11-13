@@ -4,7 +4,7 @@ using ..NamedGraphs: NamedGraph, position_graph_type
 
 struct QuotientView{V, G <: AbstractGraph} <: AbstractNamedGraph{V}
     graph::G
-    QuotientView(graph::G) where {G} = new{quotient_graph_vertextype(G), G}(graph)
+    QuotientView(graph::G) where {G} = new{quotient_graph_vertextype(graph), G}(graph)
 end
 
 Base.parent(qg::QuotientView) = qg.graph

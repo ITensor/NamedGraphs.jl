@@ -251,15 +251,19 @@ end
 end
 
 # Not an AbstractPartitionedGraph
+struct MyUnpartitionedGraph{V} <: AbstractGraph{V}
+    g::NamedGraph{V}
+end
+
+Graphs.edges(mg::MyUnpartitionedGraph) = edges(mg.g)
+Graphs.vertices(mg::MyUnpartitionedGraph) = vertices(mg.g)
+
+Graphs.edgetype(mg::MyUnpartitionedGraph) = edgetype(mg.g)
+Graphs.has_edge(mg::MyUnpartitionedGraph, e) = has_edge(mg.g, e)
+
 struct MyGraph{V, P} <: AbstractGraph{V}
     g::NamedGraph{V}
     partitioned_vertices::P
-end
-struct MyFastGraph{V, PV, QG, PE} <: AbstractGraph{V}
-    g::NamedGraph{V}
-    partitioned_vertices::PV
-    quotient_graph::QG
-    partitioned_edges::PE
 end
 
 Graphs.edges(mg::MyGraph) = edges(mg.g)
@@ -269,6 +273,14 @@ Graphs.edgetype(mg::MyGraph) = edgetype(mg.g)
 Graphs.has_edge(mg::MyGraph, e) = has_edge(mg.g, e)
 
 PartitionedGraphs.partitioned_vertices(mg::MyGraph) = mg.partitioned_vertices
+PartitionedGraphs.quotient_graph_type(::Type{<:MyGraph}) = NamedGraph{Int}
+
+struct MyFastGraph{V, PV, QG, PE} <: AbstractGraph{V}
+    g::NamedGraph{V}
+    partitioned_vertices::PV
+    quotient_graph::QG
+    partitioned_edges::PE
+end
 
 PartitionedGraphs.partitioned_vertices(mg::MyFastGraph) = mg.partitioned_vertices
 PartitionedGraphs.quotient_graph(mg::MyFastGraph) = mg.quotient_graph
@@ -292,6 +304,12 @@ PartitionedGraphs.partitioned_vertices(wg::WrapperGraph) = partitioned_vertices(
 
     @test nv(QuotientView(g)) == 1
     @test ne(QuotientView(g)) == 0
+
+    @test nv(QuotientView(MyUnpartitionedGraph(g))) == 1
+    @test ne(QuotientView(MyUnpartitionedGraph(g))) == 0
+
+    @test nv(quotient_graph(MyUnpartitionedGraph(g))) == 1
+    @test ne(quotient_graph(MyUnpartitionedGraph(g))) == 0
 
     @test nv(PartitionedView(g, partitions)) == nx * ny
     @test ne(PartitionedView(g, partitions)) == (nx - 1) * ny + nx * (ny - 1)
