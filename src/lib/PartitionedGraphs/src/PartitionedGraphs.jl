@@ -86,5 +86,5 @@ include("quotientedge.jl")
 include("abstractpartitionedgraph.jl")
 include("partitionedview.jl")
 include("partitionedgraph.jl")
-include("quotientgraph.jl")
+include("quotientview.jl")
 end
