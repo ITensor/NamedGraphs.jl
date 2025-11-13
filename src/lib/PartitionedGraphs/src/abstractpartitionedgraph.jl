@@ -75,7 +75,9 @@ function quotient_graph_type(g)
     try
         return quotient_graph_type(typeof(g))
     catch e
-        if e isa ErrorException
+        local ni
+        try not_implemented() catch ni end
+        if e == ni
             return typeof(quotient_graph(g))
         else
             rethrow(e)
