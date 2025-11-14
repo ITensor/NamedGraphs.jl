@@ -37,7 +37,7 @@ end
 
 Return all unique quotient edges corresponding to the set of edges `es` of the graph `g`.
 """
-quotientedges(g::AbstractGraph) = QuotientEdge.(edges(quotient_graph(g)))
+quotientedges(g::AbstractGraph) = Iterators.map(QuotientEdge, edges(quotient_graph(g)))
 function quotientedges(pg::AbstractGraph, es)
     return filter!(!is_self_loop, unique(map(e -> quotientedge(pg, e), es)))
 end
