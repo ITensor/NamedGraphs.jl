@@ -7,7 +7,7 @@ using ..NamedGraphs.OrderedDictionaries: OrderedDictionary
 
 # TODO: Parametrize `partitioned_vertices` and `which_partition`,
 # see https://github.com/mtfishman/NamedGraphs.jl/issues/63.
-struct PartitionedGraph{V, PV, G <: AbstractGraph{V}, P} <: AbstractPartitionedGraph{V, PV}
+struct PartitionedGraph{V, PV, G <: AbstractGraph{V}, P <: Dictionary} <: AbstractPartitionedGraph{V, PV}
     graph::G
     quotient_graph::NamedGraph{PV}
     partitioned_vertices::P
@@ -19,9 +19,7 @@ partitionedgraph(g::AbstractGraph, partition) = PartitionedGraph(g, partition)
 # Interface overloads
 partitioned_vertices(pg::PartitionedGraph) = pg.partitioned_vertices
 quotient_graph(pg::PartitionedGraph) = pg.quotient_graph
-quotient_vertex(pg::PartitionedGraph, vertex) = pg.which_partition[vertex]
-
-quotient_graph_type(::Type{<:AbstractPartitionedGraph{V, PV}}) where {V, PV} = NamedGraph{PV}
+quotientvertex(pg::PartitionedGraph, vertex) = QuotientVertex(pg.which_partition[vertex])
 
 Graphs.edgetype(::Type{<:PartitionedGraph{V, PV, G}}) where {V, PV, G} = edgetype(G)
 
@@ -69,9 +67,9 @@ function Base.copy(pg::PartitionedGraph)
 end
 
 function insert_to_vertex_map!(
-        pg::PartitionedGraph, vertex, supervertex::SuperVertex
+        pg::PartitionedGraph, vertex, quotientvertex::QuotientVertex
     )
-    pv = parent(supervertex)
+    pv = parent(quotientvertex)
 
     push!(get!(pg.partitioned_vertices, pv, []), vertex)
     unique!(pg.partitioned_vertices[pv])
@@ -82,12 +80,12 @@ function insert_to_vertex_map!(
 end
 
 function delete_from_vertex_map!(pg::PartitionedGraph{V}, vertex::V) where {V}
-    sv = quotient_vertex(pg, vertex)
+    sv = quotientvertex(pg, vertex)
     return delete_from_vertex_map!(pg, sv, vertex)
 end
 
 function delete_from_vertex_map!(
-        pg::PartitionedGraph{V}, sv::SuperVertex, vertex::V
+        pg::PartitionedGraph{V}, sv::QuotientVertex, vertex::V
     ) where {V}
     return delete_from_vertex_map!(pg, parent(sv), vertex)
 end
@@ -109,7 +107,7 @@ function delete_from_vertex_map!(
 end
 
 function Graphs.rem_vertex!(pg::PartitionedGraph{V}, vertex::V) where {V}
-    qv = quotient_vertex(pg, vertex)
+    qv = parent(quotientvertex(pg, vertex))
 
     delete_from_vertex_map!(pg, qv, vertex)
 
@@ -123,7 +121,8 @@ function Graphs.rem_vertex!(pg::PartitionedGraph{V}, vertex::V) where {V}
     return pg
 end
 
-function add_subsupervertex!(pg::PartitionedGraph{V}, sv::SuperVertex, vertex::V) where {V}
+# Interface function
+function add_subquotientvertex!(pg::PartitionedGraph{V}, sv::QuotientVertex, vertex::V) where {V}
     add_vertex!(pg.graph, vertex)
     add_vertex!(pg.quotient_graph, parent(sv))
     insert_to_vertex_map!(pg, vertex, sv)
@@ -133,7 +132,7 @@ end
 function Graphs.add_edge!(pg::PartitionedGraph, edge::AbstractEdge)
     @assert edge isa edgetype(pg)
     add_edge!(pg.graph, edge)
-    pg_edge = quotient_edge(pg, edge)
+    pg_edge = parent(quotientedge(pg, edge))
     if src(pg_edge) != dst(pg_edge)
         add_edge!(pg.quotient_graph, pg_edge)
     end
@@ -143,8 +142,8 @@ end
 function Graphs.rem_edge!(pg::PartitionedGraph, edge::AbstractEdge)
     @assert edge isa edgetype(pg)
     # This already checks if the edge is in pg
-    se = superedge(pg, edge)
-    if se in superedges(pg) || reverse(se) in superedges(pg)
+    se = quotientedge(pg, edge)
+    if se in quotientedges(pg) || reverse(se) in quotientedges(pg)
         g_edges = edges(pg, se)
         if length(g_edges) == 1
             # Remove the entire super-edge
@@ -156,9 +155,11 @@ end
 
 ### PartitionedGraph Specific Functions
 function partitionedgraph_induced_subgraph(pg::PartitionedGraph, vlist)
-    sub_pg_graph, _ = induced_subgraph(unpartitioned_graph(pg), vlist)
-    sub_partitioned_vertices = copy(partitioned_vertices(pg))
-    for pv in quotient_vertices(pg)
+    sub_pg_graph, _ = induced_subgraph(pg.graph, vlist)
+    sub_partitioned_vertices = copy(pg.partitioned_vertices)
+    for qv in quotientvertices(pg)
+        pv = parent(qv)
+
         vs = intersect(vlist, sub_partitioned_vertices[pv])
         if !isempty(vs)
             sub_partitioned_vertices[pv] = vs

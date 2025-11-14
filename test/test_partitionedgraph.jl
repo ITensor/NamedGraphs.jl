@@ -43,20 +43,20 @@ using NamedGraphs.PartitionedGraphs:
     PartitionedGraphs,
     PartitionedView,
     QuotientView,
-    SuperEdge,
-    SuperVertex,
-    boundary_superedges,
+    QuotientEdge,
+    QuotientVertex,
+    boundary_quotientedges,
     departition,
-    has_supervertex,
+    has_quotientvertex,
     partitioned_edges,
     partitioned_vertices,
     partitionedgraph,
     quotient_graph,
-    rem_supervertex!,
-    superedge,
-    superedges,
-    supervertex,
-    supervertices,
+    rem_quotientvertex!,
+    quotientedge,
+    quotientedges,
+    quotientvertex,
+    quotientvertices,
     unpartition,
     unpartitioned_graph
 using Dictionaries: Dictionary, dictionary
@@ -72,8 +72,8 @@ using Test: @test, @testset, @test_throws
     pg = PartitionedGraph(g, partitions)
     @test vertextype(QuotientView(pg)) == Int64
     @test vertextype(unpartitioned_graph(pg)) == vertextype(g)
-    @test isa(supervertices(pg), OrderedDictionary{Int64, SuperVertex{Int64}})
-    @test isa(superedges(pg), Vector{SuperEdge{Int64, NamedEdge{Int64}}})
+    @test eltype(collect(quotientvertices(pg))) == QuotientVertex{Int64}
+    @test eltype(collect(quotientedges(pg))) == QuotientEdge{Int64, NamedEdge{Int64}}
     @test is_tree(QuotientView(pg))
     @test nv(pg) == nx * ny
     @test nv(QuotientView(pg)) == nx
@@ -82,8 +82,8 @@ using Test: @test, @testset, @test_throws
 
     #PartionsGraphView test
     pgv = QuotientView(pg)
-    @test vertices(pgv) == parent.(supervertices(pg))
-    @test edges(pgv) == parent.(superedges(pg))
+    @test vertices(pgv) == parent.(quotientvertices(pg))
+    @test edges(pgv) == parent.(quotientedges(pg))
     @test is_tree(pgv) == true
     @test neighbors(pgv, 1) == [2]
     @test issetequal(vertices(subgraph(pgv, [2, 3, 4])), [2, 3, 4])
@@ -94,22 +94,16 @@ using Test: @test, @testset, @test_throws
     pg = PartitionedGraph(g, partition_dict)
     @test vertextype(QuotientView(pg)) == vertextype(g)
     @test vertextype(unpartitioned_graph(pg)) == vertextype(g)
-    @test isa(
-        supervertices(pg),
-        OrderedDictionary{Tuple{Int64, Int64}, SuperVertex{Tuple{Int64, Int64}}},
-    )
-    @test isa(
-        superedges(pg),
-        Vector{SuperEdge{Tuple{Int64, Int64}, NamedEdge{Tuple{Int64, Int64}}}},
-    )
+    @test eltype(collect(quotientvertices(pg))) == QuotientVertex{Tuple{Int64, Int64}}
+    @test eltype(collect(quotientedges(pg))) == QuotientEdge{Tuple{Int64, Int64}, NamedEdge{Tuple{Int64, Int64}}}
     @test is_tree(QuotientView(pg))
     @test nv(pg) == nx * ny
-    @test nv(pg, SuperVertex((1, 1))) == ny
-    @test_throws ArgumentError nv(pg, SuperVertex((11, 11)))
+    @test nv(pg, QuotientVertex((1, 1))) == ny
+    @test_throws ArgumentError nv(pg, QuotientVertex((11, 11)))
     @test nv(QuotientView(pg)) == nx
     @test ne(pg) == (nx - 1) * ny + nx * (ny - 1)
-    @test ne(pg, SuperEdge((1, 1) => (2, 1))) == ny
-    @test_throws ArgumentError ne(pg, SuperEdge((1, 1) => (1, 2)))
+    @test ne(pg, QuotientEdge((1, 1) => (2, 1))) == ny
+    @test_throws ArgumentError ne(pg, QuotientEdge((1, 1) => (1, 2)))
     @test ne(QuotientView(pg)) == 9
     pg_c = copy(pg)
     @test pg_c == pg
@@ -132,25 +126,25 @@ end
     #Partition it column-wise (into a square grid)
     partitions = [[(i, j, k) for k in 1:nz] for i in 1:nx for j in 1:ny]
     pg = PartitionedGraph(g, partitions)
-    @test Set(supervertices(pg)) == Set(supervertices(pg, vertices(g)))
-    @test Set(superedges(pg)) == Set(superedges(pg, edges(g)))
-    @test is_self_loop(superedge(pg, (1, 1, 1) => (1, 1, 2)))
-    @test !is_self_loop(superedge(pg, (1, 2, 1) => (1, 1, 1)))
-    @test supervertex(pg, (1, 1, 1)) == supervertex(pg, (1, 1, nz))
-    @test supervertex(pg, (2, 1, 1)) != supervertex(pg, (1, 1, nz))
+    @test Set(quotientvertices(pg)) == Set(quotientvertices(pg, vertices(g)))
+    @test Set(quotientedges(pg)) == Set(quotientedges(pg, edges(g)))
+    @test is_self_loop(quotientedge(pg, (1, 1, 1) => (1, 1, 2)))
+    @test !is_self_loop(quotientedge(pg, (1, 2, 1) => (1, 1, 1)))
+    @test quotientvertex(pg, (1, 1, 1)) == quotientvertex(pg, (1, 1, nz))
+    @test quotientvertex(pg, (2, 1, 1)) != quotientvertex(pg, (1, 1, nz))
 
-    @test superedge(pg, (1, 1, 1) => (2, 1, 1)) ==
-        superedge(pg, (1, 1, 2) => (2, 1, 2))
+    @test quotientedge(pg, (1, 1, 1) => (2, 1, 1)) ==
+        quotientedge(pg, (1, 1, 2) => (2, 1, 2))
     inter_column_edges = [(1, 1, i) => (2, 1, i) for i in 1:nz]
-    @test length(superedges(pg, inter_column_edges)) == 1
-    @test length(supervertices(pg, [(1, 2, i) for i in 1:nz])) == 1
-    @test all([length(edges(pg, pe)) == nz for pe in superedges(pg)])
+    @test length(quotientedges(pg, inter_column_edges)) == 1
+    @test length(quotientvertices(pg, [(1, 2, i) for i in 1:nz])) == 1
+    @test all([length(edges(pg, pe)) == nz for pe in quotientedges(pg)])
 
-    boundary_sizes = [length(boundary_superedges(pg, pv)) for pv in supervertices(pg)]
+    boundary_sizes = [length(boundary_quotientedges(pg, pv)) for pv in quotientvertices(pg)]
     #Partitions into a square grid so each partition should have maximum 4 incoming edges and minimum 2
     @test maximum(boundary_sizes) == 4
     @test minimum(boundary_sizes) == 2
-    @test isempty(boundary_superedges(pg, supervertices(pg)))
+    @test isempty(boundary_quotientedges(pg, quotientvertices(pg)))
 end
 
 @testset "Test Partitioned Graph Vertex/Edge Addition and Removal" begin
@@ -160,12 +154,12 @@ end
     partitions = [[(i, j) for j in 1:ny] for i in 1:nx]
     pg = PartitionedGraph(g, partitions)
 
-    pv = SuperVertex(5)
+    pv = QuotientVertex(5)
     v_set = vertices(pg, pv)
     edges_involving_v_set = boundary_edges(g, v_set)
 
     #Strip the middle column from pg via the partitioned graph vertex, and make a new pg
-    rem_supervertex!(pg, pv)
+    rem_quotientvertex!(pg, pv)
     @test !is_connected(unpartitioned_graph(pg)) && !is_connected(QuotientView(pg))
     @test parent(pv) ∉ vertices(QuotientView(pg))
     @test !has_vertex(pg, pv)
@@ -179,7 +173,7 @@ end
     @test is_connected(pg.graph)
     @test is_path_graph(QuotientView(pg))
     @test parent(pv) ∈ vertices(QuotientView(pg))
-    @test has_supervertex(pg, pv)
+    @test has_quotientvertex(pg, pv)
     @test is_tree(QuotientView(pg))
     @test nv(pg) == nx * ny
     @test nv(QuotientView(pg)) == nx
@@ -200,7 +194,7 @@ end
         vcat, [partitions[spv] for spv in subgraph_partitioned_vertices]
     )
 
-    pg_1 = subgraph(pg, SuperVertex.(subgraph_partitioned_vertices))
+    pg_1 = subgraph(pg, QuotientVertex.(subgraph_partitioned_vertices))
     pg_2 = subgraph(pg, subgraph_vertices)
     @test pg_1 == pg_2
     @test nv(pg_1) == length(subgraph_vertices)
@@ -208,7 +202,7 @@ end
 
     subgraph_partitioned_vertex = 3
     subgraph_vertices = partitions[subgraph_partitioned_vertex]
-    g_1 = subgraph(pg, SuperVertex(subgraph_partitioned_vertex))
+    g_1 = subgraph(pg, QuotientVertex(subgraph_partitioned_vertex))
     pg_1 = subgraph(pg, subgraph_vertices)
     @test unpartitioned_graph(pg_1) == subgraph(g, subgraph_vertices)
     @test g_1 == subgraph(g, subgraph_vertices)
@@ -251,15 +245,19 @@ end
 end
 
 # Not an AbstractPartitionedGraph
+struct MyUnpartitionedGraph{V} <: AbstractGraph{V}
+    g::NamedGraph{V}
+end
+
+Graphs.edges(mg::MyUnpartitionedGraph) = edges(mg.g)
+Graphs.vertices(mg::MyUnpartitionedGraph) = vertices(mg.g)
+
+Graphs.edgetype(mg::MyUnpartitionedGraph) = edgetype(mg.g)
+Graphs.has_edge(mg::MyUnpartitionedGraph, e) = has_edge(mg.g, e)
+
 struct MyGraph{V, P} <: AbstractGraph{V}
     g::NamedGraph{V}
     partitioned_vertices::P
-end
-struct MyFastGraph{V, PV, QG, PE} <: AbstractGraph{V}
-    g::NamedGraph{V}
-    partitioned_vertices::PV
-    quotient_graph::QG
-    partitioned_edges::PE
 end
 
 Graphs.edges(mg::MyGraph) = edges(mg.g)
@@ -269,6 +267,14 @@ Graphs.edgetype(mg::MyGraph) = edgetype(mg.g)
 Graphs.has_edge(mg::MyGraph, e) = has_edge(mg.g, e)
 
 PartitionedGraphs.partitioned_vertices(mg::MyGraph) = mg.partitioned_vertices
+PartitionedGraphs.quotient_graph_type(::Type{<:MyGraph}) = NamedGraph{Int}
+
+struct MyFastGraph{V, PV, QG, PE} <: AbstractGraph{V}
+    g::NamedGraph{V}
+    partitioned_vertices::PV
+    quotient_graph::QG
+    partitioned_edges::PE
+end
 
 PartitionedGraphs.partitioned_vertices(mg::MyFastGraph) = mg.partitioned_vertices
 PartitionedGraphs.quotient_graph(mg::MyFastGraph) = mg.quotient_graph
@@ -292,6 +298,12 @@ PartitionedGraphs.partitioned_vertices(wg::WrapperGraph) = partitioned_vertices(
 
     @test nv(QuotientView(g)) == 1
     @test ne(QuotientView(g)) == 0
+
+    @test nv(QuotientView(MyUnpartitionedGraph(g))) == 1
+    @test ne(QuotientView(MyUnpartitionedGraph(g))) == 0
+
+    @test nv(quotient_graph(MyUnpartitionedGraph(g))) == 1
+    @test ne(quotient_graph(MyUnpartitionedGraph(g))) == 0
 
     @test nv(PartitionedView(g, partitions)) == nx * ny
     @test ne(PartitionedView(g, partitions)) == (nx - 1) * ny + nx * (ny - 1)
