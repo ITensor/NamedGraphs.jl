@@ -72,8 +72,8 @@ using Test: @test, @testset, @test_throws
     pg = PartitionedGraph(g, partitions)
     @test vertextype(QuotientView(pg)) == Int64
     @test vertextype(unpartitioned_graph(pg)) == vertextype(g)
-    @test isa(quotientvertices(pg), OrderedDictionary{Int64, QuotientVertex{Int64}})
-    @test isa(quotientedges(pg), Vector{QuotientEdge{Int64, NamedEdge{Int64}}})
+    @test eltype(quotientvertices(pg)) == QuotientVertex{Int64}
+    @test eltype(quotientedges(pg)) == QuotientEdge{Int64, NamedEdge{Int64}}
     @test is_tree(QuotientView(pg))
     @test nv(pg) == nx * ny
     @test nv(QuotientView(pg)) == nx
@@ -94,14 +94,8 @@ using Test: @test, @testset, @test_throws
     pg = PartitionedGraph(g, partition_dict)
     @test vertextype(QuotientView(pg)) == vertextype(g)
     @test vertextype(unpartitioned_graph(pg)) == vertextype(g)
-    @test isa(
-        quotientvertices(pg),
-        OrderedDictionary{Tuple{Int64, Int64}, QuotientVertex{Tuple{Int64, Int64}}},
-    )
-    @test isa(
-        quotientedges(pg),
-        Vector{QuotientEdge{Tuple{Int64, Int64}, NamedEdge{Tuple{Int64, Int64}}}},
-    )
+    @test eltype(quotientvertices(pg)) == QuotientVertex{Tuple{Int64, Int64}}
+    @test eltype(quotientedges(pg)) == QuotientEdge{Tuple{Int64, Int64}, NamedEdge{Tuple{Int64, Int64}}}
     @test is_tree(QuotientView(pg))
     @test nv(pg) == nx * ny
     @test nv(pg, QuotientVertex((1, 1))) == ny

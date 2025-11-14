@@ -25,10 +25,7 @@ end
 
 Return all unique quotient vertices corresponding to the set vertices `vs` of the graph `pg`.
 """
-function quotientvertices(g)
-    qvs = OrderedIndices(keys(partitioned_vertices(g)))
-    return map(QuotientVertex, qvs)
-end
+quotientvertices(g) = QuotientVertex.(keys(partitioned_vertices(g)))
 quotientvertices(g::AbstractGraph, vs) = unique(map(v -> quotientvertex(g, v), vs))
 
 """
