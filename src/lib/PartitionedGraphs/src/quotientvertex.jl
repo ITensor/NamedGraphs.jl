@@ -1,6 +1,8 @@
 using Graphs: AbstractGraph, Graphs, nv, induced_subgraph
 using ..NamedGraphs: NamedGraphs, AbstractNamedGraph
 using ..NamedGraphs.GraphsExtensions: GraphsExtensions, rem_vertices!, subgraph
+using ..NamedGraphs.OrderedDictionaries: OrderedIndices
+
 
 struct QuotientVertex{V}
     vertex::V
@@ -24,9 +26,8 @@ end
 Return all unique quotient vertices corresponding to the set vertices `vs` of the graph `pg`.
 """
 function quotientvertices(g)
-    QGT = quotient_graph_type(g)
-    qg = QGT(keys(partitioned_vertices(g)))
-    return map(QuotientVertex, vertices(qg))
+    qvs = OrderedIndices(keys(partitioned_vertices(g)))
+    return map(QuotientVertex, qvs)
 end
 quotientvertices(g::AbstractGraph, vs) = unique(map(v -> quotientvertex(g, v), vs))
 

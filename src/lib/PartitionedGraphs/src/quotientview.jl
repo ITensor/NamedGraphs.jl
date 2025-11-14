@@ -8,12 +8,13 @@ struct QuotientView{V, G <: AbstractGraph} <: AbstractNamedGraph{V}
 end
 
 Base.parent(qg::QuotientView) = qg.graph
+parent_graph_type(g::AbstractGraph) = parent_graph_type(typeof(g))
 parent_graph_type(::Type{<:QuotientView{V, G}}) where {V, G} = G
 
-function Base.convert(GT::Type{<:AbstractGraph}, g::QuotientView)
-    qg = GT(vertices(g))
-    add_edges!(qg, edges(g))
-    return qg
+function Base.convert(GT::Type{<:AbstractGraph}, qv::QuotientView)
+    qg = quotient_graph_type(parent_graph_type(qv))(vertices(qv))
+    add_edges!(qg, edges(qv))
+    return convert(GT, qg)
 end
 
 NamedGraphs.edgetype(Q::Type{<:QuotientView}) = quotient_graph_edgetype(parent_graph_type(Q))
@@ -23,8 +24,6 @@ Graphs.edges(qg::QuotientView) = parent.(quotientedges(parent(qg)))
 
 Base.copy(g::QuotientView) = QuotientView(copy(parent(g)))
 
-# Graphs.jl and NamedGraphs.jl interface overloads for `PartitionsGraphView` wrapping
-# a `PartitionedGraph`.
 function NamedGraphs.position_graph_type(type::Type{<:QuotientView})
     return position_graph_type(quotient_graph_type(parent_graph_type(type)))
 end
@@ -41,14 +40,14 @@ end
 for f in [
         :(NamedGraphs.namedgraph_induced_subgraph),
         :(NamedGraphs.ordered_vertices),
-        :(NamedGraphs.position_graph),
         :(NamedGraphs.vertex_positions),
+        :(NamedGraphs.position_graph),
     ]
     @eval begin
         function $f(
                 g::QuotientView{V, G}, args...; kwargs...
             ) where {V, G}
-            return $f(convert(NamedGraph, (g)), args...; kwargs...)
+            return $f(convert(AbstractGraph, g), args...; kwargs...)
         end
     end
 end

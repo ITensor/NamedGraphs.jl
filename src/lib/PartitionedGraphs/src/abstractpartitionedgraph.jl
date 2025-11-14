@@ -70,26 +70,10 @@ function boundary_quotientedges(
     return boundary_quotientedges(pg, [quotientvertex]; kwargs...)
 end
 
-# This method should not be overloaded by users
-function quotient_graph_type(g)
-    try
-        return quotient_graph_type(typeof(g))
-    catch e
-        local ni
-        try not_implemented() catch ni end
-        if e == ni
-            return typeof(quotient_graph(g))
-        else
-            rethrow(e)
-        end
-    end
-end
-quotient_graph_type(::Type{<:AbstractGraph}) = not_implemented()
+quotient_graph_type(g::AbstractGraph) = quotient_graph_type(typeof(g))
+quotient_graph_type(G::Type{<:AbstractGraph}) = Base.promote_op(quotient_graph, G)
 quotient_graph_vertextype(G) = vertextype(quotient_graph_type(G))
 quotient_graph_edgetype(G) = edgetype(quotient_graph_type(G))
-
-# The NamedGraph concrete type has no partitioning:
-quotient_graph_type(::Type{<:NamedGraph}) = NamedGraph{Int}
 
 # Additional interface functions
 

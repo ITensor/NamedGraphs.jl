@@ -32,7 +32,8 @@ partitioned_vertices(g::MyGraphType)
 
 # 2a. For fast quotient graph construction and fast `has_edge` at the quotient_graph level:
 quotient_graph(g::MyGraphType)
-# 2b. You should also define the `quotient_graph_type` via:
+# 2b. If Julia is unable to infer the returned type of `quotient_graph` then you should
+# also define the `quotient_graph_type` function:
 quotient_graph_type(g::MyGraphType)
 
 # 3. For a fast vertex to quotient-vertex map then:
