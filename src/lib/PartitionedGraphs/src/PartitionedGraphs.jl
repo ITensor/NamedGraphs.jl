@@ -15,12 +15,12 @@ It defines the following concrete types:
 - [`QuotientEdge`](@ref): Represents an edge in the quotient graph.
 - [`PartitionedView`](@ref): A lightweight view of a partitioned graph.
 - [`PartitionedGraph`](@ref): An implementation of a partitioned graph with extra caching
-    not proivded by [`PartitionedView`](@ref).
+    not provided by [`PartitionedView`](@ref).
 - [`QuotientView`](@ref): A view of the quotient graph derived from a partitioned graph.
 It provides the following functions:
 - [`partitionedgraph`](@ref): Partitions an `AbstractGraph`.
 - [`departition`](@ref): Removes a single layer of partitioning from a partitioned graph.
-- [`unpartition`](@ref): Recrusively removes all layers of partitioning from a partitioned graph.
+- [`unpartition`](@ref): Recursively removes all layers of partitioning from a partitioned graph.
 
 ## Interfaces
 
