@@ -90,8 +90,7 @@ Graphs.ne(g::AbstractGraph, se::QuotientEdge) = length(edges(g, se))
 Remove, in place, all the edges of `g` that correspond to the quotient edge `qe`.
 """
 function GraphsExtensions.rem_edges!(g::AbstractGraph, sv::QuotientEdge)
-    rv = rem_edges!(g, edges(g, sv))
-    return rv
+    return rem_edges!(g, edges(g, sv))
 end
 
 rem_quotientedge!(g::AbstractGraph, sv::QuotientEdge) = rem_edges!(g, sv)
