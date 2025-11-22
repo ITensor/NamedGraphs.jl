@@ -2,6 +2,12 @@ using Graphs: AbstractGraph, Graphs, AbstractEdge, dst, src, ne, has_edge
 using ..NamedGraphs: AbstractNamedEdge
 using ..NamedGraphs.GraphsExtensions: GraphsExtensions, not_implemented, rem_edges!, rem_edge
 
+"""
+    QuotientEdge(e)
+
+Represents a super-edge in a partitioned graph corresponding to the set of edges
+in between partitions `src(e)` and `dst(e)`.
+"""
 struct QuotientEdge{V, E <: AbstractEdge{V}} <: AbstractNamedEdge{V}
     edge::E
 end
@@ -20,7 +26,7 @@ Base.reverse(se::QuotientEdge) = QuotientEdge(reverse(parent(se)))
 Return the the quotient edge corresponding to `edge` of the graph `g`. Note,
 the returned quotient edge may be a self-loop.
 
-See also: [`quotientedges`](@ref), [`quotienttvertex`](@ref).
+See also: `quotientedges`, `quotienttvertex`.
 """
 quotientedge(g::AbstractGraph, edge::Pair) = quotientedge(g, edgetype(g)(edge))
 function quotientedge(g::AbstractGraph, edge::AbstractEdge)
@@ -79,7 +85,7 @@ has_quotientedge(g::AbstractGraph, se::QuotientEdge) = has_edge(quotient_graph(g
 
 Returns the number of edges in `g` that correspond to the quotient edge `qe`.
 
-See also: [`nv`](@ref).
+See also: `nv`.
 """
 Graphs.ne(g::AbstractGraph, se::QuotientEdge) = length(edges(g, se))
 

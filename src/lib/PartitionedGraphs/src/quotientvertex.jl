@@ -4,6 +4,12 @@ using ..NamedGraphs.GraphsExtensions: GraphsExtensions, rem_vertices!, subgraph
 using ..NamedGraphs.OrderedDictionaries: OrderedIndices
 
 
+"""
+    QuotientVertex(v)
+
+Represents a super-vertex in a partitioned graph corresponding to the set of vertices
+in partition `v`.
+"""
 struct QuotientVertex{V}
     vertex::V
 end
