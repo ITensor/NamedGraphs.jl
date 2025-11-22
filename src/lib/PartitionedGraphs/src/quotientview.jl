@@ -11,18 +11,16 @@ Base.parent(qg::QuotientView) = qg.graph
 parent_graph_type(g::AbstractGraph) = parent_graph_type(typeof(g))
 parent_graph_type(::Type{<:QuotientView{V, G}}) where {V, G} = G
 
-function Base.convert(GT::Type{<:AbstractGraph}, qv::QuotientView)
+function Base.copy(qv::QuotientView)
     qg = quotient_graph_type(parent_graph_type(qv))(vertices(qv))
     add_edges!(qg, edges(qv))
-    return convert(GT, qg)
+    return qg
 end
 
 NamedGraphs.edgetype(Q::Type{<:QuotientView}) = quotient_graph_edgetype(parent_graph_type(Q))
 
 Graphs.vertices(qg::QuotientView) = parent.(quotientvertices(parent(qg)))
 Graphs.edges(qg::QuotientView) = parent.(quotientedges(parent(qg)))
-
-Base.copy(g::QuotientView) = QuotientView(copy(parent(g)))
 
 function NamedGraphs.position_graph_type(type::Type{<:QuotientView})
     return position_graph_type(quotient_graph_type(parent_graph_type(type)))
@@ -38,16 +36,14 @@ function Graphs.rem_edge!(qg::QuotientView, v)
 end
 
 for f in [
-        :(NamedGraphs.namedgraph_induced_subgraph),
+        :(NamedGraphs.induced_subgraph_from_vertices),
         :(NamedGraphs.ordered_vertices),
         :(NamedGraphs.vertex_positions),
         :(NamedGraphs.position_graph),
     ]
     @eval begin
-        function $f(
-                g::QuotientView{V, G}, args...; kwargs...
-            ) where {V, G}
-            return $f(convert(AbstractGraph, g), args...; kwargs...)
+        function $f(g::QuotientView, args...; kwargs...)
+            return $f(copy(g), args...; kwargs...)
         end
     end
 end

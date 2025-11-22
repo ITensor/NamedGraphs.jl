@@ -215,8 +215,9 @@ function Graphs.is_directed(graph_type::Type{<:GenericNamedGraph})
     return is_directed(position_graph_type(graph_type))
 end
 
+# Assumes the subvertices were already processed by `to_vertices`.
 # TODO: Implement an edgelist version
-function namedgraph_induced_subgraph(graph::AbstractGraph, subvertices)
+function induced_subgraph_from_vertices(graph::AbstractGraph, subvertices)
     subgraph = typeof(graph)(subvertices)
     subvertices_set = Set(subvertices)
     for src in subvertices
@@ -229,16 +230,14 @@ function namedgraph_induced_subgraph(graph::AbstractGraph, subvertices)
     return subgraph, nothing
 end
 
-function Graphs.induced_subgraph(graph::AbstractNamedGraph, vlist)
-    return _induced_subgraph(graph, to_vertices(graph, vlist))
+function Graphs.induced_subgraph(graph::AbstractNamedGraph, subvertices)
+    return induced_subgraph_from_vertices(graph, to_vertices(graph, subvertices))
 end
 # For method ambiguity resolution with Graphs.jl
-function Graphs.induced_subgraph(graph::AbstractNamedGraph, vlist::AbstractVector{<:Integer})
-    return _induced_subgraph(graph, to_vertices(graph, vlist))
-end
-
-function _induced_subgraph(graph::AbstractNamedGraph, subvertices)
-    return namedgraph_induced_subgraph(graph, subvertices)
+function Graphs.induced_subgraph(
+        graph::AbstractNamedGraph, subvertices::AbstractVector{<:Integer}
+    )
+    return induced_subgraph_from_vertices(graph, to_vertices(graph, subvertices))
 end
 
 #

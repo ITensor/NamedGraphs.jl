@@ -5,22 +5,22 @@ A library for partitioned graphs and their quotients.
 
 This module provides data structures and functionalities to work with partitioned graphs,
 including quotient vertices and edges, as well as views of partitioned graphs.
-It defines an abstract supertype [`AbstractPartitionedGraph`](@ref) for graphs that have
+It defines an abstract supertype `AbstractPartitionedGraph` for graphs that have
 some notion of a non-trivial partitioning of their vertices. It also provides 
 a interface of functions that can be overloaded on any subtype of `Graphs.AbstractGraph` to
-make this subtype behave like a partitioned graph, without itself subtyping [`AbstractPartitionedGraph`](@ref).
+make this subtype behave like a partitioned graph, without itself subtyping `AbstractPartitionedGraph`.
 
 It defines the following concrete types:
-- [`QuotientVertex`](@ref): Represents a vertex in the quotient graph.
-- [`QuotientEdge`](@ref): Represents an edge in the quotient graph.
-- [`PartitionedView`](@ref): A lightweight view of a partitioned graph.
-- [`PartitionedGraph`](@ref): An implementation of a partitioned graph with extra caching
-    not provided by [`PartitionedView`](@ref).
-- [`QuotientView`](@ref): A view of the quotient graph derived from a partitioned graph.
+- `QuotientVertex`: Represents a vertex in the quotient graph.
+- `QuotientEdge`: Represents an edge in the quotient graph.
+- `PartitionedView`: A lightweight view of a partitioned graph.
+- `PartitionedGraph`: An implementation of a partitioned graph with extra caching
+    not provided by `PartitionedView`.
+- `QuotientView`: A view of the quotient graph derived from a partitioned graph.
 It provides the following functions:
-- [`partitionedgraph`](@ref): Partitions an `AbstractGraph`.
-- [`departition`](@ref): Removes a single layer of partitioning from a partitioned graph.
-- [`unpartition`](@ref): Recursively removes all layers of partitioning from a partitioned graph.
+- `partitionedgraph`: Partitions an `AbstractGraph`.
+- `departition`: Removes a single layer of partitioning from a partitioned graph.
+- `unpartition`: Recursively removes all layers of partitioning from a partitioned graph.
 
 ## Interfaces
 

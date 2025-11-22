@@ -161,6 +161,8 @@ function Base.:(==)(pg1::AbstractPartitionedGraph, pg2::AbstractPartitionedGraph
     return true
 end
 
-function NamedGraphs._induced_subgraph(pg::AbstractPartitionedGraph, vlist)
-    return NamedGraphs._induced_subgraph(unpartitioned_graph(pg), vlist)
+function NamedGraphs.induced_subgraph_from_vertices(
+        pg::AbstractPartitionedGraph, subvertices
+    )
+    return NamedGraphs.induced_subgraph_from_vertices(unpartitioned_graph(pg), subvertices)
 end
