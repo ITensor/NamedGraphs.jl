@@ -22,8 +22,8 @@ the returned quotient edge may be a self-loop.
 
 See also: [`quotientedges`](@ref), [`quotienttvertex`](@ref).
 """
-quotientedge(pg::AbstractGraph, p::Pair) = quotientedge(pg, edgetype(pg)(p))
-function quotientedge(g::AbstractGraph, edge)
+quotientedge(g::AbstractGraph, edge::Pair) = quotientedge(g, edgetype(g)(edge))
+function quotientedge(g::AbstractGraph, edge::AbstractEdge)
     if !has_edge(g, edge)
         throw(ArgumentError("Graph does not have an edge $edge"))
     end

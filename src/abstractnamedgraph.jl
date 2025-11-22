@@ -379,7 +379,11 @@ function Graphs.rem_edge!(graph::AbstractNamedGraph, edge)
 end
 
 function Graphs.has_edge(graph::AbstractNamedGraph, edge::AbstractNamedEdge)
-    return has_edge(position_graph(graph), edge_to_position_edge(graph, edge))
+    src_position = get(vertex_positions(graph), src(edge), nothing)
+    isnothing(src_position) && return false
+    dst_position = get(vertex_positions(graph), dst(edge), nothing)
+    isnothing(dst_position) && return false
+    return has_edge(position_graph(graph), src_position, dst_position)
 end
 
 # handles two-argument edge constructors like src,dst

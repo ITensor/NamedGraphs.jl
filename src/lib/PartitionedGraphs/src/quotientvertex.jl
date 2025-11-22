@@ -59,6 +59,25 @@ function GraphsExtensions.rem_vertices!(g::AbstractGraph, sv::QuotientVertex)
 end
 rem_quotientvertex!(pg::AbstractGraph, sv::QuotientVertex) = rem_vertices!(pg, sv)
 
-function NamedGraphs.to_vertices(g::AbstractGraph, sv::Union{SV, Vector{SV}}) where {SV <: QuotientVertex}
-    return vertices(g, sv)
+# Represents a set of subvertices corresponding to a set of quotient vertices.
+struct SubVertices{QV, V, Vs <: AbstractVector{V}} <: AbstractVector{V}
+    quotientvertices::QV
+    vertices::Vs
+end
+Base.size(v::SubVertices) = size(v.vertices)
+Base.getindex(v::SubVertices, I...) = v.vertices[I...]
+
+function NamedGraphs.to_vertices(g::AbstractGraph, qv::QuotientVertex)
+    return SubVertices(qv, vertices(g, qv))
+end
+function NamedGraphs.to_vertices(g::AbstractGraph, qv::AbstractVector{<:QuotientVertex})
+    return SubVertices(qv, vertices(g, qv))
+end
+
+# Special case so that `subgraph(g, QuotientVertex(v))` returns an unpartitioned graph.
+function NamedGraphs.induced_subgraph_from_vertices(
+        g::AbstractGraph, subvertices::SubVertices{<:QuotientVertex}
+    )
+    sg, vs = NamedGraphs.induced_subgraph_from_vertices(g, subvertices.vertices)
+    return unpartitioned_graph(sg), vs
 end
