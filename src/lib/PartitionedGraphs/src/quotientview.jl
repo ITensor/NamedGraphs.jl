@@ -1,6 +1,7 @@
 using Graphs: AbstractGraph, rem_vertex!, rem_edge!, vertices, edges
-using .GraphsExtensions: directed_graph_type, undirected_graph_type
 using ..NamedGraphs: NamedGraph, position_graph_type
+using .GraphsExtensions: directed_graph_type, undirected_graph_type
+using ..SimilarType: similar_type
 
 struct QuotientView{V, G <: AbstractGraph} <: AbstractNamedGraph{V}
     graph::G
@@ -49,4 +50,8 @@ for f in [
             return $f(copy(g), args...; kwargs...)
         end
     end
+end
+
+function NamedGraphs.SimilarType.similar_type(type::Type{<:QuotientView})
+    return similar_type(quotient_graph_type(parent_graph_type(type)))
 end
