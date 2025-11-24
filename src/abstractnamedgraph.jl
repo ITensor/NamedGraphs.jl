@@ -2,6 +2,7 @@ using Dictionaries: set!
 using Graphs:
     Graphs,
     AbstractGraph,
+    AbstractSimpleGraph,
     IsDirected,
     a_star,
     add_edge!,
