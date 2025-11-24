@@ -2,7 +2,7 @@ using Dictionaries: Dictionary
 using Graphs:
     AbstractEdge, AbstractGraph, add_edge!, edges, has_edge, induced_subgraph, vertices, dst, src, edgetype
 using ..NamedGraphs: NamedGraphs, NamedEdge, NamedGraph
-using ..NamedGraphs.GraphsExtensions: GraphsExtensions, boundary_edges, is_self_loop, partition_vertices
+using ..NamedGraphs.GraphsExtensions: GraphsExtensions, boundary_edges, is_self_loop, partition_vertices, directed_graph_type, undirected_graph_type
 using ..NamedGraphs.OrderedDictionaries: OrderedDictionary
 
 # TODO: Parametrize `partitioned_vertices` and `which_partition`,
@@ -175,4 +175,12 @@ function NamedGraphs.induced_subgraph_from_vertices(
     )
     sg, vs = NamedGraphs.induced_subgraph_from_vertices(pg, subvertices.vertices)
     return unpartitioned_graph(sg), vs
+end
+
+
+function GraphsExtensions.directed_graph_type(type::Type{<:PartitionedGraph})
+    return directed_graph_type(unpartitioned_graph_type(type))
+end
+function GraphsExtensions.undirected_graph_type(type::Type{<:PartitionedGraph})
+    return undirected_graph_type(unpartitioned_graph_type(type))
 end
