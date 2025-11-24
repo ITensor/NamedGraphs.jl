@@ -40,9 +40,9 @@ function Graphs.rem_edge!(qg::QuotientView, v)
 end
 
 for f in [
+        :(NamedGraphs.vertex_positions),
         :(NamedGraphs.induced_subgraph_from_vertices),
         :(NamedGraphs.ordered_vertices),
-        :(NamedGraphs.vertex_positions),
         :(NamedGraphs.position_graph),
     ]
     @eval begin

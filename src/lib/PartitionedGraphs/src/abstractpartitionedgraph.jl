@@ -2,6 +2,7 @@ using Dictionaries: Dictionary
 using Graphs:
     AbstractEdge,
     AbstractGraph,
+    AbstractSimpleGraph,
     Graphs,
     add_vertex!,
     dst,
@@ -13,16 +14,33 @@ using Graphs:
     vertices
 using ..NamedGraphs: NamedGraphs, AbstractNamedGraph, NamedGraph
 using ..NamedGraphs.GraphsExtensions:
-    GraphsExtensions, add_vertices!, not_implemented, rem_vertices!, subgraph, vertextype
+    GraphsExtensions,
+    add_vertices!,
+    graph_from_vertices,
+    not_implemented,
+    rem_vertices!,
+    similar_graph,
+    subgraph,
+    vertextype
 
 # For you own graph type `g`, you should define a method for this function if you
 # desire custom partitioning.
 partitioned_vertices(g::AbstractGraph) = [vertices(g)]
 
+# This is not part of the interface. The interface function is
+# `GraphExtensions.graph_from_vertices`, but for now just use a default for
+# an `AbstractNamedGraph`.
+function _quotient_graph_from_vertices(g::AbstractSimpleGraph, vertices)
+    return graph_from_vertices(g, vertices)
+end
+function _quotient_graph_from_vertices(::AbstractGraph, vertices)
+    return NamedGraph(vertices)
+end
+
 # For fast quotient edge checking and graph construction, one should overload this function.
 function quotient_graph(g::AbstractGraph)
 
-    qg = NamedGraph(keys(partitioned_vertices(g)))
+    qg = _quotient_graph_from_vertices(g, keys(partitioned_vertices(g)))
 
     for e in edges(g)
         qv_src = parent(quotientvertex(g, src(e)))
