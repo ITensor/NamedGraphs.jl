@@ -45,6 +45,7 @@ abstract type AbstractNamedGraph{V} <: AbstractGraph{V} end
 
 Graphs.vertices(graph::AbstractNamedGraph) = not_implemented()
 position_graph(graph::AbstractNamedGraph) = not_implemented()
+position_graph(graph::AbstractSimpleGraph) = graph
 
 Graphs.rem_vertex!(graph::AbstractNamedGraph, vertex) = not_implemented()
 Graphs.add_vertex!(graph::AbstractNamedGraph, vertex) = not_implemented()
