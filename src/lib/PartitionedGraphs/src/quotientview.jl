@@ -55,3 +55,5 @@ end
 function NamedGraphs.SimilarType.similar_type(type::Type{<:QuotientView})
     return similar_type(quotient_graph_type(parent_graph_type(type)))
 end
+
+quotientview(g::AbstractGraph) = QuotientView(g)
