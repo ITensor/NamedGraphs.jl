@@ -19,7 +19,6 @@ using ..NamedGraphs.GraphsExtensions:
     graph_from_vertices,
     not_implemented,
     rem_vertices!,
-    similar_graph,
     subgraph,
     vertextype
 
