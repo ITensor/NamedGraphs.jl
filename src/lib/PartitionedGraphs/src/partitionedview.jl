@@ -9,3 +9,8 @@ end
 
 unpartitioned_graph(pv::PartitionedView) = getfield(pv, :graph)
 partitioned_vertices(pv::PartitionedView) = getfield(pv, :partitioned_vertices)
+
+# So partitions of `AbstractSimpleGraph` make `AbstractSimpleGraph`s
+function _quotient_graph_from_vertices(graph::PartitionedView, vertices)
+    return _quotient_graph_from_vertices(unpartitioned_graph(graph), vertices)
+end

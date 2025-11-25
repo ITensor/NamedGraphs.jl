@@ -2,6 +2,7 @@ using Dictionaries: Dictionary
 using Graphs:
     AbstractEdge,
     AbstractGraph,
+    AbstractSimpleGraph,
     Graphs,
     add_vertex!,
     dst,
@@ -13,16 +14,25 @@ using Graphs:
     vertices
 using ..NamedGraphs: NamedGraphs, AbstractNamedGraph, NamedGraph
 using ..NamedGraphs.GraphsExtensions:
-    GraphsExtensions, add_vertices!, not_implemented, rem_vertices!, subgraph, vertextype
+    GraphsExtensions,
+    add_vertices!,
+    graph_from_vertices,
+    not_implemented,
+    rem_vertices!,
+    subgraph,
+    vertextype
 
 # For you own graph type `g`, you should define a method for this function if you
 # desire custom partitioning.
 partitioned_vertices(g::AbstractGraph) = [vertices(g)]
 
+function edgeless_quotient_graph(g::AbstractGraph)
+    return NamedGraph(keys(partitioned_vertices(g)))
+end
 # For fast quotient edge checking and graph construction, one should overload this function.
 function quotient_graph(g::AbstractGraph)
 
-    qg = NamedGraph(keys(partitioned_vertices(g)))
+    qg = edgeless_quotient_graph(g)
 
     for e in edges(g)
         qv_src = parent(quotientvertex(g, src(e)))

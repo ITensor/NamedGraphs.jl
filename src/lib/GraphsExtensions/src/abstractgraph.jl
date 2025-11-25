@@ -52,6 +52,9 @@ function convert_vertextype(V::Type, graph::AbstractGraph)
     return not_implemented()
 end
 
+function graph_from_vertices(graph::AbstractGraph, vertices)
+    return graph_from_vertices(typeof(graph), vertices)
+end
 function graph_from_vertices(graph_type::Type{<:AbstractGraph}, vertices)
     return graph_type(vertices)
 end
