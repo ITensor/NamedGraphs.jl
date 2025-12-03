@@ -180,9 +180,23 @@ function NamedGraphs.induced_subgraph_from_vertices(
 end
 
 
-function GraphsExtensions.directed_graph_type(type::Type{<:PartitionedGraph})
-    return directed_graph_type(unpartitioned_graph_type(type))
+function GraphsExtensions.undirected_graph(g::PartitionedGraph)
+    dg = GraphsExtensions.undirected_graph(unpartitioned_graph(g))
+    return PartitionedGraph(dg, partitioned_vertices(g))
 end
-function GraphsExtensions.undirected_graph_type(type::Type{<:PartitionedGraph})
-    return undirected_graph_type(unpartitioned_graph_type(type))
+function GraphsExtensions.directed_graph(g::PartitionedGraph)
+    dg = GraphsExtensions.directed_graph(unpartitioned_graph(g))
+    return PartitionedGraph(dg, partitioned_vertices(g))
+end
+function GraphsExtensions.undirected_graph_type(type::Type{<:PartitionedGraph{V, PV}}) where {V, PV}
+    UG = undirected_graph_type(unpartitioned_graph_type(type))
+    QG = undirected_graph_type(quotient_graph_type(type))
+    P = fieldtype(type, :partitioned_vertices)
+    return PartitionedGraph{V, PV, UG, QG, P}
+end
+function GraphsExtensions.directed_graph_type(type::Type{<:PartitionedGraph{V, PV}}) where {V, PV}
+    DG = directed_graph_type(unpartitioned_graph_type(type))
+    QG = directed_graph_type(quotient_graph_type(type))
+    P = fieldtype(type, :partitioned_vertices)
+    return PartitionedGraph{V, PV, DG, QG, P}
 end

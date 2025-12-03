@@ -10,6 +10,10 @@ end
 unpartitioned_graph(pv::PartitionedView) = getfield(pv, :graph)
 partitioned_vertices(pv::PartitionedView) = getfield(pv, :partitioned_vertices)
 
+function unpartitioned_graph_type(graph_type::Type{<:PartitionedView})
+    return fieldtype(graph_type, :graph)
+end
+
 # So partitions of `AbstractSimpleGraph` make `AbstractSimpleGraph`s
 function _quotient_graph_from_vertices(graph::PartitionedView, vertices)
     return _quotient_graph_from_vertices(unpartitioned_graph(graph), vertices)
