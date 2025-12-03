@@ -107,6 +107,7 @@ end
 #
 
 position_graph_type(graph::AbstractNamedGraph) = typeof(position_graph(graph))
+position_graph_type(T::Type{<:AbstractNamedGraph}) = Base.promote_op(position_graph, T)
 
 function Graphs.has_vertex(graph::AbstractNamedGraph, vertex)
     # TODO: `vertices` should have fast lookup!
