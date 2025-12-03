@@ -43,7 +43,7 @@ function quotient_graph(g::AbstractGraph)
     for e in edges(g)
         qv_src = parent(quotientvertex(g, src(e)))
         qv_dst = parent(quotientvertex(g, dst(e)))
-        qe = qv_src => qv_dst
+        qe = edgetype(qg)(qv_src => qv_dst)
         if qv_src != qv_dst && !has_edge(qg, qe)
             add_edge!(qg, qe)
         end
