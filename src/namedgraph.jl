@@ -171,10 +171,10 @@ end
 GenericNamedGraph() = GenericNamedGraph(Any[])
 
 function GenericNamedGraph(graph::GenericNamedGraph)
-    return GenericNamedGraph{vertextype(graph), position_graph_type(graph_type)}(graph)
+    return GenericNamedGraph{vertextype(graph), position_graph_type(graph)}(graph)
 end
 function GenericNamedGraph{V}(graph::GenericNamedGraph) where {V}
-    return GenericNamedGraph{V, position_graph_type(graph_type)}(graph)
+    return GenericNamedGraph{V, position_graph_type(graph)}(graph)
 end
 function GenericNamedGraph{<:Any, G}(
         graph::GenericNamedGraph
