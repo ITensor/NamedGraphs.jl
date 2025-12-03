@@ -12,7 +12,7 @@ using Graphs:
     rem_vertex!,
     src,
     vertices
-using ..NamedGraphs: NamedGraphs, AbstractNamedGraph, NamedGraph
+using ..NamedGraphs: NamedGraphs, AbstractNamedGraph, NamedGraph, NamedDiGraph
 using ..NamedGraphs.GraphsExtensions:
     GraphsExtensions,
     add_vertices!,
@@ -26,9 +26,15 @@ using ..NamedGraphs.GraphsExtensions:
 # desire custom partitioning.
 partitioned_vertices(g::AbstractGraph) = [vertices(g)]
 
+#TODO: Write this in terms of traits
 function edgeless_quotient_graph(g::AbstractGraph)
-    return NamedGraph(keys(partitioned_vertices(g)))
+    if is_directed(g)
+        return NamedDiGraph(keys(partitioned_vertices(g)))
+    else
+        return NamedGraph(keys(partitioned_vertices(g)))
+    end
 end
+
 # For fast quotient edge checking and graph construction, one should overload this function.
 function quotient_graph(g::AbstractGraph)
 
