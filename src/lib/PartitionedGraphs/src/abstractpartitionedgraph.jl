@@ -133,12 +133,6 @@ function unpartitioned_graph_type(pg::AbstractPartitionedGraph)
     return typeof(unpartitioned_graph(pg))
 end
 
-
-# AbstractGraph interface.
-function Graphs.is_directed(graph_type::Type{<:AbstractPartitionedGraph})
-    return is_directed(unpartitioned_graph_type(graph_type))
-end
-
 #Functions for the abstract type
 Graphs.vertices(pg::AbstractPartitionedGraph) = vertices(unpartitioned_graph(pg))
 Graphs.edges(pg::AbstractPartitionedGraph) = edges(unpartitioned_graph(pg))
