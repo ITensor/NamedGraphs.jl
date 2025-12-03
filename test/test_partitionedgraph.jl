@@ -255,16 +255,22 @@ Graphs.vertices(mg::MyUnpartitionedGraph) = vertices(mg.g)
 Graphs.edgetype(mg::MyUnpartitionedGraph) = edgetype(mg.g)
 Graphs.has_edge(mg::MyUnpartitionedGraph, e) = has_edge(mg.g, e)
 
+Graphs.is_directed(mg::MyUnpartitionedGraph) = is_directed(mg.g)
+
 struct MyGraph{V, P} <: AbstractGraph{V}
     g::NamedGraph{V}
     partitioned_vertices::P
 end
+
 
 Graphs.edges(mg::MyGraph) = edges(mg.g)
 Graphs.vertices(mg::MyGraph) = vertices(mg.g)
 
 Graphs.edgetype(mg::MyGraph) = edgetype(mg.g)
 Graphs.has_edge(mg::MyGraph, e) = has_edge(mg.g, e)
+
+Graphs.is_directed(mg::MyGraph) = is_directed(mg.g)
+NamedGraphs.position_graph(mg::MyGraph) = NamedGraphs.position_graph(mg.g)
 
 PartitionedGraphs.partitioned_vertices(mg::MyGraph) = mg.partitioned_vertices
 PartitionedGraphs.quotient_graph_type(::Type{<:MyGraph}) = NamedGraph{Int}
@@ -286,6 +292,9 @@ end
 
 Graphs.edges(wg::WrapperGraph) = edges(wg.g)
 Graphs.vertices(wg::WrapperGraph) = vertices(wg.g)
+
+Graphs.is_directed(wg::WrapperGraph) = is_directed(wg.g)
+NamedGraphs.position_graph(wg::WrapperGraph) = NamedGraphs.position_graph(wg.g)
 
 PartitionedGraphs.partitioned_vertices(wg::WrapperGraph) = partitioned_vertices(wg.g)
 
