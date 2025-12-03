@@ -35,7 +35,8 @@ using .GraphsExtensions:
     incident_edges,
     partition_vertices,
     rename_vertices,
-    subgraph
+    subgraph,
+    graph_from_vertices
 using SimpleTraits: SimpleTraits, Not, @traitfn
 
 abstract type AbstractNamedGraph{V} <: AbstractGraph{V} end
@@ -63,10 +64,12 @@ end
 # graph `position_graph(graph::AbstractNamedGraph)`.
 # Inverse map of `ordered_vertices`.
 vertex_positions(graph::AbstractNamedGraph) = not_implemented()
+vertex_positions(graph::AbstractSimpleGraph) = vertices(graph)
 
 # Outputs an object that when indexed by a vertex position
 # returns the corresponding vertex.
 ordered_vertices(graph::AbstractNamedGraph) = not_implemented()
+ordered_vertices(graph::AbstractSimpleGraph) = vertices(graph)
 
 Graphs.edgetype(graph::AbstractNamedGraph) = edgetype(typeof(graph))
 Graphs.edgetype(::Type{<:AbstractNamedGraph}) = not_implemented()
@@ -113,16 +116,6 @@ end
 Graphs.SimpleDiGraph(graph::AbstractNamedGraph) = SimpleDiGraph(position_graph(graph))
 
 Base.zero(G::Type{<:AbstractNamedGraph}) = G()
-
-# TODO: Implement using `copyto!`?
-function GraphsExtensions.directed_graph(graph::AbstractNamedGraph)
-    digraph = directed_graph_type(typeof(graph))(vertices(graph))
-    for e in edges(graph)
-        add_edge!(digraph, e)
-        add_edge!(digraph, reverse(e))
-    end
-    return digraph
-end
 
 # Default, can overload
 Base.eltype(graph::AbstractNamedGraph) = eltype(vertices(graph))
@@ -495,9 +488,7 @@ end
 # traversal algorithms.
 function Graphs.tree(graph::AbstractNamedGraph, parents)
     n = length(parents)
-    # TODO: Use `directed_graph` here to make more generic?
-    ## t = GenericNamedGraph(DiGraph(n), vertices(graph))
-    t = directed_graph_type(typeof(graph))(vertices(graph))
+    t = graph_from_vertices(directed_graph_type(typeof(graph)), vertices(graph))
     for destination in eachindex(parents)
         source = parents[destination]
         if source != destination
