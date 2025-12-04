@@ -52,16 +52,33 @@ function convert_vertextype(V::Type, graph::AbstractGraph)
     return not_implemented()
 end
 
-function graph_from_vertices(graph::AbstractGraph, vertices)
-    return graph_from_vertices(typeof(graph), vertices)
+similar_graph(graph::AbstractGraph) = similar_graph(typeof(graph), vertices(graph))
+function similar_graph(T::Type{<:AbstractGraph})
+    try
+        return T()
+    catch e
+        if e isa MethodError
+            return not_implemented()
+        else
+            rethrow(e)
+        end
+    end
 end
-function graph_from_vertices(graph_type::Type{<:AbstractGraph}, vertices)
-    return graph_type(vertices)
+
+function similar_graph(graph, vertices)
+    new_graph = convert_vertextype(eltype(vertices), similar_graph(graph))
+    add_vertices!(new_graph, vertices)
+    return new_graph
+end
+function similar_graph(graph, vertices, edges)
+    new_graph = similar_graph(graph, vertices)
+    add_edges!(new_graph, edges)
+    return new_graph
 end
 
 # TODO: Handle metadata in a generic way
 @traitfn function directed_graph(graph::::(!IsDirected))
-    digraph = graph_from_vertices(directed_graph_type(graph), vertices(graph))
+    digraph = similar_graph(directed_graph_type(graph), vertices(graph))
     for e in edges(graph)
         add_edge!(digraph, e)
         add_edge!(digraph, reverse(e))
@@ -77,7 +94,7 @@ end
 # to avoid method overwrite warnings, see:
 # https://github.com/mauro3/SimpleTraits.jl#method-overwritten-warnings
 @traitfn function undirected_graph(graph::::IsDirected)
-    undigraph = graph_from_vertices(undirected_graph_type(typeof(graph)), vertices(graph))
+    undigraph = similar_graph(undirected_graph_type(typeof(graph)), vertices(graph))
     for e in edges(graph)
         # TODO: Check for repeated edges?
         add_edge!(undigraph, e)

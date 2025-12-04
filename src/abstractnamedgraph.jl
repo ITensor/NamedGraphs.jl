@@ -36,7 +36,7 @@ using .GraphsExtensions:
     partition_vertices,
     rename_vertices,
     subgraph,
-    graph_from_vertices
+    similar_graph
 using SimpleTraits: SimpleTraits, Not, @traitfn
 
 abstract type AbstractNamedGraph{V} <: AbstractGraph{V} end
@@ -489,7 +489,7 @@ end
 # traversal algorithms.
 function Graphs.tree(graph::AbstractNamedGraph, parents)
     n = length(parents)
-    t = graph_from_vertices(directed_graph_type(typeof(graph)), vertices(graph))
+    t = similar_graph(directed_graph_type(typeof(graph)), vertices(graph))
     for destination in eachindex(parents)
         source = parents[destination]
         if source != destination
