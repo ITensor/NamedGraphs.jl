@@ -1,8 +1,24 @@
 using Dictionaries: Dictionary
 using Graphs:
-    AbstractEdge, AbstractGraph, add_edge!, edges, has_edge, induced_subgraph, vertices, dst, src, edgetype
+    AbstractEdge,
+    AbstractGraph,
+    add_edge!,
+    edges,
+    has_edge,
+    induced_subgraph,
+    vertices,
+    dst,
+    src,
+    edgetype
 using ..NamedGraphs: NamedGraphs, NamedEdge, NamedGraph
-using ..NamedGraphs.GraphsExtensions: GraphsExtensions, boundary_edges, is_self_loop, partition_vertices, directed_graph_type, undirected_graph_type
+using ..NamedGraphs.GraphsExtensions:
+    GraphsExtensions,
+    boundary_edges,
+    is_self_loop,
+    partition_vertices,
+    directed_graph_type,
+    undirected_graph_type,
+    vertextype
 using ..NamedGraphs.OrderedDictionaries: OrderedDictionary
 
 # TODO: Parametrize `partitioned_vertices` and `which_partition`,

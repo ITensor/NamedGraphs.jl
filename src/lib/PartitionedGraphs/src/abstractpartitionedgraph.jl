@@ -16,29 +16,31 @@ using ..NamedGraphs: NamedGraphs, AbstractNamedGraph, NamedGraph, NamedDiGraph
 using ..NamedGraphs.GraphsExtensions:
     GraphsExtensions,
     add_vertices!,
-    graph_from_vertices,
     not_implemented,
     rem_vertices!,
     subgraph,
-    vertextype
+    convert_vertextype
 
 # For you own graph type `g`, you should define a method for this function if you
 # desire custom partitioning.
 partitioned_vertices(g::AbstractGraph) = [vertices(g)]
 
 #TODO: Write this in terms of traits
-function edgeless_quotient_graph(g::AbstractGraph)
+function similar_quotient_graph(g::AbstractGraph)
     if is_directed(g)
-        return NamedDiGraph(keys(partitioned_vertices(g)))
+        sg = NamedDiGraph()
     else
-        return NamedGraph(keys(partitioned_vertices(g)))
+        sg = NamedGraph()
     end
+    return convert_vertextype(keytype(partitioned_vertices(g)), sg)
 end
 
 # For fast quotient edge checking and graph construction, one should overload this function.
 function quotient_graph(g::AbstractGraph)
 
-    qg = edgeless_quotient_graph(g)
+    qg = similar_quotient_graph(g)
+
+    add_vertices!(qg, keys(partitioned_vertices(g)))
 
     for e in edges(g)
         qv_src = parent(quotientvertex(g, src(e)))
