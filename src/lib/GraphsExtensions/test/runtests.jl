@@ -11,6 +11,7 @@ using AbstractTrees:
     rootindex
 using Dictionaries: Dictionary, Indices
 using Graphs:
+    AbstractGraph,
     add_edge!,
     add_vertex!,
     dst,
@@ -44,6 +45,7 @@ using NamedGraphs.GraphsExtensions:
     add_edge,
     add_edges,
     add_edges!,
+    add_vertices!,
     all_edges,
     arrange_edge,
     arranged_edges,
@@ -83,6 +85,7 @@ using NamedGraphs.GraphsExtensions:
     rem_edges!,
     rename_vertices,
     root_vertex,
+    similar_graph,
     subgraph,
     tree_graph_node,
     undirected_graph,
@@ -108,6 +111,7 @@ using Test: @test, @test_broken, @test_throws, @testset
 # - random_bfs_tree
 
 @testset "NamedGraphs.GraphsExtensions" begin
+
     # has_vertices
     g = path_graph(4)
     @test has_vertices(g, 1:3)
@@ -551,6 +555,29 @@ using Test: @test, @test_broken, @test_throws, @testset
     add_edge!(g, 7 => 1)
     @test_throws ErrorException root_vertex(g)
     @test_throws MethodError root_vertex(binary_tree(3))
+
+    # similar_graph
+    g = path_graph(4)
+    @test similar_graph(g) isa typeof(g)
+    @test similar_graph(typeof(g)) isa typeof(g)
+    @test similar_graph(g, vertices(g), edges(g)) == g
+    @test !(similar_graph(g, vertices(g), edges(g)) === g)
+    sg = similar_graph(g, vertices(g))
+    @test vertices(sg) == vertices(g)
+    @test isempty(edges(sg))
+
+    struct Graph <: AbstractGraph{Int}
+        field
+    end
+
+    g = Graph(1)
+    @test_throws "Not implemented" similar_graph(g)
+
+    # add_vertices!
+    g = path_graph(4)
+    add_vertices!(g, vertices(g))
+    @test nv(g) == 8
+    @test_throws MethodError add_vertices!(g, [2, 3])
 
     # add_edge
     g = SimpleGraph(4)

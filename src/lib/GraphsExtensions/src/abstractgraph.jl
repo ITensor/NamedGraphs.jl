@@ -52,7 +52,7 @@ function convert_vertextype(V::Type, graph::AbstractGraph)
     return not_implemented()
 end
 
-similar_graph(graph::AbstractGraph) = similar_graph(typeof(graph), vertices(graph))
+similar_graph(graph::AbstractGraph) = similar_graph(typeof(graph))
 function similar_graph(T::Type{<:AbstractGraph})
     try
         return T()
