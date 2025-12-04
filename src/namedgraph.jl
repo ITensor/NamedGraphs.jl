@@ -240,6 +240,14 @@ function Graphs.induced_subgraph(
     return induced_subgraph_from_vertices(graph, to_vertices(graph, subvertices))
 end
 
+function Base.reverse!(graph::GenericNamedGraph)
+    reverse!(graph.position_graph)
+    return graph
+end
+function Base.reverse(graph::GenericNamedGraph)
+    return GenericNamedGraph(reverse(graph.position_graph), copy(graph.vertices))
+end
+
 #
 # Type aliases
 #

@@ -432,11 +432,20 @@ Graphs.is_connected(graph::AbstractNamedGraph) = is_connected(position_graph(gra
 Graphs.is_cyclic(graph::AbstractNamedGraph) = is_cyclic(position_graph(graph))
 
 @traitfn function Base.reverse(graph::AbstractNamedGraph::IsDirected)
-    return not_implemented()
+    return similar_graph(graph, vertices, map(reverse, collect(edges(graph))))
 end
 
+# This wont be the most efficient way for a given graph type.
 @traitfn function Base.reverse!(g::AbstractNamedGraph::IsDirected)
-    return not_implemented()
+
+    edge_list = edges(g)
+
+    for edge in edge_list
+        rem_edge!(g, edge)
+        add_edge!(g, reverse(edge))
+    end
+
+    return g
 end
 
 # TODO: Move to `namedgraph.jl`, or make the output generic?
