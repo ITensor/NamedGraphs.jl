@@ -299,7 +299,6 @@ end
         @test h[1] == 2
 
         rg = reverse(g)
-        @warn edges(rg)
 
         @test !has_edge(rg, "A" => "B")
         @test !has_edge(rg, "B" => "C")
