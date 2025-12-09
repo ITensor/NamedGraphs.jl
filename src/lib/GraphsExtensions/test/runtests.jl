@@ -571,7 +571,7 @@ using Test: @test, @test_broken, @test_throws, @testset
     end
 
     g = Graph(1)
-    @test_throws "Not implemented" similar_graph(g)
+    @test_throws MethodError similar_graph(g)
 
     # add_vertices!
     g = path_graph(4)
