@@ -218,7 +218,7 @@ end
 # Assumes the subvertices were already processed by `to_vertices`.
 # TODO: Implement an edgelist version
 function induced_subgraph_from_vertices(graph::AbstractGraph, subvertices)
-    subgraph = typeof(graph)(subvertices)
+    subgraph = similar_graph(graph, subvertices)
     subvertices_set = Set(subvertices)
     for src in subvertices
         for dst in outneighbors(graph, src)
