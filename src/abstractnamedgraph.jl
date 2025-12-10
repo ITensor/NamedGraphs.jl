@@ -438,7 +438,7 @@ end
 # This wont be the most efficient way for a given graph type.
 @traitfn function Base.reverse!(g::AbstractNamedGraph::IsDirected)
 
-    edge_list = edges(g)
+    edge_list = collect(edges(g))
 
     for edge in edge_list
         rem_edge!(g, edge)
