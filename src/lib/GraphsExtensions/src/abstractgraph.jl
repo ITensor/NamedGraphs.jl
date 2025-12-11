@@ -47,10 +47,11 @@ undirected_graph_type(g::AbstractGraph) = undirected_graph_type(typeof(g))
 
 @traitfn directed_graph(graph::::IsDirected) = graph
 
-convert_vertextype(::Type{V}, graph::AbstractGraph{V}) where {V} = graph
-function convert_vertextype(V::Type, graph::AbstractGraph)
-    return not_implemented()
-end
+convert_vertextype(::Type{V}, G::AbstractGraph{V}) where {V} = G
+convert_vertextype(::Type, ::AbstractGraph) = not_implemented()
+
+convert_vertextype(::Type{V}, G::Type{<:AbstractGraph{V}}) where {V} = G
+convert_vertextype(::Type, ::Type{<:AbstractGraph}) = not_implemented()
 
 similar_graph(graph::AbstractGraph) = similar_graph(typeof(graph))
 similar_graph(T::Type{<:AbstractGraph}) = T()
@@ -67,7 +68,7 @@ function similar_graph(graph, vertices, edges)
 end
 
 function similar_graph(graph::AbstractGraph, vertex_type::Type)
-    new_graph = similar_graph(convert_vertextype(vertex_type, typeof(graph)))
+    new_graph = convert_vertextype(vertex_type, similar_graph(typeof(graph)))
     return new_graph
 end
 
