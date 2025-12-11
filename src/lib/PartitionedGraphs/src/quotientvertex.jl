@@ -1,5 +1,5 @@
 using Graphs: AbstractGraph, Graphs, nv, induced_subgraph
-using ..NamedGraphs: NamedGraphs, AbstractNamedGraph
+using ..NamedGraphs: NamedGraphs, AbstractNamedGraph, AbstractVertices, Vertices, Edges
 using ..NamedGraphs.GraphsExtensions: GraphsExtensions, rem_vertices!, subgraph
 using ..NamedGraphs.OrderedDictionaries: OrderedIndices
 
@@ -86,4 +86,16 @@ function NamedGraphs.induced_subgraph_from_vertices(
     )
     sg, vs = NamedGraphs.induced_subgraph_from_vertices(g, subvertices.vertices)
     return unpartitioned_graph(sg), vs
+end
+
+struct QuotientVertexVertices{V, QV} <: AbstractVertices{V}
+    parent::QuotientVertex{QV}
+    vertices::Vertices{V}
+end
+
+Graphs.vertices(qvs::QuotientVertexVertices) = getfield(qvs, :vertices)
+quotientvertex(qvs::QuotientVertexVertices) = getfield(qvs, :parent)
+
+function NamedGraphs.to_graph_indices(g, qv::QuotientVertex)
+    return QuotientVertexVertices(qv, Vertices(collect(vertices(g, qv))))
 end
