@@ -6,6 +6,12 @@ end
 
 # https://github.com/JuliaGraphs/Graphs.jl/issues/365
 similar_graph(graph_type::Type{<:AbstractSimpleGraph}) = graph_type()
+function similar_graph(graph::AbstractSimpleGraph, vertices::Base.OneTo)
+    return similar_graph(typeof(graph), vertices)
+end
+function similar_graph(graph_type::Type{<:AbstractSimpleGraph}, vertices::Base.OneTo)
+    return graph_type(length(vertices))
+end
 
 function convert_vertextype(vertextype::Type, graph::AbstractSimpleGraph)
     return not_implemented()
@@ -27,10 +33,3 @@ undirected_graph_type(G::Type{<:SimpleGraph}) = G
 # TODO: Use traits to make this more general.
 directed_graph_type(G::Type{<:SimpleDiGraph}) = G
 undirected_graph_type(G::Type{<:SimpleDiGraph}) = SimpleGraph{vertextype(G)}
-
-function add_vertices!(graph::AbstractSimpleGraph, vertices::Base.OneTo{Int})
-    for _ in vertices
-        add_vertex!(graph)
-    end
-    return graph
-end

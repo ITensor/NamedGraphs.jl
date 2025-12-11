@@ -573,12 +573,6 @@ using Test: @test, @test_broken, @test_throws, @testset
     g = Graph(1)
     @test_throws MethodError similar_graph(g)
 
-    # add_vertices!
-    g = path_graph(4)
-    add_vertices!(g, vertices(g))
-    @test nv(g) == 8
-    @test_throws MethodError add_vertices!(g, [2, 3])
-
     # add_edge
     g = SimpleGraph(4)
     add_edge!(g, 1 => 2)
