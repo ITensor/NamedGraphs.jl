@@ -5,8 +5,11 @@ function permute_vertices(graph::AbstractSimpleGraph, permutation)
 end
 
 # https://github.com/JuliaGraphs/Graphs.jl/issues/365
-function graph_from_vertices(graph_type::Type{<:AbstractSimpleGraph}, vertices)
-    @assert vertices == Base.OneTo(length(vertices))
+similar_graph(graph_type::Type{<:AbstractSimpleGraph}) = graph_type()
+function similar_graph(graph::AbstractSimpleGraph, vertices::Base.OneTo)
+    return similar_graph(typeof(graph), vertices)
+end
+function similar_graph(graph_type::Type{<:AbstractSimpleGraph}, vertices::Base.OneTo)
     return graph_type(length(vertices))
 end
 

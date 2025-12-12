@@ -1,5 +1,5 @@
 using Graphs: AbstractGraph, Graphs, AbstractEdge, dst, src, ne, has_edge
-using ..NamedGraphs: AbstractNamedEdge
+using ..NamedGraphs: NamedGraphs, AbstractNamedGraph, AbstractNamedEdge, AbstractEdges, Edges
 using ..NamedGraphs.GraphsExtensions: GraphsExtensions, not_implemented, rem_edges!, rem_edge
 
 """
@@ -100,3 +100,17 @@ function GraphsExtensions.rem_edges!(g::AbstractGraph, sv::QuotientEdge)
 end
 
 rem_quotientedge!(g::AbstractGraph, sv::QuotientEdge) = rem_edges!(g, sv)
+
+struct QuotientEdgeEdges{V, E, QE, Es} <: AbstractEdges{V, E}
+    quotientedge::QuotientEdge{QE}
+    edges::Edges{V, E, Es}
+end
+
+quotient_index(qes::QuotientEdgeEdges) = getfield(qes, :quotientedge)
+departition(qes::QuotientEdgeEdges) = getfield(qes, :edges)
+
+NamedGraphs.parent_graph_indices(qes::QuotientEdgeEdges) = departition(qes)
+
+function NamedGraphs.to_graph_indices(g, qe::QuotientEdge)
+    return QuotientEdgeEdges(qe, Edges(collect(edges(g, qe))))
+end

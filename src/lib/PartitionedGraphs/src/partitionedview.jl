@@ -9,3 +9,7 @@ end
 
 unpartitioned_graph(pv::PartitionedView) = getfield(pv, :graph)
 partitioned_vertices(pv::PartitionedView) = getfield(pv, :partitioned_vertices)
+
+function unpartitioned_graph_type(graph_type::Type{<:PartitionedView})
+    return fieldtype(graph_type, :graph)
+end
