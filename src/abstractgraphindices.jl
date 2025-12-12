@@ -1,40 +1,32 @@
 using Graphs: AbstractEdge
 
-abstract type AbstractGraphIndices{T} <: AbstractVector{T} end
+abstract type AbstractGraphIndices{T} end
 abstract type AbstractVertices{V} <: AbstractGraphIndices{V} end
 abstract type AbstractEdges{V, E <: AbstractEdge{V}} <: AbstractGraphIndices{E} end
 
-struct Vertices{V} <: AbstractVertices{V}
-    vertices::Vector{V}
+struct Vertices{V, Vs} <: AbstractVertices{V}
+    vertices::Vs
+    Vertices(vertices::Vs) where {Vs} = new{eltype(Vs), Vs}(vertices)
 end
-struct Edges{V, E} <: AbstractEdges{V, E}
-    edges::Vector{E}
-    Edges(edges::Vector{E}) where {V, E <: AbstractEdge{V}} = new{V, E}(edges)
+struct Edges{V, E <: AbstractEdge{V}, Es} <: AbstractEdges{V, E}
+    edges::Es
+    function Edges(edges::Es) where {Es}
+        E = eltype(Es)
+        return new{vertextype{E}, E, Es}(edges)
+    end
 end
 
-Graphs.vertices(vs::Vertices) = vs.vertices
-Graphs.edges(es::Edges) = es.edges
+parent_graph_indices(vs::AbstractVertices) = vs.vertices
+parent_graph_indices(es::AbstractEdges) = es.edges
 
 # Interface
-Base.iterate(vs::AbstractVertices) = iterate(vertices(vs))
-Base.iterate(vs::AbstractVertices, state) = iterate(vertices(vs), state)
+Base.eltype(::Type{<:AbstractGraphIndices{T}}) where {T} = T
 
-Base.iterate(es::AbstractEdges) = iterate(edges(es))
-Base.iterate(es::AbstractEdges, state) = iterate(edges(es), state)
+Base.iterate(gi::AbstractGraphIndices) = iterate(parent_graph_indices(gi))
+Base.iterate(gi::AbstractGraphIndices, state) = iterate(parent_graph_indices(gi), state)
+Base.length(gi::AbstractGraphIndices) = length(parent_graph_indices(gi))
 
-Base.length(gi::AbstractVertices) = length(vertices(gi))
-Base.length(es::AbstractEdges) = length(edges(es))
-
-# These make `show` work
-Base.size(gi::AbstractGraphIndices) = (length(gi),)
-Base.getindex(vs::AbstractVertices, vertex) = vertices(vs)[vertex]
-Base.getindex(es::AbstractEdges, vertex) = edges(es)[vertex]
-
-Base.IteratorSize(::Type{<:AbstractGraphIndices}) = Base.HasLength()
-
-# Derived
-
-Base.eltype(::AbstractGraphIndices{T}) where {T} = T
+Base.getindex(gi::AbstractGraphIndices, ind) = parent_graph_indices(gi)[ind]
 
 to_graph_indices(graph, indices) = indices
 to_graph_indices(graph, indices::Pair) = edgetype(graph)(indices)

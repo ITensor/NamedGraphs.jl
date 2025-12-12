@@ -88,13 +88,13 @@ function NamedGraphs.induced_subgraph_from_vertices(
     return unpartitioned_graph(sg), vs
 end
 
-struct QuotientVertexVertices{V, QV} <: AbstractVertices{V}
-    parent::QuotientVertex{QV}
-    vertices::Vertices{V}
+struct QuotientVertexVertices{V, QV, Vs} <: AbstractVertices{V}
+    quotientvertex::QuotientVertex{QV}
+    vertices::Vertices{V, Vs}
 end
 
-Graphs.vertices(qvs::QuotientVertexVertices) = getfield(qvs, :vertices)
-quotientvertex(qvs::QuotientVertexVertices) = getfield(qvs, :parent)
+quotient_index(qvs::QuotientVertexVertices) = getfield(qvs, :quotientvertex)
+NamedGraphs.parent_graph_indices(qvs::QuotientVertexVertices) = getfield(qvs, :vertices)
 
 function NamedGraphs.to_graph_indices(g, qv::QuotientVertex)
     return QuotientVertexVertices(qv, Vertices(collect(vertices(g, qv))))

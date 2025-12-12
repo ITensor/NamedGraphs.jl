@@ -101,13 +101,13 @@ end
 
 rem_quotientedge!(g::AbstractGraph, sv::QuotientEdge) = rem_edges!(g, sv)
 
-struct QuotientEdgeEdges{V, E, QE} <: AbstractEdges{V, E}
-    parent::QuotientEdge{QE}
-    edges::Edges{V, E}
+struct QuotientEdgeEdges{V, E, QE, Es} <: AbstractEdges{V, E}
+    quotientedge::QuotientEdge{QE}
+    edges::Edges{V, E, Es}
 end
 
-Graphs.edges(qes::QuotientEdgeEdges) = getfield(qes, :edges)
-quotientedge(qes::QuotientEdgeEdges) = getfield(qes, :parent)
+quotient_index(qes::QuotientEdgeEdges) = getfield(qes, :quotientedge)
+NamedGraphs.parent_graph_indices(qes::QuotientEdgeEdges) = getfield(qes, :edges)
 
 function NamedGraphs.to_graph_indices(g, qe::QuotientEdge)
     return QuotientEdgeEdges(qe, Edges(collect(edges(g, qe))))
