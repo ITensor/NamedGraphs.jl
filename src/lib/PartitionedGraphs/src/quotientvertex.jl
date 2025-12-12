@@ -94,7 +94,9 @@ struct QuotientVertexVertices{V, QV, Vs} <: AbstractVertices{V}
 end
 
 quotient_index(qvs::QuotientVertexVertices) = getfield(qvs, :quotientvertex)
-NamedGraphs.parent_graph_indices(qvs::QuotientVertexVertices) = getfield(qvs, :vertices)
+departition(qvs::QuotientVertexVertices) = getfield(qvs, :vertices)
+
+NamedGraphs.parent_graph_indices(qvs::QuotientVertexVertices) = departition(qvs)
 
 function NamedGraphs.to_graph_indices(g, qv::QuotientVertex)
     return QuotientVertexVertices(qv, Vertices(collect(vertices(g, qv))))

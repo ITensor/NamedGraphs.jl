@@ -107,7 +107,9 @@ struct QuotientEdgeEdges{V, E, QE, Es} <: AbstractEdges{V, E}
 end
 
 quotient_index(qes::QuotientEdgeEdges) = getfield(qes, :quotientedge)
-NamedGraphs.parent_graph_indices(qes::QuotientEdgeEdges) = getfield(qes, :edges)
+departition(qes::QuotientEdgeEdges) = getfield(qes, :edges)
+
+NamedGraphs.parent_graph_indices(qes::QuotientEdgeEdges) = departition(qes)
 
 function NamedGraphs.to_graph_indices(g, qe::QuotientEdge)
     return QuotientEdgeEdges(qe, Edges(collect(edges(g, qe))))
