@@ -57,7 +57,7 @@ similar_graph(graph::AbstractGraph) = similar_graph(typeof(graph))
 similar_graph(T::Type{<:AbstractGraph}) = T()
 
 function similar_graph(graph_or_type, vertices)
-    new_graph = similar_graph(graph_or_type)
+    new_graph = similar_graph(graph_or_type, eltype(vertices))
     add_vertices!(new_graph, vertices)
     return new_graph
 end
@@ -67,8 +67,8 @@ function similar_graph(graph_or_type, vertices, edges)
     return new_graph
 end
 
-function similar_graph(graph::AbstractGraph, vertex_type::Type)
-    new_graph = convert_vertextype(vertex_type, similar_graph(typeof(graph)))
+function similar_graph(graph_or_type, vertex_type::Type)
+    new_graph = convert_vertextype(vertex_type, similar_graph(graph_or_type))
     return new_graph
 end
 
