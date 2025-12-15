@@ -116,6 +116,6 @@ departition(qes::QuotientEdgeEdges) = getfield(qes, :edges)
 
 NamedGraphs.parent_graph_indices(qes::QuotientEdgeEdges) = departition(qes)
 
-function NamedGraphs.to_graph_indices(g, qe::QuotientEdge)
-    return QuotientEdgeEdges(qe, Edges(collect(edges(g, qe))))
+function NamedGraphs.to_graph_indexing(g, qe::QuotientEdge)
+    return QuotientEdgeEdges(qe, edges(g, qe))
 end

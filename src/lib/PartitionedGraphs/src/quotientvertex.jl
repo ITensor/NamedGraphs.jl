@@ -102,6 +102,6 @@ departition(qvs::QuotientVertexVertices) = getfield(qvs, :vertices)
 
 NamedGraphs.parent_graph_indices(qvs::QuotientVertexVertices) = departition(qvs)
 
-function NamedGraphs.to_graph_indices(g, qv::QuotientVertex)
-    return QuotientVertexVertices(qv, Vertices(collect(vertices(g, qv))))
+function NamedGraphs.to_graph_indexing(g, qv::QuotientVertex)
+    return QuotientVertexVertices(qv, vertices(g, qv))
 end
