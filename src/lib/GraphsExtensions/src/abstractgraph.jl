@@ -102,6 +102,9 @@ end
 vertextype(::Type{<:AbstractGraph{V}}) where {V} = V
 vertextype(graph::AbstractGraph) = vertextype(typeof(graph))
 
+vertextype(edge::AbstractEdge) = vertextype(typeof(edge))
+vertextype(::Type{<:AbstractEdge{V}}) where {V} = V
+
 function has_vertices(graph::AbstractGraph, vertices)
     return all(v -> has_vertex(graph, v), vertices)
 end
