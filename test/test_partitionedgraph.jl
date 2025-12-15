@@ -20,7 +20,7 @@ using Graphs:
     rem_vertex!,
     vertices
 using Metis: Metis
-using NamedGraphs: NamedEdge, NamedGraph, NamedGraphs
+using NamedGraphs: NamedEdge, NamedGraph, NamedGraphs, parent_graph_indices, to_graph_indexing
 using NamedGraphs.GraphsExtensions:
     add_edges!,
     add_vertices!,
@@ -42,9 +42,11 @@ using NamedGraphs.PartitionedGraphs:
     PartitionedGraph,
     PartitionedGraphs,
     PartitionedView,
-    QuotientView,
     QuotientEdge,
+    QuotientEdgeEdges,
     QuotientVertex,
+    QuotientVertexVertices,
+    QuotientView,
     boundary_quotientedges,
     departition,
     has_quotientvertex,
@@ -52,11 +54,12 @@ using NamedGraphs.PartitionedGraphs:
     partitioned_vertices,
     partitionedgraph,
     quotient_graph,
-    rem_quotientvertex!,
+    quotient_index,
     quotientedge,
     quotientedges,
     quotientvertex,
     quotientvertices,
+    rem_quotientvertex!,
     unpartition,
     unpartitioned_graph
 using Dictionaries: Dictionary, dictionary
@@ -365,4 +368,27 @@ end
     p1q = [[(i, j) for j in 1:ny] for i in 1:nx]
     partitionedgraph(QuotientView(pwg1), p1q)
 end
+
+@testset "Graph indexing" begin
+    nx, ny = 3, 3
+    g = named_grid((nx, ny))
+    partitions = [[(i, j) for j in 1:ny] for i in 1:nx]
+
+    g = PartitionedGraph(g, partitions)
+
+    let qvs = to_graph_indexing(g, QuotientVertex(2))
+        @test qvs isa QuotientVertexVertices
+        @test all(parent_graph_indices(qvs) .== [(2, 1), (2, 2), (2, 3)])
+        @test all(departition(qvs) .== [(2, 1), (2, 2), (2, 3)])
+        @test quotient_index(qvs) == QuotientVertex(2)
+    end
+
+    let qes = to_graph_indexing(g, QuotientEdge(1 => 2))
+        @test qes isa QuotientEdgeEdges
+        @test all(parent_graph_indices(qes) .== map(NamedEdge, [(1, 1) => (2, 1), (1, 2) => (2, 2), (1, 3) => (2, 3)]))
+        @test all(departition(qes) .== map(NamedEdge, [(1, 1) => (2, 1), (1, 2) => (2, 2), (1, 3) => (2, 3)]))
+        @test quotient_index(qes) == QuotientEdge(1 => 2)
+    end
+end
+
 end
