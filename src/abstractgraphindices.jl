@@ -12,7 +12,7 @@ struct Edges{V, E <: AbstractEdge{V}, Es} <: AbstractEdges{V, E}
     edges::Es
     function Edges(edges::Es) where {Es}
         E = eltype(Es)
-        return new{vertextype{E}, E, Es}(edges)
+        return new{vertextype(E), E, Es}(edges)
     end
 end
 
