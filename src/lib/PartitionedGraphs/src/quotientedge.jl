@@ -103,7 +103,12 @@ rem_quotientedge!(g::AbstractGraph, sv::QuotientEdge) = rem_edges!(g, sv)
 
 struct QuotientEdgeEdges{V, E, QE, Es} <: AbstractEdges{V, E}
     quotientedge::QuotientEdge{QE}
-    edges::Edges{V, E, Es}
+    edges::Es
+    function QuotientEdgeEdges(qe::QuotientEdge{QE}, edges::Es) where {QE, Es}
+        E = eltype(Es)
+        V = vertextype(E)
+        return new{V, E, QE, Es}(qe, edges)
+    end
 end
 
 quotient_index(qes::QuotientEdgeEdges) = getfield(qes, :quotientedge)

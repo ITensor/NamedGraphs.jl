@@ -90,7 +90,11 @@ end
 
 struct QuotientVertexVertices{V, QV, Vs} <: AbstractVertices{V}
     quotientvertex::QuotientVertex{QV}
-    vertices::Vertices{V, Vs}
+    vertices::Vs
+    function QuotientVertexVertices(qv::QuotientVertex{QV}, vertices::Vs) where {QV, Vs}
+        V = eltype(vertices)
+        return new{V, QV, Vs}(qv, vertices)
+    end
 end
 
 quotient_index(qvs::QuotientVertexVertices) = getfield(qvs, :quotientvertex)
