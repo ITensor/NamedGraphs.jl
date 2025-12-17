@@ -45,7 +45,7 @@ function Graphs.vertices(g::AbstractGraph, quotientvertex::QuotientVertex)
     qv = parent(quotientvertex)
 
     pvs = partitioned_vertices(g)
-    haskey(pvs, qv) || throw(ArgumentError("Super vertex $quotientvertex not in graph"))
+    haskey(pvs, qv) || throw(ArgumentError("Quotient vertex $quotientvertex not in graph"))
 
     return pvs[qv]
 end

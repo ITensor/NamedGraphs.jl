@@ -65,7 +65,7 @@ function Graphs.edges(pg::AbstractGraph, quotientedge::QuotientEdge)
         append!(rv, get(pes, reverse(parent(quotientedge)), defval))
     end
 
-    isempty(rv) && throw(ArgumentError("Super edge $quotientedge not in graph"))
+    isempty(rv) && throw(ArgumentError("Quotient edge $quotientedge not in graph"))
 
     return rv
 end
