@@ -101,6 +101,12 @@ end
 
 rem_quotientedge!(g::AbstractGraph, sv::QuotientEdge) = rem_edges!(g, sv)
 
+struct QuotientEdges{E, Es} <: AbstractEdges{E}
+    edges::Es
+    QuotientEdges(edges::Es) where {Es} = new{eltype(Es), Es}(edges)
+end
+NamedGraphs.parent_graph_indices(qvs::QuotientEdges) = getfield(qvs, :edges)
+
 struct QuotientEdgeEdges{V, E, QE, Es} <: AbstractEdges{V, E}
     quotientedge::QuotientEdge{QE}
     edges::Es

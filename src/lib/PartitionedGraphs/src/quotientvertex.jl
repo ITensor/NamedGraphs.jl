@@ -88,6 +88,12 @@ function NamedGraphs.induced_subgraph_from_vertices(
     return unpartitioned_graph(sg), vs
 end
 
+struct QuotientVertices{V, Vs} <: AbstractVertices{V}
+    vertices::Vs
+    QuotientVertices(vertices::Vs) where {Vs} = new{eltype(Vs), Vs}(vertices)
+end
+NamedGraphs.parent_graph_indices(qvs::QuotientVertices) = getfield(qvs, :vertices)
+
 struct QuotientVertexVertices{V, QV, Vs} <: AbstractVertices{V}
     quotientvertex::QuotientVertex{QV}
     vertices::Vs
