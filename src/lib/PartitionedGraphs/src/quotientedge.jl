@@ -67,11 +67,11 @@ QuotientEdges(g::AbstractGraph) = QuotientEdges(edges(quotient_graph(g)))
 
 NamedGraphs.parent_graph_indices(qvs::QuotientEdges) = getfield(qvs, :edges)
 
-function Base.iterate(qvs::QuotientEdges, state = nothing)
+function Base.iterate(qes::QuotientEdges, state = nothing)
     if isnothing(state)
-        out = iterate(getfield(qvs, :edges))
+        out = iterate(qes.edges)
     else
-        out = iterate(getfield(qvs, :edges), state)
+        out = iterate(qes.edges, state)
     end
     if isnothing(out)
         return nothing
@@ -84,7 +84,8 @@ end
 """
     quotientedges(g::AbstractGraph, es = edges(pg)) -> QuotientEdges
 
-Return all unique quotient edges corresponding to the set of edges `es` of the graph `g`.
+Return an iterator over all unique quotient edges corresponding to the set of edges `es` of
+the graph `g`.
 """
 quotientedges(g::AbstractGraph) = QuotientEdges(g)
 function quotientedges(pg::AbstractGraph, es)
