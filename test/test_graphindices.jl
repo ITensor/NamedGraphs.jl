@@ -9,7 +9,6 @@ using NamedGraphs.GraphsExtensions: vertextype
         vs = [1, 2, 3]
         @test eltype(Vertices(vs)) == eltype(vs)
         @test length(Vertices(vs)) == length(vs)
-        @test Vertices(vs)[2] == vs[2]
         @test iterate(Vertices(vs)) == (1, 2)
 
         es = map(NamedEdge, ["a" => "b", "b" => "c"])

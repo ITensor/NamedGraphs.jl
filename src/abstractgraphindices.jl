@@ -26,8 +26,6 @@ Base.iterate(gi::AbstractGraphIndices) = iterate(parent_graph_indices(gi))
 Base.iterate(gi::AbstractGraphIndices, state) = iterate(parent_graph_indices(gi), state)
 Base.length(gi::AbstractGraphIndices) = length(parent_graph_indices(gi))
 
-Base.getindex(gi::AbstractGraphIndices, ind) = parent_graph_indices(gi)[ind]
-
 to_graph_indexing(graph, indexing) = to_graph_index(graph, indexing)
 to_graph_indexing(graph, indexing::AbstractGraphIndices) = to_graph_indices(graph, indexing)
 
