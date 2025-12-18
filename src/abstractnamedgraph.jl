@@ -81,7 +81,8 @@ GraphsExtensions.undirected_graph_type(G::Type{<:AbstractNamedGraph}) = not_impl
 # In terms of `position_graph_type`
 # is_directed(::Type{<:AbstractNamedGraph}) = not_implemented()
 
-GraphsExtensions.convert_vertextype(::Type, ::AbstractNamedGraph) = not_implemented()
+GraphsExtensions.convert_vertextype(::Type{V}, g::AbstractNamedGraph{V}) where {V} = g
+GraphsExtensions.convert_vertextype(::Type, g::AbstractNamedGraph) = not_implemented()
 
 # TODO: implement as:
 #
