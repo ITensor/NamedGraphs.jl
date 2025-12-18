@@ -20,7 +20,7 @@ using Graphs:
     rem_vertex!,
     vertices
 using Metis: Metis
-using NamedGraphs: NamedEdge, NamedGraph, NamedGraphs, parent_graph_indices, to_graph_indexing
+using NamedGraphs: NamedEdge, NamedGraph, NamedGraphs, parent_graph_indices, to_graph_index
 using NamedGraphs.GraphsExtensions:
     add_edges!,
     add_vertices!,
@@ -376,14 +376,14 @@ end
 
     g = PartitionedGraph(g, partitions)
 
-    let qvs = to_graph_indexing(g, QuotientVertex(2))
+    let qvs = to_graph_index(g, QuotientVertex(2))
         @test qvs isa QuotientVertexSubVertices
         @test all(parent_graph_indices(qvs) .== [(2, 1), (2, 2), (2, 3)])
         @test all(departition(qvs) .== [(2, 1), (2, 2), (2, 3)])
         @test quotients(qvs) == QuotientVertex(2)
     end
 
-    let qes = to_graph_indexing(g, QuotientEdge(1 => 2))
+    let qes = to_graph_index(g, QuotientEdge(1 => 2))
         @test qes isa QuotientEdgeSubEdges
         @test all(parent_graph_indices(qes) .== map(NamedEdge, [(1, 1) => (2, 1), (1, 2) => (2, 2), (1, 3) => (2, 3)]))
         @test all(departition(qes) .== map(NamedEdge, [(1, 1) => (2, 1), (1, 2) => (2, 2), (1, 3) => (2, 3)]))

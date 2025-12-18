@@ -159,11 +159,11 @@ departition(qes::QuotientSubEdges) = getfield(qes, :edges)
 NamedGraphs.parent_graph_indices(qes::QuotientSubEdges) = departition(qes)
 
 # A single QuotientEdge should index like a list of edges
-function NamedGraphs.to_graph_indexing(g::AbstractGraph, qe::QuotientEdge)
+function NamedGraphs.to_graph_index(g::AbstractGraph, qe::QuotientEdge)
     return QuotientSubEdges(qe, edges(g, qe))
 end
 # QuotientEdges should index like a list of quotient edges
-NamedGraphs.to_graph_indexing(::AbstractGraph, qv::QuotientEdges) = qv
+NamedGraphs.to_graph_index(::AbstractGraph, qv::QuotientEdges) = qv
 
 const QuotientEdgeSubEdges{V, E, QE <: QuotientEdge, Es} = QuotientSubEdges{V, E, QE, Es}
 const QuotientEdgesSubEdges{V, E, QE <: QuotientEdges, Es} = QuotientSubEdges{V, E, QE, Es}

@@ -116,11 +116,11 @@ departition(qvs::QuotientSubVertices) = getfield(qvs, :vertices)
 NamedGraphs.parent_graph_indices(qvs::QuotientSubVertices) = departition(qvs)
 
 # A single QuotientVertex and should index like a list of vertices
-function NamedGraphs.to_graph_indexing(g::AbstractGraph, qv::QuotientVertex)
+function NamedGraphs.to_graph_index(g::AbstractGraph, qv::QuotientVertex)
     return QuotientSubVertices(qv, vertices(g, qv))
 end
 # QuotientVertices and should index like a list of quotient vertices
-NamedGraphs.to_graph_indexing(::AbstractGraph, qv::QuotientVertices) = qv
+NamedGraphs.to_graph_index(::AbstractGraph, qv::QuotientVertices) = qv
 
 const QuotientVertexSubVertices{V, QV <: QuotientVertex, Vs} = QuotientSubVertices{V, QV, Vs}
 const QuotientVerticesSubVertices{V, QV <: QuotientVertices, Vs} = QuotientSubVertices{V, QV, Vs}
