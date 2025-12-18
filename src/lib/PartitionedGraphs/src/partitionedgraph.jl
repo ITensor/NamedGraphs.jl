@@ -174,7 +174,7 @@ end
 ## Case where we preserve partitioning.
 function NamedGraphs.induced_subgraph_from_vertices(
         pg::PartitionedGraph,
-        subvertices::QuotientVerticesSubVertices
+        subvertices::QuotientVerticesVertices
     )
     sub_pg_graph, _ = induced_subgraph(pg.graph, subvertices)
     sub_partitioned_vertices = copy(pg.partitioned_vertices)
