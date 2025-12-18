@@ -3,7 +3,6 @@ using ..NamedGraphs: NamedGraphs, AbstractNamedGraph, AbstractVertices, Vertices
 using ..NamedGraphs.GraphsExtensions: GraphsExtensions, rem_vertices!, subgraph
 using ..NamedGraphs.OrderedDictionaries: OrderedIndices
 
-
 """
     QuotientVertex(v)
 
@@ -26,12 +25,31 @@ function quotientvertex(g, vertex)
     return QuotientVertex(rv)
 end
 
+# Represents a set of quotient vertices.
+struct QuotientVertices{V, Vs} <: AbstractVertices{V}
+    vertices::Vs
+    function QuotientVertices{V}(vertices::Vs) where {V, Vs}
+        @assert V <: eltype(Vs)
+        return new{V, Vs}(vertices)
+    end
+end
+
+function QuotientVertices(vertices::Vs) where {Vs}
+    V = eltype(Vs)
+    return QuotientVertices{V}(vertices)
+end
+
+QuotientVertices(g::AbstractGraph) = QuotientVertices(keys(partitioned_vertices(g)))
+
+NamedGraphs.parent_graph_indices(qvs::QuotientVertices) = getfield(qvs, :vertices)
+
 """
     quotientvertices(g::AbstractGraph, vs = vertices(pg))
 
-Return all unique quotient vertices corresponding to the set vertices `vs` of the graph `pg`.
+Return an iterator over unique quotient vertices corresponding to the set vertices `vs`
+of the graph `pg`.
 """
-quotientvertices(g) = Iterators.map(QuotientVertex, keys(partitioned_vertices(g)))
+quotientvertices(g) = Iterators.map(QuotientVertex, QuotientVertices(g))
 quotientvertices(g::AbstractGraph, vs) = unique(map(v -> quotientvertex(g, v), vs))
 
 """
@@ -49,13 +67,12 @@ function Graphs.vertices(g::AbstractGraph, quotientvertex::QuotientVertex)
 
     return pvs[qv]
 end
-function Graphs.vertices(g::AbstractGraph, quotientvertices::Vector{<:QuotientVertex})
-    return unique(mapreduce(sv -> vertices(g, sv), vcat, quotientvertices))
+function Graphs.vertices(g::AbstractGraph, quotientvertices::QuotientVertices)
+    return unique(mapreduce(sv -> vertices(g, QuotientVertex(sv)), vcat, quotientvertices))
 end
 
 function has_quotientvertex(g::AbstractGraph, quotientvertex::QuotientVertex)
-    qg = quotient_graph_type(g)(parent.(quotientvertices(g)))
-    return has_vertex(qg, parent(quotientvertex))
+    return haskey(partitioned_vertices(g), parent(quotientvertex))
 end
 
 Graphs.nv(g::AbstractGraph, sv::QuotientVertex) = length(vertices(g, sv))
@@ -65,49 +82,43 @@ function GraphsExtensions.rem_vertices!(g::AbstractGraph, sv::QuotientVertex)
 end
 rem_quotientvertex!(pg::AbstractGraph, sv::QuotientVertex) = rem_vertices!(pg, sv)
 
-# Represents a set of subvertices corresponding to a set of quotient vertices.
-struct SubVertices{QV, V, Vs <: AbstractVector{V}} <: AbstractVector{V}
-    quotientvertices::QV
+struct QuotientSubVertices{V, QV, Vs} <: AbstractVertices{V}
+    quotients::QV
     vertices::Vs
-end
-Base.size(v::SubVertices) = size(v.vertices)
-Base.getindex(v::SubVertices, I...) = v.vertices[I...]
-
-function NamedGraphs.to_vertices(g::AbstractGraph, qv::QuotientVertex)
-    return SubVertices(qv, vertices(g, qv))
-end
-function NamedGraphs.to_vertices(g::AbstractGraph, qv::AbstractVector{<:QuotientVertex})
-    return SubVertices(qv, vertices(g, qv))
-end
-
-# Special case so that `subgraph(g, QuotientVertex(v))` returns an unpartitioned graph.
-function NamedGraphs.induced_subgraph_from_vertices(
-        g::AbstractGraph, subvertices::SubVertices{<:QuotientVertex}
-    )
-    sg, vs = NamedGraphs.induced_subgraph_from_vertices(g, subvertices.vertices)
-    return unpartitioned_graph(sg), vs
-end
-
-struct QuotientVertices{V, Vs} <: AbstractVertices{V}
-    vertices::Vs
-    QuotientVertices(vertices::Vs) where {Vs} = new{eltype(Vs), Vs}(vertices)
-end
-NamedGraphs.parent_graph_indices(qvs::QuotientVertices) = getfield(qvs, :vertices)
-
-struct QuotientVertexVertices{V, QV, Vs} <: AbstractVertices{V}
-    quotientvertex::QuotientVertex{QV}
-    vertices::Vs
-    function QuotientVertexVertices(qv::QuotientVertex{QV}, vertices::Vs) where {QV, Vs}
+    function QuotientSubVertices(qv::QV, vertices::Vs) where {QV, Vs}
         V = eltype(vertices)
         return new{V, QV, Vs}(qv, vertices)
     end
 end
 
-quotient_index(qvs::QuotientVertexVertices) = getfield(qvs, :quotientvertex)
-departition(qvs::QuotientVertexVertices) = getfield(qvs, :vertices)
+quotients(qvs::QuotientSubVertices) = getfield(qvs, :quotients)
+departition(qvs::QuotientSubVertices) = getfield(qvs, :vertices)
 
-NamedGraphs.parent_graph_indices(qvs::QuotientVertexVertices) = departition(qvs)
+NamedGraphs.parent_graph_indices(qvs::QuotientSubVertices) = departition(qvs)
 
-function NamedGraphs.to_graph_indexing(g, qv::QuotientVertex)
-    return QuotientVertexVertices(qv, vertices(g, qv))
+# A single QuotientVertex and should index like a list of vertices
+function NamedGraphs.to_graph_indexing(g::AbstractGraph, qv::QuotientVertex)
+    return QuotientSubVertices(qv, vertices(g, qv))
+end
+# QuotientVertices and should index like a list of quotient vertices
+NamedGraphs.to_graph_indexing(::AbstractGraph, qv::QuotientVertices) = qv
+
+const QuotientVertexSubVertices{V, QV <: QuotientVertex, Vs} = QuotientSubVertices{V, QV, Vs}
+const QuotientVerticesSubVertices{V, QV <: QuotientVertices, Vs} = QuotientSubVertices{V, QV, Vs}
+
+quotient_index(subvertices::QuotientVertexSubVertices) = quotients(subvertices)
+quotient_indices(subvertices::QuotientVerticesSubVertices) = quotients(subvertices)
+
+# NamedGraphs.to_vertices explictly converts to a collection of vertices, used for
+# taking subgraphs.
+function NamedGraphs.to_vertices(g::AbstractGraph, qv::QuotientVertex)
+    return QuotientSubVertices(qv, vertices(g, qv))
+end
+
+function NamedGraphs.to_vertices(g::AbstractGraph, qv::QuotientVertices)
+    return QuotientSubVertices(qv, vertices(g, qv))
+end
+
+function NamedGraphs.to_vertices(g::AbstractGraph, qv::Vector{<:QuotientVertex})
+    return NamedGraphs.to_vertices(g, QuotientVertices(map(parent, qv)))
 end

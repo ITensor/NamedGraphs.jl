@@ -1,5 +1,11 @@
 using Graphs: AbstractGraph, Graphs, AbstractEdge, dst, src, ne, has_edge
-using ..NamedGraphs: NamedGraphs, AbstractNamedGraph, AbstractNamedEdge, AbstractEdges, Edges
+using ..NamedGraphs:
+    NamedGraphs,
+    AbstractNamedGraph,
+    AbstractNamedEdge,
+    AbstractEdges,
+    Edges,
+    parent_graph_indices
 using ..NamedGraphs.GraphsExtensions: GraphsExtensions, not_implemented, rem_edges!, rem_edge
 
 """
@@ -20,6 +26,8 @@ Graphs.src(se::QuotientEdge) = QuotientVertex(src(parent(se)))
 Graphs.dst(se::QuotientEdge) = QuotientVertex(dst(parent(se)))
 Base.reverse(se::QuotientEdge) = QuotientEdge(reverse(parent(se)))
 
+quotient_index(edge::AbstractEdge) = QuotientEdge(edge)
+
 """
     quotientedge(g::AbstractGraph{V}, edge) -> QuotientEdge{V}
 
@@ -38,19 +46,37 @@ function quotientedge(g::AbstractGraph, edge::AbstractEdge)
     return QuotientEdge(quotient_graph_edgetype(g)(qv_src => qv_dst))
 end
 
+struct QuotientEdges{V, E, Es} <: AbstractEdges{V, E}
+    edges::Es
+    function QuotientEdges{V, E}(edges::Es) where {V, E, Es}
+        @assert E <: eltype(Es)
+        return new{V, E, Es}(edges)
+    end
+end
+
+function QuotientEdges(edges::Es) where {Es}
+    E = eltype(Es)
+    return QuotientEdges{vertextype(E), E}(edges)
+end
+
+QuotientEdges(g::AbstractGraph) = QuotientEdges(edges(quotient_graph(g)))
+
+NamedGraphs.parent_graph_indices(qvs::QuotientEdges) = getfield(qvs, :edges)
+
 """
-    quotientedges(g::AbstractGraph, es = edges(pg))
+    quotientedges(g::AbstractGraph, es = edges(pg)) -> QuotientEdges
 
 Return all unique quotient edges corresponding to the set of edges `es` of the graph `g`.
 """
-quotientedges(g::AbstractGraph) = Iterators.map(QuotientEdge, edges(quotient_graph(g)))
+quotientedges(g::AbstractGraph) = Iterators.map(QuotientEdge, QuotientEdges(g))
 function quotientedges(pg::AbstractGraph, es)
-    return filter!(!is_self_loop, unique(map(e -> quotientedge(pg, e), es)))
+    edges = filter!(!is_self_loop, unique(map(e -> quotientedge(pg, e), es)))
+    return edges
 end
 
 """
     edges(g::AbstractGraph, quotientedge::QuotientEdge)
-    edges(g::AbstractGraph, quotientedges::Vector{QuotientEdge})
+    edges(g::AbstractGraph, quotientedges::QuotientEdges)
 
 Return the set of edges in the graph `g` that correspond to a single quotient edge or
 a list of quotient edges.
@@ -69,8 +95,8 @@ function Graphs.edges(pg::AbstractGraph, quotientedge::QuotientEdge)
 
     return rv
 end
-function Graphs.edges(pg::AbstractGraph, quotientedges::Vector{<:QuotientEdge})
-    return unique(reduce(vcat, [edges(pg, se) for se in quotientedges]))
+function Graphs.edges(pg::AbstractGraph, quotientedges::QuotientEdges)
+    return unique(reduce(vcat, [edges(pg, qe) for qe in quotientedges]))
 end
 
 """
@@ -101,27 +127,30 @@ end
 
 rem_quotientedge!(g::AbstractGraph, sv::QuotientEdge) = rem_edges!(g, sv)
 
-struct QuotientEdges{E, Es} <: AbstractEdges{E}
+struct QuotientSubEdges{V, E, QE, Es} <: AbstractEdges{V, E}
+    quotients::QE
     edges::Es
-    QuotientEdges(edges::Es) where {Es} = new{eltype(Es), Es}(edges)
-end
-NamedGraphs.parent_graph_indices(qvs::QuotientEdges) = getfield(qvs, :edges)
-
-struct QuotientEdgeEdges{V, E, QE, Es} <: AbstractEdges{V, E}
-    quotientedge::QuotientEdge{QE}
-    edges::Es
-    function QuotientEdgeEdges(qe::QuotientEdge{QE}, edges::Es) where {QE, Es}
+    function QuotientSubEdges(qe::QE, edges::Es) where {QE, Es}
         E = eltype(Es)
         V = vertextype(E)
         return new{V, E, QE, Es}(qe, edges)
     end
 end
 
-quotient_index(qes::QuotientEdgeEdges) = getfield(qes, :quotientedge)
-departition(qes::QuotientEdgeEdges) = getfield(qes, :edges)
+quotients(qes::QuotientSubEdges) = getfield(qes, :quotients)
+departition(qes::QuotientSubEdges) = getfield(qes, :edges)
 
-NamedGraphs.parent_graph_indices(qes::QuotientEdgeEdges) = departition(qes)
+NamedGraphs.parent_graph_indices(qes::QuotientSubEdges) = departition(qes)
 
-function NamedGraphs.to_graph_indexing(g, qe::QuotientEdge)
-    return QuotientEdgeEdges(qe, edges(g, qe))
+# A single QuotientEdge should index like a list of edges
+function NamedGraphs.to_graph_indexing(g::AbstractGraph, qe::QuotientEdge)
+    return QuotientSubEdges(qe, edges(g, qe))
 end
+# QuotientEdges should index like a list of quotient edges
+NamedGraphs.to_graph_indexing(::AbstractGraph, qv::QuotientEdges) = qv
+
+const QuotientEdgeSubEdges{V, E, QE <: QuotientEdge, Es} = QuotientSubEdges{V, E, QE, Es}
+const QuotientEdgesSubEdges{V, E, QE <: QuotientEdges, Es} = QuotientSubEdges{V, E, QE, Es}
+
+quotient_index(subedges::QuotientEdgeSubEdges) = quotients(subedges)
+quotient_indices(subedges::QuotientEdgesSubEdges) = quotients(subedges)

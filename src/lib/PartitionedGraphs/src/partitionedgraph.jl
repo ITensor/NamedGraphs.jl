@@ -171,8 +171,11 @@ function Graphs.rem_edge!(pg::PartitionedGraph, edge::AbstractEdge)
     return rem_edge!(pg.graph, edge)
 end
 
-### PartitionedGraph Specific Functions
-function NamedGraphs.induced_subgraph_from_vertices(pg::PartitionedGraph, subvertices)
+## Case where we preserve partitioning.
+function NamedGraphs.induced_subgraph_from_vertices(
+        pg::PartitionedGraph,
+        subvertices::QuotientVerticesSubVertices
+    )
     sub_pg_graph, _ = induced_subgraph(pg.graph, subvertices)
     sub_partitioned_vertices = copy(pg.partitioned_vertices)
     for qv in quotientvertices(pg)
@@ -188,13 +191,6 @@ function NamedGraphs.induced_subgraph_from_vertices(pg::PartitionedGraph, subver
 
     return PartitionedGraph(sub_pg_graph, sub_partitioned_vertices), nothing
 end
-function NamedGraphs.induced_subgraph_from_vertices(
-        pg::PartitionedGraph, subvertices::SubVertices{<:QuotientVertex}
-    )
-    sg, vs = NamedGraphs.induced_subgraph_from_vertices(pg, subvertices.vertices)
-    return unpartitioned_graph(sg), vs
-end
-
 
 function GraphsExtensions.undirected_graph(g::PartitionedGraph)
     dg = GraphsExtensions.undirected_graph(unpartitioned_graph(g))

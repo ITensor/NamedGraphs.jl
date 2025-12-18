@@ -43,9 +43,9 @@ using NamedGraphs.PartitionedGraphs:
     PartitionedGraphs,
     PartitionedView,
     QuotientEdge,
-    QuotientEdgeEdges,
+    QuotientEdgeSubEdges,
     QuotientVertex,
-    QuotientVertexVertices,
+    QuotientVertexSubVertices,
     QuotientView,
     boundary_quotientedges,
     departition,
@@ -54,7 +54,7 @@ using NamedGraphs.PartitionedGraphs:
     partitioned_vertices,
     partitionedgraph,
     quotient_graph,
-    quotient_index,
+    quotients,
     quotientedge,
     quotientedges,
     quotientvertex,
@@ -85,7 +85,7 @@ using Test: @test, @testset, @test_throws
 
     #PartionsGraphView test
     pgv = QuotientView(pg)
-    @test vertices(pgv) == parent.(quotientvertices(pg))
+    @test collect(vertices(pgv)) == collect(parent.(quotientvertices(pg)))
     @test edges(pgv) == parent.(quotientedges(pg))
     @test is_tree(pgv) == true
     @test neighbors(pgv, 1) == [2]
@@ -207,7 +207,7 @@ end
     subgraph_vertices = partitions[subgraph_partitioned_vertex]
     g_1 = subgraph(pg, QuotientVertex(subgraph_partitioned_vertex))
     pg_1 = subgraph(pg, subgraph_vertices)
-    @test unpartitioned_graph(pg_1) == subgraph(g, subgraph_vertices)
+    @test pg_1 == subgraph(g, subgraph_vertices)
     @test g_1 == subgraph(g, subgraph_vertices)
 end
 
@@ -377,17 +377,17 @@ end
     g = PartitionedGraph(g, partitions)
 
     let qvs = to_graph_indexing(g, QuotientVertex(2))
-        @test qvs isa QuotientVertexVertices
+        @test qvs isa QuotientVertexSubVertices
         @test all(parent_graph_indices(qvs) .== [(2, 1), (2, 2), (2, 3)])
         @test all(departition(qvs) .== [(2, 1), (2, 2), (2, 3)])
-        @test quotient_index(qvs) == QuotientVertex(2)
+        @test quotients(qvs) == QuotientVertex(2)
     end
 
     let qes = to_graph_indexing(g, QuotientEdge(1 => 2))
-        @test qes isa QuotientEdgeEdges
+        @test qes isa QuotientEdgeSubEdges
         @test all(parent_graph_indices(qes) .== map(NamedEdge, [(1, 1) => (2, 1), (1, 2) => (2, 2), (1, 3) => (2, 3)]))
         @test all(departition(qes) .== map(NamedEdge, [(1, 1) => (2, 1), (1, 2) => (2, 2), (1, 3) => (2, 3)]))
-        @test quotient_index(qes) == QuotientEdge(1 => 2)
+        @test quotients(qes) == QuotientEdge(1 => 2)
     end
 end
 
