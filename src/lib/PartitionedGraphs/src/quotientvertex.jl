@@ -15,6 +15,8 @@ end
 
 Base.parent(sv::QuotientVertex) = getfield(sv, :vertex)
 
+quotient_index(vertex) = QuotientVertex(vertex)
+
 # Overload this for fast inverse mapping for vertices and edges
 function quotientvertex(g, vertex)
     pvs = partitioned_vertices(g)
@@ -34,6 +36,8 @@ struct QuotientVertices{V, Vs} <: AbstractVertices{V}
     end
 end
 
+Base.eltype(::QuotientVertices{V}) where {V} = QuotientVertex{V}
+
 function QuotientVertices(vertices::Vs) where {Vs}
     V = eltype(Vs)
     return QuotientVertices{V}(vertices)
@@ -43,14 +47,29 @@ QuotientVertices(g::AbstractGraph) = QuotientVertices(keys(partitioned_vertices(
 
 NamedGraphs.parent_graph_indices(qvs::QuotientVertices) = getfield(qvs, :vertices)
 
+function Base.iterate(qvs::QuotientVertices, state = nothing)
+    if isnothing(state)
+        out = iterate(getfield(qvs, :vertices))
+    else
+        out = iterate(getfield(qvs, :vertices), state)
+    end
+    if isnothing(out)
+        return nothing
+    else
+        (v, s) = out
+        return (QuotientVertex(v), s)
+    end
+end
+
+
 """
     quotientvertices(g::AbstractGraph, vs = vertices(pg))
 
 Return an iterator over unique quotient vertices corresponding to the set vertices `vs`
 of the graph `pg`.
 """
-quotientvertices(g) = Iterators.map(QuotientVertex, QuotientVertices(g))
-quotientvertices(g::AbstractGraph, vs) = unique(map(v -> quotientvertex(g, v), vs))
+quotientvertices(g) = QuotientVertices(g)
+quotientvertices(g::AbstractGraph, vs) = QuotientVertices(unique(map(v -> parent(quotientvertex(g, v)), vs)))
 
 """
     vertices(g::AbstractGraph, quotientvertex::QuotientVertex)
@@ -68,7 +87,7 @@ function Graphs.vertices(g::AbstractGraph, quotientvertex::QuotientVertex)
     return pvs[qv]
 end
 function Graphs.vertices(g::AbstractGraph, quotientvertices::QuotientVertices)
-    return unique(mapreduce(sv -> vertices(g, QuotientVertex(sv)), vcat, quotientvertices))
+    return unique(mapreduce(qv -> vertices(g, qv), vcat, quotientvertices))
 end
 
 function has_quotientvertex(g::AbstractGraph, quotientvertex::QuotientVertex)

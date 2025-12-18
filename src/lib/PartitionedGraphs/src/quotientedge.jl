@@ -54,6 +54,8 @@ struct QuotientEdges{V, E, Es} <: AbstractEdges{V, E}
     end
 end
 
+Base.eltype(::QuotientEdges{V, E}) where {V, E} = QuotientEdge{V, E}
+
 function QuotientEdges(edges::Es) where {Es}
     E = eltype(Es)
     return QuotientEdges{vertextype(E), E}(edges)
@@ -63,15 +65,29 @@ QuotientEdges(g::AbstractGraph) = QuotientEdges(edges(quotient_graph(g)))
 
 NamedGraphs.parent_graph_indices(qvs::QuotientEdges) = getfield(qvs, :edges)
 
+function Base.iterate(qvs::QuotientEdges, state = nothing)
+    if isnothing(state)
+        out = iterate(getfield(qvs, :edges))
+    else
+        out = iterate(getfield(qvs, :edges), state)
+    end
+    if isnothing(out)
+        return nothing
+    else
+        (v, s) = out
+        return (QuotientEdge(v), s)
+    end
+end
+
 """
     quotientedges(g::AbstractGraph, es = edges(pg)) -> QuotientEdges
 
 Return all unique quotient edges corresponding to the set of edges `es` of the graph `g`.
 """
-quotientedges(g::AbstractGraph) = Iterators.map(QuotientEdge, QuotientEdges(g))
+quotientedges(g::AbstractGraph) = QuotientEdges(g)
 function quotientedges(pg::AbstractGraph, es)
-    edges = filter!(!is_self_loop, unique(map(e -> quotientedge(pg, e), es)))
-    return edges
+    edges = filter!(!is_self_loop, unique(map(e -> parent(quotientedge(pg, e)), es)))
+    return QuotientEdges(edges)
 end
 
 """
