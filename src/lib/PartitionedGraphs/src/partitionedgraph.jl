@@ -176,7 +176,7 @@ function NamedGraphs.induced_subgraph_from_vertices(
         pg::PartitionedGraph,
         subvertices::QuotientVerticesVertices
     )
-    sub_pg_graph, _ = induced_subgraph(pg.graph, subvertices)
+    sub_pg_graph, _ = induced_subgraph(pg.graph, parent_graph_indices(subvertices))
     sub_partitioned_vertices = copy(pg.partitioned_vertices)
     for qv in quotientvertices(pg)
         pv = parent(qv)

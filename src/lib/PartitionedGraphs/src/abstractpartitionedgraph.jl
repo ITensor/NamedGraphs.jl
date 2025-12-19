@@ -156,8 +156,8 @@ function Graphs.add_vertex!(::AbstractPartitionedGraph, vertex)
     return error("Need to specify a partition where the new vertex will go.")
 end
 
-function Graphs.add_vertex!(pg::AbstractPartitionedGraph, ssv::SubQuotientVertex)
-    return add_subquotientvertex!(pg, ssv.vertex, ssv.subvertex)
+function Graphs.add_vertex!(pg::AbstractPartitionedGraph, qvv::QuotientVertexVertex)
+    return add_subquotientvertex!(pg, qvv.quotientvertex, qvv.vertex)
 end
 
 function Base.:(==)(pg1::AbstractPartitionedGraph, pg2::AbstractPartitionedGraph)
@@ -177,4 +177,9 @@ function NamedGraphs.induced_subgraph_from_vertices(
         pg::AbstractPartitionedGraph, subvertices
     )
     return NamedGraphs.induced_subgraph_from_vertices(unpartitioned_graph(pg), subvertices)
+end
+function NamedGraphs.induced_subgraph_from_vertices(
+        pg::AbstractPartitionedGraph, subvertices::AbstractVertices
+    )
+    return NamedGraphs.induced_subgraph_from_vertices(pg, parent_graph_indices(subvertices))
 end

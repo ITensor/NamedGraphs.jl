@@ -35,6 +35,8 @@ struct QuotientVertices{V, Vs} <: AbstractVertices{V}
     end
 end
 
+QuotientVertices(vertices...) = QuotientVertices(collect(vertices))
+
 quotient_index(vertices::Vertices) = QuotientVertices(parent_graph_indices(vertices))
 
 Base.eltype(::QuotientVertices{V}) where {V} = QuotientVertex{V}
@@ -44,19 +46,10 @@ QuotientVertices(g::AbstractGraph) = QuotientVertices(keys(partitioned_vertices(
 NamedGraphs.parent_graph_indices(qvs::QuotientVertices) = qvs.vertices
 
 function Base.iterate(qvs::QuotientVertices, state = nothing)
-    if isnothing(state)
-        out = iterate(qvs.vertices)
-    else
-        out = iterate(qvs.vertices, state)
-    end
-    if isnothing(out)
-        return nothing
-    else
-        (v, s) = out
-        return (QuotientVertex(v), s)
-    end
+    return NamedGraphs.iterate_graph_indices(QuotientVertex, qvs, state)
 end
 
+Base.getindex(qvs::QuotientVertices, i::Int) = QuotientVertex(parent_graph_indices(qvs)[i])
 
 """
     quotientvertices(g::AbstractGraph, vs = vertices(pg))
@@ -97,10 +90,27 @@ function GraphsExtensions.rem_vertices!(g::AbstractGraph, sv::QuotientVertex)
 end
 rem_quotientvertex!(pg::AbstractGraph, sv::QuotientVertex) = rem_vertices!(pg, sv)
 
-# Replacing SubVertices
-# TODO; Rename QuotientVertexVertices
+# Represents a single vertex in a QuotientVertex
+struct QuotientVertexVertex{V, QV}
+    quotientvertex::QV
+    vertex::V
+end
+
+quotient_index(qvv::QuotientVertexVertex) = QuotientVertex(qvv.quotientvertex)
+
+Base.getindex(qv::QuotientVertex, v) = QuotientVertexVertex(parent(qv), v)
+function Base.getindex(qv::QuotientVertex, v::Vertices)
+    return QuotientVertexVertices(parent(qv), parent_graph_indices(v))
+end
+
+GraphsExtensions.vertextype(::Type{<:QuotientVertexVertex{V}}) where {V} = V
+GraphsExtensions.vertextype(::Type{<:QuotientVertexVertex}) = Any
+
+quotient_vertextype(::Type{<:QuotientVertexVertex{V, QV}}) where {V, QV} = QV
+
+# Represents multiple vertices in a QuotientVertex
 struct QuotientVertexVertices{V, QV, Vs} <: AbstractVertices{V}
-    quotients::QV
+    quotientvertex::QV
     vertices::Vs
     function QuotientVertexVertices(qv::QV, vertices::Vs) where {QV, Vs}
         V = eltype(vertices)
@@ -108,32 +118,69 @@ struct QuotientVertexVertices{V, QV, Vs} <: AbstractVertices{V}
     end
 end
 
-quotients(qvs::QuotientVertexVertices) = getfield(qvs, :quotients)
+quotient_index(qvv::QuotientVertexVertices) = QuotientVertex(qvv.quotientvertex)
+
+Base.eltype(::QuotientVertexVertices{V, QV}) where {V, QV} = QuotientVertexVertex{V, QV}
+# GraphsExtensions.vertextype(::Type{<:QuotientVertexVertices{V}}) where {V} = V
+# quotient_vertextype(::Type{<:QuotientVertexVertices{V, QV}}) where {V, QV} = QV
+
 departition(qvs::QuotientVertexVertices) = getfield(qvs, :vertices)
 
 NamedGraphs.parent_graph_indices(qvs::QuotientVertexVertices) = departition(qvs)
 
+function Base.iterate(qvs::QuotientVertexVertices, state = nothing)
+    return NamedGraphs.iterate_graph_indices(v -> quotient_index(qvs)[v], qvs, state)
+end
+
+function Base.getindex(qvs::QuotientVertexVertices, i::Int)
+    return quotient_index(qvs)[parent_graph_indices(qvs)[i]]
+end
+function Base.getindex(qvs::QuotientVertexVertices, i)
+    return quotient_index(qvs)[Vertices(parent_graph_indices(qvs)[i])]
+end
+
 # A single QuotientVertex and should index like a list of vertices
 function NamedGraphs.to_graph_index(g::AbstractGraph, qv::QuotientVertex)
-    return QuotientVertexVertices(qv, vertices(g, qv))
+    return QuotientVertexVertices(parent(qv), vertices(g, qv))
 end
 # QuotientVertices and should index like a list of quotient vertices
 NamedGraphs.to_graph_index(::AbstractGraph, qv::QuotientVertices) = qv
 
-const QuotientVerticesVertices{V, QV <: QuotientVertices, Vs} = QuotientVertexVertices{V, QV, Vs}
-
-quotient_index(subvertices::QuotientVertexVertices) = quotients(subvertices)
-
 # NamedGraphs.to_vertices explictly converts to a collection of vertices, used for
 # taking subgraphs.
-function NamedGraphs.to_vertices(g::AbstractGraph, qv::QuotientVertex)
-    return QuotientVertexVertices(qv, vertices(g, qv))
-end
+NamedGraphs.to_vertices(g::AbstractGraph, qv::QuotientVertex) = qv[Vertices(vertices(g, qv))]
 
-function NamedGraphs.to_vertices(g::AbstractGraph, qv::QuotientVertices)
-    return QuotientVertexVertices(qv, vertices(g, qv))
-end
-
-function NamedGraphs.to_vertices(g::AbstractGraph, qv::AbstractVector{<:QuotientVertex})
+function NamedGraphs.to_vertices(g::AbstractGraph, qv::Vector{<:QuotientVertex})
     return NamedGraphs.to_vertices(g, QuotientVertices(map(parent, qv)))
+end
+
+# Represents multiple vertices across multiple QuotientVertices
+struct QuotientVerticesVertices{V, QV, Vs <: AbstractVector{<:QuotientVertexVertex}, QVs} <: AbstractVertices{V}
+    quotientvertices::QVs
+    vertices::Vs
+    function QuotientVerticesVertices(qvs::QVs, vertices::Vs) where {QVs, Vs}
+        V = vertextype(eltype(Vs))
+        QV = quotient_vertextype(eltype(Vs))
+        return new{V, QV, Vs, QVs}(qvs, vertices)
+    end
+end
+
+function NamedGraphs.parent_graph_indices(qvs::QuotientVerticesVertices)
+    return map(qvv -> qvv.vertex, qvs.vertices)
+end
+
+quotient_index(qvs::QuotientVerticesVertices) = qvs.quotientvertices
+
+Base.eltype(::QuotientVerticesVertices{V, QV}) where {V, QV} = QuotientVertexVertex{V, QV}
+
+function NamedGraphs.to_vertices(::AbstractGraph, qvs::Vector{<:QuotientVertexVertices})
+    return QuotientVerticesVertices(qvs, mapreduce(collect, vcat, qvs))
+end
+
+function NamedGraphs.to_vertices(::AbstractGraph, qvs::Vector{<:QuotientVertexVertex})
+    return QuotientVerticesVertices(qvs, collect(qvs))
+end
+
+function NamedGraphs.to_vertices(g::AbstractGraph, qvs::QuotientVertices)
+    return QuotientVerticesVertices(qvs, mapreduce(qv -> collect(NamedGraphs.to_vertices(g, qv)), vcat, qvs))
 end
