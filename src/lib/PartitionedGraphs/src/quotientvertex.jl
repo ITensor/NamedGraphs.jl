@@ -108,6 +108,8 @@ GraphsExtensions.vertextype(::Type{<:QuotientVertexVertex}) = Any
 
 quotient_vertextype(::Type{<:QuotientVertexVertex{V, QV}}) where {V, QV} = QV
 
+NamedGraphs.to_vertices(g, qvv::QuotientVertexVertex) = quotient_index(qvv)[Vertices([qvv.vertex])]
+
 # Represents multiple vertices in a QuotientVertex
 struct QuotientVertexVertices{V, QV, Vs} <: AbstractVertices{V}
     quotientvertex::QV
