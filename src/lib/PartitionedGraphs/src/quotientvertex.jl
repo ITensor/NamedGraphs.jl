@@ -35,8 +35,6 @@ struct QuotientVertices{V, Vs} <: AbstractVertices{V}
     end
 end
 
-QuotientVertices(vertices...) = QuotientVertices(collect(vertices))
-
 quotient_index(vertices::Vertices) = QuotientVertices(parent_graph_indices(vertices))
 
 Base.eltype(::QuotientVertices{V}) where {V} = QuotientVertex{V}
