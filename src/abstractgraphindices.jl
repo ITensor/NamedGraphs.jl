@@ -28,19 +28,6 @@ Base.length(gi::AbstractGraphIndices) = length(parent_graph_indices(gi))
 to_graph_index(graph, index) = index
 to_graph_index(graph, index::Pair) = edgetype(graph)(index)
 
-Base.iterate(gi::AbstractGraphIndices, state = nothing) = iterate_graph_indices(identity, gi, state)
-function iterate_graph_indices(f, gi::AbstractGraphIndices, state)
-    if isnothing(state)
-        out = iterate(parent_graph_indices(gi))
-    else
-        out = iterate(parent_graph_indices(gi), state)
-    end
-    if isnothing(out)
-        return nothing
-    else
-        (v, s) = out
-        return (f(v), s)
-    end
-end
+Base.iterate(gi::AbstractGraphIndices, state...) = iterate(parent_graph_indices(gi), state...)
 
 Base.getindex(gi::AbstractGraphIndices, i) = getindex(parent_graph_indices(gi), i)

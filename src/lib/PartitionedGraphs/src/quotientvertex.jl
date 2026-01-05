@@ -43,8 +43,8 @@ QuotientVertices(g::AbstractGraph) = QuotientVertices(keys(partitioned_vertices(
 
 NamedGraphs.parent_graph_indices(qvs::QuotientVertices) = qvs.vertices
 
-function Base.iterate(qvs::QuotientVertices, state = nothing)
-    return NamedGraphs.iterate_graph_indices(QuotientVertex, qvs, state)
+function Base.iterate(qvs::QuotientVertices, state...)
+    return iterate(Iterators.map(QuotientVertex, qvs.vertices), state...)
 end
 
 Base.getindex(qvs::QuotientVertices, i::Int) = QuotientVertex(parent_graph_indices(qvs)[i])
@@ -128,8 +128,8 @@ departition(qvs::QuotientVertexVertices) = getfield(qvs, :vertices)
 
 NamedGraphs.parent_graph_indices(qvs::QuotientVertexVertices) = departition(qvs)
 
-function Base.iterate(qvs::QuotientVertexVertices, state = nothing)
-    return NamedGraphs.iterate_graph_indices(v -> quotient_index(qvs)[v], qvs, state)
+function Base.iterate(qvs::QuotientVertexVertices, state...)
+    return iterate(Iterators.map(v -> quotient_index(qvs)[v], qvs.vertices), state...)
 end
 
 function Base.getindex(qvs::QuotientVertexVertices, i::Int)

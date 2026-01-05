@@ -67,18 +67,8 @@ QuotientEdges(g::AbstractGraph) = QuotientEdges(edges(quotient_graph(g)))
 
 NamedGraphs.parent_graph_indices(qvs::QuotientEdges) = getfield(qvs, :edges)
 
-function Base.iterate(qes::QuotientEdges, state = nothing)
-    if isnothing(state)
-        out = iterate(qes.edges)
-    else
-        out = iterate(qes.edges, state)
-    end
-    if isnothing(out)
-        return nothing
-    else
-        (v, s) = out
-        return (QuotientEdge(v), s)
-    end
+function Base.iterate(qes::QuotientEdges, state...)
+    return iterate(Iterators.map(QuotientEdge, qes.edges), state...)
 end
 
 """
