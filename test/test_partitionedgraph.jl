@@ -46,7 +46,9 @@ using NamedGraphs.PartitionedGraphs:
     QuotientEdgeEdges,
     QuotientVertex,
     QuotientVertexVertices,
+    QuotientVertices,
     QuotientView,
+    Vertices,
     boundary_quotientedges,
     departition,
     has_quotientvertex,
@@ -54,7 +56,7 @@ using NamedGraphs.PartitionedGraphs:
     partitioned_vertices,
     partitionedgraph,
     quotient_graph,
-    quotients,
+    quotient_index,
     quotientedge,
     quotientedges,
     quotientvertex,
@@ -209,6 +211,26 @@ end
     pg_1 = subgraph(pg, subgraph_vertices)
     @test pg_1 == subgraph(g, subgraph_vertices)
     @test g_1 == subgraph(g, subgraph_vertices)
+
+    @test subgraph(pg, QuotientVertex(1)) isa typeof(g)
+    @test subgraph(pg, QuotientVertex(1)[2]) isa typeof(g)
+    @test nv(subgraph(pg, QuotientVertex(1)[2])) == 1
+    @test subgraph(pg, QuotientVertex(1)[Vertices([1, 2])]) isa typeof(g)
+    @test nv(subgraph(pg, QuotientVertex(1)[Vertices([1, 2])])) == 2
+
+    @test subgraph(pg, [QuotientVertex(1)]) isa typeof(pg)
+    @test subgraph(pg, [QuotientVertex(1), QuotientVertex(2)]) isa typeof(pg)
+    @test subgraph(pg, QuotientVertices([1, 2])) isa typeof(pg)
+    @test nv(subgraph(pg, QuotientVertices([1, 2]))) == 6
+    @test subgraph(pg, QuotientVertices([1, 2, 3, 4])) == pg
+
+    @test subgraph(pg, [QuotientVertex(1)[Vertices([1, 2])]]) isa typeof(pg)
+    let pg_subgraph = subgraph(pg, [QuotientVertex(1)[Vertices([1, 2])], QuotientVertex(1)[Vertices([4])]])
+        @test nv(pg_subgraph) == 3
+        @test nv(QuotientView(pg_subgraph)) == 2
+        @test collect(vertices(pg_subgraph, QuotientVertex(1))) == [1, 2]
+        @test collect(vertices(pg_subgraph, QuotientVertex(2))) == [4]
+    end
 end
 
 @testset "Test NamedGraphs Functions on Partitioned Graph" begin
@@ -380,14 +402,14 @@ end
         @test qvs isa QuotientVertexVertices
         @test all(parent_graph_indices(qvs) .== [(2, 1), (2, 2), (2, 3)])
         @test all(departition(qvs) .== [(2, 1), (2, 2), (2, 3)])
-        @test quotients(qvs) == QuotientVertex(2)
+        @test quotient_index(qvs) == QuotientVertex(2)
     end
 
     let qes = to_graph_index(g, QuotientEdge(1 => 2))
         @test qes isa QuotientEdgeEdges
         @test all(parent_graph_indices(qes) .== map(NamedEdge, [(1, 1) => (2, 1), (1, 2) => (2, 2), (1, 3) => (2, 3)]))
         @test all(departition(qes) .== map(NamedEdge, [(1, 1) => (2, 1), (1, 2) => (2, 2), (1, 3) => (2, 3)]))
-        @test quotients(qes) == QuotientEdge(1 => 2)
+        @test quotient_index(qes) == QuotientEdge(1 => 2)
     end
 end
 
