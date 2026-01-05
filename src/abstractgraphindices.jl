@@ -9,8 +9,6 @@ struct Vertices{V, Vs} <: AbstractVertices{V}
     Vertices(vertices::Vs) where {Vs} = new{eltype(Vs), Vs}(vertices)
 end
 
-Vertices(v1, v2, vertices...) = Vertices(vcat([v1, v2], collect(vertices)))
-
 struct Edges{V, E <: AbstractEdge{V}, Es} <: AbstractEdges{V, E}
     edges::Es
     function Edges(edges::Es) where {Es}
@@ -18,8 +16,6 @@ struct Edges{V, E <: AbstractEdge{V}, Es} <: AbstractEdges{V, E}
         return new{vertextype(E), E, Es}(edges)
     end
 end
-
-Edges(e1, e2, edges...) = Edges(vcat([e1, e2], collect(edges)))
 
 parent_graph_indices(vs::AbstractVertices) = vs.vertices
 parent_graph_indices(es::AbstractEdges) = es.edges
