@@ -147,7 +147,7 @@ end
 rem_quotientedge!(g::AbstractGraph, sv::QuotientEdge) = rem_edges!(g, sv)
 
 struct QuotientEdgeEdges{V, E, QE, Es} <: AbstractEdges{V, E}
-    quotients::QE
+    quotientedge::QE
     edges::Es
     function QuotientEdgeEdges(qe::QE, edges::Es) where {QE, Es}
         E = eltype(Es)
@@ -156,8 +156,8 @@ struct QuotientEdgeEdges{V, E, QE, Es} <: AbstractEdges{V, E}
     end
 end
 
-quotients(qes::QuotientEdgeEdges) = getfield(qes, :quotients)
-departition(qes::QuotientEdgeEdges) = getfield(qes, :edges)
+quotient_index(qes::QuotientEdgeEdges) = qes.quotientedge
+departition(qes::QuotientEdgeEdges) = qes.edges
 
 NamedGraphs.parent_graph_indices(qes::QuotientEdgeEdges) = departition(qes)
 
@@ -169,5 +169,3 @@ end
 NamedGraphs.to_graph_index(::AbstractGraph, qv::QuotientEdges) = qv
 
 const QuotientEdgesEdges{V, E, QE <: QuotientEdges, Es} = QuotientEdgeEdges{V, E, QE, Es}
-
-quotient_index(subedges::QuotientEdgeEdges) = quotients(subedges)
