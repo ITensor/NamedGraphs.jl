@@ -86,6 +86,9 @@ to_vertices(vertices) = vertices
 to_vertices(vertices::AbstractArray) = vec(vertices)
 to_vertices(vertices::Integer) = Base.OneTo(vertices)
 
+to_edges(graph, edges) = to_edges(edges)
+to_edges(edges) = edges
+
 # Inner constructor
 # TODO: Is this needed?
 function GenericNamedGraph{V, G}(

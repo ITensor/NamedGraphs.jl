@@ -1,5 +1,5 @@
 using Graphs: AbstractGraph, Graphs, nv, induced_subgraph
-using ..NamedGraphs: NamedGraphs, AbstractNamedGraph, AbstractVertices, Vertices, Edges
+using ..NamedGraphs: NamedGraphs, AbstractNamedGraph, AbstractVertices, Vertices, Edges, to_vertices
 using ..NamedGraphs.GraphsExtensions: GraphsExtensions, rem_vertices!, subgraph
 using ..NamedGraphs.OrderedDictionaries: OrderedIndices
 
@@ -47,7 +47,10 @@ function Base.iterate(qvs::QuotientVertices, state...)
     return iterate(Iterators.map(QuotientVertex, qvs.vertices), state...)
 end
 
-Base.getindex(qvs::QuotientVertices, i::Int) = QuotientVertex(parent_graph_indices(qvs)[i])
+# QuotientVertices and should index like a list of quotient vertices
+NamedGraphs.to_graph_index(::AbstractGraph, qv::QuotientVertices) = qv
+
+Base.getindex(qvs::QuotientVertices, i...) = QuotientVertex(parent_graph_indices(qvs)[i...])
 
 """
     quotientvertices(g::AbstractGraph, vs = vertices(pg))
@@ -118,13 +121,10 @@ struct QuotientVertexVertices{V, QV, Vs} <: AbstractVertices{V}
     end
 end
 
-quotient_index(qvv::QuotientVertexVertices) = QuotientVertex(qvv.quotientvertex)
+quotient_index(qvs::QuotientVertexVertices) = QuotientVertex(qvs.quotientvertex)
+departition(qvs::QuotientVertexVertices) = qvs.vertices
 
 Base.eltype(::QuotientVertexVertices{V, QV}) where {V, QV} = QuotientVertexVertex{V, QV}
-# GraphsExtensions.vertextype(::Type{<:QuotientVertexVertices{V}}) where {V} = V
-# quotient_vertextype(::Type{<:QuotientVertexVertices{V, QV}}) where {V, QV} = QV
-
-departition(qvs::QuotientVertexVertices) = getfield(qvs, :vertices)
 
 NamedGraphs.parent_graph_indices(qvs::QuotientVertexVertices) = departition(qvs)
 
@@ -143,8 +143,6 @@ end
 function NamedGraphs.to_graph_index(g::AbstractGraph, qv::QuotientVertex)
     return QuotientVertexVertices(parent(qv), vertices(g, qv))
 end
-# QuotientVertices and should index like a list of quotient vertices
-NamedGraphs.to_graph_index(::AbstractGraph, qv::QuotientVertices) = qv
 
 # NamedGraphs.to_vertices explictly converts to a collection of vertices, used for
 # taking subgraphs.

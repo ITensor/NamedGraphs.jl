@@ -84,15 +84,11 @@ function Base.copy(pg::PartitionedGraph)
     )
 end
 
-function insert_to_vertex_map!(
-        pg::PartitionedGraph, vertex, quotientvertex::QuotientVertex
-    )
-    pv = parent(quotientvertex)
+function insert_to_vertex_map!(pg::PartitionedGraph, vertex, quotientvertex)
+    push!(get!(pg.partitioned_vertices, quotientvertex, []), vertex)
+    unique!(pg.partitioned_vertices[quotientvertex])
 
-    push!(get!(pg.partitioned_vertices, pv, []), vertex)
-    unique!(pg.partitioned_vertices[pv])
-
-    insert!(pg.which_partition, vertex, pv)
+    insert!(pg.which_partition, vertex, quotientvertex)
 
     return pg
 end
@@ -103,9 +99,9 @@ function delete_from_vertex_map!(pg::PartitionedGraph{V}, vertex::V) where {V}
 end
 
 function delete_from_vertex_map!(
-        pg::PartitionedGraph{V}, sv::QuotientVertex, vertex::V
+        pg::PartitionedGraph{V}, quotientvertex, vertex::V
     ) where {V}
-    return delete_from_vertex_map!(pg, parent(sv), vertex)
+    return delete_from_vertex_map!(pg, quotientvertex, vertex)
 end
 
 function delete_from_vertex_map!(
@@ -140,10 +136,10 @@ function Graphs.rem_vertex!(pg::PartitionedGraph{V}, vertex::V) where {V}
 end
 
 # Interface function
-function add_subquotientvertex!(pg::PartitionedGraph{V}, sv::QuotientVertex, vertex::V) where {V}
+function add_subquotientvertex!(pg::PartitionedGraph{V}, qv, vertex) where {V}
     add_vertex!(pg.graph, vertex)
-    add_vertex!(pg.quotient_graph, parent(sv))
-    insert_to_vertex_map!(pg, vertex, sv)
+    add_vertex!(pg.quotient_graph, qv)
+    insert_to_vertex_map!(pg, vertex, qv)
     return pg
 end
 
