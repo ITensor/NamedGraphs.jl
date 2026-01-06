@@ -192,5 +192,3 @@ end
 function NamedGraphs.to_graph_index(g::AbstractGraph, qe::QuotientEdge)
     return QuotientEdgeEdges(parent(qe), edges(g, qe))
 end
-
-const QuotientEdgesEdges{V, E, QE <: QuotientEdges, Es} = QuotientEdgeEdges{V, E, QE, Es}
