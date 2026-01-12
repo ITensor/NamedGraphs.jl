@@ -2,6 +2,7 @@ using Dictionaries: Dictionary
 using Graphs:
     AbstractEdge,
     AbstractGraph,
+    AbstractSimpleGraph,
     Graphs,
     add_vertex!,
     dst,
@@ -11,23 +12,40 @@ using Graphs:
     rem_vertex!,
     src,
     vertices
-using ..NamedGraphs: NamedGraphs, AbstractNamedGraph, NamedGraph
+using ..NamedGraphs: NamedGraphs, AbstractNamedGraph, NamedGraph, NamedDiGraph
 using ..NamedGraphs.GraphsExtensions:
-    GraphsExtensions, add_vertices!, not_implemented, rem_vertices!, subgraph, vertextype
+    GraphsExtensions,
+    add_vertices!,
+    not_implemented,
+    rem_vertices!,
+    subgraph,
+    convert_vertextype
 
 # For you own graph type `g`, you should define a method for this function if you
 # desire custom partitioning.
 partitioned_vertices(g::AbstractGraph) = [vertices(g)]
 
+#TODO: Write this in terms of traits
+function similar_quotient_graph(g::AbstractGraph)
+    if is_directed(g)
+        sg = NamedDiGraph()
+    else
+        sg = NamedGraph()
+    end
+    return convert_vertextype(keytype(partitioned_vertices(g)), sg)
+end
+
 # For fast quotient edge checking and graph construction, one should overload this function.
 function quotient_graph(g::AbstractGraph)
 
-    qg = NamedGraph(keys(partitioned_vertices(g)))
+    qg = similar_quotient_graph(g)
+
+    add_vertices!(qg, keys(partitioned_vertices(g)))
 
     for e in edges(g)
         qv_src = parent(quotientvertex(g, src(e)))
         qv_dst = parent(quotientvertex(g, dst(e)))
-        qe = qv_src => qv_dst
+        qe = edgetype(qg)(qv_src => qv_dst)
         if qv_src != qv_dst && !has_edge(qg, qe)
             add_edge!(qg, qe)
         end
@@ -117,12 +135,6 @@ function unpartitioned_graph_type(pg::AbstractPartitionedGraph)
     return typeof(unpartitioned_graph(pg))
 end
 
-
-# AbstractGraph interface.
-function Graphs.is_directed(graph_type::Type{<:AbstractPartitionedGraph})
-    return is_directed(unpartitioned_graph_type(graph_type))
-end
-
 #Functions for the abstract type
 Graphs.vertices(pg::AbstractPartitionedGraph) = vertices(unpartitioned_graph(pg))
 Graphs.edges(pg::AbstractPartitionedGraph) = edges(unpartitioned_graph(pg))
@@ -144,8 +156,8 @@ function Graphs.add_vertex!(::AbstractPartitionedGraph, vertex)
     return error("Need to specify a partition where the new vertex will go.")
 end
 
-function Graphs.add_vertex!(pg::AbstractPartitionedGraph, ssv::SubQuotientVertex)
-    return add_subquotientvertex!(pg, ssv.vertex, ssv.subvertex)
+function Graphs.add_vertex!(pg::AbstractPartitionedGraph, qvv::QuotientVertexVertex)
+    return add_subquotientvertex!(pg, qvv.quotientvertex, qvv.vertex)
 end
 
 function Base.:(==)(pg1::AbstractPartitionedGraph, pg2::AbstractPartitionedGraph)
@@ -165,4 +177,9 @@ function NamedGraphs.induced_subgraph_from_vertices(
         pg::AbstractPartitionedGraph, subvertices
     )
     return NamedGraphs.induced_subgraph_from_vertices(unpartitioned_graph(pg), subvertices)
+end
+function NamedGraphs.induced_subgraph_from_vertices(
+        pg::AbstractPartitionedGraph, subvertices::AbstractVertices
+    )
+    return NamedGraphs.induced_subgraph_from_vertices(pg, parent_graph_indices(subvertices))
 end

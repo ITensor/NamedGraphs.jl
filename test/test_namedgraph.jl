@@ -297,6 +297,23 @@ end
         h = degree_histogram(g, indegree)
         @test h[0] == 2
         @test h[1] == 2
+
+        rg = reverse(g)
+
+        @test !has_edge(rg, "A" => "B")
+        @test !has_edge(rg, "B" => "C")
+        @test has_edge(rg, "B" => "A")
+        @test has_edge(rg, "C" => "B")
+
+        rg = reverse!(copy(g))
+
+        @test !has_edge(rg, "A" => "B")
+        @test !has_edge(rg, "B" => "C")
+        @test has_edge(rg, "B" => "A")
+        @test has_edge(rg, "C" => "B")
+
+        @test reverse(reverse(g)) == g
+        @test reverse!(reverse!(copy(g))) == g
     end
     @testset "BFS traversal" begin
         g = named_grid((3, 3))

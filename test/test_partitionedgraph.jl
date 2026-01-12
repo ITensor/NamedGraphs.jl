@@ -20,7 +20,7 @@ using Graphs:
     rem_vertex!,
     vertices
 using Metis: Metis
-using NamedGraphs: NamedEdge, NamedGraph, NamedGraphs
+using NamedGraphs: NamedEdge, NamedGraph, NamedGraphs, parent_graph_indices, to_graph_index
 using NamedGraphs.GraphsExtensions:
     add_edges!,
     add_vertices!,
@@ -42,9 +42,13 @@ using NamedGraphs.PartitionedGraphs:
     PartitionedGraph,
     PartitionedGraphs,
     PartitionedView,
-    QuotientView,
     QuotientEdge,
+    QuotientEdgeEdges,
     QuotientVertex,
+    QuotientVertexVertices,
+    QuotientVertices,
+    QuotientView,
+    Vertices,
     boundary_quotientedges,
     departition,
     has_quotientvertex,
@@ -52,11 +56,12 @@ using NamedGraphs.PartitionedGraphs:
     partitioned_vertices,
     partitionedgraph,
     quotient_graph,
-    rem_quotientvertex!,
+    to_quotient_index,
     quotientedge,
     quotientedges,
     quotientvertex,
     quotientvertices,
+    rem_quotientvertex!,
     unpartition,
     unpartitioned_graph
 using Dictionaries: Dictionary, dictionary
@@ -82,7 +87,7 @@ using Test: @test, @testset, @test_throws
 
     #PartionsGraphView test
     pgv = QuotientView(pg)
-    @test vertices(pgv) == parent.(quotientvertices(pg))
+    @test collect(vertices(pgv)) == collect(parent.(quotientvertices(pg)))
     @test edges(pgv) == parent.(quotientedges(pg))
     @test is_tree(pgv) == true
     @test neighbors(pgv, 1) == [2]
@@ -204,8 +209,28 @@ end
     subgraph_vertices = partitions[subgraph_partitioned_vertex]
     g_1 = subgraph(pg, QuotientVertex(subgraph_partitioned_vertex))
     pg_1 = subgraph(pg, subgraph_vertices)
-    @test unpartitioned_graph(pg_1) == subgraph(g, subgraph_vertices)
+    @test pg_1 == subgraph(g, subgraph_vertices)
     @test g_1 == subgraph(g, subgraph_vertices)
+
+    @test subgraph(pg, QuotientVertex(1)) isa typeof(g)
+    @test subgraph(pg, QuotientVertex(1)[2]) isa typeof(g)
+    @test nv(subgraph(pg, QuotientVertex(1)[2])) == 1
+    @test subgraph(pg, QuotientVertex(1)[Vertices([1, 2])]) isa typeof(g)
+    @test nv(subgraph(pg, QuotientVertex(1)[Vertices([1, 2])])) == 2
+
+    @test subgraph(pg, [QuotientVertex(1)]) isa typeof(pg)
+    @test subgraph(pg, [QuotientVertex(1), QuotientVertex(2)]) isa typeof(pg)
+    @test subgraph(pg, QuotientVertices([1, 2])) isa typeof(pg)
+    @test nv(subgraph(pg, QuotientVertices([1, 2]))) == 6
+    @test subgraph(pg, QuotientVertices([1, 2, 3, 4])) == pg
+
+    @test subgraph(pg, [QuotientVertex(1)[Vertices([1, 2])]]) isa typeof(pg)
+    let pg_subgraph = subgraph(pg, [QuotientVertex(1)[Vertices([1, 2])], QuotientVertex(1)[Vertices([4])]])
+        @test nv(pg_subgraph) == 3
+        @test nv(QuotientView(pg_subgraph)) == 2
+        @test collect(vertices(pg_subgraph, QuotientVertex(1))) == [1, 2]
+        @test collect(vertices(pg_subgraph, QuotientVertex(2))) == [4]
+    end
 end
 
 @testset "Test NamedGraphs Functions on Partitioned Graph" begin
@@ -255,16 +280,22 @@ Graphs.vertices(mg::MyUnpartitionedGraph) = vertices(mg.g)
 Graphs.edgetype(mg::MyUnpartitionedGraph) = edgetype(mg.g)
 Graphs.has_edge(mg::MyUnpartitionedGraph, e) = has_edge(mg.g, e)
 
+Graphs.is_directed(mg::MyUnpartitionedGraph) = is_directed(mg.g)
+
 struct MyGraph{V, P} <: AbstractGraph{V}
     g::NamedGraph{V}
     partitioned_vertices::P
 end
+
 
 Graphs.edges(mg::MyGraph) = edges(mg.g)
 Graphs.vertices(mg::MyGraph) = vertices(mg.g)
 
 Graphs.edgetype(mg::MyGraph) = edgetype(mg.g)
 Graphs.has_edge(mg::MyGraph, e) = has_edge(mg.g, e)
+
+Graphs.is_directed(mg::MyGraph) = is_directed(mg.g)
+NamedGraphs.position_graph(mg::MyGraph) = NamedGraphs.position_graph(mg.g)
 
 PartitionedGraphs.partitioned_vertices(mg::MyGraph) = mg.partitioned_vertices
 PartitionedGraphs.quotient_graph_type(::Type{<:MyGraph}) = NamedGraph{Int}
@@ -286,6 +317,9 @@ end
 
 Graphs.edges(wg::WrapperGraph) = edges(wg.g)
 Graphs.vertices(wg::WrapperGraph) = vertices(wg.g)
+
+Graphs.is_directed(wg::WrapperGraph) = is_directed(wg.g)
+NamedGraphs.position_graph(wg::WrapperGraph) = NamedGraphs.position_graph(wg.g)
 
 PartitionedGraphs.partitioned_vertices(wg::WrapperGraph) = partitioned_vertices(wg.g)
 
@@ -356,4 +390,25 @@ end
     p1q = [[(i, j) for j in 1:ny] for i in 1:nx]
     partitionedgraph(QuotientView(pwg1), p1q)
 end
+
+@testset "Graph indexing" begin
+    nx, ny = 3, 3
+    g = named_grid((nx, ny))
+    partitions = [[(i, j) for j in 1:ny] for i in 1:nx]
+
+    g = PartitionedGraph(g, partitions)
+
+    let qvs = to_graph_index(g, QuotientVertex(2))
+        @test qvs isa QuotientVertexVertices
+        @test all(parent_graph_indices(qvs) .== [(2, 1), (2, 2), (2, 3)])
+        @test to_quotient_index(qvs.quotientvertex) == QuotientVertex(2)
+    end
+
+    let qes = to_graph_index(g, QuotientEdge(1 => 2))
+        @test qes isa QuotientEdgeEdges
+        @test all(parent_graph_indices(qes) .== map(NamedEdge, [(1, 1) => (2, 1), (1, 2) => (2, 2), (1, 3) => (2, 3)]))
+        @test to_quotient_index(qes.quotientedge) == QuotientEdge(1 => 2)
+    end
+end
+
 end

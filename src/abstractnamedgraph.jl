@@ -2,6 +2,7 @@ using Dictionaries: set!
 using Graphs:
     Graphs,
     AbstractGraph,
+    AbstractSimpleGraph,
     IsDirected,
     a_star,
     add_edge!,
@@ -34,7 +35,8 @@ using .GraphsExtensions:
     incident_edges,
     partition_vertices,
     rename_vertices,
-    subgraph
+    subgraph,
+    similar_graph
 using SimpleTraits: SimpleTraits, Not, @traitfn
 
 abstract type AbstractNamedGraph{V} <: AbstractGraph{V} end
@@ -45,6 +47,7 @@ abstract type AbstractNamedGraph{V} <: AbstractGraph{V} end
 
 Graphs.vertices(graph::AbstractNamedGraph) = not_implemented()
 position_graph(graph::AbstractNamedGraph) = not_implemented()
+position_graph(graph::AbstractSimpleGraph) = graph
 
 Graphs.rem_vertex!(graph::AbstractNamedGraph, vertex) = not_implemented()
 Graphs.add_vertex!(graph::AbstractNamedGraph, vertex) = not_implemented()
@@ -61,10 +64,12 @@ end
 # graph `position_graph(graph::AbstractNamedGraph)`.
 # Inverse map of `ordered_vertices`.
 vertex_positions(graph::AbstractNamedGraph) = not_implemented()
+vertex_positions(graph::AbstractSimpleGraph) = vertices(graph)
 
 # Outputs an object that when indexed by a vertex position
 # returns the corresponding vertex.
 ordered_vertices(graph::AbstractNamedGraph) = not_implemented()
+ordered_vertices(graph::AbstractSimpleGraph) = vertices(graph)
 
 Graphs.edgetype(graph::AbstractNamedGraph) = edgetype(typeof(graph))
 Graphs.edgetype(::Type{<:AbstractNamedGraph}) = not_implemented()
@@ -76,7 +81,8 @@ GraphsExtensions.undirected_graph_type(G::Type{<:AbstractNamedGraph}) = not_impl
 # In terms of `position_graph_type`
 # is_directed(::Type{<:AbstractNamedGraph}) = not_implemented()
 
-GraphsExtensions.convert_vertextype(::Type, ::AbstractNamedGraph) = not_implemented()
+GraphsExtensions.convert_vertextype(::Type{V}, g::AbstractNamedGraph{V}) where {V} = g
+GraphsExtensions.convert_vertextype(::Type, g::AbstractNamedGraph) = not_implemented()
 
 # TODO: implement as:
 #
@@ -102,6 +108,7 @@ end
 #
 
 position_graph_type(graph::AbstractNamedGraph) = typeof(position_graph(graph))
+position_graph_type(T::Type{<:AbstractNamedGraph}) = Base.promote_op(position_graph, T)
 
 function Graphs.has_vertex(graph::AbstractNamedGraph, vertex)
     # TODO: `vertices` should have fast lookup!
@@ -111,16 +118,6 @@ end
 Graphs.SimpleDiGraph(graph::AbstractNamedGraph) = SimpleDiGraph(position_graph(graph))
 
 Base.zero(G::Type{<:AbstractNamedGraph}) = G()
-
-# TODO: Implement using `copyto!`?
-function GraphsExtensions.directed_graph(graph::AbstractNamedGraph)
-    digraph = directed_graph_type(typeof(graph))(vertices(graph))
-    for e in edges(graph)
-        add_edge!(digraph, e)
-        add_edge!(digraph, reverse(e))
-    end
-    return digraph
-end
 
 # Default, can overload
 Base.eltype(graph::AbstractNamedGraph) = eltype(vertices(graph))
@@ -436,11 +433,20 @@ Graphs.is_connected(graph::AbstractNamedGraph) = is_connected(position_graph(gra
 Graphs.is_cyclic(graph::AbstractNamedGraph) = is_cyclic(position_graph(graph))
 
 @traitfn function Base.reverse(graph::AbstractNamedGraph::IsDirected)
-    return not_implemented()
+    return similar_graph(graph, vertices, map(reverse, collect(edges(graph))))
 end
 
+# This wont be the most efficient way for a given graph type.
 @traitfn function Base.reverse!(g::AbstractNamedGraph::IsDirected)
-    return not_implemented()
+
+    edge_list = collect(edges(g))
+
+    for edge in edge_list
+        rem_edge!(g, edge)
+        add_edge!(g, reverse(edge))
+    end
+
+    return g
 end
 
 # TODO: Move to `namedgraph.jl`, or make the output generic?
@@ -493,9 +499,7 @@ end
 # traversal algorithms.
 function Graphs.tree(graph::AbstractNamedGraph, parents)
     n = length(parents)
-    # TODO: Use `directed_graph` here to make more generic?
-    ## t = GenericNamedGraph(DiGraph(n), vertices(graph))
-    t = directed_graph_type(typeof(graph))(vertices(graph))
+    t = similar_graph(directed_graph_type(typeof(graph)), vertices(graph))
     for destination in eachindex(parents)
         source = parents[destination]
         if source != destination
