@@ -48,8 +48,9 @@ end
 
 struct QuotientEdges{V, E, Es} <: AbstractEdges{V, E}
     edges::Es
-    function QuotientEdges{V, E}(edges::Es) where {V, E, Es}
-        @assert E <: eltype(Es)
+    function QuotientEdges(edges::Es) where {Es}
+        E = eltype(edges)
+        V = vertextype(E)
         return new{V, E, Es}(edges)
     end
 end
@@ -57,11 +58,6 @@ end
 quotient_index(edges::Edges) = QuotientEdges(parent_graph_indices(edges))
 
 Base.eltype(::QuotientEdges{V, E}) where {V, E} = QuotientEdge{V, E}
-
-function QuotientEdges(edges::Es) where {Es}
-    E = eltype(Es)
-    return QuotientEdges{vertextype(E), E}(edges)
-end
 
 QuotientEdges(g::AbstractGraph) = QuotientEdges(edges(quotient_graph(g)))
 
