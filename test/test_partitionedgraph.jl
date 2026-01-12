@@ -56,7 +56,7 @@ using NamedGraphs.PartitionedGraphs:
     partitioned_vertices,
     partitionedgraph,
     quotient_graph,
-    quotient_index,
+    to_quotient_index,
     quotientedge,
     quotientedges,
     quotientvertex,
@@ -401,15 +401,13 @@ end
     let qvs = to_graph_index(g, QuotientVertex(2))
         @test qvs isa QuotientVertexVertices
         @test all(parent_graph_indices(qvs) .== [(2, 1), (2, 2), (2, 3)])
-        @test all(departition(qvs) .== [(2, 1), (2, 2), (2, 3)])
-        @test quotient_index(qvs) == QuotientVertex(2)
+        @test to_quotient_index(qvs.quotientvertex) == QuotientVertex(2)
     end
 
     let qes = to_graph_index(g, QuotientEdge(1 => 2))
         @test qes isa QuotientEdgeEdges
         @test all(parent_graph_indices(qes) .== map(NamedEdge, [(1, 1) => (2, 1), (1, 2) => (2, 2), (1, 3) => (2, 3)]))
-        @test all(departition(qes) .== map(NamedEdge, [(1, 1) => (2, 1), (1, 2) => (2, 2), (1, 3) => (2, 3)]))
-        @test quotient_index(qes) == QuotientEdge(1 => 2)
+        @test to_quotient_index(qes.quotientedge) == QuotientEdge(1 => 2)
     end
 end
 
