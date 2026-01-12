@@ -67,8 +67,11 @@ function Graphs.diameter(graph::AbstractNamedGraph, distmx = weights(graph))
     return namedgraph_diameter(graph, distmx)
 end
 
-# Fix for ambiguity error with `AbstractGraph`
+# Fixes for ambiguity error with `AbstractGraph`
 function Graphs.diameter(graph::AbstractNamedGraph, distmx::AbstractMatrix)
+    return namedgraph_diameter(graph, distmx)
+end
+function Graphs.diameter(graph::AbstractNamedGraph, distmx::Graphs.DefaultDistance)
     return namedgraph_diameter(graph, distmx)
 end
 
