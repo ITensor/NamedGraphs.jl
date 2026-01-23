@@ -83,6 +83,7 @@ graph.
 module PartitionedGraphs
 include("quotientvertex.jl")
 include("quotientedge.jl")
+include("quotientvertexoredge.jl")
 include("abstractpartitionedgraph.jl")
 include("partitionedview.jl")
 include("partitionedgraph.jl")
