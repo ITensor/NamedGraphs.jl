@@ -36,7 +36,8 @@ using .GraphsExtensions:
     partition_vertices,
     rename_vertices,
     subgraph,
-    similar_graph
+    similar_graph,
+    rem_edges!
 using SimpleTraits: SimpleTraits, Not, @traitfn
 
 abstract type AbstractNamedGraph{V} <: AbstractGraph{V} end
@@ -401,6 +402,7 @@ end
 function Base.union(graph1::AbstractNamedGraph, graph2::AbstractNamedGraph)
     union_graph = promote_type(typeof(graph1), typeof(graph2))()
     union_vertices = union(vertices(graph1), vertices(graph2))
+
     for v in union_vertices
         add_vertex!(union_graph, v)
     end
@@ -571,4 +573,17 @@ function Base.:(==)(g1::AbstractNamedGraph, g2::AbstractNamedGraph)
         issetequal(outneighbors(g1, v), outneighbors(g2, v)) || return false
     end
     return true
+end
+
+function GraphsExtensions.edge_subgraph(graph::AbstractNamedGraph, edges)
+    return namedgraph_edge_subgraph(graph, parent_graph_indices(to_edges(graph, edges)))
+end
+function GraphsExtensions.edge_subgraph(graph::AbstractNamedGraph, edges::Vector{<:AbstractEdge})
+    return namedgraph_edge_subgraph(graph, to_edges(graph, edges))
+end
+function namedgraph_edge_subgraph(graph::AbstractNamedGraph, edgelist)
+    vs = unique(vcat(src.(edgelist), dst.(edgelist)))
+    g = subgraph(graph, vs)
+    g = rem_edges!(g, setdiff(edges(g), edgelist))
+    return g
 end
