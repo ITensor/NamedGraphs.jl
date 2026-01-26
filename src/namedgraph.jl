@@ -62,7 +62,7 @@ end
 function GraphsExtensions.rename_vertices(f::Function, graph::GenericNamedGraph)
     # TODO: Fix broadcasting of `OrderedIndices`.
     # return GenericNamedGraph(position_graph(graph), f.(vertices(graph)))
-    return GenericNamedGraph(position_graph(graph), map(f, vertices(graph)))
+    return GenericNamedGraph(copy(position_graph(graph)), map(f, vertices(graph)))
 end
 
 function GraphsExtensions.rename_vertices(f::Function, g::AbstractSimpleGraph)
