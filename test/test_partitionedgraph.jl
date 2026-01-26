@@ -20,7 +20,14 @@ using Graphs:
     rem_vertex!,
     vertices
 using Metis: Metis
-using NamedGraphs: NamedEdge, NamedGraph, NamedGraphs, parent_graph_indices, to_graph_index
+using NamedGraphs:
+    NamedEdge,
+    NamedGraph,
+    NamedGraphs,
+    parent_graph_indices,
+    to_graph_index,
+    Vertices,
+    Edges
 using NamedGraphs.GraphsExtensions:
     add_edges!,
     add_vertices!,
@@ -43,15 +50,20 @@ using NamedGraphs.PartitionedGraphs:
     PartitionedGraphs,
     PartitionedView,
     QuotientEdge,
+    QuotientEdgeEdge,
     QuotientEdgeEdges,
+    QuotientEdges,
+    QuotientEdgesEdges,
     QuotientVertex,
+    QuotientVertexVertex,
     QuotientVertexVertices,
     QuotientVertices,
+    QuotientVerticesVertices,
     QuotientView,
-    Vertices,
     boundary_quotientedges,
     departition,
     has_quotientvertex,
+    has_quotientedge,
     partitioned_edges,
     partitioned_vertices,
     partitionedgraph,
@@ -391,24 +403,228 @@ end
     partitionedgraph(QuotientView(pwg1), p1q)
 end
 
-@testset "Graph indexing" begin
+@testset "Index transformations" begin
     nx, ny = 3, 3
     g = named_grid((nx, ny))
     partitions = [[(i, j) for j in 1:ny] for i in 1:nx]
 
     g = PartitionedGraph(g, partitions)
 
-    let qvs = to_graph_index(g, QuotientVertex(2))
-        @test qvs isa QuotientVertexVertices
-        @test all(parent_graph_indices(qvs) .== [(2, 1), (2, 2), (2, 3)])
-        @test to_quotient_index(qvs.quotientvertex) == QuotientVertex(2)
+
+    @testset "Vertices" begin
+
+        # runic: off
+        V       = vertextype(g)
+        VS      = Vertices
+        QVV     = QuotientVertexVertex{V}
+        QVVS    = QuotientVertexVertices
+        QV      = QuotientVertex
+        QVS     = QuotientVertices
+        QVSVS   = QuotientVerticesVertices
+        # runic: on
+
+        @testset "`to_graph_index`" begin
+            to_graph_index = (G, I) -> Base.promote_op(to_graph_index, G, I)
+            # runic: off
+            @test to_graph_index(AbstractGraph, V)                   <: V
+            @test to_graph_index(AbstractGraph, QVV)                 <: V
+            @test to_graph_index(AbstractGraph, QV)                  <: QV
+
+            @test to_graph_index(AbstractGraph, VS)                  <: VS
+            @test to_graph_index(AbstractGraph, Vector{V})           <: Vector{V}
+            @test to_graph_index(AbstractGraph, Vector{QVV})         <: VS
+            @test to_graph_index(AbstractGraph, QV)                  <: QV
+
+            @test to_graph_index(AbstractGraph, Vector{QVVS})        <: QVSVS
+            @test to_graph_index(AbstractGraph, Vector{QV})          <: QVS
+            @test to_graph_index(AbstractGraph, QVSVS)               <: QVSVS
+            @test to_graph_index(AbstractGraph, QVS)                 <: QVS
+            # runic: on
+        end
+        @testset "`to_graph_indices`" begin
+            to_graph_indices = (G, I) -> Base.promote_op(to_graph_indices, G, I)
+            # runic: off
+            @test to_graph_indices(AbstractGraph, V)                 <: VS
+            @test to_graph_indices(AbstractGraph, QVV)               <: QVVS
+            @test to_graph_indices(AbstractGraph, QV)                <: QVVS
+
+            @test to_graph_indices(AbstractGraph, VS)                <: VS
+            @test to_graph_indices(AbstractGraph, Vector{V})         <: VS
+            @test to_graph_indices(AbstractGraph, Vector{QVV})       <: VS
+            @test to_graph_indices(AbstractGraph, QV)                <: QVVS
+
+            @test to_graph_indices(AbstractGraph, Vector{QVVS})      <: QVSVS
+            @test to_graph_indices(AbstractGraph, Vector{QV})        <: QVS
+            @test to_graph_indices(AbstractGraph, QVSVS)             <: QVSVS
+            @test to_graph_indices(AbstractGraph, QVS)               <: QVS
+            # runic: on
+        end
+        @testset "`to_vertices`" begin
+            to_vertices = (G, I) -> Base.promote_op(to_vertices, G, I)
+            # runic: off
+            @test to_vertices(AbstractGraph, V)                      <: VS
+            @test to_vertices(AbstractGraph, QVV)                    <: QVVS
+            @test to_vertices(AbstractGraph, QV)                     <: QVVS
+
+            @test to_vertices(AbstractGraph, VS)                     <: VS
+            @test to_vertices(AbstractGraph, Vector{V})              <: VS
+            @test to_vertices(AbstractGraph, Vector{QVV})            <: VS
+            @test to_vertices(AbstractGraph, QV)                     <: QVVS
+
+            @test to_vertices(AbstractGraph, Vector{QVVS})           <: QVSVS
+            @test to_vertices(AbstractGraph, Vector{QV})             <: QVSVS
+            @test to_vertices(AbstractGraph, QVSVS)                  <: QVSVS
+            @test to_vertices(AbstractGraph, QVS)                    <: QVSVS
+            # runic: on
+        end
+
     end
 
-    let qes = to_graph_index(g, QuotientEdge(1 => 2))
-        @test qes isa QuotientEdgeEdges
-        @test all(parent_graph_indices(qes) .== map(NamedEdge, [(1, 1) => (2, 1), (1, 2) => (2, 2), (1, 3) => (2, 3)]))
-        @test to_quotient_index(qes.quotientedge) == QuotientEdge(1 => 2)
+    @testset "Edges" begin
+        # runic: off
+        P       = Pair
+        E       = edgetype(g)
+        V       = vertextype(E)
+        ES      = Edges
+        QEE     = QuotientEdgeEdge{V, E}
+        QEES    = QuotientEdgeEdges
+        QE      = QuotientEdge
+        QES     = QuotientEdges
+        QESES   = QuotientEdgesEdges
+        # runic: on
+
+        @testset "`to_graph_index`" begin
+            to_graph_index = (G, I) -> Base.promote_op(to_graph_index, G, I)
+            # runic: off
+            @test to_graph_index(AbstractGraph, P)                   <: E
+            @test to_graph_index(AbstractGraph, E)                   <: E
+            @test to_graph_index(AbstractGraph, QEE)                 <: E
+            @test to_graph_index(AbstractGraph, QE)                  <: QE
+
+            @test to_graph_index(AbstractGraph, ES)                  <: ES
+            @test to_graph_index(AbstractGraph, Vector{P})           <: Vector{E}
+            @test to_graph_index(AbstractGraph, Vector{E})           <: Vector{E}
+            @test to_graph_index(AbstractGraph, Vector{QEE})         <: ES
+            @test to_graph_index(AbstractGraph, QE)                  <: QE
+
+            @test to_graph_index(AbstractGraph, Vector{QEES})        <: QESES
+            @test to_graph_index(AbstractGraph, Vector{QE})          <: QES
+            @test to_graph_index(AbstractGraph, QESES)               <: QESES
+            @test to_graph_index(AbstractGraph, QES)                 <: QES
+            # runic: on
+        end
+        @testset "`to_graph_indices`" begin
+            to_graph_indices = (G, I) -> Base.promote_op(to_graph_indices, G, I)
+            # runic: off
+            @test to_graph_indices(AbstractGraph, P)                 <: ES
+            @test to_graph_indices(AbstractGraph, E)                 <: ES
+            @test to_graph_indices(AbstractGraph, QEE)               <: QEES
+            @test to_graph_indices(AbstractGraph, QE)                <: QEES
+
+            @test to_graph_indices(AbstractGraph, ES)                <: ES
+            @test to_graph_indices(AbstractGraph, Vector{P})         <: ES
+            @test to_graph_indices(AbstractGraph, Vector{E})         <: ES
+            @test to_graph_indices(AbstractGraph, Vector{QEE})       <: ES
+            @test to_graph_indices(AbstractGraph, QE)                <: QEES
+
+            @test to_graph_indices(AbstractGraph, Vector{QEES})      <: QESES
+            @test to_graph_indices(AbstractGraph, Vector{QE})        <: QES
+            @test to_graph_indices(AbstractGraph, QESES)             <: QESES
+            @test to_graph_indices(AbstractGraph, QES)               <: QES
+            # runic: on
+        end
+        @testset "`to_edges`" begin
+            to_edges = (G, I) -> Base.promote_op(to_edges, G, I)
+            # runic: off
+            @test to_edges(AbstractGraph, P)                         <: ES
+            @test to_edges(AbstractGraph, E)                         <: ES
+            @test to_edges(AbstractGraph, QEE)                       <: QEES
+            @test to_edges(AbstractGraph, QE)                        <: QEES
+
+            @test to_edges(AbstractGraph, ES)                        <: ES
+            @test to_edges(AbstractGraph, Vector{P})                 <: ES
+            @test to_edges(AbstractGraph, Vector{E})                 <: ES
+            @test to_edges(AbstractGraph, Vector{QEE})               <: ES
+            @test to_edges(AbstractGraph, QE)                        <: QEES
+
+            @test to_edges(AbstractGraph, Vector{QEES})              <: QESES
+            @test to_edges(AbstractGraph, Vector{QE})                <: QESES
+            @test to_edges(AbstractGraph, QESES)                     <: QESES
+            @test to_edges(AbstractGraph, QES)                       <: QESES
+            # runic: on
+        end
     end
 end
 
+@testset  "Subgraphs" begin
+    nx, ny = 3, 3
+    g = named_grid((nx, ny))
+    partitions = [[(i, j) for j in 1:ny] for i in 1:nx]
+
+    g = PartitionedGraph(g, partitions)
+
+    # runic: off
+    V       = vertextype(g)
+    VS      = Vertices
+    QVV     = QuotientVertexVertex{V}
+    QVVS    = QuotientVertexVertices
+    QV      = QuotientVertex
+    QVS     = QuotientVertices
+    QVSVS   = QuotientVerticesVertices
+
+    PG      = typeof(g)
+    UG      = typeof(unpartitioned_graph(g))
+    # runic: on
+
+    @testset "Basic" begin
+
+        @test subgraph(g, QuotientVertex(1)) == subgraph(g, vertices(g, QuotientVertex(1)))
+        @test subgraph(g, QuotientVertex(1)) == subgraph(g, [(1, 1), (1, 2), (1, 3)])
+
+        @test subgraph(g, QuotientVertices([1])) isa PG
+
+        @test has_quotientvertex(subgraph(g, QuotientVertices([1, 2])), QuotientVertex(1))
+        @test has_quotientvertex(subgraph(g, QuotientVertices([1, 2])), QuotientVertex(2))
+        @test !has_quotientvertex(subgraph(g, QuotientVertices([1, 2])), QuotientVertex(3))
+
+        @test has_quotientedge(subgraph(g, QuotientVertices([1, 2])), QuotientEdge(1 => 2))
+        @test !has_quotientedge(subgraph(g, QuotientVertices([1, 2])), QuotientEdge(2 => 3))
+
+        @test subgraph(QuotientView(g), [1, 2]) isa QuotientView
+        @test parent(subgraph(QuotientView(g), [1, 2])) == subgraph(g, QuotientVertices([1, 2]))
+
+        @test subgraph(g, [QuotientVertex(1)[(1, 1)], QuotientVertex(2)[(2, 1)]]) isa UG
+
+        sg = subgraph(g, [QuotientVertex(1)[Vertices([(1, 1), (1, 2)])], QuotientVertex(2)[Vertices([(2, 1)])]])
+        @test sg isa PG
+        @test has_quotientvertex(sg, QuotientVertex(1))
+        @test has_quotientvertex(sg, QuotientVertex(2))
+        @test !has_quotientvertex(sg, QuotientVertex(3))
+        @test has_vertex(sg, (1, 1))
+        @test has_vertex(sg, (1, 2))
+        @test !has_vertex(sg, (1, 3))
+        @test has_vertex(sg, (2, 1))
+
+    end
+
+    @testset "`getindex`" begin
+
+        @test_throws MethodError g[(1, 1)]
+        @test_throws MethodError g[QuotientVertex(1)[(1, 1)]]
+        @test_throws MethodError g[QuotientVertex(1)]
+
+        getindex = (G, I) -> Base.promote_op(getindex, G, I)
+        # runic: off
+        @test getindex(PartitionedGraph, VS)                  <: UG
+        @test getindex(PartitionedGraph, Vector{V})           <: UG
+        @test getindex(PartitionedGraph, Vector{QVV})         <: UG
+        @test getindex(PartitionedGraph, QV)                  <: UG
+
+        @test getindex(PartitionedGraph, Vector{QVVS})        <: PG
+        @test getindex(PartitionedGraph, Vector{QV})          <: PG
+        @test getindex(PartitionedGraph, QVSVS)               <: PG
+        @test getindex(PartitionedGraph, QVS)                 <: PG
+        # runic: on
+    end
+end
 end

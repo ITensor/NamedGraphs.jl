@@ -12,7 +12,8 @@ using Graphs:
     rem_vertex!,
     src,
     vertices
-using ..NamedGraphs: NamedGraphs, AbstractNamedGraph, NamedGraph, NamedDiGraph
+using ..NamedGraphs:
+    NamedGraphs, AbstractNamedGraph, NamedGraph, NamedDiGraph, get_graph_index
 using ..NamedGraphs.GraphsExtensions:
     GraphsExtensions,
     add_vertices!,
@@ -135,6 +136,10 @@ function unpartitioned_graph_type(pg::AbstractPartitionedGraph)
     return typeof(unpartitioned_graph(pg))
 end
 
+function NamedGraphs.get_graph_index(pg::AbstractPartitionedGraph, ind)
+    return get_graph_index(unpartitioned_graph(pg), ind)
+end
+
 #Functions for the abstract type
 Graphs.vertices(pg::AbstractPartitionedGraph) = vertices(unpartitioned_graph(pg))
 Graphs.edges(pg::AbstractPartitionedGraph) = edges(unpartitioned_graph(pg))
@@ -181,5 +186,5 @@ end
 function NamedGraphs.induced_subgraph_from_vertices(
         pg::AbstractPartitionedGraph, subvertices::AbstractVertices
     )
-    return NamedGraphs.induced_subgraph_from_vertices(pg, parent_graph_indices(subvertices))
+    return NamedGraphs.induced_subgraph_from_vertices(unpartitioned_graph(pg), parent_graph_indices(subvertices))
 end
