@@ -60,7 +60,7 @@ using Graphs:
     yen_k_shortest_paths
 using Graphs.SimpleGraphs: SimpleDiGraph, SimpleEdge
 using GraphsFlows: GraphsFlows
-using NamedGraphs: AbstractNamedEdge, NamedEdge, NamedDiGraph, NamedGraph
+using NamedGraphs: AbstractNamedEdge, NamedEdge, NamedDiGraph, NamedGraph, Vertices
 using NamedGraphs.GraphsExtensions:
     GraphsExtensions,
     ⊔,
@@ -182,7 +182,7 @@ end
         @test !has_vertex(g_sub, "C")
         @test !has_vertex(g_sub, "D")
         # Test Graphs.jl `getindex` syntax.
-        @test g_sub == g[["A", "B"]]
+        @test g_sub == g[Vertices(["A", "B"])]
 
         g = NamedGraph(["A", "B", "C", "D", "E"])
         add_edge!(g, "A" => "B")

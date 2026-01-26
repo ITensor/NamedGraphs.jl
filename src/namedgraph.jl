@@ -81,13 +81,13 @@ end
 # Constructors from `AbstractSimpleGraph`
 #
 
-to_vertices(graph, vertices) = to_vertices(vertices)
+to_vertices(graph, vertices) = _to_vertices(graph, vertices)
+_to_vertices(::AbstractSimpleGraph, vertices) = to_vertices(vertices)
+_to_vertices(::AbstractGraph, vertices) = vertices
+
 to_vertices(vertices) = vertices
 to_vertices(vertices::AbstractArray) = vec(vertices)
 to_vertices(vertices::Integer) = Base.OneTo(vertices)
-
-to_edges(graph, edges) = to_edges(edges)
-to_edges(edges) = edges
 
 # Inner constructor
 # TODO: Is this needed?
