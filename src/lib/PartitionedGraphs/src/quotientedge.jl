@@ -223,11 +223,10 @@ function NamedGraphs.to_edges(graph::AbstractGraph, qe::QuotientEdge)
 end
 
 function NamedGraphs.to_graph_index(graph::AbstractGraph, qee::QuotientEdgeEdge)
-    if has_quotientedge(graph, quotient_index(qee))
-        return qee.edge
-    else
+    if !has_quotientedge(graph, quotient_index(qee))
         throw(ArgumentError("Quotient edge $(qee.quotientedge) not in graph"))
     end
+    return qee.edge
 end
 NamedGraphs.to_graph_indices(g::AbstractGraph, qee::QuotientEdgeEdge) = to_edges(g, qee)
 function NamedGraphs.to_edges(g::AbstractGraph, qee::QuotientEdgeEdge)
