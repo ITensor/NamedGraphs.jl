@@ -238,11 +238,9 @@ end
 NamedGraphs.to_graph_index(::AbstractGraph, qes::QuotientEdges) = qes
 NamedGraphs.to_graph_indices(::AbstractGraph, qes::QuotientEdges) = qes
 function NamedGraphs.to_edges(g::AbstractGraph, qes::QuotientEdges)
-    edges = mapreduce(
-        qe -> collect(to_graph_indices(g, qe)),
-        vcat,
-        qes,
-    )
+    edges = mapreduce(vcat, qes) do qe
+        return collect(to_graph_indices(g, qe))
+    end
     return QuotientEdgesEdges(qes, edges)
 end
 
