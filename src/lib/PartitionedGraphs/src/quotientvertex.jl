@@ -7,7 +7,6 @@ using ..NamedGraphs:
     Edges,
     to_vertices,
     to_graph_index,
-    to_graph_indices,
     parent_graph_indices
 using ..NamedGraphs.GraphsExtensions: GraphsExtensions, rem_vertices!, subgraph
 using ..NamedGraphs.OrderedDictionaries: OrderedIndices
