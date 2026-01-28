@@ -27,7 +27,8 @@ using Graphs:
     rem_edge!,
     spfa_shortest_paths,
     vertices,
-    weights
+    weights,
+    induced_subgraph
 using Graphs.SimpleGraphs: SimpleDiGraph, SimpleEdge
 using .GraphsExtensions:
     GraphsExtensions,
@@ -575,13 +576,43 @@ function Base.:(==)(g1::AbstractNamedGraph, g2::AbstractNamedGraph)
     return true
 end
 
+function Graphs.induced_subgraph(graph::AbstractNamedGraph, subvertices)
+    return induced_subgraph_namedgraph(graph, subvertices)
+end
+# For method ambiguity resolution with Graphs.jl
+function Graphs.induced_subgraph(
+        graph::AbstractNamedGraph, subvertices::AbstractVector{<:Integer}
+    )
+    return induced_subgraph_namedgraph(graph, subvertices)
+end
+
+function induced_subgraph_namedgraph(graph::AbstractGraph, subvertices)
+    return induced_subgraph_from_vertices(graph, to_vertices(graph, subvertices))
+end
+
+
+# TODO: Implement an edgelist version
+function induced_subgraph_from_vertices(graph::AbstractGraph, subvertices)
+    subgraph = similar_graph(graph, subvertices)
+    subvertices_set = Set(subvertices)
+    for src in subvertices
+        for dst in outneighbors(graph, src)
+            if dst in subvertices_set && has_edge(graph, src, dst)
+                add_edge!(subgraph, src => dst)
+            end
+        end
+    end
+    return subgraph, nothing
+end
+
 function GraphsExtensions.edge_subgraph(graph::AbstractNamedGraph, edges)
-    return namedgraph_edge_subgraph(graph, parent_graph_indices(to_edges(graph, edges)))
+    return edge_subgraph_namedgraph(graph, to_edges(graph, edges))
 end
 function GraphsExtensions.edge_subgraph(graph::AbstractNamedGraph, edges::Vector{<:AbstractEdge})
-    return namedgraph_edge_subgraph(graph, to_edges(graph, edges))
+    return edge_subgraph_namedgraph(graph, to_edges(graph, edges))
 end
-function namedgraph_edge_subgraph(graph::AbstractNamedGraph, edgelist)
+
+function edge_subgraph_namedgraph(graph, edgelist)
     vs = unique(vcat(src.(edgelist), dst.(edgelist)))
     g = subgraph(graph, vs)
     g = rem_edges!(g, setdiff(edges(g), edgelist))

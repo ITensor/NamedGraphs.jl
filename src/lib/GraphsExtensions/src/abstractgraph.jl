@@ -144,7 +144,8 @@ end
 # converting to `NamedGraph` if indexed by
 # something besides `Base.OneTo`?
 function subgraph(graph::AbstractGraph, vertices)
-    return induced_subgraph(graph, vertices)[1]
+    subgraph, _ = induced_subgraph(graph, vertices)
+    return subgraph
 end
 
 # TODO: Should this preserve vertex names by

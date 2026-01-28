@@ -41,7 +41,6 @@ end
 
 for f in [
         :(NamedGraphs.vertex_positions),
-        :(NamedGraphs.induced_subgraph_from_vertices),
         :(NamedGraphs.ordered_vertices),
         :(NamedGraphs.position_graph),
     ]
@@ -59,8 +58,8 @@ end
 quotientview(g::AbstractGraph) = QuotientView(g)
 
 function NamedGraphs.induced_subgraph_from_vertices(g::QuotientView, vertices)
-    subgraph, vertices = induced_subgraph(parent(g), to_quotient_index(vertices))
-    return QuotientView(subgraph), vertices
+    subgraph, subvertices = induced_subgraph(parent(g), to_quotient_index(vertices))
+    return QuotientView(subgraph), subvertices
 end
 
 NamedGraphs.getindex_namedgraph(qv::QuotientView, ind) = parent(qv)[to_quotient_index(ind)]
