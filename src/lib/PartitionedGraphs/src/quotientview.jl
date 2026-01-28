@@ -1,5 +1,5 @@
-using Graphs: AbstractGraph, rem_vertex!, rem_edge!, vertices, edges
-using ..NamedGraphs: NamedGraph, position_graph_type
+using Graphs: AbstractGraph, rem_vertex!, rem_edge!, vertices, edges, has_edge
+using ..NamedGraphs: NamedGraph, position_graph_type, induced_subgraph_from_vertices
 using .GraphsExtensions: directed_graph_type, undirected_graph_type
 using ..SimilarType: similar_type
 
@@ -41,7 +41,6 @@ end
 
 for f in [
         :(NamedGraphs.vertex_positions),
-        :(NamedGraphs.induced_subgraph_from_vertices),
         :(NamedGraphs.ordered_vertices),
         :(NamedGraphs.position_graph),
     ]
@@ -57,3 +56,10 @@ function NamedGraphs.SimilarType.similar_type(type::Type{<:QuotientView})
 end
 
 quotientview(g::AbstractGraph) = QuotientView(g)
+
+function NamedGraphs.induced_subgraph_from_vertices(g::QuotientView, vertices)
+    subgraph, subvertices = induced_subgraph(parent(g), to_quotient_index(vertices))
+    return QuotientView(subgraph), subvertices
+end
+
+NamedGraphs.getindex_namedgraph(qv::QuotientView, ind) = parent(qv)[to_quotient_index(ind)]

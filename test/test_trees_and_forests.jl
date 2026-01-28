@@ -1,7 +1,7 @@
 @eval module $(gensym())
 using Test: @test, @testset
 using Graphs: connected_components, edges, is_tree, vertices
-using NamedGraphs: NamedGraph
+using NamedGraphs: NamedGraph, Vertices
 using NamedGraphs.GraphsExtensions: GraphsExtensions, all_edges, forest_cover, spanning_tree
 using NamedGraphs.NamedGraphGenerators:
     named_comb_tree, named_grid, named_hexagonal_lattice_graph, named_triangular_lattice_graph
@@ -29,7 +29,7 @@ end
     @test issetequal(cover_edges, edges(g))
     @test all(issetequal(vertices(forest), vertices(g)) for forest in cover)
     for forest in cover
-        trees = NamedGraph[forest[vs] for vs in connected_components(forest)]
+        trees = NamedGraph[forest[Vertices(vs)] for vs in connected_components(forest)]
         @test all(is_tree.(trees))
     end
 end
