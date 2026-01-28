@@ -22,6 +22,10 @@ struct Edges{V, E <: AbstractEdge{V}, Es} <: AbstractEdges{V, E}
 end
 
 to_edges(graph, edges) = edges
+
+to_edges(graph, edge::AbstractEdge) = to_edges(graph, [edge])
+to_edges(graph, pair::Pair) = to_edges(graph, to_graph_index(graph, pair))
+
 to_edges(graph, edges::AbstractVector{<:AbstractEdge}) = Edges(edges)
 function to_edges(graph, edges::AbstractVector{<:Pair})
     return to_edges(graph, map(i -> to_graph_index(graph, i), edges))
@@ -39,7 +43,10 @@ Base.length(gi::AbstractGraphIndices) = length(parent_graph_indices(gi))
 to_graph_index(graph, index) = index
 to_graph_index(graph, index::Pair) = edgetype(graph)(index)
 
-to_graph_index(graph, inds::AbstractVector{<:Pair}) = map(i -> to_graph_index(graph, i), inds)
+function to_graph_index(graph, inds::AbstractVector{<:Pair})
+    return to_graph_index(graph, map(i -> to_graph_index(graph, i), inds))
+end
+to_graph_index(graph, inds::AbstractVector{<:AbstractEdge}) = Edges(inds)
 
 Base.iterate(gi::AbstractGraphIndices, state...) = iterate(parent_graph_indices(gi), state...)
 

@@ -434,45 +434,45 @@ end
         # runic: on
 
         @testset "`to_graph_index`" begin
-            to_graph_index = (G, I) -> Base.promote_op(NamedGraphs.to_graph_index, G, I)
+            to_graph_index_type = (G, I) -> Base.promote_op(NamedGraphs.to_graph_index, G, I)
             # runic: off
-            @test Union{} != to_graph_index(AbstractGraph, V)                   <: V
-            @test Union{} != to_graph_index(AbstractGraph, QVV)                 <: V
-            @test Union{} != to_graph_index(AbstractGraph, QV)                  <: QVVS
+            @test Union{} != to_graph_index_type(AbstractGraph, V)            <: V
+            @test Union{} != to_graph_index_type(AbstractGraph, QVV)          <: V
+            @test Union{} != to_graph_index_type(AbstractGraph, QV)           <: QVVS
 
-            @test Union{} != to_graph_index(AbstractGraph, VS)                  <: VS
-            @test Union{} != to_graph_index(AbstractGraph, Vector{V})           <: Vector{V}
-            @test Union{} != to_graph_index(AbstractGraph, Vector{QVV})         <: VS
-            @test Union{} != to_graph_index(AbstractGraph, QVVS)                <: QVVS
+            @test Union{} != to_graph_index_type(AbstractGraph, VS)           <: VS
+            @test Union{} != to_graph_index_type(AbstractGraph, Vector{V})    <: Vector{V}
+            @test Union{} != to_graph_index_type(AbstractGraph, Vector{QVV})  <: VS
+            @test Union{} != to_graph_index_type(AbstractGraph, QVVS)         <: QVVS
 
-            @test Union{} != to_graph_index(AbstractGraph, Vector{QVVS})        <: QVSVS
-            @test Union{} != to_graph_index(AbstractGraph, Vector{QV})          <: QVS
-            @test Union{} != to_graph_index(AbstractGraph, QVSVS)               <: QVSVS
-            @test Union{} != to_graph_index(AbstractGraph, QVS)                 <: QVS
+            @test Union{} != to_graph_index_type(AbstractGraph, Vector{QVVS}) <: QVSVS
+            @test Union{} != to_graph_index_type(AbstractGraph, Vector{QV})   <: QVS
+            @test Union{} != to_graph_index_type(AbstractGraph, QVSVS)        <: QVSVS
+            @test Union{} != to_graph_index_type(AbstractGraph, QVS)          <: QVS
             # runic: on
         end
 
         @testset "`to_vertices`" begin
-            to_vertices = (G, I) -> Base.promote_op(NamedGraphs.to_vertices, G, I)
+            to_vertices_type = (G, I) -> Base.promote_op(NamedGraphs.to_vertices, G, I)
             # runic: off
-            @test Union{} != to_vertices(AbstractGraph, V)                      <: V
-            @test Union{} != to_vertices(AbstractGraph, QVV)                    <: VSlice{<:QVVS}
-            @test Union{} != to_vertices(AbstractGraph, QV)                     <: VSlice{<:QVVS}
+            @test Union{} != to_vertices_type(AbstractGraph, V)               <: V
+            @test Union{} != to_vertices_type(AbstractGraph, QVV)             <: VSlice{<:QVVS}
+            @test Union{} != to_vertices_type(AbstractGraph, QV)              <: VSlice{<:QVVS}
 
-            @test Union{} != to_vertices(AbstractGraph, VS)                     <: VS
-            @test Union{} != to_vertices(AbstractGraph, Vector{V})              <: VS
-            @test Union{} != to_vertices(AbstractGraph, Vector{QVV})            <: VS
-            @test Union{} != to_vertices(AbstractGraph, QVVS)                   <: VSlice{<:QVVS}
+            @test Union{} != to_vertices_type(AbstractGraph, VS)              <: VS
+            @test Union{} != to_vertices_type(AbstractGraph, Vector{V})       <: VS
+            @test Union{} != to_vertices_type(AbstractGraph, Vector{QVV})     <: VS
+            @test Union{} != to_vertices_type(AbstractGraph, QVVS)            <: VSlice{<:QVVS}
 
-            @test Union{} != to_vertices(NamedGraph, Vector{QVVS})              <: VSlice{<:QVSVS}
-            @test Union{} != to_vertices(NamedGraph, Vector{QV})                <: VSlice{<:QVSVS}
-            @test Union{} != to_vertices(NamedGraph, QVSVS)                     <: VSlice{<:QVSVS}
-            @test Union{} != to_vertices(NamedGraph, QVS)                       <: VSlice{<:QVSVS}
+            @test Union{} != to_vertices_type(NamedGraph, Vector{QVVS})       <: VSlice{<:QVSVS}
+            @test Union{} != to_vertices_type(NamedGraph, Vector{QV})         <: VSlice{<:QVSVS}
+            @test Union{} != to_vertices_type(NamedGraph, QVSVS)              <: VSlice{<:QVSVS}
+            @test Union{} != to_vertices_type(NamedGraph, QVS)                <: VSlice{<:QVSVS}
 
-            @test Union{} != to_vertices(PartitionedGraph, Vector{QVVS})        <: QVSVS
-            @test Union{} != to_vertices(PartitionedGraph, Vector{QV})          <: QVSVS
-            @test Union{} != to_vertices(PartitionedGraph, QVSVS)               <: QVSVS
-            @test Union{} != to_vertices(PartitionedGraph, QVS)                 <: QVSVS
+            @test Union{} != to_vertices_type(PartitionedGraph, Vector{QVVS}) <: QVSVS
+            @test Union{} != to_vertices_type(PartitionedGraph, Vector{QV})   <: QVSVS
+            @test Union{} != to_vertices_type(PartitionedGraph, QVSVS)        <: QVSVS
+            @test Union{} != to_vertices_type(PartitionedGraph, QVS)          <: QVSVS
             # runic: on
         end
 
@@ -494,43 +494,43 @@ end
         ESlice{GI, V, E} = QuotientEdgeSlice{V, E, GI}
 
         @testset "`to_graph_index`" begin
-            to_graph_index = (G, I) -> Base.promote_op(NamedGraphs.to_graph_index, G, I)
+            to_graph_index_type = (G, I) -> Base.promote_op(NamedGraphs.to_graph_index, G, I)
             # runic: off
-            @test Union{} != to_graph_index(typeof(g), P)                   <: E
-            @test Union{} != to_graph_index(typeof(g), E)                   <: E
-            @test Union{} != to_graph_index(typeof(g), QEE)                 <: E
-            @test Union{} != to_graph_index(typeof(g), QE)                  <: QEES
+            @test Union{} != to_graph_index_type(typeof(g), P)            <: E
+            @test Union{} != to_graph_index_type(typeof(g), E)            <: E
+            @test Union{} != to_graph_index_type(typeof(g), QEE)          <: E
+            @test Union{} != to_graph_index_type(typeof(g), QE)           <: QEES
 
-            @test Union{} != to_graph_index(typeof(g), ES)                  <: ES
-            @test Union{} != to_graph_index(typeof(g), Vector{P})           <: Vector{E}
-            @test Union{} != to_graph_index(typeof(g), Vector{E})           <: Vector{E}
-            @test Union{} != to_graph_index(typeof(g), Vector{QEE})         <: ES
-            @test Union{} != to_graph_index(typeof(g), QEES)                <: QEES
+            @test Union{} != to_graph_index_type(typeof(g), ES)           <: ES
+            @test Union{} != to_graph_index_type(typeof(g), Vector{P})    <: ES
+            @test Union{} != to_graph_index_type(typeof(g), Vector{E})    <: ES
+            @test Union{} != to_graph_index_type(typeof(g), Vector{QEE})  <: ES
+            @test Union{} != to_graph_index_type(typeof(g), QEES)         <: QEES
 
-            @test Union{} != to_graph_index(typeof(g), Vector{QEES})        <: QESES
-            @test Union{} != to_graph_index(typeof(g), Vector{QE})          <: QES
-            @test Union{} != to_graph_index(typeof(g), QESES)               <: QESES
-            @test Union{} != to_graph_index(typeof(g), QES)                 <: QES
+            @test Union{} != to_graph_index_type(typeof(g), Vector{QEES}) <: QESES
+            @test Union{} != to_graph_index_type(typeof(g), Vector{QE})   <: QES
+            @test Union{} != to_graph_index_type(typeof(g), QESES)        <: QESES
+            @test Union{} != to_graph_index_type(typeof(g), QES)          <: QES
             # runic: on
         end
         @testset "`to_edges`" begin
-            to_edges = (G, I) -> Base.promote_op(NamedGraphs.to_edges, G, I)
+            to_edges_type = (G, I) -> Base.promote_op(NamedGraphs.to_edges, G, I)
             # runic: off
-            @test Union{} != to_edges(typeof(g), P)                         <: P
-            @test Union{} != to_edges(typeof(g), E)                         <: E
-            @test Union{} != to_edges(typeof(g), QEE)                       <: ESlice{<:QEES}
-            @test Union{} != to_edges(typeof(g), QE)                        <: ESlice{<:QEES}
+            @test Union{} != to_edges_type(typeof(g), P)                  <: ES
+            @test Union{} != to_edges_type(typeof(g), E)                  <: ES
+            @test Union{} != to_edges_type(typeof(g), QEE)                <: ESlice{<:QEES}
+            @test Union{} != to_edges_type(typeof(g), QE)                 <: ESlice{<:QEES}
 
-            @test Union{} != to_edges(typeof(g), ES)                        <: ES
-            @test Union{} != to_edges(typeof(g), Vector{P})                 <: ES
-            @test Union{} != to_edges(typeof(g), Vector{E})                 <: ES
-            @test Union{} != to_edges(typeof(g), Vector{QEE})               <: ES
-            @test Union{} != to_edges(typeof(g), QEES)                      <: ESlice{<:QEES}
+            @test Union{} != to_edges_type(typeof(g), ES)                 <: ES
+            @test Union{} != to_edges_type(typeof(g), Vector{P})          <: ES
+            @test Union{} != to_edges_type(typeof(g), Vector{E})          <: ES
+            @test Union{} != to_edges_type(typeof(g), Vector{QEE})        <: ES
+            @test Union{} != to_edges_type(typeof(g), QEES)               <: ESlice{<:QEES}
 
-            @test Union{} != to_edges(typeof(g), Vector{QEES})              <: ESlice{<:QESES}
-            @test Union{} != to_edges(typeof(g), Vector{QE})                <: ESlice{<:QESES}
-            @test Union{} != to_edges(typeof(g), QESES)                     <: ESlice{<:QESES}
-            @test Union{} != to_edges(typeof(g), QES)                       <: ESlice{<:QESES}
+            @test Union{} != to_edges_type(typeof(g), Vector{QEES})       <: ESlice{<:QESES}
+            @test Union{} != to_edges_type(typeof(g), Vector{QE})         <: ESlice{<:QESES}
+            @test Union{} != to_edges_type(typeof(g), QESES)              <: ESlice{<:QESES}
+            @test Union{} != to_edges_type(typeof(g), QES)                <: ESlice{<:QESES}
             # runic: on
         end
     end
@@ -555,12 +555,6 @@ end
     PG      = typeof(g)
     UG      = typeof(unpartitioned_graph(g))
     # runic: on
-
-    promote_op = (f, args...) -> begin
-        RV = Base.promote_op(f, args...)
-        @test !(RV <: Union{})
-        return RV
-    end
 
     @testset "Basic" begin
 
@@ -598,17 +592,17 @@ end
         @test_throws MethodError g[(1, 1)]
         @test_throws MethodError g[QuotientVertex(1)[(1, 1)]]
 
-        getindex = (G, I) -> Base.promote_op(Base.getindex, G, I)
+        getindex_type = (G, I) -> Base.promote_op(Base.getindex, G, I)
         # runic: off
-        @test Union{} != getindex(PG, VS)                  <: NamedGraph
-        @test Union{} != getindex(PG, Vector{QVV})         <: NamedGraph
-        @test Union{} != getindex(PG, QV)                  <: NamedGraph
-        @test Union{} != getindex(PG, QVVS)                <: NamedGraph
+        @test Union{} != getindex_type(PG, VS)                  <: NamedGraph
+        @test Union{} != getindex_type(PG, Vector{QVV})         <: NamedGraph
+        @test Union{} != getindex_type(PG, QV)                  <: NamedGraph
+        @test Union{} != getindex_type(PG, QVVS)                <: NamedGraph
 
-        @test Union{} != getindex(PG, Vector{QVVS})        <: PartitionedGraph
-        @test Union{} != getindex(PG, Vector{QV})          <: PartitionedGraph
-        @test Union{} != getindex(PG, QVSVS)               <: PartitionedGraph
-        @test Union{} != getindex(PG, QVS)                 <: PartitionedGraph
+        @test Union{} != getindex_type(PG, Vector{QVVS})        <: PartitionedGraph
+        @test Union{} != getindex_type(PG, Vector{QV})          <: PartitionedGraph
+        @test Union{} != getindex_type(PG, QVSVS)               <: PartitionedGraph
+        @test Union{} != getindex_type(PG, QVS)                 <: PartitionedGraph
         # runic: on
     end
 end
