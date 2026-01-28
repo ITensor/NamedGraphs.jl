@@ -66,10 +66,10 @@ parent_graph_indices(gs::VertexSlice) = parent_graph_indices(gs.inds)
 parent_graph_indices(gs::EdgeSlice) = parent_graph_indices(gs.inds)
 parent_graph_indices(gs::Indices) = gs.inds
 
-Base.getindex(graph::AbstractNamedGraph, inds) = namedgraph_getindex(graph, to_graph_index(graph, inds))
+Base.getindex(graph::AbstractNamedGraph, inds) = getindex_namedgraph(graph, to_graph_index(graph, inds))
 
-namedgraph_getindex(graph::AbstractGraph, inds) = get_graph_index(graph, inds)
-namedgraph_getindex(graph::AbstractGraph, inds::AbstractGraphIndices) = get_graph_indices(graph, inds)
+getindex_namedgraph(graph::AbstractGraph, inds) = get_graph_index(graph, inds)
+getindex_namedgraph(graph::AbstractGraph, inds::AbstractGraphIndices) = get_graph_indices(graph, inds)
 
 get_graph_index(graph::AbstractGraph, index) = throw(MethodError(get_graph_index, (graph, index)))
 

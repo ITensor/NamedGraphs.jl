@@ -63,4 +63,4 @@ function NamedGraphs.induced_subgraph_from_vertices(g::QuotientView, vertices)
     return QuotientView(subgraph), vertices
 end
 
-NamedGraphs.namedgraph_getindex(qv::QuotientView, ind) = parent(qv)[to_quotient_index(ind)]
+NamedGraphs.getindex_namedgraph(qv::QuotientView, ind) = parent(qv)[to_quotient_index(ind)]
