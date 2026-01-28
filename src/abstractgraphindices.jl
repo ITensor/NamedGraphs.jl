@@ -58,13 +58,8 @@ struct EdgeSlice{V, E, GI <: AbstractEdges{V, E}} <: AbstractEdges{V, E}
     inds::GI
 end
 
-struct Indices{T, GI <: AbstractGraphIndices{T}} <: AbstractGraphIndices{T}
-    inds::GI
-end
-
 parent_graph_indices(gs::VertexSlice) = parent_graph_indices(gs.inds)
 parent_graph_indices(gs::EdgeSlice) = parent_graph_indices(gs.inds)
-parent_graph_indices(gs::Indices) = gs.inds
 
 Base.getindex(graph::AbstractNamedGraph, inds) = getindex_namedgraph(graph, to_graph_index(graph, inds))
 
@@ -77,9 +72,6 @@ function Dictionaries.getindices(graph::AbstractNamedGraph, inds)
     return get_graph_indices(graph, to_graph_indices(graph, inds))
 end
 
-function get_graph_indices(graph::AbstractGraph, indices::Indices)
-    return throw(MethodError(get_graph_indices, (graph, indices)))
-end
 function get_graph_indices(graph::AbstractGraph, vertices::AbstractVertices)
     return subgraph(graph, vertices)
 end
