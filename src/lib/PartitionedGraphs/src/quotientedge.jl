@@ -63,7 +63,6 @@ struct QuotientEdges{V, E, Es} <: AbstractEdges{V, E}
 end
 
 to_quotient_index(edges::Edges) = QuotientEdges(edges.edges)
-to_quotient_index(edges::QuotientEdges) = QuotientEdges(collect(edges.edges))
 
 Base.eltype(::QuotientEdges{V, E}) where {V, E} = QuotientEdge{V, E}
 
