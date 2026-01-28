@@ -6,7 +6,7 @@ using ..NamedGraphs:
     Vertices,
     Edges,
     to_vertices,
-    VertexSlice,
+    QuotientVertexSlice,
     to_graph_index,
     to_graph_indices
 using ..NamedGraphs.GraphsExtensions: GraphsExtensions, rem_vertices!, subgraph
@@ -175,7 +175,7 @@ function NamedGraphs.to_graph_indices(graph::AbstractGraph, qv::QuotientVertex)
     return QuotientVertexVertices(qv.vertex, vertices(graph, qv))
 end
 function NamedGraphs.to_vertices(graph::AbstractGraph, qv::QuotientVertex)
-    return VertexSlice(to_graph_indices(graph, qv))
+    return QuotientVertexSlice(to_graph_indices(graph, qv))
 end
 
 function NamedGraphs.to_graph_index(g::AbstractGraph, qvv::QuotientVertexVertex)
@@ -216,7 +216,7 @@ function NamedGraphs.to_vertices(g::AbstractGraph, qvs::Vector{<:QuotientVertexV
 end
 
 NamedGraphs.to_graph_indices(::AbstractGraph, qv::QuotientVertexVertices) = to_vertices(qv)
-NamedGraphs.to_vertices(::AbstractGraph, qv::QuotientVertexVertices) = VertexSlice(qv)
+NamedGraphs.to_vertices(::AbstractGraph, qv::QuotientVertexVertices) = QuotientVertexSlice(qv)
 
 # Conversions to `QuotientVerticesVertices`
 NamedGraphs.to_graph_index(g::AbstractGraph, qv::Vector{<:QuotientVertex}) = to_graph_indices(g, qv)

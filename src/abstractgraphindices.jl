@@ -50,16 +50,16 @@ Base.iterate(gi::AbstractGraphIndices, state...) = iterate(parent_graph_indices(
 
 Base.getindex(gi::AbstractGraphIndices, i) = getindex(parent_graph_indices(gi), i)
 
-struct VertexSlice{V, GI <: AbstractVertices{V}} <: AbstractVertices{V}
+struct QuotientVertexSlice{V, GI <: AbstractVertices{V}} <: AbstractVertices{V}
     inds::GI
 end
 
-struct EdgeSlice{V, E, GI <: AbstractEdges{V, E}} <: AbstractEdges{V, E}
+struct QuotientEdgeSlice{V, E, GI <: AbstractEdges{V, E}} <: AbstractEdges{V, E}
     inds::GI
 end
 
-parent_graph_indices(gs::VertexSlice) = parent_graph_indices(gs.inds)
-parent_graph_indices(gs::EdgeSlice) = parent_graph_indices(gs.inds)
+parent_graph_indices(gs::QuotientVertexSlice) = parent_graph_indices(gs.inds)
+parent_graph_indices(gs::QuotientEdgeSlice) = parent_graph_indices(gs.inds)
 
 Base.getindex(graph::AbstractNamedGraph, inds) = getindex_namedgraph(graph, to_graph_index(graph, inds))
 

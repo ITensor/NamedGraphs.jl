@@ -5,7 +5,7 @@ using ..NamedGraphs:
     AbstractNamedEdge,
     AbstractEdges,
     Edges,
-    EdgeSlice,
+    QuotientEdgeSlice,
     to_edges,
     parent_graph_indices
 using ..NamedGraphs.GraphsExtensions: GraphsExtensions, not_implemented, rem_edges!, rem_edge
@@ -219,7 +219,7 @@ function NamedGraphs.to_graph_indices(graph::AbstractGraph, qe::QuotientEdge)
     return QuotientEdgeEdges(qe.edge, edges(graph, qe))
 end
 function NamedGraphs.to_edges(graph::AbstractGraph, qe::QuotientEdge)
-    return EdgeSlice(to_graph_indices(graph, qe))
+    return QuotientEdgeSlice(to_graph_indices(graph, qe))
 end
 
 function NamedGraphs.to_graph_index(graph::AbstractGraph, qee::QuotientEdgeEdge)
@@ -259,7 +259,7 @@ function NamedGraphs.to_edges(g::AbstractGraph, qes::Vector{<:QuotientEdgeEdge})
 end
 
 NamedGraphs.to_graph_indices(::AbstractGraph, qe::QuotientEdgeEdges) = to_edges(qe)
-NamedGraphs.to_edges(::AbstractGraph, qe::QuotientEdgeEdges) = EdgeSlice(qe)
+NamedGraphs.to_edges(::AbstractGraph, qe::QuotientEdgeEdges) = QuotientEdgeSlice(qe)
 
 # Coneersions to `QuotientEdgesEdges`
 NamedGraphs.to_graph_index(g::AbstractGraph, qe::Vector{<:QuotientEdge}) = to_graph_indices(g, qe)
