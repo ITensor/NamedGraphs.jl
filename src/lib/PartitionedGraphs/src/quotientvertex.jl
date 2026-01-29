@@ -169,6 +169,7 @@ Base.getindex(qvs::QuotientVerticesVertices, i) = qvs.vertices[i]
 
 Base.iterate(qvsvs::QuotientVerticesVertices, state...) = iterate(qvsvs.vertices, state...)
 
+# Underscore function used to isolate implementation from interface function `to_graph_index`
 function _to_graph_index(graph::AbstractGraph, qv::QuotientVertex)
     return QuotientVertexVertices(qv.vertex, vertices(graph, qv))
 end

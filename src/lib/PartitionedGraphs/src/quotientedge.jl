@@ -213,6 +213,7 @@ Base.getindex(qes::QuotientEdgesEdges, i) = qes.edges[i]
 
 Base.iterate(qeses::QuotientEdgesEdges, state...) = iterate(qeses.edges, state...)
 
+# Underscore function used to isolate implementation from interface function `to_graph_index`
 function _to_graph_index(graph::AbstractGraph, qe::QuotientEdge)
     return QuotientEdgeEdges(qe.edge, edges(graph, qe))
 end
