@@ -6,4 +6,4 @@ NamedGraphs = "678767b0-92e7-4007-89e4-4527a8725b19"
 [compat]
 Documenter = "1.10"
 Literate = "2.20.1"
-NamedGraphs = "0.9"
+NamedGraphs = "0.10"

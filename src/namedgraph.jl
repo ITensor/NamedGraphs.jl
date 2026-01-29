@@ -62,7 +62,7 @@ end
 function GraphsExtensions.rename_vertices(f::Function, graph::GenericNamedGraph)
     # TODO: Fix broadcasting of `OrderedIndices`.
     # return GenericNamedGraph(position_graph(graph), f.(vertices(graph)))
-    return GenericNamedGraph(position_graph(graph), map(f, vertices(graph)))
+    return GenericNamedGraph(copy(position_graph(graph)), map(f, vertices(graph)))
 end
 
 function GraphsExtensions.rename_vertices(f::Function, g::AbstractSimpleGraph)
@@ -81,13 +81,13 @@ end
 # Constructors from `AbstractSimpleGraph`
 #
 
-to_vertices(graph, vertices) = to_vertices(vertices)
+to_vertices(graph, vertices) = _to_vertices(graph, vertices)
+_to_vertices(::AbstractSimpleGraph, vertices) = to_vertices(vertices)
+_to_vertices(::AbstractGraph, vertices) = vertices
+
 to_vertices(vertices) = vertices
 to_vertices(vertices::AbstractArray) = vec(vertices)
 to_vertices(vertices::Integer) = Base.OneTo(vertices)
-
-to_edges(graph, edges) = to_edges(edges)
-to_edges(edges) = edges
 
 # Inner constructor
 # TODO: Is this needed?
@@ -216,31 +216,6 @@ end
 
 function Graphs.is_directed(graph_type::Type{<:GenericNamedGraph})
     return is_directed(position_graph_type(graph_type))
-end
-
-# Assumes the subvertices were already processed by `to_vertices`.
-# TODO: Implement an edgelist version
-function induced_subgraph_from_vertices(graph::AbstractGraph, subvertices)
-    subgraph = similar_graph(graph, subvertices)
-    subvertices_set = Set(subvertices)
-    for src in subvertices
-        for dst in outneighbors(graph, src)
-            if dst in subvertices_set && has_edge(graph, src, dst)
-                add_edge!(subgraph, src => dst)
-            end
-        end
-    end
-    return subgraph, nothing
-end
-
-function Graphs.induced_subgraph(graph::AbstractNamedGraph, subvertices)
-    return induced_subgraph_from_vertices(graph, to_vertices(graph, subvertices))
-end
-# For method ambiguity resolution with Graphs.jl
-function Graphs.induced_subgraph(
-        graph::AbstractNamedGraph, subvertices::AbstractVector{<:Integer}
-    )
-    return induced_subgraph_from_vertices(graph, to_vertices(graph, subvertices))
 end
 
 function Base.reverse!(graph::GenericNamedGraph)
