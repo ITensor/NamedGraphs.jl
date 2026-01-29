@@ -203,33 +203,35 @@ NamedGraphs.to_vertices(::AbstractGraph, qvvs::QuotientVertexVertices) = Quotien
 NamedGraphs.to_graph_index(::AbstractGraph, qvsvs::QuotientVerticesVertices) = qvsvs
 NamedGraphs.to_vertices(::AbstractGraph, qvsvs::QuotientVerticesVertices) = QuotientVertexSlice(qvsvs)
 
-function indices_from_vector(g::AbstractGraph, qvs::Vector{<:QuotientVertexVertex})
+# This function preprocesses a vector of graph indices into an appropriate index object for
+# canonization via `to_graph_index` and `to_vertices`.
+function graph_index_list_to_graph_index(g::AbstractGraph, qvs::Vector{<:QuotientVertexVertex})
     return Vertices(map(qvv -> to_graph_index(g, qvv), qvs))
 end
 function NamedGraphs.to_graph_index(g::AbstractGraph, qvs::Vector{<:QuotientVertexVertex})
-    return to_graph_index(g, indices_from_vector(g, qvs))
+    return to_graph_index(g, graph_index_list_to_graph_index(g, qvs))
 end
 function NamedGraphs.to_vertices(g::AbstractGraph, qvs::Vector{<:QuotientVertexVertex})
-    return to_vertices(g, indices_from_vector(g, qvs))
+    return to_vertices(g, graph_index_list_to_graph_index(g, qvs))
 end
 
 # Conversions to `QuotientVerticesVertices`
-function indices_from_vector(::AbstractGraph, qv::Vector{<:QuotientVertex})
+function graph_index_list_to_graph_index(::AbstractGraph, qv::Vector{<:QuotientVertex})
     return QuotientVertices(map(v -> v.vertex, qv))
 end
 function NamedGraphs.to_graph_index(g::AbstractGraph, qv::Vector{<:QuotientVertex})
-    return to_graph_index(g, indices_from_vector(g, qv))
+    return to_graph_index(g, graph_index_list_to_graph_index(g, qv))
 end
 function NamedGraphs.to_vertices(g::AbstractGraph, qv::Vector{<:QuotientVertex})
-    return to_vertices(g, indices_from_vector(g, qv))
+    return to_vertices(g, graph_index_list_to_graph_index(g, qv))
 end
 
-function indices_from_vector(::AbstractGraph, qvs::Vector{<:QuotientVertexVertices})
+function graph_index_list_to_graph_index(::AbstractGraph, qvs::Vector{<:QuotientVertexVertices})
     return QuotientVerticesVertices(qvs, mapreduce(collect, vcat, qvs))
 end
 function NamedGraphs.to_graph_index(g::AbstractGraph, qvs::Vector{<:QuotientVertexVertices})
-    return to_graph_index(g, indices_from_vector(g, qvs))
+    return to_graph_index(g, graph_index_list_to_graph_index(g, qvs))
 end
 function NamedGraphs.to_vertices(g::AbstractGraph, qvs::Vector{<:QuotientVertexVertices})
-    return to_vertices(g, indices_from_vector(g, qvs))
+    return to_vertices(g, graph_index_list_to_graph_index(g, qvs))
 end

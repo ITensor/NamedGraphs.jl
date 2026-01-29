@@ -247,33 +247,35 @@ NamedGraphs.to_edges(::AbstractGraph, qees::QuotientEdgeEdges) = QuotientEdgeSli
 NamedGraphs.to_graph_index(::AbstractGraph, qeses::QuotientEdgesEdges) = qeses
 NamedGraphs.to_edges(::AbstractGraph, qeses::QuotientEdgesEdges) = QuotientEdgeSlice(qeses)
 
-function indices_from_vector(g::AbstractGraph, qes::Vector{<:QuotientEdgeEdge})
+# This function preprocesses a vector of graph indices into an appropriate index object for
+# canonization via `to_graph_index` and `to_edges`.
+function graph_index_list_to_graph_index(g::AbstractGraph, qes::Vector{<:QuotientEdgeEdge})
     return Edges(map(qee -> to_graph_index(g, qee), qes))
 end
 function NamedGraphs.to_graph_index(g::AbstractGraph, qes::Vector{<:QuotientEdgeEdge})
-    return to_graph_index(g, indices_from_vector(g, qes))
+    return to_graph_index(g, graph_index_list_to_graph_index(g, qes))
 end
 function NamedGraphs.to_edges(g::AbstractGraph, qes::Vector{<:QuotientEdgeEdge})
-    return to_edges(g, indices_from_vector(g, qes))
+    return to_edges(g, graph_index_list_to_graph_index(g, qes))
 end
 
 # Conversions to `QuotientEdgesEdges`
-function indices_from_vector(::AbstractGraph, qe::Vector{<:QuotientEdge})
+function graph_index_list_to_graph_index(::AbstractGraph, qe::Vector{<:QuotientEdge})
     return QuotientEdges(map(e -> e.edge, qe))
 end
 function NamedGraphs.to_graph_index(g::AbstractGraph, qe::Vector{<:QuotientEdge})
-    return to_graph_index(g, indices_from_vector(g, qe))
+    return to_graph_index(g, graph_index_list_to_graph_index(g, qe))
 end
 function NamedGraphs.to_edges(g::AbstractGraph, qe::Vector{<:QuotientEdge})
-    return to_edges(g, indices_from_vector(g, qe))
+    return to_edges(g, graph_index_list_to_graph_index(g, qe))
 end
 
-function indices_from_vector(::AbstractGraph, qes::Vector{<:QuotientEdgeEdges})
+function graph_index_list_to_graph_index(::AbstractGraph, qes::Vector{<:QuotientEdgeEdges})
     return QuotientEdgesEdges(qes, mapreduce(collect, vcat, qes))
 end
 function NamedGraphs.to_graph_index(g::AbstractGraph, qes::Vector{<:QuotientEdgeEdges})
-    return to_graph_index(g, indices_from_vector(g, qes))
+    return to_graph_index(g, graph_index_list_to_graph_index(g, qes))
 end
 function NamedGraphs.to_edges(g::AbstractGraph, qes::Vector{<:QuotientEdgeEdges})
-    return to_edges(g, indices_from_vector(g, qes))
+    return to_edges(g, graph_index_list_to_graph_index(g, qes))
 end
