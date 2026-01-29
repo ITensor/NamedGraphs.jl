@@ -412,12 +412,6 @@ end
 
     g = PartitionedGraph(g, partitions)
 
-    promote_op = (f, args...) -> begin
-        RV = Base.promote_op(f, args...)
-        @test !(RV <: Union{})
-        return RV
-    end
-
     @testset "Vertices" begin
 
         # runic: off
