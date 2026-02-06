@@ -1,7 +1,7 @@
 name = "NamedGraphs"
 uuid = "678767b0-92e7-4007-89e4-4527a8725b19"
+version = "0.10.1"
 authors = ["Matthew Fishman <mfishman@flatironinstitute.org>, Joseph Tindall <jtindall@flatironinstitute.org> and contributors"]
-version = "0.10.0"
 
 [deps]
 AbstractTrees = "1520ce14-60c1-5f80-bbc7-55ef81b5835c"
@@ -41,8 +41,8 @@ KaHyPar = "0.3.1"
 LinearAlgebra = "1.7"
 Metis = "1.4"
 PackageExtensionCompat = "1"
-SimpleGraphAlgorithms = "0.6.0"
-SimpleGraphConverter = "0.1.0"
+SimpleGraphAlgorithms = "0.6"
+SimpleGraphConverter = "0.1"
 SimpleTraits = "0.9"
 SparseArrays = "1.7"
 SplitApplyCombine = "1.2.2"
