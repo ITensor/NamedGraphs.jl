@@ -1,5 +1,5 @@
-using NamedGraphs: NamedGraphs
 using Documenter: Documenter, DocMeta, deploydocs, makedocs
+using NamedGraphs: NamedGraphs
 
 DocMeta.setdocmeta!(NamedGraphs, :DocTestSetup, :(using NamedGraphs); recursive = true)
 

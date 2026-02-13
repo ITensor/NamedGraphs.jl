@@ -1,5 +1,4 @@
-using NamedGraphs.GraphsExtensions:
-    boundary_edges, boundary_vertices, inner_boundary_vertices, outer_boundary_vertices
+using NamedGraphs.GraphsExtensions: boundary_edges, boundary_vertices, inner_boundary_vertices, outer_boundary_vertices
 using NamedGraphs.NamedGraphGenerators: named_grid
 
 g = named_grid((5, 5))
