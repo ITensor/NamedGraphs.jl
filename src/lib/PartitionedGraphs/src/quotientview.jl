@@ -1,7 +1,7 @@
-using Graphs: AbstractGraph, rem_vertex!, rem_edge!, vertices, edges, has_edge
-using ..NamedGraphs: NamedGraph, position_graph_type, induced_subgraph_from_vertices
-using .GraphsExtensions: directed_graph_type, undirected_graph_type
+using ..NamedGraphs: NamedGraph, induced_subgraph_from_vertices, position_graph_type
 using ..SimilarType: similar_type
+using .GraphsExtensions: directed_graph_type, undirected_graph_type
+using Graphs: AbstractGraph, edges, has_edge, rem_edge!, rem_vertex!, vertices
 
 struct QuotientView{V, G <: AbstractGraph} <: AbstractNamedGraph{V}
     graph::G
@@ -14,7 +14,9 @@ parent_graph_type(::Type{<:QuotientView{V, G}}) where {V, G} = G
 
 Base.copy(qv::QuotientView) = copy(quotient_graph(parent(qv)))
 
-NamedGraphs.edgetype(Q::Type{<:QuotientView}) = quotient_graph_edgetype(parent_graph_type(Q))
+function NamedGraphs.edgetype(Q::Type{<:QuotientView})
+    return quotient_graph_edgetype(parent_graph_type(Q))
+end
 
 Graphs.vertices(qg::QuotientView) = keys(partitioned_vertices(parent(qg)))
 Graphs.edges(qg::QuotientView) = edges(quotient_graph(parent(qg)))

@@ -1,10 +1,10 @@
 @eval module $(gensym())
 using Dictionaries: Dictionary
-using Graphs:
-    DiGraph, Graph, a_star, add_edge!, edges, grid, has_edge, has_vertex, rem_edge!, vertices
-using NamedGraphs: NamedGraphs, NamedDiGraph, NamedGraph
+using Graphs: DiGraph, Graph, a_star, add_edge!, edges, grid, has_edge, has_vertex,
+    rem_edge!, vertices
 using NamedGraphs.GraphsExtensions: rename_vertices
 using NamedGraphs.NamedGraphGenerators: named_grid
+using NamedGraphs: NamedGraphs, NamedDiGraph, NamedGraph
 using Test: @test, @testset
 
 @testset "AbstractNamedGraph equality" begin

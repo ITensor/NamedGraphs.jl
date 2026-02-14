@@ -1,6 +1,6 @@
 using Graphs: grid, has_edge, has_vertex, nv
+using NamedGraphs.GraphsExtensions: subgraph, ⊔
 using NamedGraphs: NamedGraph
-using NamedGraphs.GraphsExtensions: ⊔, subgraph
 
 position_graph = grid((2, 2))
 vs = [("X", 1), ("X", 2), ("Y", 1), ("Y", 2)]

@@ -59,7 +59,7 @@ function partition_vertices(
         npartitions = nothing,
         nvertices_per_partition = nothing,
         backend = current_partitioning_backend(),
-        kwargs...,
+        kwargs...
     )
     # Metis cannot handle the edge case npartitions = 1, so we will fix it here for now.
     # TODO: Check if this is still needed, or move to `NamedGraphsMetisExt`.
@@ -67,6 +67,7 @@ function partition_vertices(
         return group(v -> 1, collect(vertices(g)))
     end
     return partition_vertices(
-        Backend(backend), g, _npartitions(g, npartitions, nvertices_per_partition); kwargs...
+        Backend(backend), g, _npartitions(g, npartitions, nvertices_per_partition);
+        kwargs...
     )
 end

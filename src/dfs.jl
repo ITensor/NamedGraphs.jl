@@ -1,5 +1,5 @@
 using Graphs: Graphs, dfs_parents, dfs_tree, topological_sort_by_dfs
-using SimpleTraits: SimpleTraits, Not, @traitfn
+using SimpleTraits: SimpleTraits, @traitfn, Not
 
 @traitfn function Graphs.topological_sort_by_dfs(g::AbstractNamedGraph::IsDirected)
     return map(v -> ordered_vertices(g)[v], topological_sort_by_dfs(position_graph(g)))

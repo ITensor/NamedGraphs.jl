@@ -1,8 +1,8 @@
+using .GraphsExtensions: directed_graph
 using Dictionaries: AbstractDictionary
 using Graphs: Graphs, IsDirected, dst, edges, nv, src
-using .GraphsExtensions: directed_graph
 using LinearAlgebra: Symmetric
-using SimpleTraits: SimpleTraits, Not, @traitfn
+using SimpleTraits: SimpleTraits, @traitfn, Not
 using SparseArrays: sparse, spzeros
 
 # TODO: Move to `GraphsExtensions`.

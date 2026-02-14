@@ -8,7 +8,13 @@ end
 
 function dijkstra_mst(graph::AbstractGraph, vertex, distmx = weights(graph))
     parents =
-        dijkstra_shortest_paths(graph, [vertex], distmx; allpaths = false, trackvertices = false).parents
+        dijkstra_shortest_paths(
+        graph,
+        [vertex],
+        distmx;
+        allpaths = false,
+        trackvertices = false
+    ).parents
     mst = Vector{edgetype(graph)}()
     for src in eachindex(parents)
         dst = parents[src]

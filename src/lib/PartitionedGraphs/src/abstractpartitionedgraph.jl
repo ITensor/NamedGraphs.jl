@@ -1,26 +1,10 @@
-using Dictionaries: Dictionary
-using Graphs:
-    AbstractEdge,
-    AbstractGraph,
-    AbstractSimpleGraph,
-    Graphs,
-    add_vertex!,
-    dst,
-    edgetype,
-    has_vertex,
-    is_directed,
-    rem_vertex!,
-    src,
-    vertices
+using ..NamedGraphs.GraphsExtensions: GraphsExtensions, add_vertices!, convert_vertextype,
+    not_implemented, rem_vertices!, subgraph
 using ..NamedGraphs:
-    NamedGraphs, AbstractNamedGraph, NamedGraph, NamedDiGraph, get_graph_index
-using ..NamedGraphs.GraphsExtensions:
-    GraphsExtensions,
-    add_vertices!,
-    not_implemented,
-    rem_vertices!,
-    subgraph,
-    convert_vertextype
+    AbstractNamedGraph, NamedDiGraph, NamedGraph, NamedGraphs, get_graph_index
+using Dictionaries: Dictionary
+using Graphs: Graphs, AbstractEdge, AbstractGraph, AbstractSimpleGraph, add_vertex!, dst,
+    edgetype, has_vertex, is_directed, rem_vertex!, src, vertices
 
 # For you own graph type `g`, you should define a method for this function if you
 # desire custom partitioning.
@@ -38,7 +22,6 @@ end
 
 # For fast quotient edge checking and graph construction, one should overload this function.
 function quotient_graph(g::AbstractGraph)
-
     qg = similar_quotient_graph(g)
 
     add_vertices!(qg, keys(partitioned_vertices(g)))
@@ -56,11 +39,9 @@ function quotient_graph(g::AbstractGraph)
 end
 
 function partitioned_edges(g::AbstractGraph)
-
     dict = Dictionary{quotient_graph_edgetype(g), Vector{edgetype(g)}}()
 
     for e in edges(g)
-
         qe = parent(quotientedge(g, e))
 
         if is_self_loop(qe)
@@ -97,7 +78,6 @@ quotient_graph_edgetype(G) = edgetype(quotient_graph_type(G))
 # Additional interface functions
 
 add_subquotientvertex!(pg::AbstractGraph, quotientvertex, vertex) = not_implemented()
-
 
 """
 abstract type AbstractPartitionedGraph{V, PV} <: AbstractNamedGraph{V}
@@ -178,6 +158,9 @@ function Base.:(==)(pg1::AbstractPartitionedGraph, pg2::AbstractPartitionedGraph
     return true
 end
 
-function NamedGraphs.induced_subgraph_from_vertices(pg::AbstractPartitionedGraph, subvertices)
+function NamedGraphs.induced_subgraph_from_vertices(
+        pg::AbstractPartitionedGraph,
+        subvertices
+    )
     return induced_subgraph(unpartitioned_graph(pg), subvertices)
 end

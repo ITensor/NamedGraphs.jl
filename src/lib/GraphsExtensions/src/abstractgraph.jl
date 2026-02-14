@@ -1,35 +1,9 @@
 using Dictionaries: Dictionary, Indices, dictionary
-using Graphs:
-    Graphs,
-    AbstractEdge,
-    AbstractGraph,
-    IsDirected,
-    Δ,
-    a_star,
-    add_edge!,
-    add_vertex!,
-    degree,
-    dfs_tree,
-    eccentricity,
-    edgetype,
-    has_edge,
-    has_vertex,
-    indegree,
-    induced_subgraph,
-    inneighbors,
-    is_connected,
-    is_cyclic,
-    is_directed,
-    is_tree,
-    outdegree,
-    outneighbors,
-    ne,
-    neighbors,
-    nv,
-    rem_edge!,
-    rem_vertex!,
-    weights
-using SimpleTraits: SimpleTraits, Not, @traitfn
+using Graphs: Graphs, AbstractEdge, AbstractGraph, IsDirected, a_star, add_edge!,
+    add_vertex!, degree, dfs_tree, eccentricity, edgetype, has_edge, has_vertex, indegree,
+    induced_subgraph, inneighbors, is_connected, is_cyclic, is_directed, is_tree, ne,
+    neighbors, nv, outdegree, outneighbors, rem_edge!, rem_vertex!, weights, Δ
+using SimpleTraits: SimpleTraits, @traitfn, Not
 using SplitApplyCombine: groupfind
 
 not_implemented() = error("Not implemented")
@@ -123,7 +97,7 @@ function _neighbors(graph::AbstractGraph, vertex; dir = :out)
         return all_neighbors(graph, vertex)
     end
     return error(
-        "`_neighbors(graph::AbstractGraph, vertex; dir)` with `dir = $(dir) not implemented. Use either `dir = :out`, `dir = :in`, or `dir = :both`.",
+        "`_neighbors(graph::AbstractGraph, vertex; dir)` with `dir = $(dir) not implemented. Use either `dir = :out`, `dir = :in`, or `dir = :both`."
     )
 end
 
@@ -568,7 +542,9 @@ function rem_vertex(g::AbstractGraph, vs)
     return g
 end
 
-"""Remove a list of vertices from a graph g"""
+"""
+Remove a list of vertices from a graph g
+"""
 function rem_vertices!(g::AbstractGraph, vs)
     for v in vs
         rem_vertex!(g, v)
@@ -588,7 +564,9 @@ function add_edge(g::AbstractGraph, edge)
     return g
 end
 
-"""Add a list of edges to a graph g"""
+"""
+Add a list of edges to a graph g
+"""
 function add_edges!(g::AbstractGraph, edges)
     for e in edges
         add_edge!(g, edgetype(g)(e))
@@ -608,7 +586,9 @@ function rem_edge(g::AbstractGraph, edge)
     return g
 end
 
-"""Remove a list of edges from a graph g"""
+"""
+Remove a list of edges from a graph g
+"""
 function rem_edges!(g::AbstractGraph, edges)
     for e in edges
         rem_edge!(g, edgetype(g)(e))
@@ -636,7 +616,9 @@ function decorate_graph_vertices(g::AbstractGraph; kwargs...)
     return not_implemented()
 end
 
-""" Do a BFS search to construct a tree, but do it with randomness to avoid generating the same tree. Based on Int. J. Comput. Their Appl. 15 pp 177-186 (2008). Edges will point away from source vertex s."""
+"""
+Do a BFS search to construct a tree, but do it with randomness to avoid generating the same tree. Based on Int. J. Comput. Their Appl. 15 pp 177-186 (2008). Edges will point away from source vertex s.
+"""
 function random_bfs_tree(g::AbstractGraph, s; maxiter = 1000 * (nv(g) + ne(g)))
     Q = [s]
     d = map(v -> v == s ? 0.0 : Inf, Indices(vertices(g)))

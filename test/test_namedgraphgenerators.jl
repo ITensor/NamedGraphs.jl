@@ -2,13 +2,11 @@
 
 using Graphs: a_star, add_edge!, add_vertex!, degree, edges, edgetype, has_edge, has_vertex,
     is_directed, ne, neighbors, nv, rem_edge!, rem_vertex!, vertices
-using NamedGraphs: NamedEdge
 using NamedGraphs.GraphsExtensions: is_cycle_graph, vertextype
-using NamedGraphs.NamedGraphGenerators: NamedGridGraph, named_grid,
-    named_hexagonal_lattice_graph, named_triangular_lattice_graph
-using NamedGraphs.NamedGraphGenerators: grid_ndims, grid_size, is_directed_grid,
-    ishypertorus
-
+using NamedGraphs.NamedGraphGenerators: NamedGridGraph, grid_ndims, grid_size,
+    is_directed_grid, ishypertorus, named_grid, named_hexagonal_lattice_graph,
+    named_triangular_lattice_graph
+using NamedGraphs: NamedEdge
 using Test: @test, @test_throws, @testset
 
 @testset "Named Graph Generators" begin

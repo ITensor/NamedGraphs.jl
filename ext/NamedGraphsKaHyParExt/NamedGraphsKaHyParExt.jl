@@ -1,7 +1,7 @@
 module NamedGraphsKaHyParExt
 using Graphs: AbstractSimpleGraph, incidence_matrix
 using KaHyPar: KaHyPar
-using NamedGraphs.GraphsExtensions: GraphsExtensions, @Backend_str
+using NamedGraphs.GraphsExtensions: @Backend_str, GraphsExtensions
 using SplitApplyCombine: groupfind
 using Suppressor: @suppress
 
@@ -29,10 +29,10 @@ const KAHYPAR_ALGS = Dict(
 """
     partition_vertices(::Backend"kahypar", g::Graph, npartiations::Integer; objective="edge_cut", alg="kway", kwargs...)
 
-- default_configuration => "cut_kKaHyPar_sea20.ini"
-- :edge_cut => "cut_kKaHyPar_sea20.ini"
-- :connectivity => "km1_kKaHyPar_sea20.ini"
-- imbalance::Number=0.03
+  - default_configuration => "cut_kKaHyPar_sea20.ini"
+  - :edge_cut => "cut_kKaHyPar_sea20.ini"
+  - :connectivity => "km1_kKaHyPar_sea20.ini"
+  - imbalance::Number=0.03
 """
 function GraphsExtensions.partition_vertices(
         ::Backend"kahypar",
@@ -41,11 +41,12 @@ function GraphsExtensions.partition_vertices(
         objective = "edge_cut",
         alg = "kway",
         configuration = nothing,
-        kwargs...,
+        kwargs...
     )
     if isnothing(configuration)
         configuration = joinpath(
-            pkgdir(KaHyPar), "src", "config", KAHYPAR_ALGS[(; objective = objective, alg = alg)]
+            pkgdir(KaHyPar), "src", "config",
+            KAHYPAR_ALGS[(; objective = objective, alg = alg)]
         )
     end
     # https://github.com/kahypar/KaHyPar.jl/issues/20

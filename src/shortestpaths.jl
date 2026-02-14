@@ -20,7 +20,7 @@ function NamedDijkstraState(parents, dists, predecessors, pathcounts, closest_ve
         dists,
         convert.(Vector{eltype(parents)}, predecessors),
         pathcounts,
-        convert(Vector{eltype(parents)}, closest_vertices),
+        convert(Vector{eltype(parents)}, closest_vertices)
     )
 end
 
@@ -40,12 +40,13 @@ function position_path_state_to_path_state(
     graph_vertices = map(v -> ordered_vertices(graph)[v], vertices(position_graph(graph)))
     return NamedDijkstraState(
         Dictionary(
-            graph_vertices, map(v -> ordered_vertices(graph)[v], position_path_state_parents)
+            graph_vertices,
+            map(v -> ordered_vertices(graph)[v], position_path_state_parents)
         ),
         Dictionary(graph_vertices, position_path_state.dists),
         map(x -> map(v -> ordered_vertices(graph)[v], x), position_path_state.predecessors),
         Dictionary(graph_vertices, position_path_state.pathcounts),
-        map(v -> ordered_vertices(graph)[v], position_path_state.closest_vertices),
+        map(v -> ordered_vertices(graph)[v], position_path_state.closest_vertices)
     )
 end
 
@@ -54,14 +55,14 @@ function namedgraph_dijkstra_shortest_paths(
         srcs,
         distmx = weights(graph);
         allpaths = false,
-        trackvertices = false,
+        trackvertices = false
     )
     position_path_state = dijkstra_shortest_paths(
         position_graph(graph),
         map(v -> vertex_positions(graph)[v], srcs),
         dist_matrix_to_position_dist_matrix(graph, distmx);
         allpaths,
-        trackvertices,
+        trackvertices
     )
     return position_path_state_to_path_state(graph, position_path_state)
 end
@@ -77,7 +78,7 @@ function Graphs.dijkstra_shortest_paths(
         graph::AbstractNamedGraph,
         srcs::Vector{<:Integer},
         distmx::AbstractMatrix{<:Real} = weights(graph);
-        kwargs...,
+        kwargs...
     )
     return namedgraph_dijkstra_shortest_paths(graph, srcs, distmx; kwargs...)
 end

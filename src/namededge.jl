@@ -1,5 +1,5 @@
-using Graphs: Graphs
 using .GraphsExtensions: GraphsExtensions
+using Graphs: Graphs
 
 struct NamedEdge{V} <: AbstractNamedEdge{V}
     src::V

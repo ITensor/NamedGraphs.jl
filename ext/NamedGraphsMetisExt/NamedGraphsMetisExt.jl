@@ -1,7 +1,7 @@
 module NamedGraphsMetisExt
 using Graphs: AbstractSimpleGraph
 using Metis: Metis
-using NamedGraphs.GraphsExtensions: GraphsExtensions, @Backend_str
+using NamedGraphs.GraphsExtensions: @Backend_str, GraphsExtensions
 using SplitApplyCombine: groupfind
 
 GraphsExtensions.set_partitioning_backend!(Backend"metis"())
@@ -14,11 +14,13 @@ const METIS_ALGS = Dict(["kway" => :KWAY, "recursive" => :RECURSIVE])
 
 Partition the graph `G` in `n` parts.
 The partition algorithm is defined by the `alg` keyword:
- - :KWAY: multilevel k-way partitioning
- - :RECURSIVE: multilevel recursive bisection
+
+  - :KWAY: multilevel k-way partitioning
+  - :RECURSIVE: multilevel recursive bisection
 """
 function GraphsExtensions.partition_vertices(
-        ::Backend"metis", g::AbstractSimpleGraph, npartitions::Integer; alg = "recursive", kwargs...
+        ::Backend"metis", g::AbstractSimpleGraph, npartitions::Integer; alg = "recursive",
+        kwargs...
     )
     metis_alg = METIS_ALGS[alg]
     partitioned_verts = Metis.partition(g, npartitions; alg = metis_alg, kwargs...)
