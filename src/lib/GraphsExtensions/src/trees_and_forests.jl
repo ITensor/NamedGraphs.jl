@@ -1,6 +1,6 @@
-using Graphs: IsDirected, bfs_tree, connected_components, edges, edgetype
 using .GraphsExtensions: random_bfs_tree, rem_edges, undirected_graph
-using SimpleTraits: SimpleTraits, Not, @traitfn
+using Graphs: IsDirected, bfs_tree, connected_components, edges, edgetype
+using SimpleTraits: SimpleTraits, @traitfn, Not
 
 abstract type SpanningTreeAlgorithm end
 
@@ -13,7 +13,8 @@ default_spanning_tree_alg() = BFS()
 default_root_vertex(g) = last(findmax(eccentricities(g)))
 
 function spanning_tree(
-        g::AbstractGraph; alg = default_spanning_tree_alg(), root_vertex = default_root_vertex(g)
+        g::AbstractGraph; alg = default_spanning_tree_alg(),
+        root_vertex = default_root_vertex(g)
     )
     return spanning_tree(alg, g; root_vertex)
 end

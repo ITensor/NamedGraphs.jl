@@ -1,8 +1,8 @@
+using ..NamedGraphs:
+    AbstractNamedEdge, AbstractNamedGraph, NamedEdge, NamedGraphs, PositionGraphView
 using Dictionaries: Dictionary
 using Graphs: Graphs, AbstractEdge, AbstractEdgeIter, dst, edgetype, has_edge, has_vertex,
     ne, neighbors, src, vertices
-using ..NamedGraphs: NamedGraphs, AbstractNamedEdge, AbstractNamedGraph, NamedEdge,
-    PositionGraphView
 
 # Helper functions
 oneelement_tuple(j::Int, N) = ntuple(i -> i == j ? 1 : 0, N)

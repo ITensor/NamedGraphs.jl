@@ -7,10 +7,13 @@ an object as a key or index of an indexible object
 `AbstractArray`, `AbstractDict`, etc.
 
 Useful for nested structures of indices, for example:
+
 ```julia
 [Key([1, 2]), [Key([3, 4]), Key([5, 6])]]
 ```
+
 which could represent partitioning a set of vertices
+
 ```julia
 [Key([1, 2]), Key([3, 4]), Key([5, 6])]
 ```

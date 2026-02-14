@@ -1,5 +1,5 @@
-using Graphs: AbstractEdge
 using Dictionaries: Dictionaries
+using Graphs: AbstractEdge
 
 abstract type AbstractGraphIndices{T} end
 abstract type AbstractVertices{V} <: AbstractGraphIndices{V} end
@@ -48,16 +48,24 @@ function to_graph_index(graph, inds::AbstractVector{<:Pair})
 end
 to_graph_index(graph, inds::AbstractVector{<:AbstractEdge}) = Edges(inds)
 
-Base.iterate(gi::AbstractGraphIndices, state...) = iterate(parent_graph_indices(gi), state...)
+function Base.iterate(gi::AbstractGraphIndices, state...)
+    return iterate(parent_graph_indices(gi), state...)
+end
 
 Base.getindex(gi::AbstractGraphIndices, i) = getindex(parent_graph_indices(gi), i)
 
-Base.getindex(graph::AbstractNamedGraph, inds) = getindex_namedgraph(graph, to_graph_index(graph, inds))
+function Base.getindex(graph::AbstractNamedGraph, inds)
+    return getindex_namedgraph(graph, to_graph_index(graph, inds))
+end
 
 getindex_namedgraph(graph::AbstractGraph, inds) = get_graph_index(graph, inds)
-getindex_namedgraph(graph::AbstractGraph, inds::AbstractGraphIndices) = get_graph_indices(graph, inds)
+function getindex_namedgraph(graph::AbstractGraph, inds::AbstractGraphIndices)
+    return get_graph_indices(graph, inds)
+end
 
-get_graph_index(graph::AbstractGraph, index) = throw(MethodError(get_graph_index, (graph, index)))
+function get_graph_index(graph::AbstractGraph, index)
+    throw(MethodError(get_graph_index, (graph, index)))
+end
 
 function Dictionaries.getindices(graph::AbstractNamedGraph, inds)
     return get_graph_indices(graph, to_graph_index(graph, inds))

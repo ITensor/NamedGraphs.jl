@@ -2,8 +2,8 @@
 using Graphs: degree, dst, edges, ne, src, vertices
 using NamedGraphs.NamedGraphGenerators:
     named_comb_tree, named_grid, named_hexagonal_lattice_graph
-using SimpleGraphConverter
 using SimpleGraphAlgorithms: edge_color
+using SimpleGraphConverter
 using Test: @test, @testset
 
 @testset "EdgeColoring" begin

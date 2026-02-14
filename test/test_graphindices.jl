@@ -1,8 +1,8 @@
 @eval module $(gensym())
-using Test
 using Graphs: Edge, path_graph
-using NamedGraphs: Vertices, Edges, to_graph_index, NamedEdge
 using NamedGraphs.GraphsExtensions: vertextype
+using NamedGraphs: Edges, NamedEdge, Vertices, to_graph_index
+using Test
 
 @testset "Graph indices" begin
     @testset "Vertices/Edges" begin

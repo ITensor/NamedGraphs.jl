@@ -1,45 +1,13 @@
+using .GraphsExtensions: GraphsExtensions, directed_graph, incident_edges,
+    partition_vertices, rem_edges!, rename_vertices, similar_graph, subgraph
 using Dictionaries: set!
-using Graphs:
-    Graphs,
-    AbstractGraph,
-    AbstractSimpleGraph,
-    IsDirected,
-    a_star,
-    add_edge!,
-    adjacency_matrix,
-    bfs_parents,
-    boruvka_mst,
-    connected_components,
-    degree,
-    edges,
-    has_path,
-    indegree,
-    inneighbors,
-    is_connected,
-    is_cyclic,
-    kruskal_mst,
-    ne,
-    neighborhood,
-    neighborhood_dists,
-    nv,
-    outdegree,
-    prim_mst,
-    rem_edge!,
-    spfa_shortest_paths,
-    vertices,
-    weights,
-    induced_subgraph
 using Graphs.SimpleGraphs: SimpleDiGraph, SimpleEdge
-using .GraphsExtensions:
-    GraphsExtensions,
-    directed_graph,
-    incident_edges,
-    partition_vertices,
-    rename_vertices,
-    subgraph,
-    similar_graph,
-    rem_edges!
-using SimpleTraits: SimpleTraits, Not, @traitfn
+using Graphs: Graphs, AbstractGraph, AbstractSimpleGraph, IsDirected, a_star, add_edge!,
+    adjacency_matrix, bfs_parents, boruvka_mst, connected_components, degree, edges,
+    has_path, indegree, induced_subgraph, inneighbors, is_connected, is_cyclic, kruskal_mst,
+    ne, neighborhood, neighborhood_dists, nv, outdegree, prim_mst, rem_edge!,
+    spfa_shortest_paths, vertices, weights
+using SimpleTraits: SimpleTraits, @traitfn, Not
 
 abstract type AbstractNamedGraph{V} <: AbstractGraph{V} end
 
@@ -134,7 +102,8 @@ end
 # TODO: Rename `named_edges(graph::AbstractNamedGraph)`.
 function position_edge_to_edge(graph::AbstractNamedGraph, position_edge::AbstractEdge)
     return edgetype(graph)(
-        ordered_vertices(graph)[src(position_edge)], ordered_vertices(graph)[dst(position_edge)]
+        ordered_vertices(graph)[src(position_edge)],
+        ordered_vertices(graph)[dst(position_edge)]
     )
 end
 
@@ -216,7 +185,9 @@ function namedgraph_neighborhood(
     position_vertices = neighborhood(
         position_graph(graph), vertex_positions(graph)[vertex], d, position_distmx; dir
     )
-    return [ordered_vertices(graph)[position_vertex] for position_vertex in position_vertices]
+    return [
+        ordered_vertices(graph)[position_vertex] for position_vertex in position_vertices
+    ]
 end
 
 function Graphs.neighborhood(
@@ -234,7 +205,8 @@ end
 
 # Fix for ambiguity error with `AbstractGraph` version
 function Graphs.neighborhood(
-        graph::AbstractNamedGraph, vertex::Integer, d, distmx::AbstractMatrix{<:Real}; dir = :out
+        graph::AbstractNamedGraph, vertex::Integer, d, distmx::AbstractMatrix{<:Real};
+        dir = :out
     )
     return namedgraph_neighborhood(graph, vertex, d, distmx; dir)
 end
@@ -265,7 +237,8 @@ end
 
 # Fix for ambiguity error with `AbstractGraph` version
 function Graphs.neighborhood_dists(
-        graph::AbstractNamedGraph, vertex::Integer, d, distmx::AbstractMatrix{<:Real}; dir = :out
+        graph::AbstractNamedGraph, vertex::Integer, d, distmx::AbstractMatrix{<:Real};
+        dir = :out
     )
     return namedgraph_neighborhood_dists(graph, vertex, d, distmx; dir)
 end
@@ -286,7 +259,8 @@ end
 
 # TODO: Make this more generic?
 function GraphsExtensions.partition_vertices(
-        graph::AbstractNamedGraph; npartitions = nothing, nvertices_per_partition = nothing, kwargs...
+        graph::AbstractNamedGraph; npartitions = nothing, nvertices_per_partition = nothing,
+        kwargs...
     )
     vertex_partitions = partition_vertices(
         position_graph(graph); npartitions, nvertices_per_partition, kwargs...
@@ -305,7 +279,7 @@ function namedgraph_a_star(
         destination,
         distmx = weights(graph),
         heuristic::Function = (v -> zero(eltype(distmx))),
-        edgetype_to_return = edgetype(graph),
+        edgetype_to_return = edgetype(graph)
     )
     position_distmx = dist_matrix_to_position_dist_matrix(graph, distmx)
     position_shortest_path = a_star(
@@ -314,7 +288,7 @@ function namedgraph_a_star(
         vertex_positions(graph)[destination],
         dist_matrix_to_position_dist_matrix(graph, distmx),
         heuristic,
-        SimpleEdge,
+        SimpleEdge
     )
     return map(e -> position_edge_to_edge(graph, e), position_shortest_path)
 end
@@ -396,7 +370,7 @@ function Graphs.has_path(
         position_graph(graph),
         vertex_positions(graph)[source],
         vertex_positions(graph)[destination];
-        exclude_vertices = map(v -> vertex_positions(graph)[v], exclude_vertices),
+        exclude_vertices = map(v -> vertex_positions(graph)[v], exclude_vertices)
     )
 end
 
@@ -420,7 +394,7 @@ function Base.union(
         graph1::AbstractNamedGraph,
         graph2::AbstractNamedGraph,
         graph3::AbstractNamedGraph,
-        graph_rest::AbstractNamedGraph...,
+        graph_rest::AbstractNamedGraph...
     )
     return union(union(graph1, graph2), graph3, graph_rest...)
 end
@@ -441,7 +415,6 @@ end
 
 # This wont be the most efficient way for a given graph type.
 @traitfn function Base.reverse!(g::AbstractNamedGraph::IsDirected)
-
     edge_list = collect(edges(g))
 
     for edge in edge_list
@@ -590,7 +563,6 @@ function induced_subgraph_namedgraph(graph::AbstractGraph, subvertices)
     return induced_subgraph_from_vertices(graph, to_vertices(graph, subvertices))
 end
 
-
 # TODO: Implement an edgelist version
 function induced_subgraph_from_vertices(graph::AbstractGraph, subvertices)
     subgraph = similar_graph(graph, subvertices)
@@ -608,7 +580,10 @@ end
 function GraphsExtensions.edge_subgraph(graph::AbstractNamedGraph, edges)
     return edge_subgraph_namedgraph(graph, to_edges(graph, edges))
 end
-function GraphsExtensions.edge_subgraph(graph::AbstractNamedGraph, edges::Vector{<:AbstractEdge})
+function GraphsExtensions.edge_subgraph(
+        graph::AbstractNamedGraph,
+        edges::Vector{<:AbstractEdge}
+    )
     return edge_subgraph_namedgraph(graph, to_edges(graph, edges))
 end
 

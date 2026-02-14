@@ -1,5 +1,5 @@
-using Graphs: Graphs, AbstractEdge, dst, src
 using .GraphsExtensions: GraphsExtensions, convert_vertextype, rename_vertices
+using Graphs: Graphs, AbstractEdge, dst, src
 
 abstract type AbstractNamedEdge{V} <: AbstractEdge{V} end
 

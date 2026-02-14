@@ -1,10 +1,10 @@
 @eval module $(gensym())
-using Test: @test, @testset
 using Graphs: connected_components, edges, is_tree, vertices
-using NamedGraphs: NamedGraph, Vertices
 using NamedGraphs.GraphsExtensions: GraphsExtensions, all_edges, forest_cover, spanning_tree
-using NamedGraphs.NamedGraphGenerators:
-    named_comb_tree, named_grid, named_hexagonal_lattice_graph, named_triangular_lattice_graph
+using NamedGraphs.NamedGraphGenerators: named_comb_tree, named_grid,
+    named_hexagonal_lattice_graph, named_triangular_lattice_graph
+using NamedGraphs: NamedGraph, Vertices
+using Test: @test, @testset
 
 gs = [
     ("Chain", named_grid((6, 1))),

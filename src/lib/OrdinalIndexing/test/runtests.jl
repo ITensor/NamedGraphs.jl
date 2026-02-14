@@ -1,6 +1,5 @@
 @eval module $(gensym())
-using NamedGraphs.OrdinalIndexing: One, 𝟏
-using NamedGraphs.OrdinalIndexing: OrdinalSuffixedInteger, th
+using NamedGraphs.OrdinalIndexing: One, OrdinalSuffixedInteger, th, 𝟏
 using Test: @test, @test_broken, @test_throws, @testset
 @testset "OrdinalIndexing" begin
     @testset "One" begin

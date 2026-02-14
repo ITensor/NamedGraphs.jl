@@ -81,7 +81,7 @@ function Broadcast.broadcasted(
         ::Broadcast.DefaultArrayStyle{1},
         ::typeof(*),
         r::UnitRange,
-        t::OrdinalSuffixedInteger{One},
+        t::OrdinalSuffixedInteger{One}
     )
     return (first(r) * t):(last(r) * t)
 end
@@ -89,7 +89,7 @@ function Broadcast.broadcasted(
         ::Broadcast.DefaultArrayStyle{1},
         ::typeof(*),
         r::Base.OneTo,
-        t::OrdinalSuffixedInteger{One},
+        t::OrdinalSuffixedInteger{One}
     )
     return Base.OneTo(last(r) * t)
 end

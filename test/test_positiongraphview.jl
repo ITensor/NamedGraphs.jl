@@ -2,9 +2,9 @@
 
 using Graphs: Graphs, Edge, edges, edgetype, has_edge, has_vertex, inneighbors, is_directed,
     ne, neighbors, nv, outneighbors, vertices
-using NamedGraphs: NamedEdge, PositionGraphView, ordered_vertices, vertex_positions
 using NamedGraphs.GraphsExtensions: vertextype
 using NamedGraphs.NamedGraphGenerators: NamedGridGraph
+using NamedGraphs: NamedEdge, PositionGraphView, ordered_vertices, vertex_positions
 using Test: @test, @test_broken, @testset
 
 @testset "PositionGraphView" begin

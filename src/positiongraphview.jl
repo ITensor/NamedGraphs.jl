@@ -1,6 +1,6 @@
+using .GraphsExtensions: vertextype
 using Graphs: Graphs, Edge, add_edge!, add_vertex!, edges, has_edge, has_vertex,
     inneighbors, is_directed, ne, nv, outneighbors, rem_edge!, rem_vertex!, vertices
-using .GraphsExtensions: vertextype
 
 # This wrapper reinterprets an AbstractNamedGraph as an AbstractSimpleGraph where the
 # integer vertices are the vertex positions (i.e. their position in the ordered

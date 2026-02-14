@@ -1,5 +1,5 @@
-using Graphs: Graphs, dijkstra_shortest_paths, weights
 using .GraphsExtensions: eccentricities
+using Graphs: Graphs, dijkstra_shortest_paths, weights
 
 function namedgraph_eccentricity(graph::AbstractNamedGraph, vertex, distmx)
     e = maximum(dijkstra_shortest_paths(graph, [vertex], distmx).dists)

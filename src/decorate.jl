@@ -1,6 +1,6 @@
-using Graphs: add_edge!, dst, edges, neighbors, rem_edge!, rem_vertex!, src, vertices
-using Graphs.SimpleGraphs: SimpleGraph
 using .GraphsExtensions: GraphsExtensions, add_edges!
+using Graphs.SimpleGraphs: SimpleGraph
+using Graphs: add_edge!, dst, edges, neighbors, rem_edge!, rem_vertex!, src, vertices
 
 function GraphsExtensions.decorate_graph_edges(
         g::AbstractNamedGraph; edge_map::Function = Returns(NamedGraph(1))

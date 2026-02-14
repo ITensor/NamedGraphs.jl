@@ -1,20 +1,11 @@
-using Dictionaries: Dictionary
-using Graphs:
-    Graphs,
-    AbstractGraph,
-    add_edge!,
-    add_vertex!,
-    edgetype,
-    has_edge,
-    is_directed,
-    outneighbors,
-    rem_vertex!,
-    vertices
-using Graphs.SimpleGraphs: AbstractSimpleGraph, SimpleDiGraph, SimpleGraph
 using .GraphsExtensions:
-    GraphsExtensions, vertextype, directed_graph_type, undirected_graph_type
+    GraphsExtensions, directed_graph_type, undirected_graph_type, vertextype
 using .OrderedDictionaries: OrderedDictionaries, OrderedIndices
 using .OrdinalIndexing: th
+using Dictionaries: Dictionary
+using Graphs.SimpleGraphs: AbstractSimpleGraph, SimpleDiGraph, SimpleGraph
+using Graphs: Graphs, AbstractGraph, add_edge!, add_vertex!, edgetype, has_edge,
+    is_directed, outneighbors, rem_vertex!, vertices
 
 struct GenericNamedGraph{V, G <: AbstractSimpleGraph{Int}} <: AbstractNamedGraph{V}
     position_graph::G
@@ -67,7 +58,7 @@ end
 
 function GraphsExtensions.rename_vertices(f::Function, g::AbstractSimpleGraph)
     return error(
-        "Can't rename the vertices of a graph of type `$(typeof(g)) <: AbstractSimpleGraph`, try converting to a named graph.",
+        "Can't rename the vertices of a graph of type `$(typeof(g)) <: AbstractSimpleGraph`, try converting to a named graph."
     )
 end
 
@@ -101,7 +92,9 @@ function GenericNamedGraph{V, G}(
         position_graph::AbstractSimpleGraph, vertices
     ) where {V, G <: AbstractSimpleGraph{Int}}
     return GenericNamedGraph{V, G}(
-        convert(G, position_graph), OrderedIndices{V}(to_vertices(position_graph, vertices))
+        convert(G, position_graph), OrderedIndices{V}(
+            to_vertices(position_graph, vertices)
+        )
     )
 end
 
@@ -163,7 +156,9 @@ end
 # Empty constructors
 #
 
-GenericNamedGraph{V, G}() where {V, G <: AbstractSimpleGraph{Int}} = GenericNamedGraph{V, G}(V[])
+function GenericNamedGraph{V, G}() where {V, G <: AbstractSimpleGraph{Int}}
+    return GenericNamedGraph{V, G}(V[])
+end
 
 GenericNamedGraph{V}() where {V} = GenericNamedGraph{V}(V[])
 

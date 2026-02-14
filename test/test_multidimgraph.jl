@@ -1,7 +1,7 @@
 @eval module $(gensym())
 using Graphs: add_edge!, add_vertex!, grid, has_edge, has_vertex, ne, nv
+using NamedGraphs.GraphsExtensions: disjoint_union, subgraph, ⊔
 using NamedGraphs: NamedGraph
-using NamedGraphs.GraphsExtensions: ⊔, disjoint_union, subgraph
 using Test: @test, @testset
 
 @testset "NamedGraph" begin

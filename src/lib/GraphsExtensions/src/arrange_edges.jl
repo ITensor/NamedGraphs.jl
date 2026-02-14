@@ -1,5 +1,5 @@
-using Graphs: AbstractGraph, AbstractEdge, IsDirected, dst, edges, rem_edge!, src
-using SimpleTraits: SimpleTraits, Not, @traitfn
+using Graphs: AbstractEdge, AbstractGraph, IsDirected, dst, edges, rem_edge!, src
+using SimpleTraits: SimpleTraits, @traitfn, Not
 
 # Related to `MetaGraphsNext.arrange`:
 # https://github.com/JuliaGraphs/MetaGraphsNext.jl/blob/1539095ee6088aba0d5b1cb057c339ad92557889/src/metagraph.jl#L75-L80

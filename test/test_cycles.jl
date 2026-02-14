@@ -1,9 +1,9 @@
 @eval module $(gensym())
 using Graphs: edges, ne, vertices
-using NamedGraphs: edgeinduced_subgraphs_no_leaves, unique_simplecycles_limited_length
 using NamedGraphs.GraphsExtensions: degree, edge_subgraph, is_connected, rem_vertex
 using NamedGraphs.NamedGraphGenerators:
     named_comb_tree, named_grid, named_hexagonal_lattice_graph
+using NamedGraphs: edgeinduced_subgraphs_no_leaves, unique_simplecycles_limited_length
 using Test: @test, @testset
 
 @testset "SimpleCycles" begin

@@ -1,91 +1,24 @@
 @eval module $(gensym())
 using Dictionaries: Dictionary, Indices
-using Graphs:
-    Edge,
-    δ,
-    Δ,
-    a_star,
-    add_edge!,
-    add_vertex!,
-    adjacency_matrix,
-    bellman_ford_shortest_paths,
-    bfs_parents,
-    bfs_tree,
-    boruvka_mst,
-    center,
-    common_neighbors,
-    connected_components,
-    degree,
-    degree_histogram,
-    desopo_pape_shortest_paths,
-    dfs_parents,
-    dfs_tree,
-    diameter,
-    dijkstra_shortest_paths,
-    dst,
-    eccentricity,
-    edges,
-    edgetype,
-    floyd_warshall_shortest_paths,
-    grid,
-    has_edge,
-    has_path,
-    has_self_loops,
-    has_vertex,
-    indegree,
-    is_connected,
-    is_cyclic,
-    is_directed,
-    is_ordered,
-    johnson_shortest_paths,
-    kruskal_mst,
-    merge_vertices,
-    ne,
-    neighborhood,
-    neighborhood_dists,
-    neighbors,
-    nv,
-    outdegree,
-    path_digraph,
-    path_graph,
-    periphery,
-    prim_mst,
-    radius,
-    rem_vertex!,
-    spfa_shortest_paths,
-    src,
-    steiner_tree,
-    topological_sort_by_dfs,
-    vertices,
-    yen_k_shortest_paths
 using Graphs.SimpleGraphs: SimpleDiGraph, SimpleEdge
+using Graphs: Edge, a_star, add_edge!, add_vertex!, adjacency_matrix,
+    bellman_ford_shortest_paths, bfs_parents, bfs_tree, boruvka_mst, center,
+    common_neighbors, connected_components, degree, degree_histogram,
+    desopo_pape_shortest_paths, dfs_parents, dfs_tree, diameter, dijkstra_shortest_paths,
+    dst, eccentricity, edges, edgetype, floyd_warshall_shortest_paths, grid, has_edge,
+    has_path, has_self_loops, has_vertex, indegree, is_connected, is_cyclic, is_directed,
+    is_ordered, johnson_shortest_paths, kruskal_mst, merge_vertices, ne, neighborhood,
+    neighborhood_dists, neighbors, nv, outdegree, path_digraph, path_graph, periphery,
+    prim_mst, radius, rem_vertex!, spfa_shortest_paths, src, steiner_tree,
+    topological_sort_by_dfs, vertices, yen_k_shortest_paths, Δ, δ
 using GraphsFlows: GraphsFlows
-using NamedGraphs: AbstractNamedEdge, NamedEdge, NamedDiGraph, NamedGraph, Vertices
-using NamedGraphs.GraphsExtensions:
-    GraphsExtensions,
-    ⊔,
-    boundary_edges,
-    boundary_vertices,
-    convert_vertextype,
-    degrees,
-    eccentricities,
-    dijkstra_mst,
-    dijkstra_parents,
-    dijkstra_tree,
-    has_vertices,
-    incident_edges,
-    indegrees,
-    inner_boundary_vertices,
-    mincut_partitions,
-    outdegrees,
-    outer_boundary_vertices,
-    permute_vertices,
-    rename_vertices,
-    subgraph,
-    symrcm_perm,
-    symrcm_permute,
-    vertextype
+using NamedGraphs.GraphsExtensions: GraphsExtensions, boundary_edges, boundary_vertices,
+    convert_vertextype, degrees, dijkstra_mst, dijkstra_parents, dijkstra_tree,
+    eccentricities, has_vertices, incident_edges, indegrees, inner_boundary_vertices,
+    mincut_partitions, outdegrees, outer_boundary_vertices, permute_vertices,
+    rename_vertices, subgraph, symrcm_perm, symrcm_permute, vertextype, ⊔
 using NamedGraphs.NamedGraphGenerators: named_binary_tree, named_grid, named_path_graph
+using NamedGraphs: AbstractNamedEdge, NamedDiGraph, NamedEdge, NamedGraph, Vertices
 using SymRCM: SymRCM
 using Test: @test, @test_broken, @testset
 
@@ -96,7 +29,8 @@ using Test: @test, @test_broken, @testset
     @test !is_ordered(NamedEdge("B", "A"))
     @test rename_vertices(NamedEdge("A", "B"), Dict(["A" => "C", "B" => "D"])) ==
         NamedEdge("C", "D")
-    @test rename_vertices(SimpleEdge(1, 2), Dict([1 => "C", 2 => "D"])) == NamedEdge("C", "D")
+    @test rename_vertices(SimpleEdge(1, 2), Dict([1 => "C", 2 => "D"])) ==
+        NamedEdge("C", "D")
     @test rename_vertices(v -> Dict(["A" => "C", "B" => "D"])[v], NamedEdge("A", "B")) ==
         NamedEdge("C", "D")
     @test rename_vertices(v -> Dict([1 => "C", 2 => "D"])[v], SimpleEdge(1, 2)) ==
@@ -210,7 +144,8 @@ end
         @test issetequal(neighborhood(g, (1, 1), 1), [(1, 1), (2, 1), (1, 2)])
         ns = [(1, 1), (2, 1), (1, 2), (3, 1), (2, 2), (1, 3)]
         @test issetequal(neighborhood(g, (1, 1), 2), ns)
-        ns = [(1, 1), (2, 1), (1, 2), (3, 1), (2, 2), (1, 3), (4, 1), (3, 2), (2, 3), (1, 4)]
+        ns =
+            [(1, 1), (2, 1), (1, 2), (3, 1), (2, 2), (1, 3), (4, 1), (3, 2), (2, 3), (1, 4)]
         @test issetequal(neighborhood(g, (1, 1), 3), ns)
         ns = [
             (1, 1),
@@ -337,7 +272,8 @@ end
 
         p = bfs_parents(g, (1, 1))
         @test length(p) == 9
-        vertices_g = [(1, 1), (2, 1), (3, 1), (1, 2), (2, 2), (3, 2), (1, 3), (2, 3), (3, 3)]
+        vertices_g =
+            [(1, 1), (2, 1), (3, 1), (1, 2), (2, 2), (3, 2), (1, 3), (2, 3), (3, 3)]
         parent_vertices = [
             (1, 1), (1, 1), (2, 1), (1, 1), (2, 1), (3, 1), (1, 2), (2, 2), (3, 2),
         ]
@@ -376,7 +312,8 @@ end
 
         p = dfs_parents(g, (1, 1))
         @test length(p) == 9
-        vertices_g = [(1, 1), (2, 1), (3, 1), (1, 2), (2, 2), (3, 2), (1, 3), (2, 3), (3, 3)]
+        vertices_g =
+            [(1, 1), (2, 1), (3, 1), (1, 2), (2, 2), (3, 2), (1, 3), (2, 3), (3, 3)]
         parent_vertices = [
             (1, 1), (1, 1), (2, 1), (2, 2), (3, 2), (3, 1), (1, 2), (1, 3), (2, 3),
         ]
@@ -477,7 +414,10 @@ end
         @test issetequal(incident_edges(g, (2, 1)), inc_edges)
         @test issetequal(incident_edges(g, (2, 1); dir = :in), reverse.(inc_edges))
         @test issetequal(incident_edges(g, (2, 1); dir = :out), inc_edges)
-        @test issetequal(incident_edges(g, (2, 1); dir = :both), inc_edges ∪ reverse.(inc_edges))
+        @test issetequal(
+            incident_edges(g, (2, 1); dir = :both),
+            inc_edges ∪ reverse.(inc_edges)
+        )
 
         g = path_digraph(4)
         @test issetequal(incident_edges(g, 3), Edge.([3 => 4]))

@@ -35,7 +35,7 @@ end
 
 """
     edgeinduced_subgraphs_no_leaves(g::AbstractNamedGraph, max_number_of_edges::Int64)
-    
+
 Enumerate all unique, connected edgesubgraphs without any leaf vertices (degree 1) and with Nedges <= max_number_of_edges
 """
 function edgeinduced_subgraphs_no_leaves(g::AbstractNamedGraph, max_number_of_edges::Int64)

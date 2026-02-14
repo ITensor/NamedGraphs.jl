@@ -1,97 +1,23 @@
-using AbstractTrees:
-    IndexNode,
-    Leaves,
-    PostOrderDFS,
-    childindices,
-    children,
-    nodevalue,
-    nodevalues,
-    parent,
-    parentindex,
-    rootindex
+using AbstractTrees: IndexNode, Leaves, PostOrderDFS, childindices, children, nodevalue,
+    nodevalues, parent, parentindex, rootindex
 using Dictionaries: Dictionary, Indices
-using Graphs:
-    AbstractGraph,
-    add_edge!,
-    add_vertex!,
-    dst,
-    edges,
-    edgetype,
-    has_edge,
-    inneighbors,
-    is_cyclic,
-    is_directed,
-    ne,
-    nv,
-    outneighbors,
-    rem_edge!,
-    src,
-    vertices
-using Graphs.SimpleGraphs:
-    SimpleDiGraph,
-    SimpleEdge,
-    SimpleGraph,
-    binary_tree,
-    cycle_digraph,
-    cycle_graph,
-    grid,
-    path_digraph,
-    path_graph
-using NamedGraphs: NamedDiGraph, NamedEdge, NamedGraph
+using Graphs.SimpleGraphs: SimpleDiGraph, SimpleEdge, SimpleGraph, binary_tree,
+    cycle_digraph, cycle_graph, grid, path_digraph, path_graph
+using Graphs: AbstractGraph, add_edge!, add_vertex!, dst, edges, edgetype, has_edge,
+    inneighbors, is_cyclic, is_directed, ne, nv, outneighbors, rem_edge!, src, vertices
 using NamedGraphs.GraphGenerators: binary_arborescence
-using NamedGraphs.GraphsExtensions:
-    TreeGraph,
-    ⊔,
-    add_edge,
-    add_edges,
-    add_edges!,
-    add_vertices!,
-    all_edges,
-    arrange_edge,
-    arranged_edges,
-    child_edges,
-    child_vertices,
-    convert_vertextype,
-    degrees,
-    directed_graph,
-    directed_graph_type,
-    disjoint_union,
-    distance_to_leaves,
-    has_edges,
-    has_leaf_neighbor,
-    has_vertices,
-    incident_edges,
-    indegrees,
-    is_arborescence,
-    is_arranged,
-    is_binary_arborescence,
-    is_cycle_graph,
-    is_ditree,
-    is_edge_arranged,
-    is_leaf_edge,
-    is_leaf_vertex,
-    is_path_graph,
-    is_root_vertex,
-    is_rooted,
-    is_self_loop,
-    leaf_vertices,
-    minimum_distance_to_leaves,
-    next_nearest_neighbors,
-    non_leaf_edges,
-    outdegrees,
-    permute_vertices,
-    rem_edge,
-    rem_edges,
-    rem_edges!,
-    rename_vertices,
-    root_vertex,
-    similar_graph,
-    subgraph,
-    tree_graph_node,
-    undirected_graph,
-    undirected_graph_type,
-    vertextype,
-    vertices_at_distance
+using NamedGraphs.GraphsExtensions: TreeGraph, add_edge, add_edges, add_edges!,
+    add_vertices!, all_edges, arrange_edge, arranged_edges, child_edges, child_vertices,
+    convert_vertextype, degrees, directed_graph, directed_graph_type, disjoint_union,
+    distance_to_leaves, has_edges, has_leaf_neighbor, has_vertices, incident_edges,
+    indegrees, is_arborescence, is_arranged, is_binary_arborescence, is_cycle_graph,
+    is_ditree, is_edge_arranged, is_leaf_edge, is_leaf_vertex, is_path_graph,
+    is_root_vertex, is_rooted, is_self_loop, leaf_vertices, minimum_distance_to_leaves,
+    next_nearest_neighbors, non_leaf_edges, outdegrees, permute_vertices, rem_edge,
+    rem_edges, rem_edges!, rename_vertices, root_vertex, similar_graph, subgraph,
+    tree_graph_node, undirected_graph, undirected_graph_type, vertextype,
+    vertices_at_distance, ⊔
+using NamedGraphs: NamedDiGraph, NamedEdge, NamedGraph
 using Test: @test, @test_broken, @test_throws, @testset
 
 # TODO: Still need to test:
@@ -567,7 +493,7 @@ using Test: @test, @test_broken, @test_throws, @testset
     @test isempty(edges(sg))
 
     struct Graph <: AbstractGraph{Int}
-        field
+        field::Any
     end
 
     g = Graph(1)
