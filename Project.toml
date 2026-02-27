@@ -1,7 +1,10 @@
 name = "NamedGraphs"
 uuid = "678767b0-92e7-4007-89e4-4527a8725b19"
-version = "0.10.14"
+version = "0.10.15"
 authors = ["Matthew Fishman <mfishman@flatironinstitute.org>, Joseph Tindall <jtindall@flatironinstitute.org> and contributors"]
+
+[workspace]
+projects = ["benchmark", "dev", "docs", "examples", "test"]
 
 [deps]
 AbstractTrees = "1520ce14-60c1-5f80-bbc7-55ef81b5835c"
@@ -49,15 +52,3 @@ SplitApplyCombine = "1.2.2"
 Suppressor = "0.2"
 SymRCM = "0.2.1"
 julia = "1.7"
-
-[extras]
-GraphsFlows = "06909019-6f44-4949-96fc-b9d9aaa02889"
-KaHyPar = "2a6221f6-aa48-11e9-3542-2d9e0ef01880"
-Metis = "2679e427-3c69-5b7f-982b-ece356f1e94b"
-SimpleGraphAlgorithms = "41400c72-0c58-5c16-8579-4ecbce768449"
-SimpleGraphConverter = "205b04f2-f585-4877-a239-566270b3f673"
-SymRCM = "286e6d88-80af-4590-acc9-0001b223b9bd"
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-
-[targets]
-test = ["Test"]
