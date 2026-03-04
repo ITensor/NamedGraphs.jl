@@ -1,9 +1,10 @@
 using Documenter: Documenter, DocMeta, deploydocs, makedocs
+using ITensorFormatter: ITensorFormatter
 using NamedGraphs: NamedGraphs
 
 DocMeta.setdocmeta!(NamedGraphs, :DocTestSetup, :(using NamedGraphs); recursive = true)
 
-include("make_index.jl")
+ITensorFormatter.make_index!(pkgdir(NamedGraphs))
 
 makedocs(;
     modules = [NamedGraphs],
