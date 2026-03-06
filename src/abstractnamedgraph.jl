@@ -474,8 +474,7 @@ end
 # Overload Graphs.tree. Used for bfs_tree and dfs_tree
 # traversal algorithms.
 function Graphs.tree(graph::AbstractNamedGraph, parents)
-    n = length(parents)
-    t = similar_graph(directed_graph_type(typeof(graph)), vertices(graph))
+    t = similar_graph(directed_graph(graph), vertices(graph))
     for destination in eachindex(parents)
         source = parents[destination]
         if source != destination
