@@ -45,10 +45,6 @@ ordered_vertices(graph::AbstractSimpleGraph) = vertices(graph)
 Graphs.edgetype(graph::AbstractNamedGraph) = edgetype(typeof(graph))
 Graphs.edgetype(::Type{<:AbstractNamedGraph}) = not_implemented()
 
-# TODO: Define generic version in `GraphsExtensions`.
-GraphsExtensions.directed_graph_type(G::Type{<:AbstractNamedGraph}) = not_implemented()
-GraphsExtensions.undirected_graph_type(G::Type{<:AbstractNamedGraph}) = not_implemented()
-
 # In terms of `position_graph_type`
 # is_directed(::Type{<:AbstractNamedGraph}) = not_implemented()
 
