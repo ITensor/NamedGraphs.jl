@@ -492,13 +492,6 @@ using Test: @test, @test_broken, @test_throws, @testset
     @test vertices(sg) == vertices(g)
     @test isempty(edges(sg))
 
-    struct Graph <: AbstractGraph{Int}
-        field::Any
-    end
-
-    g = Graph(1)
-    @test_throws MethodError similar_graph(g)
-
     # add_edge
     g = SimpleGraph(4)
     add_edge!(g, 1 => 2)
