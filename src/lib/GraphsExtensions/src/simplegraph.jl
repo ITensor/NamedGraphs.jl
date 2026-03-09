@@ -1,23 +1,22 @@
-using Graphs.SimpleGraphs: AbstractSimpleGraph
+using Graphs.SimpleGraphs: AbstractSimpleGraph, SimpleDiGraph, SimpleEdge, SimpleGraph
 
 function permute_vertices(graph::AbstractSimpleGraph, permutation)
     return graph[permutation]
 end
 
 # https://github.com/JuliaGraphs/Graphs.jl/issues/365
-similar_graph(graph_type::Type{<:AbstractSimpleGraph}) = graph_type()
-function similar_graph(graph::AbstractSimpleGraph, vertices::Base.OneTo)
-    return similar_graph(typeof(graph), vertices)
-end
-function similar_graph(graph_type::Type{<:AbstractSimpleGraph}, vertices::Base.OneTo)
-    return graph_type(length(vertices))
+similar_graph(T::Type{<:AbstractSimpleGraph}) = similar_graph(T, Base.OneTo(0))
+function similar_graph(T::Type{<:AbstractSimpleGraph}, vertices::Base.OneTo, edges)
+    new_graph = T(length(vertices))
+    add_edges!(new_graph, edges)
+    return new_graph
 end
 
 function convert_vertextype(vertextype::Type, graph::AbstractSimpleGraph)
     return not_implemented()
 end
 
-using Graphs.SimpleGraphs: SimpleDiGraph, SimpleGraph
+convert_vertextype(V::Type, E::Type{<:SimpleEdge}) = SimpleEdge{V}
 
 function convert_vertextype(vertextype::Type, graph::SimpleGraph)
     return SimpleGraph{vertextype}(graph)

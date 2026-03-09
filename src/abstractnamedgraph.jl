@@ -1,5 +1,6 @@
 using .GraphsExtensions: GraphsExtensions, directed_graph, incident_edges,
-    partition_vertices, rem_edges!, rename_vertices, similar_graph, subgraph
+    partition_vertices, rem_edges!, rename_vertices, similar_edgeless_graph, similar_graph,
+    subgraph
 using Dictionaries: set!
 using Graphs.SimpleGraphs: SimpleDiGraph, SimpleEdge
 using Graphs: Graphs, AbstractGraph, AbstractSimpleGraph, IsDirected, a_star, add_edge!,
@@ -53,6 +54,23 @@ GraphsExtensions.undirected_graph_type(G::Type{<:AbstractNamedGraph}) = not_impl
 
 GraphsExtensions.convert_vertextype(::Type{V}, g::AbstractNamedGraph{V}) where {V} = g
 GraphsExtensions.convert_vertextype(::Type, g::AbstractNamedGraph) = not_implemented()
+
+@traitfn function GraphsExtensions.similar_graph(
+        ::AbstractNamedGraph::(!IsDirected),
+        vertices,
+        edges
+    )
+    V = eltype(vertices)
+    return add_edges!(NamedGraph{V}(vertices), edges)
+end
+@traitfn function GraphsExtensions.similar_graph(
+        ::AbstractNamedGraph::IsDirected,
+        vertices,
+        edges
+    )
+    V = eltype(vertices)
+    return add_edges!(NamedDiGraph{V}(vertices), edges)
+end
 
 # TODO: implement as:
 #
@@ -564,7 +582,7 @@ end
 
 # TODO: Implement an edgelist version
 function induced_subgraph_from_vertices(graph::AbstractGraph, subvertices)
-    subgraph = similar_graph(graph, subvertices)
+    subgraph = similar_graph(graph, collect(subvertices))
     subvertices_set = Set(subvertices)
     for src in subvertices
         for dst in outneighbors(graph, src)

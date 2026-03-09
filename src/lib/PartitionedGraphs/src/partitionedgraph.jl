@@ -25,6 +25,7 @@ quotient_graph(pg::PartitionedGraph) = pg.quotient_graph
 quotientvertex(pg::PartitionedGraph, vertex) = QuotientVertex(pg.which_partition[vertex])
 
 Graphs.edgetype(::Type{<:PartitionedGraph{V, PV, G}}) where {V, PV, G} = edgetype(G)
+Graphs.is_directed(::Type{<:PartitionedGraph{V, PV, G}}) where {V, PV, G} = is_directed(G)
 
 ##Constructors.
 function PartitionedGraph(g::AbstractGraph, partitioned_vertices::Dict)
