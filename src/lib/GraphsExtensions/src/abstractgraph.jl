@@ -84,7 +84,7 @@ end
 @traitfn function undirected_graph(graph::::IsDirected)
     undigraph = similar_graph(undirected_graph_type(graph), vertices(graph))
     for e in edges(graph)
-        # TODO: Check for repeated edges?
+        has_edge(undigraph, e) && continue
         add_edge!(undigraph, e)
     end
     return undigraph
