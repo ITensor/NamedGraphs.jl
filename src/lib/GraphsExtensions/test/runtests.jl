@@ -484,13 +484,22 @@ using Test: @test, @test_broken, @test_throws, @testset
 
     # similar_graph
     g = path_graph(4)
+
     @test similar_graph(g) isa typeof(g)
+    @test similar_graph(g) == g
     @test similar_graph(typeof(g)) isa typeof(g)
+    @test similar_graph(typeof(g)) == typeof(g)()
+    @test isempty(edges(similar_graph(typeof(g))))
+    @test isempty(vertices(similar_graph(typeof(g))))
+
+    @test similar_graph(g, vertices(g)) == typeof(g)(4)
+    @test similar_graph(typeof(g), vertices(g)) == typeof(g)(4)
+    @test isempty(edges(similar_graph(g, vertices(g))))
+    @test isempty(edges(similar_graph(typeof(g), vertices(g))))
+
     @test similar_graph(g, vertices(g), edges(g)) == g
+    @test similar_graph(typeof(g), vertices(g), edges(g)) == g
     @test !(similar_graph(g, vertices(g), edges(g)) === g)
-    sg = similar_graph(g, vertices(g))
-    @test vertices(sg) == vertices(g)
-    @test isempty(edges(sg))
 
     # add_edge
     g = SimpleGraph(4)

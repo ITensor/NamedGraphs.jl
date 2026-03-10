@@ -50,6 +50,13 @@ end
     return new_graph
 end
 
+function similar_graph(T::Type{<:AbstractGraph})
+    return similar_graph(T, Any[])
+end
+function similar_graph(T::Type{<:AbstractGraph{V}}) where {V}
+    return similar_graph(T, V[])
+end
+
 function similar_graph(T::Type{<:AbstractGraph}, vertices)
     return similar_graph(T, vertices, [])
 end
@@ -61,8 +68,7 @@ similar_edgeless_graph(graph::AbstractGraph) = similar_graph(graph, vertices(gra
 
 function similar_empty_graph(graph_or_type)
     vertices = vertextype(graph_or_type)[]
-    edges = edgetype(graph_or_type)[]
-    return similar_graph(graph_or_type, vertices, edges)
+    return similar_graph(graph_or_type, vertices, [])
 end
 
 # TODO: Handle metadata in a generic way
