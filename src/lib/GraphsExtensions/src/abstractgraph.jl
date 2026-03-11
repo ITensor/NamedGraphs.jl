@@ -50,26 +50,18 @@ end
     return new_graph
 end
 
-function similar_graph(T::Type{<:AbstractGraph})
-    return similar_graph(T, Any[])
-end
-function similar_graph(T::Type{<:AbstractGraph{V}}) where {V}
-    return similar_graph(T, V[])
-end
+# One can specialize on all of these at once using similar_graph(T, [vertices, edges]) = ...
+similar_graph(T::Type{<:AbstractGraph}) = T()
+similar_graph(T::Type{<:AbstractGraph}, vertices) = T(vertices)
+similar_graph(T::Type{<:AbstractGraph}, vertices, edges) = T(vertices, edges)
 
-function similar_graph(T::Type{<:AbstractGraph}, vertices)
-    return similar_graph(T, vertices, [])
-end
+edgeless_graph(graph::AbstractGraph) = similar_graph(graph, vertices(graph), [])
+# The intention is this will fail if `T` cannot be edgeless.
+edgeless_graph(T::Type{<:AbstractGraph}) = similar_graph(T, vertices(graph), [])
 
-# To be specialized (optional, has no fallback). Should call an appropriate constructor.
-similar_graph(::Type{<:AbstractGraph}, vertices, edges) = not_implemented()
-
-similar_edgeless_graph(graph::AbstractGraph) = similar_graph(graph, vertices(graph))
-
-function similar_empty_graph(graph_or_type)
-    vertices = vertextype(graph_or_type)[]
-    return similar_graph(graph_or_type, vertices, [])
-end
+empty_graph(graph::AbstractGraph{V}) where {V} = similar_graph(graph, V[], [])
+# The intention is this will fail if `T` cannot be empty.
+empty_graph(T::Type{<:AbstractGraph}) = similar_graph(T, vertextype(T)[], [])
 
 # TODO: Handle metadata in a generic way
 @traitfn function directed_graph(graph::::(!IsDirected))

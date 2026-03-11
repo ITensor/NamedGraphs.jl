@@ -5,8 +5,7 @@ function permute_vertices(graph::AbstractSimpleGraph, permutation)
 end
 
 # https://github.com/JuliaGraphs/Graphs.jl/issues/365
-similar_graph(T::Type{<:AbstractSimpleGraph}) = similar_graph(T, Base.OneTo(0))
-function similar_graph(T::Type{<:AbstractSimpleGraph}, vertices::Base.OneTo, edges)
+function similar_graph(T::Type{<:AbstractSimpleGraph}, vertices = Base.OneTo(0), edges = [])
     new_graph = T(length(vertices))
     add_edges!(new_graph, edges)
     return new_graph
