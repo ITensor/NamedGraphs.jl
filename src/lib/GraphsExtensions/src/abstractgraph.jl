@@ -2,7 +2,7 @@ using Dictionaries: Dictionary, Indices, dictionary
 using Graphs: Graphs, AbstractEdge, AbstractGraph, IsDirected, a_star, add_edge!,
     add_vertex!, degree, dfs_tree, eccentricity, edgetype, has_edge, has_vertex, indegree,
     induced_subgraph, inneighbors, is_connected, is_cyclic, is_directed, is_tree, ne,
-    neighbors, nv, outdegree, outneighbors, rem_edge!, rem_vertex!, weights, Δ
+    neighbors, nv, outdegree, outneighbors, rem_edge!, rem_vertex!, vertices, weights, Δ
 using SimpleTraits: SimpleTraits, @traitfn, Not
 using SplitApplyCombine: groupfind
 
@@ -27,30 +27,46 @@ convert_vertextype(::Type, ::AbstractGraph) = not_implemented()
 convert_vertextype(::Type{V}, G::Type{<:AbstractGraph{V}}) where {V} = G
 convert_vertextype(::Type, ::Type{<:AbstractGraph}) = not_implemented()
 
-similar_graph(graph::AbstractGraph) = similar_graph(typeof(graph))
-similar_graph(T::Type{<:AbstractGraph}) = T()
+# ==================================== similar_graph ===================================== #
 
-function similar_graph(graph_or_type, vertices)
-    new_graph = similar_graph(graph_or_type, eltype(vertices))
-    add_vertices!(new_graph, vertices)
-    return new_graph
+similar_graph(graph::AbstractGraph) = similar_graph(graph, vertices(graph), edges(graph))
+
+function similar_graph(graph::AbstractGraph, vertices)
+    new_edge_type = convert_vertextype(eltype(vertices), edgetype(graph))
+    return similar_graph(graph, vertices, new_edge_type[])
 end
-function similar_graph(graph_or_type, vertices, edges)
-    new_graph = similar_graph(graph_or_type, vertices)
+
+# To be specialized (optional, has following fallback)
+@traitfn function similar_graph(graph::AbstractGraph::(!IsDirected), vertices, edges)
+    new_graph = SimpleGraph(length(vertices))
     add_edges!(new_graph, edges)
     return new_graph
 end
 
-function similar_graph(graph_or_type, vertex_type::Type)
-    new_graph = convert_vertextype(vertex_type, similar_graph(graph_or_type))
+# To be specialized (optional, has following fallback)
+@traitfn function similar_graph(graph::AbstractGraph::IsDirected, vertices, edges)
+    new_graph = SimpleDiGraph(length(vertices))
+    add_edges!(new_graph, edges)
     return new_graph
 end
 
+# One can specialize on all of these at once using similar_graph(T, [vertices, edges]) = ...
+similar_graph(T::Type{<:AbstractGraph}) = T()
+similar_graph(T::Type{<:AbstractGraph}, vertices) = T(vertices)
+similar_graph(T::Type{<:AbstractGraph}, vertices, edges) = T(vertices, edges)
+
+edgeless_graph(graph::AbstractGraph) = similar_graph(graph, vertices(graph), [])
+# The intention is this will fail if `T` cannot be edgeless.
+edgeless_graph(T::Type{<:AbstractGraph}) = similar_graph(T, vertices(graph), [])
+
+empty_graph(graph::AbstractGraph{V}) where {V} = similar_graph(graph, V[], [])
+# The intention is this will fail if `T` cannot be empty.
+empty_graph(T::Type{<:AbstractGraph}) = similar_graph(T, vertextype(T)[], [])
+
 # TODO: Handle metadata in a generic way
 @traitfn function directed_graph(graph::::(!IsDirected))
-    digraph = similar_graph(directed_graph_type(graph), vertices(graph))
+    digraph = similar_graph(directed_graph_type(graph), vertices(graph), edges(graph))
     for e in edges(graph)
-        add_edge!(digraph, e)
         add_edge!(digraph, reverse(e))
     end
     return digraph
@@ -64,9 +80,9 @@ end
 # to avoid method overwrite warnings, see:
 # https://github.com/mauro3/SimpleTraits.jl#method-overwritten-warnings
 @traitfn function undirected_graph(graph::::IsDirected)
-    undigraph = similar_graph(undirected_graph_type(typeof(graph)), vertices(graph))
+    undigraph = similar_graph(undirected_graph_type(graph), vertices(graph))
     for e in edges(graph)
-        # TODO: Check for repeated edges?
+        has_edge(undigraph, e) && continue
         add_edge!(undigraph, e)
     end
     return undigraph

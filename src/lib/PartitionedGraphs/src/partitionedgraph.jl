@@ -25,10 +25,20 @@ quotient_graph(pg::PartitionedGraph) = pg.quotient_graph
 quotientvertex(pg::PartitionedGraph, vertex) = QuotientVertex(pg.which_partition[vertex])
 
 Graphs.edgetype(::Type{<:PartitionedGraph{V, PV, G}}) where {V, PV, G} = edgetype(G)
+Graphs.is_directed(::Type{<:PartitionedGraph{V, PV, G}}) where {V, PV, G} = is_directed(G)
 
 ##Constructors.
-function PartitionedGraph(g::AbstractGraph, partitioned_vertices)
+function PartitionedGraph(g::AbstractGraph, partitioned_vertices::Dict)
+    return PartitionedGraph(g, Dictionary(partitioned_vertices))
+end
+
+function PartitionedGraph(g::AbstractGraph, partitioned_vertices::AbstractVector)
+    return PartitionedGraph(g, Dictionary(partitioned_vertices))
+end
+
+function PartitionedGraph(g::AbstractGraph, partitioned_vertices::Dictionary)
     pvs = keys(partitioned_vertices)
+
     which_partition = Dictionary{vertextype(g), eltype(pvs)}()
     for v in vertices(g)
         v_pvs = Set(findall(pv -> v ∈ pv, partitioned_vertices))
@@ -36,10 +46,11 @@ function PartitionedGraph(g::AbstractGraph, partitioned_vertices)
         insert!(which_partition, v, first(v_pvs))
     end
     qg = quotient_graph(PartitionedView(g, partitioned_vertices))
+
     return PartitionedGraph(
         g,
         qg,
-        Dictionary(partitioned_vertices),
+        partitioned_vertices,
         which_partition
     )
 end
@@ -167,6 +178,7 @@ function NamedGraphs.induced_subgraph_from_vertices(
         if !isempty(vs)
             sub_partitioned_vertices[pv] = vs
         else
+            k = keys(sub_partitioned_vertices)
             delete!(sub_partitioned_vertices, pv)
         end
     end

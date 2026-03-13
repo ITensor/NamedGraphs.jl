@@ -227,3 +227,19 @@ end
 
 const NamedGraph{V} = GenericNamedGraph{V, SimpleGraph{Int}}
 const NamedDiGraph{V} = GenericNamedGraph{V, SimpleDiGraph{Int}}
+
+function GraphsExtensions.similar_graph(
+        T::GenericNamedGraph{<:Any, G},
+        vertices,
+        edges
+    ) where {G}
+    V = eltype(vertices)
+    graph = similar_graph(GenericNamedGraph{V, G}, vertices, edges)
+    # HACK: Unsure why this annotation is needed, but some type inference fails without it.
+    return graph::GenericNamedGraph{V, G}
+end
+
+function GraphsExtensions.similar_graph(T::Type{<:GenericNamedGraph}, vertices, edges)
+    graph = add_edges!(T(vertices), edges)
+    return graph
+end

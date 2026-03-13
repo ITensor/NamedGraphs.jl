@@ -1,5 +1,6 @@
 using .GraphsExtensions: GraphsExtensions, directed_graph, incident_edges,
-    partition_vertices, rem_edges!, rename_vertices, similar_graph, subgraph
+    partition_vertices, rem_edges!, rename_vertices, similar_edgeless_graph, similar_graph,
+    subgraph
 using Dictionaries: set!
 using Graphs.SimpleGraphs: SimpleDiGraph, SimpleEdge
 using Graphs: Graphs, AbstractGraph, AbstractSimpleGraph, IsDirected, a_star, add_edge!,
@@ -44,15 +45,28 @@ ordered_vertices(graph::AbstractSimpleGraph) = vertices(graph)
 Graphs.edgetype(graph::AbstractNamedGraph) = edgetype(typeof(graph))
 Graphs.edgetype(::Type{<:AbstractNamedGraph}) = not_implemented()
 
-# TODO: Define generic version in `GraphsExtensions`.
-GraphsExtensions.directed_graph_type(G::Type{<:AbstractNamedGraph}) = not_implemented()
-GraphsExtensions.undirected_graph_type(G::Type{<:AbstractNamedGraph}) = not_implemented()
-
 # In terms of `position_graph_type`
 # is_directed(::Type{<:AbstractNamedGraph}) = not_implemented()
 
 GraphsExtensions.convert_vertextype(::Type{V}, g::AbstractNamedGraph{V}) where {V} = g
 GraphsExtensions.convert_vertextype(::Type, g::AbstractNamedGraph) = not_implemented()
+
+@traitfn function GraphsExtensions.similar_graph(
+        ::AbstractNamedGraph::(!IsDirected),
+        vertices,
+        edges
+    )
+    V = eltype(vertices)
+    return add_edges!(NamedGraph{V}(vertices), edges)
+end
+@traitfn function GraphsExtensions.similar_graph(
+        ::AbstractNamedGraph::IsDirected,
+        vertices,
+        edges
+    )
+    V = eltype(vertices)
+    return add_edges!(NamedDiGraph{V}(vertices), edges)
+end
 
 # TODO: implement as:
 #
@@ -474,8 +488,7 @@ end
 # Overload Graphs.tree. Used for bfs_tree and dfs_tree
 # traversal algorithms.
 function Graphs.tree(graph::AbstractNamedGraph, parents)
-    n = length(parents)
-    t = similar_graph(directed_graph_type(typeof(graph)), vertices(graph))
+    t = similar_graph(directed_graph(graph), vertices(graph))
     for destination in eachindex(parents)
         source = parents[destination]
         if source != destination
@@ -565,7 +578,7 @@ end
 
 # TODO: Implement an edgelist version
 function induced_subgraph_from_vertices(graph::AbstractGraph, subvertices)
-    subgraph = similar_graph(graph, subvertices)
+    subgraph = similar_graph(graph, collect(subvertices))
     subvertices_set = Set(subvertices)
     for src in subvertices
         for dst in outneighbors(graph, src)
