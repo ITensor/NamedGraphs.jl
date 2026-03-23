@@ -84,7 +84,11 @@ end
 # if the constructor doesnt exist for a given `AbstractGraph` concrete type.
 similar_graph(T::Type{<:AbstractGraph}) = T()
 similar_graph(T::Type{<:AbstractGraph}, vertices) = T(vertices)
-similar_graph(T::Type{<:AbstractGraph}, vertices, edges) = T(vertices, edges)
+function similar_graph(T::Type{<:AbstractGraph}, vertices, edges)
+    graph = similar_graph(T, vertices)
+    add_edges!(graph, edges)
+    return graph
+end
 
 # If `T <: AbstractSimpleGraph`, then we defer to `GraphsExtensions.similar_simplegraph`.
 function similar_graph(T::Type{<:AbstractSimpleGraph}, vertices = 0, edges = [])
