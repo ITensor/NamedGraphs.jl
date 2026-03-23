@@ -1,11 +1,11 @@
 @eval module $(gensym())
 using Dictionaries: Dictionary
 using Graphs: Graphs, AbstractGraph, DiGraph, Graph, a_star, add_edge!, edges, edgetype,
-    grid, has_edge, has_vertex, rem_edge!, vertices
+    grid, has_edge, has_vertex, ne, nv, rem_edge!, vertices
 using NamedGraphs.GraphsExtensions: GraphsExtensions, rename_vertices
 using NamedGraphs.NamedGraphGenerators: named_grid, named_path_graph
-using NamedGraphs:
-    NamedGraphs, AbstractNamedGraph, NamedDiGraph, NamedGraph, position_graph, similar_graph
+using NamedGraphs: NamedGraphs, AbstractNamedGraph, NamedDiGraph, NamedGraph,
+    edgeless_graph, empty_graph, position_graph, similar_graph
 using Test: @test, @testset
 
 struct TestGraph{V} <: AbstractNamedGraph{V}
@@ -30,6 +30,8 @@ Base.:(==)(g1::TestGraph, g2::TestGraph) = g1.graph == g2.graph
 Graphs.edgetype(::Type{<:TestGraph{V}}) where {V} = edgetype(NamedGraph{V})
 
 NamedGraphs.position_graph(g::TestGraph) = position_graph(g.graph)
+
+Base.copy(g::TestGraph) = TestGraph(copy(g.graph))
 
 @testset "AbstractNamedGraph equality" begin
     # NamedGraph
@@ -195,6 +197,16 @@ end
     @test !(similar_graph(g, vertices(g), edges(g)) === ug)
     @test similar_graph(typeof(g), vertices(g), edges(g)) == g
     @test !(similar_graph(typeof(g), vertices(g), edges(g)) === g)
+
+    @test nv(empty_graph(ug)) == 0
+    @test ne(empty_graph(ug)) == 0
+
+    @test nv(edgeless_graph(ug)) == 4
+    @test ne(edgeless_graph(ug)) == 0
+
+    # Make sure the TestGraph is unchanged.
+    @test nv(g) == 4
+    @test ne(g) == 3
 end
 
 end
