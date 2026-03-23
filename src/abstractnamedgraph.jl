@@ -1,6 +1,6 @@
 using .GraphsExtensions: GraphsExtensions, directed_graph, incident_edges,
-    partition_vertices, rem_edges!, rem_vertices!, rename_vertices, similar_simplegraph,
-    subgraph
+    partition_vertices, rem_edges, rem_edges!, rem_vertices, rename_vertices,
+    similar_simplegraph, subgraph
 using Dictionaries: set!
 using Graphs.SimpleGraphs: SimpleDiGraph, SimpleEdge
 using Graphs: Graphs, AbstractGraph, AbstractSimpleGraph, IsDirected, a_star, add_edge!,
@@ -52,7 +52,7 @@ GraphsExtensions.convert_vertextype(::Type{V}, g::AbstractNamedGraph{V}) where {
 GraphsExtensions.convert_vertextype(::Type, g::AbstractNamedGraph) = not_implemented()
 
 function similar_graph(graph::AbstractGraph)
-    return similar_graph(graph, vertices(graph), edges(graph))
+    return similar_graph(graph, copy(vertices(graph)), copy(edges(graph)))
 end
 
 function similar_graph(graph::AbstractGraph, vertices)
@@ -95,11 +95,11 @@ function similar_graph(T::Type{<:AbstractSimpleGraph}, vertices = 0, edges = [])
     return similar_simplegraph(T, vertices, edges)
 end
 
-edgeless_graph(graph::AbstractGraph) = rem_edges!(copy(graph), edges(graph))
+edgeless_graph(graph::AbstractGraph) = rem_edges(graph, edges(graph))
 # The intention is this will fail if `T` cannot be edgeless.
 edgeless_graph(T::Type{<:AbstractGraph}, vertices) = similar_graph(T, vertices, [])
 
-empty_graph(graph::AbstractGraph) = rem_vertices!(copy(graph), vertices(graph))
+empty_graph(graph::AbstractGraph) = rem_vertices(graph, vertices(graph))
 # The intention is this will fail if `T` cannot be empty.
 empty_graph(T::Type{<:AbstractGraph}) = similar_graph(T, vertextype(T)[], [])
 
