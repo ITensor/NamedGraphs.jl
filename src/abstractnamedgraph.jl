@@ -99,18 +99,7 @@ empty_graph(graph::AbstractGraph) = rem_vertices!(copy(graph), vertices(graph))
 # The intention is this will fail if `T` cannot be empty.
 empty_graph(T::Type{<:AbstractGraph}) = similar_graph(T, vertextype(T)[], [])
 
-# TODO: implement as:
-#
-# graph = set_position_graph(graph, copy(position_graph(graph)))
-# graph = set_vertices(graph, copy(vertices(graph)))
-#
-# or:
-#
-# graph_copy = similar(typeof(graph))(vertices(graph))
-# for e in edges(graph)
-#   add_edge!(graph_copy, e)
-# end
-Base.copy(graph::AbstractNamedGraph) = not_implemented()
+Base.copy(graph::AbstractNamedGraph) = copyto!(similar_graph(graph), graph)
 
 function Graphs.merge_vertices!(
         graph::AbstractNamedGraph, merge_vertices; merged_vertex = first(merge_vertices)
