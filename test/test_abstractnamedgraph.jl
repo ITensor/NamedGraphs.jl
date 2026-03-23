@@ -2,9 +2,10 @@
 using Dictionaries: Dictionary
 using Graphs: Graphs, AbstractGraph, DiGraph, Graph, a_star, add_edge!, edges, edgetype,
     grid, has_edge, has_vertex, rem_edge!, vertices
-using NamedGraphs.GraphsExtensions: GraphsExtensions, rename_vertices, similar_graph
+using NamedGraphs.GraphsExtensions: GraphsExtensions, rename_vertices
 using NamedGraphs.NamedGraphGenerators: named_grid, named_path_graph
-using NamedGraphs: NamedGraphs, AbstractNamedGraph, NamedDiGraph, NamedGraph, position_graph
+using NamedGraphs:
+    NamedGraphs, AbstractNamedGraph, NamedDiGraph, NamedGraph, position_graph, similar_graph
 using Test: @test, @testset
 
 struct TestGraph{V} <: AbstractNamedGraph{V}
@@ -14,7 +15,7 @@ end
 
 TestGraph{V}(vertices = V[]) where {V} = TestGraph(NamedGraph(vertices))
 
-function GraphsExtensions.similar_graph(g::Type{<:TestGraph}, vertices, edges)
+function NamedGraphs.similar_graph(g::Type{<:TestGraph}, vertices, edges)
     return TestGraph(similar_graph(NamedGraph, vertices, edges))
 end
 

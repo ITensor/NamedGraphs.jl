@@ -14,7 +14,7 @@ using NamedGraphs.GraphsExtensions: TreeGraph, add_edge, add_edges, add_edges!,
     is_ditree, is_edge_arranged, is_leaf_edge, is_leaf_vertex, is_path_graph,
     is_root_vertex, is_rooted, is_self_loop, leaf_vertices, minimum_distance_to_leaves,
     next_nearest_neighbors, non_leaf_edges, outdegrees, permute_vertices, rem_edge,
-    rem_edges, rem_edges!, rename_vertices, root_vertex, similar_graph, subgraph,
+    rem_edges, rem_edges!, rename_vertices, root_vertex, similar_simplegraph, subgraph,
     tree_graph_node, undirected_graph, undirected_graph_type, vertextype,
     vertices_at_distance, ⊔
 using NamedGraphs: NamedDiGraph, NamedEdge, NamedGraph
@@ -482,24 +482,24 @@ using Test: @test, @test_broken, @test_throws, @testset
     @test_throws ErrorException root_vertex(g)
     @test_throws MethodError root_vertex(binary_tree(3))
 
-    # similar_graph
+    # similar_simplegraph
     g = path_graph(4)
 
-    @test similar_graph(g) isa typeof(g)
-    @test similar_graph(g) == g
-    @test similar_graph(typeof(g)) isa typeof(g)
-    @test similar_graph(typeof(g)) == typeof(g)()
-    @test isempty(edges(similar_graph(typeof(g))))
-    @test isempty(vertices(similar_graph(typeof(g))))
+    @test similar_simplegraph(g) isa typeof(g)
+    @test similar_simplegraph(g) == g
+    @test similar_simplegraph(typeof(g)) isa typeof(g)
+    @test similar_simplegraph(typeof(g)) == typeof(g)()
+    @test isempty(edges(similar_simplegraph(typeof(g))))
+    @test isempty(vertices(similar_simplegraph(typeof(g))))
 
-    @test similar_graph(g, vertices(g)) == typeof(g)(4)
-    @test similar_graph(typeof(g), vertices(g)) == typeof(g)(4)
-    @test isempty(edges(similar_graph(g, vertices(g))))
-    @test isempty(edges(similar_graph(typeof(g), vertices(g))))
+    @test similar_simplegraph(g, vertices(g)) == typeof(g)(4)
+    @test similar_simplegraph(typeof(g), vertices(g)) == typeof(g)(4)
+    @test isempty(edges(similar_simplegraph(g, vertices(g))))
+    @test isempty(edges(similar_simplegraph(typeof(g), vertices(g))))
 
-    @test similar_graph(g, vertices(g), edges(g)) == g
-    @test similar_graph(typeof(g), vertices(g), edges(g)) == g
-    @test !(similar_graph(g, vertices(g), edges(g)) === g)
+    @test similar_simplegraph(g, vertices(g), edges(g)) == g
+    @test similar_simplegraph(typeof(g), vertices(g), edges(g)) == g
+    @test !(similar_simplegraph(g, vertices(g), edges(g)) === g)
 
     # add_edge
     g = SimpleGraph(4)

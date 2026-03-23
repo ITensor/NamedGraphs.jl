@@ -1,7 +1,6 @@
 using .GraphsExtensions: GraphsExtensions, directed_graph, incident_edges,
-    partition_vertices, rem_edges!, rename_vertices, similar_edgeless_graph, similar_graph,
-    subgraph
-using Dictionaries: set!
+    partition_vertices, rem_edges!, rename_vertices, similar_simplegraph, subgraph
+using Dictionaries: rem_vertices!, set!
 using Graphs.SimpleGraphs: SimpleDiGraph, SimpleEdge
 using Graphs: Graphs, AbstractGraph, AbstractSimpleGraph, IsDirected, a_star, add_edge!,
     adjacency_matrix, bfs_parents, boruvka_mst, connected_components, degree, edges,
@@ -51,22 +50,53 @@ Graphs.edgetype(::Type{<:AbstractNamedGraph}) = not_implemented()
 GraphsExtensions.convert_vertextype(::Type{V}, g::AbstractNamedGraph{V}) where {V} = g
 GraphsExtensions.convert_vertextype(::Type, g::AbstractNamedGraph) = not_implemented()
 
-@traitfn function GraphsExtensions.similar_graph(
-        ::AbstractNamedGraph::(!IsDirected),
+function similar_graph(graph::AbstractGraph)
+    return similar_graph(graph, vertices(graph), edges(graph))
+end
+
+function similar_graph(graph::AbstractGraph, vertices)
+    new_edge_type = convert_vertextype(eltype(vertices), edgetype(graph))
+    return similar_graph(graph, vertices, new_edge_type[])
+end
+
+# Construct `GenericNamedGraph` as a fallback.
+@traitfn function similar_graph(
+        ::AbstractGraph::(!IsDirected),
         vertices,
         edges
     )
     V = eltype(vertices)
-    return add_edges!(NamedGraph{V}(vertices), edges)
+    graph = add_edges!(NamedGraph{V}(vertices), edges)
+    return graph
 end
-@traitfn function GraphsExtensions.similar_graph(
-        ::AbstractNamedGraph::IsDirected,
+@traitfn function similar_graph(
+        ::AbstractGraph::IsDirected,
         vertices,
         edges
     )
     V = eltype(vertices)
-    return add_edges!(NamedDiGraph{V}(vertices), edges)
+    graph = add_edges!(NamedDiGraph{V}(vertices), edges)
+    return graph
 end
+
+# Passing a type as a first argument attempts to call a constructor. Should be overloaded
+# if the constructor doesnt exist for a given `AbstractGraph` concrete type.
+similar_graph(T::Type{<:AbstractGraph}) = T()
+similar_graph(T::Type{<:AbstractGraph}, vertices) = T(vertices)
+similar_graph(T::Type{<:AbstractGraph}, vertices, edges) = T(vertices, edges)
+
+# If `T <: AbstractSimpleGraph`, then we defer to `GraphsExtensions.similar_simplegraph`.
+function similar_graph(T::Type{<:AbstractSimpleGraph}, vertices = 0, edges = [])
+    return similar_simplegraph(T, vertices, edges)
+end
+
+edgeless_graph(graph::AbstractGraph) = rem_edges!(copy(graph), edges(graph))
+# The intention is this will fail if `T` cannot be edgeless.
+edgeless_graph(T::Type{<:AbstractGraph}, vertices) = similar_graph(T, vertices, [])
+
+empty_graph(graph::AbstractGraph) = rem_vertices!(copy(graph), vertices(graph))
+# The intention is this will fail if `T` cannot be empty.
+empty_graph(T::Type{<:AbstractGraph}) = similar_graph(T, vertextype(T)[], [])
 
 # TODO: implement as:
 #
@@ -605,4 +635,21 @@ function edge_subgraph_namedgraph(graph, edgelist)
     g = subgraph(graph, vs)
     g = rem_edges!(g, setdiff(edges(g), edgelist))
     return g
+end
+
+@traitfn function GraphsExtensions.directed_graph(graph::AbstractGraph::(!IsDirected))
+    digraph = similar_graph(directed_graph_type(graph), vertices(graph), edges(graph))
+    for e in edges(graph)
+        add_edge!(digraph, reverse(e))
+    end
+    return digraph
+end
+
+@traitfn function GraphsExtensions.undirected_graph(graph::AbstractGraph::IsDirected)
+    undigraph = edgeless_graph(undirected_graph_type(graph), vertices(graph))
+    for e in edges(graph)
+        has_edge(undigraph, e) && continue
+        add_edge!(undigraph, e)
+    end
+    return undigraph
 end

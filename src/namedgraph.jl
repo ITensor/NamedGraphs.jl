@@ -228,8 +228,8 @@ end
 const NamedGraph{V} = GenericNamedGraph{V, SimpleGraph{Int}}
 const NamedDiGraph{V} = GenericNamedGraph{V, SimpleDiGraph{Int}}
 
-function GraphsExtensions.similar_graph(
-        T::GenericNamedGraph{<:Any, G},
+function similar_graph(
+        ::GenericNamedGraph{<:Any, G},
         vertices,
         edges
     ) where {G}
@@ -239,7 +239,7 @@ function GraphsExtensions.similar_graph(
     return graph::GenericNamedGraph{V, G}
 end
 
-function GraphsExtensions.similar_graph(T::Type{<:GenericNamedGraph}, vertices, edges)
+function similar_graph(T::Type{<:GenericNamedGraph}, vertices, edges)
     graph = add_edges!(T(vertices), edges)
     return graph
 end
