@@ -1,11 +1,37 @@
 @eval module $(gensym())
 using Dictionaries: Dictionary
-using Graphs: DiGraph, Graph, a_star, add_edge!, edges, grid, has_edge, has_vertex,
-    rem_edge!, vertices
-using NamedGraphs.GraphsExtensions: rename_vertices
-using NamedGraphs.NamedGraphGenerators: named_grid
-using NamedGraphs: NamedGraphs, NamedDiGraph, NamedGraph
+using Graphs: Graphs, AbstractGraph, DiGraph, Graph, a_star, add_edge!, edges, edgetype,
+    grid, has_edge, has_vertex, ne, nv, rem_edge!, vertices
+using NamedGraphs.GraphsExtensions: GraphsExtensions, rename_vertices
+using NamedGraphs.NamedGraphGenerators: named_grid, named_path_graph
+using NamedGraphs: NamedGraphs, AbstractNamedGraph, NamedDiGraph, NamedGraph,
+    edgeless_graph, empty_graph, position_graph, similar_graph
 using Test: @test, @testset
+
+struct TestGraph{V} <: AbstractNamedGraph{V}
+    graph::NamedGraph{V}
+    TestGraph(graph::NamedGraph{V}) where {V} = new{V}(graph)
+end
+
+TestGraph{V}(vertices = V[]) where {V} = TestGraph(NamedGraph(vertices))
+
+function NamedGraphs.similar_graph(g::Type{<:TestGraph}, vertices, edges)
+    return TestGraph(similar_graph(NamedGraph, vertices, edges))
+end
+
+Graphs.vertices(g::TestGraph) = vertices(g.graph)
+Graphs.edges(g::TestGraph) = edges(g.graph)
+
+Graphs.is_directed(::Type{<:TestGraph}) = false
+
+Base.:(==)(g1::TestGraph, g2::AbstractGraph) = g1.graph == g2
+Base.:(==)(g1::TestGraph, g2::TestGraph) = g1.graph == g2.graph
+
+Graphs.edgetype(::Type{<:TestGraph{V}}) where {V} = edgetype(NamedGraph{V})
+
+NamedGraphs.position_graph(g::TestGraph) = position_graph(g.graph)
+
+Base.copy(g::TestGraph) = TestGraph(copy(g.graph))
 
 @testset "AbstractNamedGraph equality" begin
     # NamedGraph
@@ -148,4 +174,39 @@ end
     @test has_edge(nddg_function, (2, "X") => (2, "Y"))
     @test !has_edge(nddg_function, (2, "Y") => (2, "X"))
 end
+
+@testset "AbstractNamedGraph `similar_graph`" begin
+    ug = named_path_graph(4)
+    g = TestGraph(ug)
+
+    @test similar_graph(g) isa NamedGraph
+    @test similar_graph(g) == ug
+    @test !(similar_graph(g) === ug)
+
+    @test similar_graph(typeof(g)) isa typeof(g)
+    @test similar_graph(typeof(g)) == typeof(g)()
+    @test isempty(edges(similar_graph(typeof(g))))
+    @test isempty(vertices(similar_graph(typeof(g))))
+
+    @test similar_graph(g, vertices(g)) == typeof(ug)(vertices(g))
+    @test similar_graph(typeof(g), vertices(g)) == typeof(g)(vertices(g))
+    @test isempty(edges(similar_graph(g, vertices(g))))
+    @test isempty(edges(similar_graph(typeof(g), vertices(g))))
+
+    @test similar_graph(g, vertices(g), edges(g)) == ug
+    @test !(similar_graph(g, vertices(g), edges(g)) === ug)
+    @test similar_graph(typeof(g), vertices(g), edges(g)) == g
+    @test !(similar_graph(typeof(g), vertices(g), edges(g)) === g)
+
+    @test nv(empty_graph(ug)) == 0
+    @test ne(empty_graph(ug)) == 0
+
+    @test nv(edgeless_graph(ug)) == 4
+    @test ne(edgeless_graph(ug)) == 0
+
+    # Make sure the TestGraph is unchanged.
+    @test nv(g) == 4
+    @test ne(g) == 3
+end
+
 end

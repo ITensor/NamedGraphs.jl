@@ -189,12 +189,7 @@ function Base.convert(graph_type::Type{<:GenericNamedGraph}, graph::GenericNamed
     return graph_type(graph)
 end
 
-# TODO: implement as:
-# graph = set_position_graph(graph, copy(position_graph(graph)))
-# graph = set_vertices(graph, copy(vertices(graph)))
-function Base.copy(graph::GenericNamedGraph)
-    return GenericNamedGraph(copy(position_graph(graph)), copy(vertices(graph)))
-end
+Base.copy(graph::GenericNamedGraph) = similar_graph(graph)
 
 Graphs.edgetype(graph_type::Type{<:GenericNamedGraph}) = NamedEdge{vertextype(graph_type)}
 
@@ -227,3 +222,19 @@ end
 
 const NamedGraph{V} = GenericNamedGraph{V, SimpleGraph{Int}}
 const NamedDiGraph{V} = GenericNamedGraph{V, SimpleDiGraph{Int}}
+
+function similar_graph(
+        ::GenericNamedGraph{<:Any, G},
+        vertices,
+        edges
+    ) where {G}
+    V = eltype(vertices)
+    graph = similar_graph(GenericNamedGraph{V, G}, vertices, edges)
+    # HACK: Unsure why this annotation is needed, but some type inference fails without it.
+    return graph::GenericNamedGraph{V, G}
+end
+
+function similar_graph(T::Type{<:GenericNamedGraph}, vertices, edges)
+    graph = add_edges!(T(vertices), edges)
+    return graph
+end

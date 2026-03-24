@@ -1,8 +1,9 @@
 using Dictionaries: Dictionary, Indices, dictionary
-using Graphs: Graphs, AbstractEdge, AbstractGraph, IsDirected, a_star, add_edge!,
-    add_vertex!, degree, dfs_tree, eccentricity, edgetype, has_edge, has_vertex, indegree,
-    induced_subgraph, inneighbors, is_connected, is_cyclic, is_directed, is_tree, ne,
-    neighbors, nv, outdegree, outneighbors, rem_edge!, rem_vertex!, weights, Δ
+using Graphs: Graphs, AbstractEdge, AbstractGraph, AbstractSimpleGraph, IsDirected,
+    SimpleDiGraph, SimpleGraph, a_star, add_edge!, add_vertex!, degree, dfs_tree,
+    eccentricity, edges, edgetype, has_edge, has_vertex, indegree, induced_subgraph,
+    inneighbors, is_connected, is_cyclic, is_directed, is_tree, ne, neighbors, nv,
+    outdegree, outneighbors, rem_edge!, rem_vertex!, vertices, weights, Δ
 using SimpleTraits: SimpleTraits, @traitfn, Not
 using SplitApplyCombine: groupfind
 
@@ -19,58 +20,61 @@ undirected_graph_type(::Type{<:AbstractGraph}) = not_implemented()
 directed_graph_type(g::AbstractGraph) = directed_graph_type(typeof(g))
 undirected_graph_type(g::AbstractGraph) = undirected_graph_type(typeof(g))
 
-@traitfn directed_graph(graph::::IsDirected) = graph
-
 convert_vertextype(::Type{V}, G::AbstractGraph{V}) where {V} = G
 convert_vertextype(::Type, ::AbstractGraph) = not_implemented()
 
 convert_vertextype(::Type{V}, G::Type{<:AbstractGraph{V}}) where {V} = G
 convert_vertextype(::Type, ::Type{<:AbstractGraph}) = not_implemented()
 
-similar_graph(graph::AbstractGraph) = similar_graph(typeof(graph))
-similar_graph(T::Type{<:AbstractGraph}) = T()
+# ==================================== similar_simplegraph =============================== #
 
-function similar_graph(graph_or_type, vertices)
-    new_graph = similar_graph(graph_or_type, eltype(vertices))
-    add_vertices!(new_graph, vertices)
-    return new_graph
+function similar_simplegraph(graph::AbstractGraph)
+    return similar_simplegraph(graph, vertices(graph), edges(graph))
 end
-function similar_graph(graph_or_type, vertices, edges)
-    new_graph = similar_graph(graph_or_type, vertices)
+
+function similar_simplegraph(graph::AbstractGraph, vertices)
+    new_edge_type = convert_vertextype(eltype(vertices), edgetype(graph))
+    return similar_simplegraph(graph, vertices, new_edge_type[])
+end
+
+function similar_simplegraph(graph::AbstractGraph, vertices::Base.OneTo, edges)
+    return similar_simplegraph(graph, length(vertices), edges)
+end
+# To be specialized (optional, has following fallback)
+@traitfn function similar_simplegraph(
+        graph::AbstractGraph::(!IsDirected),
+        nvertices::Int,
+        edges
+    )
+    new_graph = SimpleGraph(nvertices)
     add_edges!(new_graph, edges)
     return new_graph
 end
 
-function similar_graph(graph_or_type, vertex_type::Type)
-    new_graph = convert_vertextype(vertex_type, similar_graph(graph_or_type))
+# To be specialized (optional, has following fallback)
+@traitfn function similar_simplegraph(
+        graph::AbstractGraph::IsDirected,
+        nvertices::Int,
+        edges
+    )
+    new_graph = SimpleDiGraph(nvertices)
+    add_edges!(new_graph, edges)
     return new_graph
 end
 
-# TODO: Handle metadata in a generic way
-@traitfn function directed_graph(graph::::(!IsDirected))
-    digraph = similar_graph(directed_graph_type(graph), vertices(graph))
-    for e in edges(graph)
-        add_edge!(digraph, e)
-        add_edge!(digraph, reverse(e))
-    end
-    return digraph
+similar_simplegraph(T::Type{<:AbstractSimpleGraph}) = T()
+similar_simplegraph(T::Type{<:AbstractSimpleGraph}, vertices) = T(vertices)
+function similar_simplegraph(T::Type{<:AbstractSimpleGraph}, vertices::Base.OneTo)
+    return similar_simplegraph(T, length(vertices))
+end
+similar_simplegraph(T::Type{<:AbstractSimpleGraph}, nvertices::Int) = T(nvertices)
+function similar_simplegraph(T::Type{<:AbstractSimpleGraph}, vertices, edges)
+    new_graph = similar_simplegraph(T, vertices)
+    return add_edges!(new_graph, edges)
 end
 
+@traitfn directed_graph(graph::::IsDirected) = graph
 @traitfn undirected_graph(graph::::(!IsDirected)) = graph
-
-# TODO: Handle metadata in a generic way
-# Must have the same argument name as:
-# @traitfn undirected_graph(graph::::(!IsDirected))
-# to avoid method overwrite warnings, see:
-# https://github.com/mauro3/SimpleTraits.jl#method-overwritten-warnings
-@traitfn function undirected_graph(graph::::IsDirected)
-    undigraph = similar_graph(undirected_graph_type(typeof(graph)), vertices(graph))
-    for e in edges(graph)
-        # TODO: Check for repeated edges?
-        add_edge!(undigraph, e)
-    end
-    return undigraph
-end
 
 # Similar to `eltype`, but `eltype` doesn't work on types
 vertextype(::Type{<:AbstractGraph{V}}) where {V} = V
