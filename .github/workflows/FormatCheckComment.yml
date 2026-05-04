@@ -12,5 +12,5 @@ jobs:
     permissions:
       pull-requests: "write"
       actions: "read"
-    uses: "ITensor/ITensorActions/.github/workflows/FormatCheckComment.yml@v1"
+    uses: "ITensor/ITensorActions/.github/workflows/FormatCheckComment.yml@v2"
     secrets: "inherit"
