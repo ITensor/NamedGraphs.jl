@@ -4,6 +4,6 @@ on:
 jobs:
   version-check:
     name: "Version Check"
-    uses: "ITensor/ITensorActions/.github/workflows/VersionCheck.yml@v1"
+    uses: "ITensor/ITensorActions/.github/workflows/VersionCheck.yml@v2"
     with:
       localregistry: "https://github.com/ITensor/ITensorRegistry.git"
