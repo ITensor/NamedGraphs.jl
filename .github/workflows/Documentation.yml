@@ -13,7 +13,7 @@ concurrency:
 jobs:
   build-and-deploy-docs:
     name: "Documentation"
-    uses: "ITensor/ITensorActions/.github/workflows/Documentation.yml@v1"
+    uses: "ITensor/ITensorActions/.github/workflows/Documentation.yml@v2"
     with:
       localregistry: "https://github.com/ITensor/ITensorRegistry.git"
     secrets:
