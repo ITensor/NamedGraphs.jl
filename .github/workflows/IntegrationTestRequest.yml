@@ -13,7 +13,7 @@ jobs:
     if: |
       github.event.issue.pull_request &&
       contains(fromJSON('["OWNER", "COLLABORATOR", "MEMBER"]'), github.event.comment.author_association)
-    uses: "ITensor/ITensorActions/.github/workflows/IntegrationTestRequest.yml@v1"
+    uses: "ITensor/ITensorActions/.github/workflows/IntegrationTestRequest.yml@v2"
     secrets: "inherit"
     with:
       localregistry: "https://github.com/ITensor/ITensorRegistry.git"
