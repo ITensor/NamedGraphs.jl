@@ -29,36 +29,29 @@ convert_vertextype(::Type, ::Type{<:AbstractGraph}) = not_implemented()
 # ==================================== similar_simplegraph =============================== #
 
 function similar_simplegraph(graph::AbstractGraph)
-    return similar_simplegraph(graph, vertices(graph), edges(graph))
+    newgraph = similar_simplegraph(graph, vertices(graph))
+    add_edges!(newgraph, edges(graph))
+    return newgraph
 end
 
-function similar_simplegraph(graph::AbstractGraph, vertices)
-    new_edge_type = convert_vertextype(eltype(vertices), edgetype(graph))
-    return similar_simplegraph(graph, vertices, new_edge_type[])
-end
-
-function similar_simplegraph(graph::AbstractGraph, vertices::Base.OneTo, edges)
-    return similar_simplegraph(graph, length(vertices), edges)
+function similar_simplegraph(graph::AbstractGraph, vertices::Base.OneTo)
+    return similar_simplegraph(graph, length(vertices))
 end
 # To be specialized (optional, has following fallback)
 @traitfn function similar_simplegraph(
         graph::AbstractGraph::(!IsDirected),
-        nvertices::Int,
-        edges
+        nvertices::Int
     )
     new_graph = SimpleGraph(nvertices)
-    add_edges!(new_graph, edges)
     return new_graph
 end
 
 # To be specialized (optional, has following fallback)
 @traitfn function similar_simplegraph(
         graph::AbstractGraph::IsDirected,
-        nvertices::Int,
-        edges
+        nvertices::Int
     )
     new_graph = SimpleDiGraph(nvertices)
-    add_edges!(new_graph, edges)
     return new_graph
 end
 
@@ -68,10 +61,6 @@ function similar_simplegraph(T::Type{<:AbstractSimpleGraph}, vertices::Base.OneT
     return similar_simplegraph(T, length(vertices))
 end
 similar_simplegraph(T::Type{<:AbstractSimpleGraph}, nvertices::Int) = T(nvertices)
-function similar_simplegraph(T::Type{<:AbstractSimpleGraph}, vertices, edges)
-    new_graph = similar_simplegraph(T, vertices)
-    return add_edges!(new_graph, edges)
-end
 
 @traitfn directed_graph(graph::::IsDirected) = graph
 @traitfn undirected_graph(graph::::(!IsDirected)) = graph

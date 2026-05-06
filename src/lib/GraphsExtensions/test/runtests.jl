@@ -497,10 +497,6 @@ using Test: @test, @test_broken, @test_throws, @testset
     @test isempty(edges(similar_simplegraph(g, vertices(g))))
     @test isempty(edges(similar_simplegraph(typeof(g), vertices(g))))
 
-    @test similar_simplegraph(g, vertices(g), edges(g)) == g
-    @test similar_simplegraph(typeof(g), vertices(g), edges(g)) == g
-    @test !(similar_simplegraph(g, vertices(g), edges(g)) === g)
-
     # add_edge
     g = SimpleGraph(4)
     add_edge!(g, 1 => 2)
