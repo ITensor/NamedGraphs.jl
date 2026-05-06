@@ -647,3 +647,16 @@ end
     end
     return undigraph
 end
+
+# This function will return a similar tree graph for graphs that have e.g. immutable edges.
+function similar_tree(graph::AbstractGraph, vertices, edges)
+    tree = NamedGraph(vertices)
+    add_edges!(tree, edges)
+    is_tree(tree) || throw(ArgumentError("The edges provided do not form a tree."))
+    return tree
+end
+
+# This function will return a similar tree graph for graphs that have e.g. immutable edges.
+function similar_tree(graph::AbstractSimpleGraph, vertices, edges)
+    return GraphsExtensions.similar_simpletree(graph, vertices, edges)
+end

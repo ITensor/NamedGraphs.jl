@@ -1,5 +1,6 @@
 using .GraphsExtensions: random_bfs_tree, rem_edges, undirected_graph
-using Graphs: IsDirected, bfs_tree, connected_components, edges, edgetype
+using Graphs:
+    AbstractGraph, IsDirected, SimpleGraph, bfs_tree, connected_components, edges, edgetype
 using SimpleTraits: SimpleTraits, @traitfn, Not
 
 abstract type SpanningTreeAlgorithm end
@@ -60,6 +61,14 @@ function forest_cover(g::AbstractGraph; spanning_tree = spanning_tree)
     end
     # Narrow the element type if possible.
     return identity.(forests)
+end
+
+# This function will return a similar tree graph for graphs that have e.g. immutable edges.
+function similar_simpletree(::AbstractGraph, vertices, edges)
+    tree = similar_simplegraph(SimpleGraph, vertices)
+    add_edges!(tree, edges)
+    is_tree(tree) || throw(ArgumentError("The edges provided do not form a tree."))
+    return tree
 end
 
 # TODO: Define in `NamedGraphs.PartitionedGraphs`.
