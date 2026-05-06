@@ -15,8 +15,8 @@ end
 
 TestGraph{V}(vertices = V[]) where {V} = TestGraph(NamedGraph(vertices))
 
-function NamedGraphs.similar_graph(g::Type{<:TestGraph}, vertices, edges)
-    return TestGraph(similar_graph(NamedGraph, vertices, edges))
+function NamedGraphs.similar_graph(g::Type{<:TestGraph}, vertices)
+    return TestGraph(similar_graph(NamedGraph, vertices))
 end
 
 Graphs.vertices(g::TestGraph) = vertices(g.graph)
@@ -24,7 +24,6 @@ Graphs.edges(g::TestGraph) = edges(g.graph)
 
 Graphs.is_directed(::Type{<:TestGraph}) = false
 
-Base.:(==)(g1::TestGraph, g2::AbstractGraph) = g1.graph == g2
 Base.:(==)(g1::TestGraph, g2::TestGraph) = g1.graph == g2.graph
 
 Graphs.edgetype(::Type{<:TestGraph{V}}) where {V} = edgetype(NamedGraph{V})
@@ -181,7 +180,7 @@ end
 
     @test similar_graph(g) isa NamedGraph
     @test similar_graph(g) == ug
-    @test !(similar_graph(g) === ug)
+    @test similar_graph(g) !== ug
 
     @test similar_graph(typeof(g)) isa typeof(g)
     @test similar_graph(typeof(g)) == typeof(g)()
@@ -192,11 +191,6 @@ end
     @test similar_graph(typeof(g), vertices(g)) == typeof(g)(vertices(g))
     @test isempty(edges(similar_graph(g, vertices(g))))
     @test isempty(edges(similar_graph(typeof(g), vertices(g))))
-
-    @test similar_graph(g, vertices(g), edges(g)) == ug
-    @test !(similar_graph(g, vertices(g), edges(g)) === ug)
-    @test similar_graph(typeof(g), vertices(g), edges(g)) == g
-    @test !(similar_graph(typeof(g), vertices(g), edges(g)) === g)
 
     @test nv(empty_graph(ug)) == 0
     @test ne(empty_graph(ug)) == 0
