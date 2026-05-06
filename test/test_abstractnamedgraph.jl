@@ -5,8 +5,8 @@ using Graphs: Graphs, AbstractGraph, DiGraph, Graph, a_star, add_edge!, edges, e
 using NamedGraphs.GraphsExtensions: GraphsExtensions, rename_vertices
 using NamedGraphs.NamedGraphGenerators: named_grid, named_path_graph
 using NamedGraphs: NamedGraphs, AbstractNamedGraph, NamedDiGraph, NamedGraph,
-    edgeless_graph, empty_graph, position_graph, similar_graph, similar_tree
-using Test: @test, @test_throws, @testset
+    edgeless_graph, empty_graph, position_graph, similar_graph
+using Test: @test, @testset
 
 struct TestGraph{V} <: AbstractNamedGraph{V}
     graph::NamedGraph{V}
@@ -175,7 +175,7 @@ end
     @test !has_edge(nddg_function, (2, "Y") => (2, "X"))
 end
 
-@testset "AbstractNamedGraph `similar_graph/tree`" begin
+@testset "AbstractNamedGraph `similar_graph`" begin
     ug = named_path_graph(4)
     g = TestGraph(ug)
 
@@ -207,12 +207,6 @@ end
     # Make sure the TestGraph is unchanged.
     @test nv(g) == 4
     @test ne(g) == 3
-
-    @test similar_tree(ug, vertices(ug), edges(ug)) == ug
-    @test similar_tree(ug, vertices(ug), edges(ug)) !== ug
-    @test similar_tree(g, vertices(g), edges(g)) == ug
-    ug_loopy = add_edge!(copy(ug), 1 => 4)
-    @test_throws ArgumentError similar_tree(ug, vertices(ug), edges(ug_loopy))
 end
 
 end
