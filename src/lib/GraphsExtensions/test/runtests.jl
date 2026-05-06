@@ -14,9 +14,9 @@ using NamedGraphs.GraphsExtensions: TreeGraph, add_edge, add_edges, add_edges!,
     is_ditree, is_edge_arranged, is_leaf_edge, is_leaf_vertex, is_path_graph,
     is_root_vertex, is_rooted, is_self_loop, leaf_vertices, minimum_distance_to_leaves,
     next_nearest_neighbors, non_leaf_edges, outdegrees, permute_vertices, rem_edge,
-    rem_edges, rem_edges!, rename_vertices, root_vertex, similar_simplegraph, subgraph,
-    tree_graph_node, undirected_graph, undirected_graph_type, vertextype,
-    vertices_at_distance, ⊔
+    rem_edges, rem_edges!, rename_vertices, root_vertex, similar_simplegraph,
+    similar_simpletree, subgraph, tree_graph_node, undirected_graph, undirected_graph_type,
+    vertextype, vertices_at_distance, ⊔
 using NamedGraphs: NamedDiGraph, NamedEdge, NamedGraph
 using Test: @test, @test_broken, @test_throws, @testset
 
@@ -542,6 +542,13 @@ using Test: @test, @test_broken, @test_throws, @testset
     @test only(vertices_at_distance(g, 1, L - 1)) == L
     @test only(next_nearest_neighbors(g, 1)) == 3
     @test issetequal(vertices_at_distance(g, 5, 3), [2, 8])
+
+    g = path_graph(4)
+    # similar_simpletree
+    @test similar_simpletree(g, vertices(g), edges(g)) == g
+    @test similar_simpletree(g, vertices(g), edges(g)) !== g
+    g = cycle_graph(4)
+    @test_throws ArgumentError similar_simpletree(g, vertices(g), edges(g))
 
     @testset "arrange" begin
         @testset "is_arranged, is_edge_arranged" begin
