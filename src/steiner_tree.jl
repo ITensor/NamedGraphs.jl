@@ -25,7 +25,7 @@ function namedgraph_steiner_tree(
         push!(featured_vertices, dst(named_edge))
     end
 
-    tree = similar_tree(g, featured_vertices, named_edges)
+    tree = similar_graph(g, featured_vertices, named_edges)
 
     return tree
 end
