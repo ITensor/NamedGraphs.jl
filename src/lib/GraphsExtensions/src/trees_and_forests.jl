@@ -62,11 +62,11 @@ function forest_cover(g::AbstractGraph; spanning_tree = spanning_tree)
     return identity.(forests)
 end
 
-function forest_cover_edge_sequence(gi::AbstractGraph; root_vertex = default_root_vertex)
+function forest_cover_edge_sequence(g::AbstractGraph; root_vertex = default_root_vertex)
     forests = forest_cover(g)
     rv = edgetype(g)[]
     for forest in forests
-        trees = [forest[Vertices(vs)] for vs in connected_components(forest)]
+        trees = [subgraph(forest, vs) for vs in connected_components(forest)]
         for tree in trees
             tree_edges = post_order_dfs_edges(tree, root_vertex(tree))
             push!(rv, vcat(tree_edges, reverse(reverse.(tree_edges)))...)
