@@ -75,7 +75,8 @@ end
 
 # Passing a type as a first argument attempts to call a constructor. Should be overloaded
 # if the constructor doesnt exist for a given `AbstractGraph` concrete type.
-similar_graph(T::Type{<:AbstractGraph}, vertices = vertextype(T)[]) = T(vertices)
+similar_graph(T::Type{<:AbstractGraph}) = similar_graph(T, vertextype(T)[])
+similar_graph(T::Type{<:AbstractGraph}, vertices) = T(vertices)
 
 # If `T <: AbstractSimpleGraph`, then we defer to `GraphsExtensions.similar_simplegraph`.
 function similar_graph(T::Type{<:AbstractSimpleGraph}, vertices = 0)
