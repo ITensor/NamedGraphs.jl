@@ -52,7 +52,7 @@ GraphsExtensions.convert_vertextype(::Type{V}, g::AbstractNamedGraph{V}) where {
 GraphsExtensions.convert_vertextype(::Type, g::AbstractNamedGraph) = not_implemented()
 
 function similar_graph(graph::AbstractGraph)
-    newgraph = similar_graph(graph, copy(vertices(graph)))
+    newgraph = similar_graph(graph, vertices(graph))
     add_edges!(newgraph, edges(graph))
     return newgraph
 end

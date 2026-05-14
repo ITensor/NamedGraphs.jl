@@ -10,9 +10,13 @@ using Graphs: Graphs, AbstractGraph, add_edge!, add_vertex!, edgetype, has_edge,
 struct GenericNamedGraph{V, G <: AbstractSimpleGraph{Int}} <: AbstractNamedGraph{V}
     position_graph::G
     vertices::OrderedIndices{V}
-    global function _GenericNamedGraph(position_graph, vertices)
-        @assert length(vertices) == nv(position_graph)
-        return new{eltype(vertices), typeof(position_graph)}(position_graph, vertices)
+    function GenericNamedGraph{V, G}(graph, vertices) where {V, G}
+        position_graph = G(graph)
+        vertices = OrderedIndices{V}(to_vertices(position_graph, vertices))
+
+        @assert length(vertices) == nv(graph)
+
+        return new{V, G}(position_graph, vertices)
     end
 end
 
@@ -79,24 +83,6 @@ _to_vertices(::AbstractGraph, vertices) = vertices
 to_vertices(vertices) = vertices
 to_vertices(vertices::AbstractArray) = vec(vertices)
 to_vertices(vertices::Integer) = Base.OneTo(vertices)
-
-# Inner constructor
-# TODO: Is this needed?
-function GenericNamedGraph{V, G}(
-        position_graph::G, vertices::OrderedIndices{V}
-    ) where {V, G <: AbstractSimpleGraph{Int}}
-    return _GenericNamedGraph(position_graph, vertices)
-end
-
-function GenericNamedGraph{V, G}(
-        position_graph::AbstractSimpleGraph, vertices
-    ) where {V, G <: AbstractSimpleGraph{Int}}
-    return GenericNamedGraph{V, G}(
-        convert(G, position_graph), OrderedIndices{V}(
-            to_vertices(position_graph, vertices)
-        )
-    )
-end
 
 function GenericNamedGraph{V}(position_graph::AbstractSimpleGraph, vertices) where {V}
     return GenericNamedGraph{V, typeof(position_graph)}(position_graph, vertices)
