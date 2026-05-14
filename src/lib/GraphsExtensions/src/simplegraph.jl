@@ -28,10 +28,8 @@ directed_graph_type(G::Type{<:SimpleDiGraph}) = G
 undirected_graph_type(G::Type{<:SimpleDiGraph}) = SimpleGraph{vertextype(G)}
 
 @traitfn function directed_graph(graph::AbstractSimpleGraph::(!IsDirected))
-    digraph = similar_simplegraph(directed_graph_type(graph), vertices(graph), edges(graph))
-    for e in edges(graph)
-        add_edge!(digraph, reverse(e))
-    end
+    digraph = similar_simplegraph(directed_graph_type(graph), vertices(graph))
+    add_edges!(digraph, all_edges(graph))
     return digraph
 end
 

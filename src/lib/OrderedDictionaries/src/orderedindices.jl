@@ -25,8 +25,6 @@ struct OrderedIndices{I} <: AbstractIndices{I}
 end
 OrderedIndices(indices) = OrderedIndices{eltype(indices)}(indices)
 
-OrderedIndices{I}(indices::OrderedIndices{I}) where {I} = copy(indices)
-
 ordered_indices(indices::OrderedIndices) = getfield(indices, :ordered_indices)
 # TODO: Better name for this?
 index_positions(indices::OrderedIndices) = getfield(indices, :index_positions)
