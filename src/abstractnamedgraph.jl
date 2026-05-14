@@ -396,11 +396,8 @@ function Graphs.has_path(
 end
 
 function Base.union(graph1::AbstractNamedGraph, graph2::AbstractNamedGraph)
-    union_graph_type = promote_type(typeof(graph1), typeof(graph2))
-
     union_vertices = union(vertices(graph1), vertices(graph2))
-
-    union_graph = similar_graph(union_graph_type, union_vertices)
+    union_graph = similar_graph(graph1, union_vertices)
 
     for e in edges(graph1)
         add_edge!(union_graph, e)
