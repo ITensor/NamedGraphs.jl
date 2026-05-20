@@ -628,8 +628,3 @@ end
     end
     return undigraph
 end
-
-function GraphsExtensions.forest_cover_edge_sequence(graph::AbstractNamedGraph; kwargs...)
-    dummy_graph = add_edges!(NamedGraph(vertices(graph)), edges(graph))
-    return GraphsExtensions.forest_cover_edge_sequence(dummy_graph; kwargs...)
-end
