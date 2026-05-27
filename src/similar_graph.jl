@@ -35,36 +35,24 @@ end
 # This function behaves much the same as `similar_graph`, but should strictly return a
 # a similar graph type that has no notion of data (in the abstract sense).
 
-# Dimambiguation with `AbstractGraph` method in `GraphsExtensions`
-@traitfn function GraphsExtensions.similar_dataless_graph(
-        graph::AbstractNamedGraph::(!IsDirected),
-        nv::Int
-    )
-    return SimpleGraph(nv)
-end
-@traitfn function GraphsExtensions.similar_dataless_graph(
-        graph::AbstractNamedGraph::(IsDirected),
-        nv::Int
-    )
-    return SimpleDiGraph(nv)
-end
-function GraphsExtensions.similar_dataless_graph(
-        graph::AbstractNamedGraph,
-        vertices::Base.OneTo
-    )
-    return similar_dataless_graph(graph, collect(vertices))
+function GraphsExtensions.similar_dataless_graph(graph::AbstractNamedGraph, vertices)
+    return similar_dataless_namedgraph(graph, vertices)
 end
 
-@traitfn function GraphsExtensions.similar_dataless_graph(
+@traitfn function similar_dataless_namedgraph(
         graph::AbstractNamedGraph::(!IsDirected),
         vertices
     )
     return NamedGraph(vertices)
 end
 
-@traitfn function GraphsExtensions.similar_dataless_graph(
+@traitfn function similar_dataless_namedgraph(
         graph::AbstractNamedGraph::IsDirected,
         vertices
     )
     return NamedDiGraph(vertices)
+end
+
+function similar_dataless_namedgraph(graph::AbstractNamedGraph, nv::Int)
+    return GraphsExtensions.similar_dataless_simplegraph(graph, nv)
 end

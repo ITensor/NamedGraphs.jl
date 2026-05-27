@@ -81,20 +81,21 @@ function similar_dataless_graph(graph::AbstractGraph)
     add_edges!(dataless_graph, edges(graph))
     return dataless_graph
 end
+
 function similar_dataless_graph(graph::AbstractGraph, vertices)
-    return throw(MethodError(similar_dataless_graph, (typeof(graph), typeof(vertices))))
+    return similar_dataless_simplegraph(graph, vertices)
 end
 
-function similar_dataless_graph(graph::AbstractGraph, vertices::Base.OneTo)
+function similar_dataless_simplegraph(graph::AbstractGraph, vertices::Base.OneTo)
     return similar_graph(graph, length(vertices))
 end
 
 # Fallbacks
-@traitfn function similar_dataless_graph(graph::AbstractGraph::!(IsDirected), nv::Int)
+@traitfn function similar_dataless_simplegraph(graph::AbstractGraph::!(IsDirected), nv::Int)
     return SimpleGraph(nv)
 end
 
-@traitfn function similar_dataless_graph(graph::AbstractGraph::IsDirected, nv::Int)
+@traitfn function similar_dataless_simplegraph(graph::AbstractGraph::IsDirected, nv::Int)
     return SimpleDiGraph(nv)
 end
 
