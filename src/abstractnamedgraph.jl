@@ -1,6 +1,6 @@
-using .GraphsExtensions: GraphsExtensions, all_edges, directed_graph, incident_edges,
-    partition_vertices, rem_edges, rem_edges!, rem_vertices, rename_vertices, similar_graph,
-    subgraph
+using .GraphsExtensions: GraphsExtensions, all_edges, directed_graph, empty_graph,
+    incident_edges, partition_vertices, rem_edges, rem_edges!, rem_vertices,
+    rename_vertices, similar_graph, subgraph
 using Dictionaries: set!
 using Graphs: Graphs, AbstractGraph, AbstractSimpleGraph, IsDirected, SimpleDiGraph,
     SimpleEdge, SimpleGraph, a_star, add_edge!, adjacency_matrix, bfs_parents, boruvka_mst,
