@@ -80,7 +80,7 @@ function Graphs.vertices(g::AbstractGraph, quotientvertex::QuotientVertex)
 
     pvs = partitioned_vertices(g)
 
-    # Can't use `haskey` as not defined on vectors.
+    # Can't use `haskey` since it is not defined on vectors.
     qv ∈ keys(pvs) || throw(ArgumentError("Quotient vertex $quotientvertex not in graph"))
 
     return pvs[qv]
@@ -90,7 +90,7 @@ function Graphs.vertices(g::AbstractGraph, quotientvertices::QuotientVertices)
 end
 
 function has_quotientvertex(g::AbstractGraph, quotientvertex::QuotientVertex)
-    # Can't use `haskey` as not defined on vectors.
+    # Can't use `haskey` since it is not defined on vectors.
     return parent(quotientvertex) ∈ keys(partitioned_vertices(g))
 end
 
