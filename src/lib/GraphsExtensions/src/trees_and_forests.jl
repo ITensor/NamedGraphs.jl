@@ -48,7 +48,7 @@ end
 # (see https://en.wikipedia.org/wiki/Arboricity) We do not find the minimum but our tests show this algorithm performs well
 function forest_cover(g::AbstractGraph; spanning_tree = spanning_tree)
     g = similar_dataless_graph(g)
-    g_reduced = copy(g)
+    g_reduced = g
 
     remaining_edges = edges(g)
     edges_collected = empty(remaining_edges)
