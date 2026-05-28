@@ -1,5 +1,5 @@
-using .GraphsExtensions:
-    GraphsExtensions, directed_graph_type, undirected_graph_type, vertextype
+using .GraphsExtensions: GraphsExtensions, directed_graph_type, similar_graph,
+    similar_simplegraph, undirected_graph_type, vertextype
 using .OrderedDictionaries: OrderedDictionaries, OrderedIndices
 using .OrdinalIndexing: th
 using Dictionaries: Dictionary
@@ -123,7 +123,7 @@ end
 #
 
 function GenericNamedGraph{V, G}(vertices) where {V, G <: AbstractSimpleGraph{Int}}
-    return GenericNamedGraph(G(length(to_vertices(vertices))), vertices)
+    return GenericNamedGraph{V, G}(G(length(to_vertices(vertices))), vertices)
 end
 
 function GenericNamedGraph{V}(vertices) where {V}
@@ -209,7 +209,10 @@ end
 const NamedGraph{V} = GenericNamedGraph{V, SimpleGraph{Int}}
 const NamedDiGraph{V} = GenericNamedGraph{V, SimpleDiGraph{Int}}
 
-function similar_graph(
+function GraphsExtensions.similar_graph(graph::GenericNamedGraph, nv::Int)
+    return similar_simplegraph(graph, nv)
+end
+function GraphsExtensions.similar_graph(
         ::GenericNamedGraph{<:Any, G},
         vertices
     ) where {G}
@@ -219,4 +222,6 @@ function similar_graph(
     return graph::GenericNamedGraph{V, G}
 end
 
-similar_graph(T::Type{<:GenericNamedGraph}, vertices) = T(vertices)
+function GraphsExtensions.similar_graph(T::Type{<:GenericNamedGraph}, vertices)
+    return T(vertices)
+end

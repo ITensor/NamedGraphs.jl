@@ -122,9 +122,7 @@ function Graphs.rem_vertex!(pg::PartitionedGraph{V}, vertex::V) where {V}
     rem_vertex!(pg.graph, vertex)
 
     # If the super-vertex is now empty, remove it from the quotient graph
-    if !haskey(pg.partitioned_vertices, qv)
-        rem_vertex!(pg.quotient_graph, qv)
-    end
+    qv ∈ keys(pg.partitioned_vertices) || rem_vertex!(pg.quotient_graph, qv)
 
     return pg
 end

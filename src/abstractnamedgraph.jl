@@ -1,13 +1,12 @@
-using .GraphsExtensions: GraphsExtensions, all_edges, directed_graph, incident_edges,
-    partition_vertices, rem_edges, rem_edges!, rem_vertices, rename_vertices,
-    similar_simplegraph, subgraph
+using .GraphsExtensions: GraphsExtensions, all_edges, directed_graph, empty_graph,
+    incident_edges, partition_vertices, rem_edges, rem_edges!, rem_vertices,
+    rename_vertices, similar_graph, subgraph
 using Dictionaries: set!
-using Graphs.SimpleGraphs: SimpleDiGraph, SimpleEdge
-using Graphs: Graphs, AbstractGraph, AbstractSimpleGraph, IsDirected, a_star, add_edge!,
-    adjacency_matrix, bfs_parents, boruvka_mst, connected_components, degree, edges,
-    has_path, indegree, induced_subgraph, inneighbors, is_connected, is_cyclic, kruskal_mst,
-    ne, neighborhood, neighborhood_dists, nv, outdegree, prim_mst, rem_edge!,
-    spfa_shortest_paths, vertices, weights
+using Graphs: Graphs, AbstractGraph, AbstractSimpleGraph, IsDirected, SimpleDiGraph,
+    SimpleEdge, SimpleGraph, a_star, add_edge!, adjacency_matrix, bfs_parents, boruvka_mst,
+    connected_components, degree, edges, has_path, indegree, induced_subgraph, inneighbors,
+    is_connected, is_cyclic, kruskal_mst, ne, neighborhood, neighborhood_dists, nv,
+    outdegree, prim_mst, rem_edge!, spfa_shortest_paths, vertices, weights
 using SimpleTraits: SimpleTraits, @traitfn, Not
 
 abstract type AbstractNamedGraph{V} <: AbstractGraph{V} end
@@ -50,42 +49,6 @@ Graphs.edgetype(::Type{<:AbstractNamedGraph}) = not_implemented()
 
 GraphsExtensions.convert_vertextype(::Type{V}, g::AbstractNamedGraph{V}) where {V} = g
 GraphsExtensions.convert_vertextype(::Type, g::AbstractNamedGraph) = not_implemented()
-
-function similar_graph(graph::AbstractGraph)
-    newgraph = similar_graph(graph, vertices(graph))
-    add_edges!(newgraph, edges(graph))
-    return newgraph
-end
-
-# Construct `GenericNamedGraph` as a fallback.
-@traitfn function similar_graph(
-        graph::AbstractGraph::(!IsDirected),
-        vertices
-    )
-    V = eltype(vertices)
-    return NamedGraph{V}(vertices)
-end
-@traitfn function similar_graph(
-        graph::AbstractGraph::IsDirected,
-        vertices
-    )
-    V = eltype(vertices)
-    return NamedDiGraph{V}(vertices)
-end
-
-# Passing a type as a first argument attempts to call a constructor. Should be overloaded
-# if the constructor doesnt exist for a given `AbstractGraph` concrete type.
-similar_graph(T::Type{<:AbstractGraph}) = similar_graph(T, vertextype(T)[])
-similar_graph(T::Type{<:AbstractGraph}, vertices) = T(vertices)
-
-# If `T <: AbstractSimpleGraph`, then we defer to `GraphsExtensions.similar_simplegraph`.
-function similar_graph(T::Type{<:AbstractSimpleGraph}, vertices = 0)
-    return similar_simplegraph(T, vertices)
-end
-
-edgeless_graph(graph::AbstractGraph) = rem_edges(graph, edges(graph))
-
-empty_graph(graph::AbstractGraph) = rem_vertices(graph, vertices(graph))
 
 Base.copy(graph::AbstractNamedGraph) = copyto!(similar_graph(graph), graph)
 
@@ -585,7 +548,7 @@ end
 
 # TODO: Implement an edgelist version
 function induced_subgraph_from_vertices(graph::AbstractGraph, subvertices)
-    subgraph = similar_graph(graph, collect(subvertices))
+    subgraph = similar_graph(graph, subvertices)
     add_edges!(subgraph, subgraph_edges(graph, subvertices))
     return subgraph, nothing
 end
@@ -612,24 +575,4 @@ function edge_subgraph_namedgraph(graph, edgelist)
     g = subgraph(graph, vs)
     g = rem_edges!(g, setdiff(edges(g), edgelist))
     return g
-end
-
-@traitfn function GraphsExtensions.directed_graph(graph::AbstractNamedGraph::(!IsDirected))
-    digraph = similar_graph(directed_graph_type(graph), vertices(graph))
-    add_edges!(digraph, all_edges(graph))
-    return digraph
-end
-
-@traitfn function GraphsExtensions.undirected_graph(graph::AbstractNamedGraph::IsDirected)
-    undigraph = similar_graph(undirected_graph_type(graph), vertices(graph))
-    for e in edges(graph)
-        has_edge(undigraph, e) && continue
-        add_edge!(undigraph, e)
-    end
-    return undigraph
-end
-
-function GraphsExtensions.forest_cover_edge_sequence(graph::AbstractNamedGraph; kwargs...)
-    dummy_graph = add_edges!(NamedGraph(vertices(graph)), edges(graph))
-    return GraphsExtensions.forest_cover_edge_sequence(dummy_graph; kwargs...)
 end

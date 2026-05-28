@@ -144,6 +144,10 @@ end
 @testset "Test Partitioned Graph Subgraph Functionality" begin
     n, z = 12, 4
     g = NamedGraph(random_regular_graph(n, z))
+
+    # test trivial case
+    @test g[QuotientVertex(1)] == g
+
     partitions = dictionary(
         [
             1 => [1, 2, 3], 2 => [4, 5, 6], 3 => [7, 8, 9], 4 => [10, 11, 12],

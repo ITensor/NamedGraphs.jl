@@ -1,11 +1,11 @@
 @eval module $(gensym())
 using Dictionaries: Dictionary
-using Graphs: Graphs, AbstractGraph, DiGraph, Graph, a_star, add_edge!, edges, edgetype,
-    grid, has_edge, has_vertex, ne, nv, rem_edge!, vertices
-using NamedGraphs.GraphsExtensions: GraphsExtensions, rename_vertices
+using Graphs: Graphs, AbstractGraph, DiGraph, Graph, SimpleDiGraph, SimpleGraph, a_star,
+    add_edge!, edges, edgetype, grid, has_edge, has_vertex, ne, nv, rem_edge!, vertices
+using NamedGraphs.GraphsExtensions: GraphsExtensions, edgeless_graph, empty_graph,
+    rename_vertices, similar_dataless_graph, similar_graph
 using NamedGraphs.NamedGraphGenerators: named_grid, named_path_graph
-using NamedGraphs: NamedGraphs, AbstractNamedGraph, NamedDiGraph, NamedGraph,
-    edgeless_graph, empty_graph, position_graph, similar_graph
+using NamedGraphs: NamedGraphs, AbstractNamedGraph, NamedDiGraph, NamedGraph, position_graph
 using Test: @test, @testset
 
 struct TestGraph{V} <: AbstractNamedGraph{V}
@@ -192,6 +192,11 @@ end
     @test isempty(edges(similar_graph(g, vertices(g))))
     @test isempty(edges(similar_graph(typeof(g), vertices(g))))
 
+    @test similar_graph(g, 2) isa SimpleGraph
+    @test nv(similar_graph(g, 2)) == 2
+    @test similar_graph(NamedDiGraph([1, 2]), 2) isa SimpleDiGraph
+    @test nv(similar_graph(NamedDiGraph([1, 2]), 2)) == 2
+
     @test nv(empty_graph(ug)) == 0
     @test ne(empty_graph(ug)) == 0
 
@@ -201,6 +206,24 @@ end
     # Make sure the TestGraph is unchanged.
     @test nv(g) == 4
     @test ne(g) == 3
+
+    # similar_dataless_graph
+    g = named_path_graph(4)
+
+    @test similar_dataless_graph(g) isa NamedGraph
+    @test similar_dataless_graph(g) == g
+    @test similar_dataless_graph(NamedDiGraph([1, 2, 3])) isa NamedDiGraph
+
+    @test similar_dataless_graph(g, vertices(g)) == typeof(g)(4)
+    @test isempty(edges(similar_dataless_graph(g, vertices(g))))
+
+    sdg = similar_dataless_graph(g, 2)
+    @test sdg isa SimpleGraph
+    @test nv(sdg) == 2
+
+    sdg = similar_dataless_graph(NamedDiGraph([1, 2, 3]), vertices(g))
+    @test similar_dataless_graph(sdg, [1, 2]) isa NamedDiGraph
+    @test similar_dataless_graph(sdg, 2) isa SimpleDiGraph
 end
 
 end

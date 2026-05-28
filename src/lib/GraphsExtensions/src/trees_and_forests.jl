@@ -1,5 +1,5 @@
 using .GraphsExtensions: random_bfs_tree, rem_edges, undirected_graph
-using Graphs: IsDirected, bfs_tree, connected_components, edges, edgetype
+using Graphs: AbstractGraph, IsDirected, bfs_tree, connected_components, edges, edgetype
 using SimpleTraits: SimpleTraits, @traitfn, Not
 
 abstract type SpanningTreeAlgorithm end
@@ -47,9 +47,12 @@ end
 # Given an undirected graph g with vertex set V, build a set of forests (each with vertex set V) which covers all edges in g
 # (see https://en.wikipedia.org/wiki/Arboricity) We do not find the minimum but our tests show this algorithm performs well
 function forest_cover(g::AbstractGraph; spanning_tree = spanning_tree)
-    edges_collected = edgetype(g)[]
+    g = similar_dataless_graph(g)
+    g_reduced = g
+
     remaining_edges = edges(g)
-    g_reduced = rem_edges(g, edges_collected)
+    edges_collected = empty(remaining_edges)
+
     forests = typeof(g)[]
     while !isempty(remaining_edges)
         g_reduced_spanning_forest = spanning_forest(g_reduced; spanning_tree)

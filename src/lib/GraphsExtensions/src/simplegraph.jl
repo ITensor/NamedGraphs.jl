@@ -20,28 +20,7 @@ function convert_vertextype(vertextype::Type, graph::SimpleDiGraph)
 end
 
 directed_graph_type(G::Type{<:SimpleGraph}) = SimpleDiGraph{vertextype(G)}
-# TODO: Use traits to make this more general.
 undirected_graph_type(G::Type{<:SimpleGraph}) = G
 
-# TODO: Use traits to make this more general.
 directed_graph_type(G::Type{<:SimpleDiGraph}) = G
 undirected_graph_type(G::Type{<:SimpleDiGraph}) = SimpleGraph{vertextype(G)}
-
-@traitfn function directed_graph(graph::AbstractSimpleGraph::(!IsDirected))
-    digraph = similar_simplegraph(directed_graph_type(graph), vertices(graph))
-    add_edges!(digraph, all_edges(graph))
-    return digraph
-end
-
-# Must have the same argument name as:
-# @traitfn undirected_graph(graph::::(!IsDirected))
-# to avoid method overwrite warnings, see:
-# https://github.com/mauro3/SimpleTraits.jl#method-overwritten-warnings
-@traitfn function undirected_graph(graph::AbstractSimpleGraph::IsDirected)
-    undigraph = similar_simplegraph(undirected_graph_type(graph), vertices(graph))
-    for e in edges(graph)
-        has_edge(undigraph, e) && continue
-        add_edge!(undigraph, e)
-    end
-    return undigraph
-end

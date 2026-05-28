@@ -26,17 +26,26 @@ convert_vertextype(::Type, ::AbstractGraph) = not_implemented()
 convert_vertextype(::Type{V}, G::Type{<:AbstractGraph{V}}) where {V} = G
 convert_vertextype(::Type, ::Type{<:AbstractGraph}) = not_implemented()
 
-# ==================================== similar_simplegraph =============================== #
+# ==================================== similar_graph ===================================== #
 
-function similar_simplegraph(graph::AbstractGraph)
-    newgraph = similar_simplegraph(graph, vertices(graph))
+# Generic for any `AbstractGraph`.
+function similar_graph(graph::AbstractGraph)
+    newgraph = similar_graph(graph, vertices(graph))
     add_edges!(newgraph, edges(graph))
     return newgraph
 end
 
-function similar_simplegraph(graph::AbstractGraph, vertices::Base.OneTo)
-    return similar_simplegraph(graph, length(vertices))
+similar_graph(graph::AbstractGraph, vertices) = similar_simplegraph(graph, vertices)
+
+# Don't know a sensible fallback in `Graphs.jl` for a non-`Base.OneTo` vertex collection.
+function similar_simplegraph(graph::AbstractGraph, vertices)
+    return throw(MethodError(similar_graph, (typeof(graph), typeof(vertices))))
 end
+
+function similar_simplegraph(graph::AbstractGraph, vertices::Base.OneTo)
+    return similar_graph(graph, length(vertices))
+end
+
 # To be specialized (optional, has following fallback)
 @traitfn function similar_simplegraph(
         graph::AbstractGraph::(!IsDirected),
@@ -55,15 +64,60 @@ end
     return new_graph
 end
 
-similar_simplegraph(T::Type{<:AbstractSimpleGraph}) = T()
-similar_simplegraph(T::Type{<:AbstractSimpleGraph}, vertices) = T(vertices)
-function similar_simplegraph(T::Type{<:AbstractSimpleGraph}, vertices::Base.OneTo)
-    return similar_simplegraph(T, length(vertices))
+# Type domain versions attempt to call a constructor.
+similar_graph(T::Type{<:AbstractGraph}) = T()
+similar_graph(T::Type{<:AbstractGraph}, vertices) = T(vertices)
+function similar_graph(T::Type{<:AbstractSimpleGraph}, vertices::Base.OneTo)
+    return similar_graph(T, length(vertices))
 end
-similar_simplegraph(T::Type{<:AbstractSimpleGraph}, nvertices::Int) = T(nvertices)
+similar_graph(T::Type{<:AbstractSimpleGraph}) = similar_graph(T, 0)
+
+# =============================== `similar_dataless_grap` ================================ #
+# This function behaves much the same as `similar_graph`, but should strictly return a
+# a similar graph type that has no notion of data (in the abstract sense).
+
+function similar_dataless_graph(graph::AbstractGraph)
+    dataless_graph = similar_dataless_graph(graph, vertices(graph))
+    add_edges!(dataless_graph, edges(graph))
+    return dataless_graph
+end
+
+function similar_dataless_graph(graph::AbstractGraph, vertices)
+    return similar_dataless_simplegraph(graph, vertices)
+end
+
+function similar_dataless_simplegraph(graph::AbstractGraph, vertices::Base.OneTo)
+    return similar_dataless_simplegraph(graph, length(vertices))
+end
+
+# Fallbacks
+@traitfn function similar_dataless_simplegraph(graph::AbstractGraph::!(IsDirected), nv::Int)
+    return SimpleGraph(nv)
+end
+
+@traitfn function similar_dataless_simplegraph(graph::AbstractGraph::IsDirected, nv::Int)
+    return SimpleDiGraph(nv)
+end
+
+edgeless_graph(graph::AbstractGraph) = rem_edges(graph, edges(graph))
+empty_graph(graph::AbstractGraph) = rem_vertices(graph, vertices(graph))
 
 @traitfn directed_graph(graph::::IsDirected) = graph
 @traitfn undirected_graph(graph::::(!IsDirected)) = graph
+
+@traitfn function directed_graph(graph::AbstractGraph::(!IsDirected))
+    digraph = similar_graph(directed_graph_type(graph), vertices(graph))
+    add_edges!(digraph, all_edges(graph))
+    return digraph
+end
+@traitfn function undirected_graph(graph::AbstractGraph::IsDirected)
+    undigraph = similar_graph(undirected_graph_type(graph), vertices(graph))
+    for e in edges(graph)
+        has_edge(undigraph, e) && continue
+        add_edge!(undigraph, e)
+    end
+    return undigraph
+end
 
 # Similar to `eltype`, but `eltype` doesn't work on types
 vertextype(::Type{<:AbstractGraph{V}}) where {V} = V
