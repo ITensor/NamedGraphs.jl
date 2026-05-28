@@ -77,7 +77,7 @@ similar_graph(T::Type{<:AbstractSimpleGraph}) = similar_graph(T, 0)
 # a similar graph type that has no notion of data (in the abstract sense).
 
 function similar_dataless_graph(graph::AbstractGraph)
-    dataless_graph = similar_graph(graph, vertices(graph))
+    dataless_graph = similar_dataless_graph(graph, vertices(graph))
     add_edges!(dataless_graph, edges(graph))
     return dataless_graph
 end
@@ -87,7 +87,7 @@ function similar_dataless_graph(graph::AbstractGraph, vertices)
 end
 
 function similar_dataless_simplegraph(graph::AbstractGraph, vertices::Base.OneTo)
-    return similar_graph(graph, length(vertices))
+    return similar_dataless_simplegraph(graph, length(vertices))
 end
 
 # Fallbacks
