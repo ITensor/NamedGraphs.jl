@@ -2,8 +2,8 @@ using ..GraphGenerators: comb_tree
 using ..GraphsExtensions: add_edges!, rem_vertices!
 using ..NamedGraphs: NamedGraph
 using Graphs.SimpleGraphs: AbstractSimpleGraph
-using Graphs: IsDirected, bfs_tree, binary_tree, grid, inneighbors, merge_vertices, nv,
-    outneighbors, path_graph, rem_vertex!
+using Graphs: IsDirected, bfs_tree, binary_tree, cycle_graph, grid, inneighbors,
+    merge_vertices, nv, outneighbors, path_graph, rem_vertex!
 using SimpleTraits: SimpleTraits, @traitfn, Not
 
 ## TODO: Bring this back in some form?
@@ -73,6 +73,10 @@ end
 
 function named_path_graph(dim::Integer)
     return NamedGraph(path_graph(dim))
+end
+
+function named_cycle_graph(dim::Integer)
+    return NamedGraph(cycle_graph(dim))
 end
 
 function named_path_digraph(dim::Integer)

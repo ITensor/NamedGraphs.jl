@@ -19,6 +19,7 @@ using Test: @test, @testset
             :NamedGridGraph,
             :named_binary_tree,
             :named_comb_tree,
+            :named_cycle_graph,
             :named_grid,
             :named_hexagonal_lattice_graph,
             :named_path_digraph,

@@ -4,8 +4,8 @@ using Graphs: a_star, add_edge!, add_vertex!, degree, edges, edgetype, has_edge,
     is_directed, ne, neighbors, nv, rem_edge!, rem_vertex!, vertices
 using NamedGraphs.GraphsExtensions: is_cycle_graph, vertextype
 using NamedGraphs.NamedGraphGenerators: NamedGridGraph, grid_ndims, grid_size,
-    is_directed_grid, ishypertorus, named_grid, named_hexagonal_lattice_graph,
-    named_triangular_lattice_graph
+    is_directed_grid, ishypertorus, named_cycle_graph, named_grid,
+    named_hexagonal_lattice_graph, named_triangular_lattice_graph
 using NamedGraphs: NamedEdge
 using Test: @test, @test_throws, @testset
 
@@ -47,6 +47,14 @@ using Test: @test, @test_throws, @testset
     g = named_triangular_lattice_graph(6, 6; periodic = true)
     degree_dist = [length(neighbors(g, v)) for v in vertices(g)]
     @test all(d -> d == 6, degree_dist)
+end
+
+@testset "named_cycle_graph" begin
+    g = named_cycle_graph(4)
+    @test nv(g) == 4
+    @test ne(g) == 4
+    @test issetequal(vertices(g), 1:4)
+    @test is_cycle_graph(g)
 end
 
 @testset "NamedGridGraph" begin
