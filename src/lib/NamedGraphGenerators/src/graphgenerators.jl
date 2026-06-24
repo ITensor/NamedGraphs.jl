@@ -28,29 +28,29 @@ end
     simple_children = children(tree, simple_parent)
     for n in 1:length(simple_children)
         simple_child = simple_children[n]
-        named_child = (named_parent..., child_name(n))
+        named_child = [named_parent; child_name(n)]
         named_vertices[simple_child] = named_child
         set_named_vertices!(named_vertices, tree, simple_child, named_child; child_name)
     end
     return named_vertices
 end
 
-# TODO: Use vectors as vertex names?
+# Each vertex is named by its path from the root, as a vector of child indices.
 # k = 3:
-# 1 => (1,)
-# 2 => (1, 1)
-# 3 => (1, 2)
-# 4 => (1, 1, 1)
-# 5 => (1, 1, 2)
-# 6 => (1, 2, 1)
-# 7 => (1, 2, 2)
+# 1 => [1]
+# 2 => [1, 1]
+# 3 => [1, 2]
+# 4 => [1, 1, 1]
+# 5 => [1, 1, 2]
+# 6 => [1, 2, 1]
+# 7 => [1, 2, 2]
 function named_bfs_tree_vertices(
         simple_graph::AbstractSimpleGraph, source::Integer = 1; source_name = 1,
         child_name = identity
     )
     tree = bfs_tree(simple_graph, source)
-    named_vertices = Vector{Tuple}(undef, nv(simple_graph))
-    named_source = (source_name,)
+    named_source = [source_name]
+    named_vertices = Vector{typeof(named_source)}(undef, nv(simple_graph))
     named_vertices[source] = named_source
     set_named_vertices!(named_vertices, tree, source, named_source; child_name)
     return named_vertices

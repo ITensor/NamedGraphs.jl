@@ -4,7 +4,7 @@ using Graphs: a_star, add_edge!, add_vertex!, degree, edges, edgetype, has_edge,
     is_directed, ne, neighbors, nv, rem_edge!, rem_vertex!, vertices
 using NamedGraphs.GraphsExtensions: is_cycle_graph, vertextype
 using NamedGraphs.NamedGraphGenerators: NamedGridGraph, grid_ndims, grid_size,
-    is_directed_grid, ishypertorus, named_cycle_graph, named_grid,
+    is_directed_grid, ishypertorus, named_binary_tree, named_cycle_graph, named_grid,
     named_hexagonal_lattice_graph, named_triangular_lattice_graph
 using NamedGraphs: NamedEdge
 using Test: @test, @test_throws, @testset
@@ -55,6 +55,19 @@ end
     @test ne(g) == 4
     @test issetequal(vertices(g), 1:4)
     @test is_cycle_graph(g)
+end
+
+@testset "named_binary_tree" begin
+    g = named_binary_tree(3)
+    @test nv(g) == 7
+    @test ne(g) == 6
+    # The path-from-root labels share a concrete element type, so `vertextype`
+    # is concrete (the point of naming vertices this way).
+    @test vertextype(g) == Vector{Int}
+    @test issetequal(
+        vertices(g),
+        [[1], [1, 1], [1, 2], [1, 1, 1], [1, 1, 2], [1, 2, 1], [1, 2, 2]]
+    )
 end
 
 @testset "NamedGridGraph" begin
