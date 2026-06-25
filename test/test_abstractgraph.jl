@@ -38,17 +38,17 @@ using Test: @test, @testset
 
     ng2 = named_binary_tree(3)
     net2 = edgetype(ng2)
-    @test vertex_path(ng2, (1, 1), (1, 2, 1)) == [(1, 1), (1,), (1, 2), (1, 2, 1)]
-    @test edge_path(ng2, (1, 1), (1, 2, 1)) ==
-        [net2((1, 1), (1,)), net2((1,), (1, 2)), net2((1, 2), (1, 2, 1))]
-    @test vertex_path(ng2, (1, 1, 2), (1, 1, 1)) == [(1, 1, 2), (1, 1), (1, 1, 1)]
-    @test edge_path(ng2, (1, 1, 2), (1, 1, 1)) ==
-        [net2((1, 1, 2), (1, 1)), net2((1, 1), (1, 1, 1))]
+    @test vertex_path(ng2, [1, 1], [1, 2, 1]) == [[1, 1], [1], [1, 2], [1, 2, 1]]
+    @test edge_path(ng2, [1, 1], [1, 2, 1]) ==
+        [net2([1, 1], [1]), net2([1], [1, 2]), net2([1, 2], [1, 2, 1])]
+    @test vertex_path(ng2, [1, 1, 2], [1, 1, 1]) == [[1, 1, 2], [1, 1], [1, 1, 1]]
+    @test edge_path(ng2, [1, 1, 2], [1, 1, 1]) ==
+        [net2([1, 1, 2], [1, 1]), net2([1, 1], [1, 1, 1])]
     # Test DFS traversals
-    @test post_order_dfs_vertices(ng2, (1,)) ==
-        [(1, 1, 1), (1, 1, 2), (1, 1), (1, 2, 1), (1, 2, 2), (1, 2), (1,)]
-    @test pre_order_dfs_vertices(ng2, (1,)) ==
-        [(1,), (1, 1), (1, 1, 1), (1, 1, 2), (1, 2), (1, 2, 1), (1, 2, 2)]
+    @test post_order_dfs_vertices(ng2, [1]) ==
+        [[1, 1, 1], [1, 1, 2], [1, 1], [1, 2, 1], [1, 2, 2], [1, 2], [1]]
+    @test pre_order_dfs_vertices(ng2, [1]) ==
+        [[1], [1, 1], [1, 1, 1], [1, 1, 2], [1, 2], [1, 2, 1], [1, 2, 2]]
 
     # directed trees
     dg1 = dfs_tree(g1, 5)
