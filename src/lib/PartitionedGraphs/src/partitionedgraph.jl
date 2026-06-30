@@ -152,10 +152,11 @@ function Graphs.rem_edge!(pg::PartitionedGraph, edge::AbstractEdge)
     if se in quotientedges(pg) || reverse(se) in quotientedges(pg)
         g_edges = edges(pg, se)
         if length(g_edges) == 1
-            # Remove the entire super-edge
-            return rem_edge!(pg.quotient_graph, parent(se))
+            # This is the last edge between these partitions, so also remove the super-edge.
+            rem_edge!(pg.quotient_graph, parent(se))
         end
     end
+    # Always remove the underlying edge itself.
     return rem_edge!(pg.graph, edge)
 end
 
