@@ -141,6 +141,41 @@ end
     @test nv(QuotientView(pg)) == nx
 end
 
+@testset "Test Partitioned Graph Cross-Partition Edge Removal" begin
+    # Regression test: removing the last edge between two partitions must remove the edge
+    # from the underlying graph, not just the super-edge from the quotient graph.
+    g = NamedGraph([1, 2, 3, 4])
+    pg = PartitionedGraph(g, [[1, 2], [3, 4]])
+
+    # Intra-partition edges (super-edge is a self-loop) round-trip correctly.
+    for e in (NamedEdge(1 => 2), NamedEdge(3 => 4))
+        Graphs.add_edge!(pg, e)
+        @test has_edge(pg, e)
+        Graphs.rem_edge!(pg, e)
+        @test !has_edge(pg, e)
+    end
+
+    # Cross-partition edges: removal must clear both the underlying edge and the super-edge.
+    for e in (NamedEdge(2 => 3), NamedEdge(1 => 4))
+        Graphs.add_edge!(pg, e)
+        se = quotientedge(pg, e)
+        @test has_edge(pg, e)
+        Graphs.rem_edge!(pg, e)
+        @test !has_edge(pg, e)
+        @test !has_edge(unpartitioned_graph(pg), e)
+        @test !has_quotientedge(pg, se)
+    end
+
+    # When several edges share a super-edge, removing one keeps the others and the super-edge.
+    Graphs.add_edge!(pg, NamedEdge(1 => 3))
+    Graphs.add_edge!(pg, NamedEdge(2 => 3))
+    @test has_quotientedge(pg, quotientedge(pg, NamedEdge(1 => 3)))
+    Graphs.rem_edge!(pg, NamedEdge(1 => 3))
+    @test !has_edge(pg, NamedEdge(1 => 3))
+    @test has_edge(pg, NamedEdge(2 => 3))
+    @test has_quotientedge(pg, quotientedge(pg, NamedEdge(2 => 3)))
+end
+
 @testset "Test Partitioned Graph Subgraph Functionality" begin
     n, z = 12, 4
     g = NamedGraph(random_regular_graph(n, z))
