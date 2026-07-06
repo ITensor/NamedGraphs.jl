@@ -9,6 +9,8 @@ include("utils.jl")
 include("abstractnamededge.jl")
 include("namededge.jl")
 include("abstractnamedgraph.jl")
+include("abstractgraphindices.jl")
+include("similar_graph.jl")
 include("decorate.jl")
 include("simplecycles.jl")
 include("shortestpaths.jl")
@@ -17,13 +19,14 @@ include("distances_and_capacities.jl")
 include("steiner_tree.jl")
 include("dfs.jl")
 include("namedgraph.jl")
+include("positiongraphview.jl")
 include("lib/NamedGraphGenerators/src/NamedGraphGenerators.jl")
 include("lib/PartitionedGraphs/src/PartitionedGraphs.jl")
 
-export AbstractNamedGraphs, NamedDiGraph, NamedEdge, NamedGraph
+export AbstractNamedGraph, NamedDiGraph, NamedEdge, NamedGraph
 
 using PackageExtensionCompat: @require_extensions
 function __init__()
-  @require_extensions
+    return @require_extensions
 end
 end

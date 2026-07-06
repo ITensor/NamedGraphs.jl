@@ -4,6 +4,6 @@ using NamedGraphs.GraphsExtensions: GraphsExtensions
 using SymRCM: SymRCM
 
 function GraphsExtensions.symrcm_perm(graph::AbstractGraph)
-  return SymRCM.symrcm(adjacency_matrix(graph))
+    return SymRCM.symrcm(adjacency_matrix(graph))
 end
 end

@@ -8,5 +8,5 @@ Base.:(*)(x::One, y::One) = 𝟏
 Base.convert(::Type{One}, ::One) = One()
 
 function Base.show(io::IO, ordinal::One)
-  return print(io, "𝟏")
+    return print(io, "𝟏")
 end

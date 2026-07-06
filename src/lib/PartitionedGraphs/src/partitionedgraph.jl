@@ -1,188 +1,211 @@
+using ..NamedGraphs.GraphsExtensions: GraphsExtensions, boundary_edges, directed_graph_type,
+    is_self_loop, partition_vertices, undirected_graph_type, vertextype
+using ..NamedGraphs.OrderedDictionaries: OrderedDictionary
+using ..NamedGraphs: NamedEdge, NamedGraph, NamedGraphs
 using Dictionaries: Dictionary
-using Graphs:
-  AbstractEdge, AbstractGraph, add_edge!, edges, has_edge, induced_subgraph, vertices
-using .GraphsExtensions:
-  GraphsExtensions, boundary_edges, is_self_loop, partitioned_vertices
-using ..NamedGraphs: NamedEdge, NamedGraph
+using Graphs: AbstractEdge, AbstractGraph, add_edge!, dst, edges, edgetype, has_edge,
+    induced_subgraph, src, vertices
 
 # TODO: Parametrize `partitioned_vertices` and `which_partition`,
 # see https://github.com/mtfishman/NamedGraphs.jl/issues/63.
-struct PartitionedGraph{V,PV,G<:AbstractGraph{V},PG<:AbstractGraph{PV}} <:
-       AbstractPartitionedGraph{V,PV}
-  graph::G
-  partitions_graph::PG
-  partitioned_vertices::Dictionary
-  which_partition::Dictionary
+struct PartitionedGraph{
+        V, PV, G <: AbstractGraph{V}, QG <: AbstractGraph{PV}, P <: Dictionary,
+    } <: AbstractPartitionedGraph{V, PV}
+    graph::G
+    quotient_graph::QG
+    partitioned_vertices::P
+    which_partition::Dictionary{V, PV}
 end
 
+partitionedgraph(g::AbstractGraph, partition) = PartitionedGraph(g, partition)
+
+# Interface overloads
+partitioned_vertices(pg::PartitionedGraph) = pg.partitioned_vertices
+quotient_graph(pg::PartitionedGraph) = pg.quotient_graph
+quotientvertex(pg::PartitionedGraph, vertex) = QuotientVertex(pg.which_partition[vertex])
+
+Graphs.edgetype(::Type{<:PartitionedGraph{V, PV, G}}) where {V, PV, G} = edgetype(G)
+Graphs.is_directed(::Type{<:PartitionedGraph{V, PV, G}}) where {V, PV, G} = is_directed(G)
+
 ##Constructors.
-function PartitionedGraph(g::AbstractGraph, partitioned_vertices)
-  pvs = keys(partitioned_vertices)
-  pg = NamedGraph(pvs)
-  # TODO: Make this type more specific.
-  which_partition = Dictionary()
-  for v in vertices(g)
-    v_pvs = Set(findall(pv -> v ∈ partitioned_vertices[pv], pvs))
-    @assert length(v_pvs) == 1
-    insert!(which_partition, v, first(v_pvs))
-  end
-  for e in edges(g)
-    pv_src, pv_dst = which_partition[src(e)], which_partition[dst(e)]
-    pe = NamedEdge(pv_src => pv_dst)
-    if pv_src != pv_dst && !has_edge(pg, pe)
-      add_edge!(pg, pe)
+function PartitionedGraph(g::AbstractGraph, partitioned_vertices::Dict)
+    return PartitionedGraph(g, Dictionary(partitioned_vertices))
+end
+
+function PartitionedGraph(g::AbstractGraph, partitioned_vertices::AbstractVector)
+    return PartitionedGraph(g, Dictionary(partitioned_vertices))
+end
+
+function PartitionedGraph(g::AbstractGraph, partitioned_vertices::Dictionary)
+    pvs = keys(partitioned_vertices)
+
+    which_partition = Dictionary{vertextype(g), eltype(pvs)}()
+    for v in vertices(g)
+        v_pvs = Set(findall(pv -> v ∈ pv, partitioned_vertices))
+        @assert length(v_pvs) == 1
+        insert!(which_partition, v, first(v_pvs))
     end
-  end
-  return PartitionedGraph(g, pg, Dictionary(partitioned_vertices), which_partition)
+    qg = quotient_graph(PartitionedView(g, partitioned_vertices))
+
+    return PartitionedGraph(
+        g,
+        qg,
+        partitioned_vertices,
+        which_partition
+    )
 end
 
 function PartitionedGraph(partitioned_vertices)
-  return PartitionedGraph(NamedGraph(keys(partitioned_vertices)), partitioned_vertices)
+    return PartitionedGraph(NamedGraph(keys(partitioned_vertices)), partitioned_vertices)
 end
 
 function PartitionedGraph(g::AbstractGraph; kwargs...)
-  partitioned_verts = partitioned_vertices(g; kwargs...)
-  return PartitionedGraph(g, partitioned_verts)
+    partitioned_verts = partition_vertices(g; kwargs...)
+    return PartitionedGraph(g, partitioned_verts)
 end
 
 #Needed for interface
-partitions_graph(pg::PartitionedGraph) = PartitionsGraphView(pg)
 unpartitioned_graph(pg::PartitionedGraph) = getfield(pg, :graph)
 function unpartitioned_graph_type(graph_type::Type{<:PartitionedGraph})
-  return fieldtype(graph_type, :graph)
-end
-function GraphsExtensions.partitioned_vertices(pg::PartitionedGraph)
-  return getfield(pg, :partitioned_vertices)
-end
-which_partition(pg::PartitionedGraph) = getfield(pg, :which_partition)
-function Graphs.vertices(pg::PartitionedGraph, partitionvert::PartitionVertex)
-  return partitioned_vertices(pg)[parent(partitionvert)]
-end
-function Graphs.vertices(pg::PartitionedGraph, partitionverts::Vector{<:PartitionVertex})
-  return unique(reduce(vcat, Iterators.map(pv -> vertices(pg, pv), partitionverts)))
-end
-function partitionvertex(pg::PartitionedGraph, vertex)
-  return PartitionVertex(which_partition(pg)[vertex])
-end
-
-function partitionvertices(pg::PartitionedGraph, verts)
-  return unique(partitionvertex(pg, v) for v in verts)
-end
-
-function partitionvertices(pg::PartitionedGraph)
-  return PartitionVertex.(vertices(pg.partitions_graph))
-end
-
-function partitionedge(pg::PartitionedGraph, edge::AbstractEdge)
-  return PartitionEdge(
-    parent(partitionvertex(pg, src(edge))) => parent(partitionvertex(pg, dst(edge)))
-  )
-end
-
-partitionedge(pg::PartitionedGraph, p::Pair) = partitionedge(pg, edgetype(pg)(p))
-
-function partitionedges(pg::PartitionedGraph, edges::Vector)
-  return filter(!is_self_loop, unique([partitionedge(pg, e) for e in edges]))
-end
-
-function partitionedges(pg::PartitionedGraph)
-  return PartitionEdge.(edges(pg.partitions_graph))
-end
-
-function Graphs.edges(pg::PartitionedGraph, partitionedge::PartitionEdge)
-  psrc_vs = vertices(pg, src(partitionedge))
-  pdst_vs = vertices(pg, dst(partitionedge))
-  psrc_subgraph, _ = induced_subgraph(unpartitioned_graph(pg), psrc_vs)
-  pdst_subgraph, _ = induced_subgraph(pg, pdst_vs)
-  full_subgraph, _ = induced_subgraph(pg, vcat(psrc_vs, pdst_vs))
-
-  return setdiff(edges(full_subgraph), vcat(edges(psrc_subgraph), edges(pdst_subgraph)))
-end
-
-function Graphs.edges(pg::PartitionedGraph, partitionedges::Vector{<:PartitionEdge})
-  return unique(reduce(vcat, [edges(pg, pe) for pe in partitionedges]))
-end
-
-function boundary_partitionedges(pg::PartitionedGraph, partitionvertices; kwargs...)
-  return PartitionEdge.(
-    boundary_edges(pg.partitions_graph, parent.(partitionvertices); kwargs...)
-  )
-end
-
-function boundary_partitionedges(
-  pg::PartitionedGraph, partitionvertex::PartitionVertex; kwargs...
-)
-  return boundary_partitionedges(pg, [partitionvertex]; kwargs...)
+    return fieldtype(graph_type, :graph)
 end
 
 function Base.copy(pg::PartitionedGraph)
-  return PartitionedGraph(
-    copy(unpartitioned_graph(pg)),
-    copy(pg.partitions_graph),
-    copy(partitioned_vertices(pg)),
-    copy(which_partition(pg)),
-  )
+    return PartitionedGraph(
+        copy(pg.graph),
+        copy(pg.quotient_graph),
+        copy(pg.partitioned_vertices),
+        copy(pg.which_partition)
+    )
 end
 
-function insert_to_vertex_map!(
-  pg::PartitionedGraph, vertex, partitionvertex::PartitionVertex
-)
-  pv = parent(partitionvertex)
-  if pv ∉ keys(partitioned_vertices(pg))
-    insert!(partitioned_vertices(pg), pv, [vertex])
-  else
-    partitioned_vertices(pg)[pv] = unique(vcat(vertices(pg, partitionvertex), [vertex]))
-  end
+function insert_to_vertex_map!(pg::PartitionedGraph, vertex, quotientvertex)
+    push!(get!(pg.partitioned_vertices, quotientvertex, []), vertex)
+    unique!(pg.partitioned_vertices[quotientvertex])
 
-  insert!(which_partition(pg), vertex, pv)
-  return pg
+    insert!(pg.which_partition, vertex, quotientvertex)
+
+    return pg
 end
 
-function delete_from_vertex_map!(pg::PartitionedGraph, vertex)
-  pv = partitionvertex(pg, vertex)
-  return delete_from_vertex_map!(pg, pv, vertex)
+function delete_from_vertex_map!(pg::PartitionedGraph{V}, vertex::V) where {V}
+    sv = quotientvertex(pg, vertex)
+    return delete_from_vertex_map!(pg, sv, vertex)
 end
 
 function delete_from_vertex_map!(
-  pg::PartitionedGraph, partitioned_vertex::PartitionVertex, vertex
-)
-  vs = vertices(pg, partitioned_vertex)
-  delete!(partitioned_vertices(pg), parent(partitioned_vertex))
-  if length(vs) != 1
-    insert!(partitioned_vertices(pg), parent(partitioned_vertex), setdiff(vs, [vertex]))
-  end
-
-  delete!(which_partition(pg), vertex)
-  return partitioned_vertex
+        pg::PartitionedGraph{V}, quotientvertex, vertex::V
+    ) where {V}
+    return delete_from_vertex_map!(pg, quotientvertex, vertex)
 end
 
-### PartitionedGraph Specific Functions
-function partitionedgraph_induced_subgraph(pg::PartitionedGraph, vertices::Vector)
-  sub_pg_graph, _ = induced_subgraph(unpartitioned_graph(pg), vertices)
-  sub_partitioned_vertices = copy(partitioned_vertices(pg))
-  for pv in NamedGraphs.vertices(pg.partitions_graph)
-    vs = intersect(vertices, sub_partitioned_vertices[pv])
-    if !isempty(vs)
-      sub_partitioned_vertices[pv] = vs
-    else
-      delete!(sub_partitioned_vertices, pv)
+function delete_from_vertex_map!(
+        pg::PartitionedGraph{V, PV}, qv::PV, vertex::V
+    ) where {V, PV}
+    vs = partitioned_vertices(pg)[qv]
+
+    delete!(pg.partitioned_vertices, qv)
+
+    if length(vs) != 1
+        insert!(pg.partitioned_vertices, qv, setdiff(vs, [vertex]))
     end
-  end
 
-  return PartitionedGraph(sub_pg_graph, sub_partitioned_vertices), nothing
+    delete!(pg.which_partition, vertex)
+    return pg
 end
 
-function partitionedgraph_induced_subgraph(
-  pg::PartitionedGraph, partitionverts::Vector{<:PartitionVertex}
-)
-  return induced_subgraph(pg, vertices(pg, partitionverts))
+function Graphs.rem_vertex!(pg::PartitionedGraph{V}, vertex::V) where {V}
+    qv = parent(quotientvertex(pg, vertex))
+
+    delete_from_vertex_map!(pg, qv, vertex)
+
+    rem_vertex!(pg.graph, vertex)
+
+    # If the super-vertex is now empty, remove it from the quotient graph
+    qv ∈ keys(pg.partitioned_vertices) || rem_vertex!(pg.quotient_graph, qv)
+
+    return pg
 end
 
-function Graphs.induced_subgraph(pg::PartitionedGraph, vertices)
-  return partitionedgraph_induced_subgraph(pg, vertices)
+# Interface function
+function add_subquotientvertex!(pg::PartitionedGraph{V}, qv, vertex) where {V}
+    add_vertex!(pg.graph, vertex)
+    add_vertex!(pg.quotient_graph, qv)
+    insert_to_vertex_map!(pg, vertex, qv)
+    return pg
 end
 
-# Fixes ambiguity error with `Graphs.jl`.
-function Graphs.induced_subgraph(pg::PartitionedGraph, vertices::Vector{<:Integer})
-  return partitionedgraph_induced_subgraph(pg, vertices)
+function Graphs.add_edge!(pg::PartitionedGraph, edge::AbstractEdge)
+    @assert edge isa edgetype(pg)
+    add_edge!(pg.graph, edge)
+    pg_edge = parent(quotientedge(pg, edge))
+    if src(pg_edge) != dst(pg_edge)
+        add_edge!(pg.quotient_graph, pg_edge)
+    end
+    return pg
+end
+
+function Graphs.rem_edge!(pg::PartitionedGraph, edge::AbstractEdge)
+    @assert edge isa edgetype(pg)
+    # This already checks if the edge is in pg
+    se = quotientedge(pg, edge)
+    if se in quotientedges(pg) || reverse(se) in quotientedges(pg)
+        g_edges = edges(pg, se)
+        if length(g_edges) == 1
+            # This is the last edge between these partitions, so also remove the super-edge.
+            rem_edge!(pg.quotient_graph, parent(se))
+        end
+    end
+    # Always remove the underlying edge itself.
+    return rem_edge!(pg.graph, edge)
+end
+
+## Case where we preserve partitioning.
+
+NamedGraphs.to_vertices(::PartitionedGraph, qvsvs::QuotientVerticesVertices) = qvsvs
+
+function NamedGraphs.induced_subgraph_from_vertices(
+        pg::PartitionedGraph, subvertices::QuotientVerticesVertices
+    )
+    sub_pg_graph, _ = induced_subgraph(pg.graph, subvertices)
+    sub_partitioned_vertices = copy(pg.partitioned_vertices)
+
+    for qv in quotientvertices(pg)
+        pv = parent(qv)
+
+        vs = intersect(QuotientVertexSlice(subvertices), sub_partitioned_vertices[pv])
+        if !isempty(vs)
+            sub_partitioned_vertices[pv] = vs
+        else
+            k = keys(sub_partitioned_vertices)
+            delete!(sub_partitioned_vertices, pv)
+        end
+    end
+
+    return PartitionedGraph(sub_pg_graph, sub_partitioned_vertices), nothing
+end
+
+function GraphsExtensions.undirected_graph(g::PartitionedGraph)
+    dg = GraphsExtensions.undirected_graph(unpartitioned_graph(g))
+    return PartitionedGraph(dg, partitioned_vertices(g))
+end
+function GraphsExtensions.directed_graph(g::PartitionedGraph)
+    dg = GraphsExtensions.directed_graph(unpartitioned_graph(g))
+    return PartitionedGraph(dg, partitioned_vertices(g))
+end
+function GraphsExtensions.undirected_graph_type(
+        type::Type{<:PartitionedGraph{V, PV}}
+    ) where {V, PV}
+    UG = undirected_graph_type(unpartitioned_graph_type(type))
+    QG = undirected_graph_type(quotient_graph_type(type))
+    P = fieldtype(type, :partitioned_vertices)
+    return PartitionedGraph{V, PV, UG, QG, P}
+end
+function GraphsExtensions.directed_graph_type(
+        type::Type{<:PartitionedGraph{V, PV}}
+    ) where {V, PV}
+    DG = directed_graph_type(unpartitioned_graph_type(type))
+    QG = directed_graph_type(quotient_graph_type(type))
+    P = fieldtype(type, :partitioned_vertices)
+    return PartitionedGraph{V, PV, DG, QG, P}
 end

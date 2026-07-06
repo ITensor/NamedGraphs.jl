@@ -1,24 +1,24 @@
-name: Register Package
+name: "Registrator"
 on:
-  workflow_dispatch:
-  pull_request:
-    types:
-      - closed
-    paths:
-      - 'Project.toml'
+  workflow_dispatch: ~
+  push:
     branches:
-      - 'master'
-      - 'main'
-
+      - "master"
+      - "main"
+      - "release-*"
+    paths:
+      - "Project.toml"
+  issue_comment:
+    types:
+      - "created"
 permissions:
-  contents: write
-  pull-requests: write
-
+  contents: "write"
+  pull-requests: "write"
+  issues: "write"
 jobs:
-  Register:
-    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true
-    uses: "ITensor/ITensorActions/.github/workflows/Registrator.yml@main"
+  registrator:
+    name: "Registrator"
+    uses: "ITensor/ITensorActions/.github/workflows/Registrator.yml@v2"
     with:
-      localregistry: ITensor/ITensorRegistry
-    secrets:
-      REGISTRATOR_KEY: ${{ secrets.REGISTRATOR_KEY }}
+      localregistry: "ITensor/ITensorRegistry"
+    secrets: "inherit"

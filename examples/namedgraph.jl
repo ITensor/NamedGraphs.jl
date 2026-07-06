@@ -1,6 +1,6 @@
 using Graphs: add_edge!, grid, has_edge, has_vertex, neighbors
-using NamedGraphs: NamedGraph
 using NamedGraphs.GraphsExtensions: subgraph
+using NamedGraphs: NamedGraph
 
 g = NamedGraph(grid((4,)), ["A", "B", "C", "D"])
 

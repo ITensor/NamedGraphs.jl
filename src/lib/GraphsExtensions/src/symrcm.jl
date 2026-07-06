@@ -5,5 +5,5 @@
 function symrcm_perm end
 
 function symrcm_permute(graph::AbstractGraph)
-  return permute_vertices(graph, symrcm_perm(graph))
+    return permute_vertices(graph, symrcm_perm(graph))
 end

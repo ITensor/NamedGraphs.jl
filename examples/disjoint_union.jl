@@ -1,6 +1,6 @@
 using Graphs: grid
+using NamedGraphs.GraphsExtensions: subgraph, ⊔
 using NamedGraphs: NamedGraph
-using NamedGraphs.GraphsExtensions: ⊔, subgraph
 
 g1 = NamedGraph(grid((2, 2)), Tuple.(CartesianIndices((2, 2))))
 g2 = NamedGraph(grid((2, 2)), Tuple.(CartesianIndices((2, 2))))

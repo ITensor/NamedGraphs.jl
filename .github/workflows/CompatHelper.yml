@@ -1,16 +1,15 @@
 name: "CompatHelper"
-
 on:
   schedule:
-    - cron: 0 0 * * *
-  workflow_dispatch:
+    - cron: "0 0 * * *"
+  workflow_dispatch: ~
 permissions:
-  contents: write
-  pull-requests: write
-
+  contents: "write"
+  pull-requests: "write"
 jobs:
-  compat-helper:
+  compathelper:
     name: "CompatHelper"
-    uses: "ITensor/ITensorActions/.github/workflows/CompatHelper.yml@main"
+    uses: "ITensor/ITensorActions/.github/workflows/CompatHelper.yml@v2"
     with:
       localregistry: "https://github.com/ITensor/ITensorRegistry.git"
+    secrets: "inherit"

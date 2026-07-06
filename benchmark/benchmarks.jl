@@ -1,5 +1,5 @@
-using NamedGraphs
 using BenchmarkTools
+using NamedGraphs
 
 SUITE = BenchmarkGroup()
 SUITE["rand"] = @benchmarkable rand(10)

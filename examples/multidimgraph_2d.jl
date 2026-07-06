@@ -1,6 +1,6 @@
 using Graphs: grid, has_edge, has_vertex, nv
+using NamedGraphs.GraphsExtensions: subgraph, ⊔
 using NamedGraphs: NamedGraph
-using NamedGraphs.GraphsExtensions: ⊔, subgraph
 
 position_graph = grid((2, 2))
 vs = [("X", 1), ("X", 2), ("Y", 1), ("Y", 2)]
@@ -51,9 +51,9 @@ g_disjoint_union = g1 ⊔ g2
 @show nv(g_disjoint_union) == 8
 
 ## g_vcat = [g1; g2]
-## 
+##
 ## @show nv(g_vcat) == 8
-## 
+##
 ## g_hcat = [g1;; g2]
-## 
+##
 ## @show nv(g_hcat) == 8

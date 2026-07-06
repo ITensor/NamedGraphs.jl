@@ -1,6 +1,6 @@
 using Graphs: path_graph
-using NamedGraphs: NamedGraph
 using NamedGraphs.GraphsExtensions: mincut_partitions
+using NamedGraphs: NamedGraph
 
 g = NamedGraph(path_graph(4), ["A", "B", "C", "D"])
 
@@ -12,7 +12,7 @@ using GraphsFlows: GraphsFlows
 part1, part2 = mincut_partitions(g, "A", "D")
 @show part1, part2
 
-weights = Dict{Any,Float64}()
+weights = Dict{Any, Float64}()
 weights["A", "B"] = 3.0
 weights["B", "C"] = 2.0
 weights["C", "D"] = 3.0

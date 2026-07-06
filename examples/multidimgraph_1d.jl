@@ -1,6 +1,6 @@
 using Graphs: grid, has_edge, has_vertex, ne, nv
+using NamedGraphs.GraphsExtensions: subgraph, ⊔
 using NamedGraphs: NamedGraph
-using NamedGraphs.GraphsExtensions: ⊔, subgraph
 
 position_graph = grid((4,))
 vs = ["A", "B", "C", "D"]
@@ -47,8 +47,8 @@ g_union = g ⊔ g
 
 # TODO: Implement
 ## g_hcat = [g;; g]
-## 
+##
 ## @show nv(g_hcat) == 8
 ## @show ne(g_hcat) == 6
-## 
+##
 ## @show has_vertex(g_hcat, ("A", 1))
