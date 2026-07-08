@@ -570,9 +570,16 @@ function GraphsExtensions.edge_subgraph(
     return edge_subgraph_namedgraph(graph, to_edges(graph, edges))
 end
 
-function edge_subgraph_namedgraph(graph, edgelist)
+function edge_subgraph_namedgraph(graph::NamedDiGraph, edgelist)
     vs = unique(vcat(src.(edgelist), dst.(edgelist)))
     g = subgraph(graph, vs)
     g = rem_edges!(g, setdiff(edges(g), edgelist))
+    return g
+end
+
+function edge_subgraph_namedgraph(graph::NamedGraph, edgelist)
+    vs = unique(vcat(src.(edgelist), dst.(edgelist)))
+    g = similar_graph(graph, vs)
+    g = add_edges!(g, edgelist)
     return g
 end
