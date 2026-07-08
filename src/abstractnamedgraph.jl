@@ -569,3 +569,14 @@ function GraphsExtensions.edge_subgraph(
     )
     return edge_subgraph_namedgraph(graph, to_edges(graph, edges))
 end
+
+function edge_subgraph_namedgraph(graph, edgelist)
+    vs = unique(vcat(src.(edgelist), dst.(edgelist)))
+    g = subgraph(graph, vs)
+    for e in edges(g)
+        if !(e ∈ edgelist || reverse(e) ∈ edgelist)
+            rem_edge!(g, e)
+        end
+    end
+    return g
+end
