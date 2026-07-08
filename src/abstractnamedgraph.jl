@@ -573,8 +573,9 @@ end
 function edge_subgraph_namedgraph(graph, edgelist)
     vs = unique(vcat(src.(edgelist), dst.(edgelist)))
     g = subgraph(graph, vs)
+    edgeset = Set(edgelist)
     for e in edges(g)
-        if !(e ∈ edgelist || reverse(e) ∈ edgelist)
+        if !(e ∈ edgeset || reverse(e) ∈ edgeset)
             rem_edge!(g, e)
         end
     end
