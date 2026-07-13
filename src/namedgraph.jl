@@ -225,3 +225,10 @@ end
 function GraphsExtensions.similar_graph(T::Type{<:GenericNamedGraph}, vertices)
     return T(vertices)
 end
+
+function edge_subgraph_namedgraph(graph::NamedDiGraph, edgelist)
+    vs = unique(vcat(src.(edgelist), dst.(edgelist)))
+    g = subgraph(graph, vs)
+    g = rem_edges!(g, setdiff(edges(g), edgelist))
+    return g
+end

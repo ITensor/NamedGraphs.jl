@@ -14,10 +14,11 @@ using Graphs: Edge, a_star, add_edge!, add_vertex!, adjacency_matrix,
 using GraphsFlows: GraphsFlows
 using NamedGraphs.GraphsExtensions: GraphsExtensions, boundary_edges, boundary_vertices,
     convert_vertextype, degrees, dijkstra_mst, dijkstra_parents, dijkstra_tree,
-    eccentricities, has_vertices, incident_edges, indegrees, inner_boundary_vertices,
-    mincut_partitions, outdegrees, outer_boundary_vertices, permute_vertices,
-    rename_vertices, subgraph, symrcm_perm, symrcm_permute, vertextype, ⊔
-using NamedGraphs.NamedGraphGenerators: named_binary_tree, named_grid, named_path_graph
+    eccentricities, edge_subgraph, has_vertices, incident_edges, indegrees,
+    inner_boundary_vertices, mincut_partitions, outdegrees, outer_boundary_vertices,
+    permute_vertices, rename_vertices, subgraph, symrcm_perm, symrcm_permute, vertextype, ⊔
+using NamedGraphs.NamedGraphGenerators:
+    named_binary_tree, named_grid, named_hexagonal_lattice_graph, named_path_graph
 using NamedGraphs: AbstractNamedEdge, NamedDiGraph, NamedEdge, NamedGraph, Vertices
 using SymRCM: SymRCM
 using Test: @test, @test_broken, @testset
@@ -117,6 +118,30 @@ end
         @test !has_vertex(g_sub, "D")
         # Test Graphs.jl `getindex` syntax.
         @test g_sub == g[Vertices(["A", "B"])]
+
+        g_sub = edge_subgraph(g, NamedEdge.(["A" => "B"]))
+        @test has_vertex(g_sub, "A")
+        @test has_vertex(g_sub, "B")
+        @test !has_vertex(g_sub, "C")
+        @test !has_vertex(g_sub, "D")
+        @test has_edge(g_sub, "A" => "B")
+        # Test Graphs.jl `getindex` syntax.
+        @test g_sub == g[Vertices(["A", "B"])]
+
+        g = named_hexagonal_lattice_graph(3, 3)
+        es = NamedEdge.(
+            [
+                (1, 1) => (2, 1),
+                (2, 1) => (3, 1),
+                (3, 1) => (3, 2),
+                (2, 2) => (3, 2),
+                (1, 2) => (2, 2),
+                (1, 1) => (1, 2),
+            ]
+        )
+        @test all([e in edges(g) for e in es])
+        eg = edge_subgraph(g, es)
+        @test length(edges(eg)) == length(es)
 
         g = NamedGraph(["A", "B", "C", "D", "E"])
         add_edge!(g, "A" => "B")
