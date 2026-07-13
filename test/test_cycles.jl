@@ -30,5 +30,12 @@ using Test: @test, @testset
     edge_subgraphs = edgeinduced_subgraphs_no_leaves(g, 4)
     @test length(filter(e -> length(edges(e)) == 4, edge_subgraphs)) == (n-1)*(n-1)
     @test length(filter(e -> length(edges(e)) > 4, edge_subgraphs)) == 0
+
+    n = 20
+    g = named_grid((n, 1); periodic = true)
+    edge_subgraphs = edgeinduced_subgraphs_no_leaves(g, n + 100)
+    @test length(edge_subgraphs) == 1
+    eg = only(edge_subgraphs)
+    @test issetequal(edges(eg), edges(g))
 end
 end
