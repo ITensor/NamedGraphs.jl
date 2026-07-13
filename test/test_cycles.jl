@@ -3,41 +3,39 @@ using Graphs: edges, ne, vertices
 using NamedGraphs.GraphsExtensions: degree, edge_subgraph, is_connected, rem_vertex
 using NamedGraphs.NamedGraphGenerators:
     named_comb_tree, named_grid, named_hexagonal_lattice_graph
-using NamedGraphs: edgeinduced_subgraphs_no_leaves, unique_simplecycles_limited_length
+using NamedGraphs: leafless_edge_induced_subgraphs
 using Test: @test, @testset
 
-@testset "SimpleCycles" begin
-    g = named_comb_tree((4, 3))
-    @test isempty(unique_simplecycles_limited_length(g, ne(g)))
-
-    g = named_grid((3, 3))
-    cycles = unique_simplecycles_limited_length(g, 4)
-    @test length(cycles) == 4
-    @test Set([(1, 1), (1, 2), (2, 2), (2, 1)]) ∈ Set.(cycles)
-
-    g = rem_vertex(g, (2, 2))
-    all_cycles = unique_simplecycles_limited_length(g, ne(g))
-    @test length(all_cycles) == 1
-    @test Set(vertices(g)) == Set(only(all_cycles))
-end
-
-@testset "EdgeInduced_Subgraphs_No_Leaves" begin
+@testset "leafless_edge_induced_subgraphs" begin
     g = named_comb_tree((3, 3))
-    edge_subgraphs = edgeinduced_subgraphs_no_leaves(g, ne(g))
+    edge_subgraphs = leafless_edge_induced_subgraphs(g, ne(g))
     @test isempty(edge_subgraphs)
 
     g = named_hexagonal_lattice_graph(3, 3)
 
-    edge_subgraphs = edgeinduced_subgraphs_no_leaves(g, 3)
+    edge_subgraphs = leafless_edge_induced_subgraphs(g, 3)
     @test isempty(edge_subgraphs)
 
-    edge_subgraphs = edgeinduced_subgraphs_no_leaves(g, 6)
+    edge_subgraphs = leafless_edge_induced_subgraphs(g, 6)
     @test all(x -> x == 6, ne.(edge_subgraphs))
 
-    edge_subgraphs = edgeinduced_subgraphs_no_leaves(g, 10)
+    edge_subgraphs = leafless_edge_induced_subgraphs(g, 10)
     @test all(x -> x == 6 || x == 10, ne.(edge_subgraphs))
-    #All nodes have degree > 1
+    # All nodes have degree > 1
     @test all(g -> minimum(degree.((g,), collect(vertices(g)))) > 1, edge_subgraphs)
     @test all(g -> is_connected(g), edge_subgraphs)
+
+    n = 5
+    g = named_grid((n, n))
+    edge_subgraphs = leafless_edge_induced_subgraphs(g, 4)
+    @test length(filter(e -> length(edges(e)) == 4, edge_subgraphs)) == (n - 1) * (n - 1)
+    @test length(filter(e -> length(edges(e)) > 4, edge_subgraphs)) == 0
+
+    n = 20
+    g = named_grid((n, 1); periodic = true)
+    edge_subgraphs = leafless_edge_induced_subgraphs(g, n + 100)
+    @test length(edge_subgraphs) == 1
+    eg = only(edge_subgraphs)
+    @test issetequal(edges(eg), edges(g))
 end
 end
