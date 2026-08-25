@@ -292,7 +292,7 @@ Graphs.edgetype(mg::MyGraph) = edgetype(mg.g)
 Graphs.has_edge(mg::MyGraph, e) = has_edge(mg.g, e)
 
 Graphs.is_directed(mg::MyGraph) = is_directed(mg.g)
-NamedGraphs.coded_graph(mg::MyGraph) = NamedGraphs.coded_graph(mg.g)
+NamedGraphs.encode_graph(mg::MyGraph) = NamedGraphs.encode_graph(mg.g)
 
 PartitionedGraphs.partitioned_vertices(mg::MyGraph) = mg.partitioned_vertices
 PartitionedGraphs.quotient_graph_type(::Type{<:MyGraph}) = NamedGraph{Int}
@@ -316,7 +316,7 @@ Graphs.edges(wg::WrapperGraph) = edges(wg.g)
 Graphs.vertices(wg::WrapperGraph) = vertices(wg.g)
 
 Graphs.is_directed(wg::WrapperGraph) = is_directed(wg.g)
-NamedGraphs.coded_graph(wg::WrapperGraph) = NamedGraphs.coded_graph(wg.g)
+NamedGraphs.encode_graph(wg::WrapperGraph) = NamedGraphs.encode_graph(wg.g)
 
 PartitionedGraphs.partitioned_vertices(wg::WrapperGraph) = partitioned_vertices(wg.g)
 

@@ -1,4 +1,4 @@
-using ..NamedGraphs: NamedGraph, coded_graph_type, induced_subgraph_from_vertices
+using ..NamedGraphs: NamedGraph, encode_graph_type, induced_subgraph_from_vertices
 using ..SimilarType: similar_type
 using .GraphsExtensions: directed_graph_type, undirected_graph_type
 using Graphs: AbstractGraph, edges, has_edge, rem_edge!, rem_vertex!, vertices
@@ -21,8 +21,8 @@ end
 Graphs.vertices(qg::QuotientView) = keys(partitioned_vertices(parent(qg)))
 Graphs.edges(qg::QuotientView) = edges(quotient_graph(parent(qg)))
 
-function NamedGraphs.coded_graph_type(type::Type{<:QuotientView})
-    return coded_graph_type(quotient_graph_type(parent_graph_type(type)))
+function NamedGraphs.encode_graph_type(type::Type{<:QuotientView})
+    return encode_graph_type(quotient_graph_type(parent_graph_type(type)))
 end
 
 function NamedGraphs.GraphsExtensions.directed_graph_type(type::Type{<:QuotientView})
@@ -41,16 +41,12 @@ function Graphs.rem_edge!(qg::QuotientView, v)
     return qg
 end
 
-for f in [
-        :(NamedGraphs.coded_vertex),
-        :(NamedGraphs.decoded_vertex),
-        :(NamedGraphs.coded_graph),
-    ]
-    @eval begin
-        function $f(g::QuotientView, args...; kwargs...)
-            return $f(copy(g), args...; kwargs...)
-        end
-    end
+NamedGraphs.encode_graph(g::QuotientView) = NamedGraphs.encode_graph(copy(g))
+function NamedGraphs.encode_vertex(g::QuotientView, vertex)
+    return NamedGraphs.encode_vertex(copy(g), vertex)
+end
+function NamedGraphs.decode_vertex(g::QuotientView, code::Integer)
+    return NamedGraphs.decode_vertex(copy(g), code)
 end
 
 function NamedGraphs.SimilarType.similar_type(type::Type{<:QuotientView})

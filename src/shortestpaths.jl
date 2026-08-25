@@ -24,20 +24,20 @@ function NamedDijkstraState(parents, dists, predecessors, pathcounts, closest_ve
     )
 end
 
-function coded_path_state_to_path_state(
-        graph::AbstractNamedGraph, coded_path_state::Graphs.DijkstraState
+function encoded_path_state_to_path_state(
+        graph::AbstractNamedGraph, encoded_path_state::Graphs.DijkstraState
     )
-    coded_path_state_parents = map(eachindex(coded_path_state.parents)) do i
-        pᵢ = coded_path_state.parents[i]
+    encoded_path_state_parents = map(eachindex(encoded_path_state.parents)) do i
+        pᵢ = encoded_path_state.parents[i]
         return iszero(pᵢ) ? i : pᵢ
     end
-    decode = decoded_vertex(graph)
+    decode(c) = decode_vertex(graph, c)
     return NamedDijkstraState(
-        decode_keys(graph, map(decode, coded_path_state_parents)),
-        decode_keys(graph, coded_path_state.dists),
-        map(x -> map(decode, x), coded_path_state.predecessors),
-        decode_keys(graph, coded_path_state.pathcounts),
-        map(decode, coded_path_state.closest_vertices)
+        decode_keys(graph, map(decode, encoded_path_state_parents)),
+        decode_keys(graph, encoded_path_state.dists),
+        map(x -> map(decode, x), encoded_path_state.predecessors),
+        decode_keys(graph, encoded_path_state.pathcounts),
+        map(decode, encoded_path_state.closest_vertices)
     )
 end
 
@@ -48,14 +48,14 @@ function namedgraph_dijkstra_shortest_paths(
         allpaths = false,
         trackvertices = false
     )
-    coded_path_state = dijkstra_shortest_paths(
-        coded_graph(graph),
-        map(coded_vertex(graph), srcs),
-        dist_matrix_to_coded_dist_matrix(graph, distmx);
+    encoded_path_state = dijkstra_shortest_paths(
+        encode_graph(graph),
+        map(v -> encode_vertex(graph, v), srcs),
+        encode_dist_matrix(graph, distmx);
         allpaths,
         trackvertices
     )
-    return coded_path_state_to_path_state(graph, coded_path_state)
+    return encoded_path_state_to_path_state(graph, encoded_path_state)
 end
 
 function Graphs.dijkstra_shortest_paths(

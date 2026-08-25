@@ -19,7 +19,7 @@ end
 
 ## TODO: Move to `GraphsExtensions`?
 @traitfn function set_named_vertices!(
-        decoded_vertices::AbstractVector,
+        vertex_names::AbstractVector,
         tree::AbstractSimpleGraph::IsDirected,
         simple_parent::Integer,
         named_parent;
@@ -29,10 +29,10 @@ end
     for n in 1:length(simple_children)
         simple_child = simple_children[n]
         named_child = [named_parent; child_name(n)]
-        decoded_vertices[simple_child] = named_child
-        set_named_vertices!(decoded_vertices, tree, simple_child, named_child; child_name)
+        vertex_names[simple_child] = named_child
+        set_named_vertices!(vertex_names, tree, simple_child, named_child; child_name)
     end
-    return decoded_vertices
+    return vertex_names
 end
 
 # Each vertex is named by its path from the root, as a vector of child indices.
@@ -50,19 +50,19 @@ function named_bfs_tree_vertices(
     )
     tree = bfs_tree(simple_graph, source)
     named_source = [source_name]
-    decoded_vertices = Vector{typeof(named_source)}(undef, nv(simple_graph))
-    decoded_vertices[source] = named_source
-    set_named_vertices!(decoded_vertices, tree, source, named_source; child_name)
-    return decoded_vertices
+    vertex_names = Vector{typeof(named_source)}(undef, nv(simple_graph))
+    vertex_names[source] = named_source
+    set_named_vertices!(vertex_names, tree, source, named_source; child_name)
+    return vertex_names
 end
 
 function named_bfs_tree(
         simple_graph::AbstractSimpleGraph, source::Integer = 1; source_name = 1,
         child_name = identity
     )
-    decoded_vertices =
+    vertex_names =
         named_bfs_tree_vertices(simple_graph, source; source_name, child_name)
-    return NamedGraph(simple_graph, decoded_vertices)
+    return NamedGraph(simple_graph, vertex_names)
 end
 
 function named_binary_tree(

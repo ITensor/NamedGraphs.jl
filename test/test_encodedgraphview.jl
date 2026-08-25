@@ -4,12 +4,12 @@ using Graphs: Graphs, Edge, edges, edgetype, has_edge, has_vertex, inneighbors, 
     ne, neighbors, nv, outneighbors, vertices
 using NamedGraphs.GraphsExtensions: vertextype
 using NamedGraphs.NamedGraphGenerators: NamedGridGraph
-using NamedGraphs: CodedGraphView, NamedEdge
+using NamedGraphs: EncodedGraphView, NamedEdge
 using Test: @test, @test_broken, @testset
 
-@testset "CodedGraphView" begin
+@testset "EncodedGraphView" begin
     g = NamedGridGraph((2, 3))
-    pg = CodedGraphView(g)
+    pg = EncodedGraphView(g)
     @test is_directed(typeof(pg)) == is_directed(typeof(g)) == false
     @test nv(pg) == nv(g) == 6
     @test ne(pg) == ne(g)

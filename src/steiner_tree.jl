@@ -4,10 +4,10 @@ using SimpleTraits: SimpleTraits, @traitfn, Not
 function namedgraph_steiner_tree(
         g::AbstractNamedGraph, term_vert, distmx = weights(g)
     )
-    coded_tree = steiner_tree(
-        coded_graph(g),
-        map(coded_vertex(g), term_vert),
-        dist_matrix_to_coded_dist_matrix(g, distmx)
+    encoded_tree = steiner_tree(
+        encode_graph(g),
+        map(v -> encode_vertex(g, v), term_vert),
+        encode_dist_matrix(g, distmx)
     )
 
     featured_vertices = Set{vertextype(g)}()
@@ -15,8 +15,8 @@ function namedgraph_steiner_tree(
     tree_edges = edgetype(g)[]
 
     # Get only those vertices that appear in an edge
-    for edge in edges(coded_tree)
-        tree_edge = decoded_edge(g, edge)
+    for edge in edges(encoded_tree)
+        tree_edge = decode_edge(g, edge)
         push!(tree_edges, tree_edge)
         push!(featured_vertices, src(tree_edge))
         push!(featured_vertices, dst(tree_edge))

@@ -96,11 +96,11 @@ function NamedGridGraph(grid_size::NTuple{N, Int}, ishypertorus::Bool = false) w
     return NamedGridGraph{N, ishypertorus}(grid_size)
 end
 # Minimal interface functions
-# `coded_graph` uses the generic `CodedGraphView` fallback.
-function NamedGraphs.coded_vertex(g::NamedGridGraph, vertex)
+# `encode_graph` uses the generic `EncodedGraphView` fallback.
+function NamedGraphs.encode_vertex(g::NamedGridGraph, vertex)
     return LinearIndices(grid_size(g))[CartesianIndex(vertex)]
 end
-function NamedGraphs.decoded_vertex(g::NamedGridGraph, code::Integer)
+function NamedGraphs.decode_vertex(g::NamedGridGraph, code::Integer)
     return Tuple(CartesianIndices(grid_size(g))[code])
 end
 ishypertorus(g::NamedGridGraph{<:Any, istorus}) where {istorus} = istorus

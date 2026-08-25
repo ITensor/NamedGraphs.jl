@@ -31,32 +31,32 @@ end
 getindex_dist_matrix(dist_matrix, I...) = dist_matrix[I...]
 getindex_dist_matrix(dist_matrix::AbstractDictionary, I...) = dist_matrix[I]
 
-function namedgraph_dist_matrix_to_coded_dist_matrix(
+function namedgraph_encode_dist_matrix(
         graph::AbstractNamedGraph, dist_matrix
     )
-    coded_dist_matrix = spzeros(valtype(dist_matrix), nv(graph), nv(graph))
+    encoded_dist_matrix = spzeros(valtype(dist_matrix), nv(graph), nv(graph))
     for e in edges(graph)
-        coded_e = coded_edge(graph, e)
-        coded_dist_matrix[src(coded_e), dst(coded_e)] = getindex_dist_matrix(
+        encoded_e = encode_edge(graph, e)
+        encoded_dist_matrix[src(encoded_e), dst(encoded_e)] = getindex_dist_matrix(
             dist_matrix, src(e), dst(e)
         )
     end
-    return coded_dist_matrix
+    return encoded_dist_matrix
 end
 
-@traitfn function dist_matrix_to_coded_dist_matrix(
+@traitfn function encode_dist_matrix(
         graph::AbstractNamedGraph::IsDirected, dist_matrix
     )
-    return namedgraph_dist_matrix_to_coded_dist_matrix(graph, dist_matrix)
+    return namedgraph_encode_dist_matrix(graph, dist_matrix)
 end
 
-@traitfn function dist_matrix_to_coded_dist_matrix(
+@traitfn function encode_dist_matrix(
         graph::AbstractNamedGraph::(!IsDirected), dist_matrix
     )
-    return _symmetrize(namedgraph_dist_matrix_to_coded_dist_matrix(graph, dist_matrix))
+    return _symmetrize(namedgraph_encode_dist_matrix(graph, dist_matrix))
 end
 
-function dist_matrix_to_coded_dist_matrix(
+function encode_dist_matrix(
         graph::AbstractNamedGraph, distmx::Graphs.DefaultDistance
     )
     return distmx

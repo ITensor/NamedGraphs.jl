@@ -15,7 +15,7 @@ end
 
 Base.length(vs::VerticesView) = nv(vs.graph)
 function Dictionaries.iterate(vs::VerticesView, state...)
-    vertices = Iterators.map(decoded_vertex(vs.graph), Base.OneTo(nv(vs.graph)))
+    vertices = Iterators.map(c -> decode_vertex(vs.graph, c), Base.OneTo(nv(vs.graph)))
     return iterate(vertices, state...)
 end
 Base.in(vertex::V, vs::VerticesView{V}) where {V} = has_vertex(vs.graph, vertex)
@@ -31,15 +31,15 @@ function Dictionaries.iteratetoken_reverse(vs::VerticesView, state...)
 end
 function Dictionaries.gettoken(vs::VerticesView, vertex)
     has_vertex(vs.graph, vertex) || return (false, 0)
-    return (true, coded_vertex(vs.graph, vertex))
+    return (true, encode_vertex(vs.graph, vertex))
 end
-Dictionaries.gettokenvalue(vs::VerticesView, token) = decoded_vertex(vs.graph, token)
+Dictionaries.gettokenvalue(vs::VerticesView, token) = decode_vertex(vs.graph, token)
 
 # Snapshot the vertices so the output does not alias the (mutable) graph.
 Base.map(f, vs::VerticesView) = map(f, Indices(collect(vs)))
 
 # Read-only view of the edges of a graph as a set (an `AbstractIndices`),
-# iterating through the edges of `coded_graph(graph)` and testing membership
+# iterating through the edges of `encode_graph(graph)` and testing membership
 # through `has_edge`. Output of `edges(graph::AbstractNamedGraph)`.
 struct EdgesView{V, E <: AbstractEdge{V}, G <: AbstractGraph{V}} <: AbstractIndices{E}
     graph::G
@@ -51,7 +51,7 @@ end
 Base.length(es::EdgesView) = ne(es.graph)
 function Dictionaries.iterate(es::EdgesView, state...)
     graph_edges = Iterators.map(
-        coded_edge -> decoded_edge(es.graph, coded_edge), edges(coded_graph(es.graph))
+        ce -> decode_edge(es.graph, ce), edges(encode_graph(es.graph))
     )
     return iterate(graph_edges, state...)
 end
@@ -61,13 +61,13 @@ Base.in(edge::E, es::EdgesView{<:Any, E}) where {E} = has_edge(es.graph, edge)
 Dictionaries.istokenizable(es::EdgesView) = true
 Dictionaries.tokentype(es::EdgesView) = Edge{Int}
 function Dictionaries.iteratetoken(es::EdgesView, state...)
-    return iterate(edges(coded_graph(es.graph)), state...)
+    return iterate(edges(encode_graph(es.graph)), state...)
 end
 function Dictionaries.gettoken(es::EdgesView, edge)
     has_edge(es.graph, edge) || return (false, Edge(0, 0))
-    return (true, coded_edge(es.graph, edge))
+    return (true, encode_edge(es.graph, edge))
 end
-Dictionaries.gettokenvalue(es::EdgesView, token) = decoded_edge(es.graph, token)
+Dictionaries.gettokenvalue(es::EdgesView, token) = decode_edge(es.graph, token)
 
 # Snapshot the edges so the output does not alias the (mutable) graph.
 Base.map(f, es::EdgesView) = map(f, Indices(collect(es)))
