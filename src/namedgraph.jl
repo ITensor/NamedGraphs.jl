@@ -6,26 +6,26 @@ using Graphs: Graphs, AbstractGraph, add_edge!, add_vertex!, edgetype, has_edge,
     is_directed, outneighbors, rem_vertex!, vertices
 
 struct GenericNamedGraph{V, G <: AbstractSimpleGraph{Int}} <: AbstractNamedGraph{V}
-    encode_graph::G
+    encoded_graph::G
     code_to_vertex::Vector{V}
     vertex_to_code::Dictionary{V, Int}
     function GenericNamedGraph{V, G}(graph, vertices) where {V, G}
-        encode_graph = G(graph)
-        code_to_vertex = collect(V, to_vertices(encode_graph, vertices))
-        @assert length(code_to_vertex) == nv(encode_graph)
+        encoded_graph = G(graph)
+        code_to_vertex = collect(V, to_vertices(encoded_graph, vertices))
+        @assert length(code_to_vertex) == nv(encoded_graph)
         # `copy` since the `Dictionary` takes ownership of the key vector, which
         # would otherwise alias the `code_to_vertex` field.
         vertex_to_code =
             Dictionary{V, Int}(copy(code_to_vertex), eachindex(code_to_vertex))
-        return new{V, G}(encode_graph, code_to_vertex, vertex_to_code)
+        return new{V, G}(encoded_graph, code_to_vertex, vertex_to_code)
     end
 end
 
 # AbstractNamedGraph required interface.
 function encode_graph_type(graph_type::Type{<:GenericNamedGraph})
-    return fieldtype(graph_type, :encode_graph)
+    return fieldtype(graph_type, :encoded_graph)
 end
-encode_graph(graph::GenericNamedGraph) = graph.encode_graph
+encode_graph(graph::GenericNamedGraph) = graph.encoded_graph
 encode_vertex(graph::GenericNamedGraph, vertex) = graph.vertex_to_code[vertex]
 decode_vertex(graph::GenericNamedGraph, code::Integer) = graph.code_to_vertex[code]
 code_to_vertex(graph::GenericNamedGraph) = graph.code_to_vertex
