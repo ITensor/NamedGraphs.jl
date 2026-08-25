@@ -5,8 +5,10 @@ using Graphs: AbstractEdge, AbstractEdgeIter, AbstractGraph, Edge, edges, edgety
 
 # Read-only view of the vertices of a graph as a set (an `AbstractIndices`),
 # iterating in code order and testing membership through `has_vertex`.
-# Default output of `vertices(graph::AbstractNamedGraph)`; concrete graph
-# types with a stored vertex set can return that directly instead.
+# Default output of `vertices(graph::AbstractNamedGraph)`. Mutable graph types
+# with a stored vertex set should return that directly instead so that
+# iteration follows insertion order, as `GenericNamedGraph` does (for immutable
+# graph types like `NamedGridGraph`, code order and insertion order coincide).
 # Assumes `has_vertex` is implemented for the wrapped graph (rather than
 # falling back to a membership test on `vertices`, which would recurse).
 struct NamedVerticesView{V, G <: AbstractGraph{V}} <: AbstractIndices{V}

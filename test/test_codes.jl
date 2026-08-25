@@ -43,6 +43,14 @@ using Test: @test, @testset
         add_edge!(g, "a" => "e")
         @test has_edge(g, NamedEdge("a" => "e"))
     end
+    @testset "Vertex iteration order is insertion order" begin
+        g = NamedGraph(path_graph(4), ["v1", "v2", "v3", "v4"])
+        rem_vertex!(g, "v2")
+        @test collect(vertices(g)) == ["v1", "v3", "v4"]
+        @test [decode_vertex(g, c) for c in 1:nv(g)] == ["v1", "v4", "v3"]
+        add_vertex!(g, "v5")
+        @test collect(vertices(g)) == ["v1", "v3", "v4", "v5"]
+    end
     @testset "vertices output" begin
         g = NamedGraph(path_graph(3), ["a", "b", "c"])
         vs = vertices(g)

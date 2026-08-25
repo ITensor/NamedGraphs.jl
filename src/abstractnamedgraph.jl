@@ -66,9 +66,14 @@ encoded_graph(graph::AbstractSimpleGraph) = graph
     vertices(graph::AbstractNamedGraph) -> AbstractIndices
 
 The set of vertices of `graph`: an `AbstractIndices` containing each vertex
-exactly once, with fast membership testing. The iteration order is
-unspecified; code that needs the vertices in code order should say so
-explicitly, for example `map(c -> decode_vertex(graph, c), 1:nv(graph))`.
+exactly once, with fast membership testing.
+
+The vertices iterate in insertion order: they appear in the order they were
+added to the graph, removing a vertex does not reorder the rest, and added
+vertices appear at the end. The iteration order therefore does not in general
+match the vertex codes after removals, since codes are reassigned. Use
+`decode_vertex` for the vertices in code order, for example
+`map(c -> decode_vertex(graph, c), 1:nv(graph))`.
 
 The output is a live read-only view of the graph: do not mutate it directly,
 and do not rely on it (or containers sharing its state) across mutations of
