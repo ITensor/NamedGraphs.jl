@@ -30,10 +30,12 @@ The `OrdinalIndexing` submodule is removed, so `vertices(g)[4th]` becomes
 
 ## Output of `vertices`
 
-`vertices(g)` outputs a `Dictionaries.Indices` instead of the internal
-`OrderedIndices` type, which is removed along with the `OrderedDictionaries`
-submodule. It is a live read-only view of the graph with fast membership
-testing, and `map` over it outputs a `Dictionary` keyed by the vertices.
+`vertices(g::NamedGraph)` (and `NamedDiGraph`) outputs a
+`Dictionaries.Indices` instead of the internal `OrderedIndices` type, which is
+removed along with the `OrderedDictionaries` submodule. Other
+`AbstractNamedGraph` types can output other `AbstractIndices` set views. The
+output is a live read-only view of the graph with fast membership testing,
+and `map` over it outputs a `Dictionary` keyed by the vertices.
 
 The vertices iterate in insertion order, which is stable under removals. For
 example, removing `"v2"` from a graph with vertices `["v1", "v2", "v3", "v4"]`

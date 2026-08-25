@@ -45,5 +45,5 @@ function arrange_edge(g::AbstractGraph, e::AbstractEdge)
     return is_edge_arranged(g, e) ? e : reverse(e)
 end
 function arranged_edges(g::AbstractGraph)
-    return map(e -> arrange_edge(g, e), edges(g))
+    return Iterators.map(e -> arrange_edge(g, e), edges(g))
 end

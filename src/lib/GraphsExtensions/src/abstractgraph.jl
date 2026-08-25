@@ -156,8 +156,7 @@ end
 end
 
 @traitfn function all_edges(g::::(!IsDirected))
-    e = edges(g)
-    return Iterators.flatten(zip(e, reverse.(e)))
+    return Iterators.flatten(Iterators.map(e -> (e, reverse(e)), edges(g)))
 end
 
 # Alternative syntax to `getindex` for getting a subgraph
