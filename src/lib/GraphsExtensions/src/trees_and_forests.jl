@@ -50,7 +50,7 @@ function forest_cover(g::AbstractGraph; spanning_tree = spanning_tree)
     g = similar_dataless_graph(g)
     g_reduced = g
 
-    remaining_edges = edges(g)
+    remaining_edges = collect(edges(g))
     edges_collected = empty(remaining_edges)
 
     forests = typeof(g)[]

@@ -4,12 +4,12 @@ using Graphs: Graphs, Edge, edges, edgetype, has_edge, has_vertex, inneighbors, 
     ne, neighbors, nv, outneighbors, vertices
 using NamedGraphs.GraphsExtensions: vertextype
 using NamedGraphs.NamedGraphGenerators: NamedGridGraph
-using NamedGraphs: NamedEdge, PositionGraphView, ordered_vertices, vertex_positions
+using NamedGraphs: EncodedGraphView, NamedEdge
 using Test: @test, @test_broken, @testset
 
-@testset "PositionGraphView" begin
+@testset "EncodedGraphView" begin
     g = NamedGridGraph((2, 3))
-    pg = PositionGraphView(g)
+    pg = EncodedGraphView(g)
     @test is_directed(typeof(pg)) == is_directed(typeof(g)) == false
     @test nv(pg) == nv(g) == 6
     @test ne(pg) == ne(g)

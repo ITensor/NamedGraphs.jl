@@ -26,8 +26,8 @@ end
 
 @testset "Test Forest Cover $g_string" for (g_string, g) in gs
     cover = forest_cover(g)
-    cover_edges = reduce(vcat, edges.(cover))
-    @test issetequal(cover_edges, edges(g))
+    cover_edges = mapreduce(forest -> collect(all_edges(forest)), vcat, cover)
+    @test issetequal(cover_edges, all_edges(g))
     @test all(issetequal(vertices(forest), vertices(g)) for forest in cover)
     for forest in cover
         trees = NamedGraph[forest[Vertices(vs)] for vs in connected_components(forest)]

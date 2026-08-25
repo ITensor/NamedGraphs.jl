@@ -1,5 +1,4 @@
 using ..NamedGraphs.GraphsExtensions: GraphsExtensions, rem_vertices!, subgraph
-using ..NamedGraphs.OrderedDictionaries: OrderedIndices
 using ..NamedGraphs: AbstractNamedGraph, AbstractVertices, Edges, NamedGraphs, Vertices,
     parent_graph_indices, to_graph_index, to_vertices
 using Graphs: Graphs, AbstractGraph, induced_subgraph, nv
@@ -51,7 +50,10 @@ QuotientVertices(g::AbstractGraph) = QuotientVertices(keys(partitioned_vertices(
 NamedGraphs.parent_graph_indices(qvs::QuotientVertices) = qvs.vertices
 
 function Base.iterate(qvs::QuotientVertices, state...)
-    return iterate(Iterators.map(QuotientVertex, qvs.vertices), state...)
+    next = iterate(qvs.vertices, state...)
+    isnothing(next) && return nothing
+    element, new_state = next
+    return QuotientVertex(element), new_state
 end
 
 Base.getindex(qvs::QuotientVertices, i::Int) = QuotientVertex(qvs.vertices[i])

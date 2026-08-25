@@ -2,9 +2,9 @@ using Graphs: grid, has_edge, has_vertex, ne, nv
 using NamedGraphs.GraphsExtensions: subgraph, ⊔
 using NamedGraphs: NamedGraph
 
-position_graph = grid((4,))
+simple_graph = grid((4,))
 vs = ["A", "B", "C", "D"]
-g = NamedGraph(position_graph, vs)
+g = NamedGraph(simple_graph, vs)
 
 @show has_vertex(g, "A")
 @show !has_vertex(g, "E")

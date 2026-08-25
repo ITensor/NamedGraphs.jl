@@ -1,6 +1,5 @@
 using ..NamedGraphs.GraphsExtensions: GraphsExtensions, boundary_edges, directed_graph_type,
     is_self_loop, partition_vertices, undirected_graph_type, vertextype
-using ..NamedGraphs.OrderedDictionaries: OrderedDictionary
 using ..NamedGraphs: NamedEdge, NamedGraph, NamedGraphs
 using Dictionaries: Dictionary
 using Graphs: AbstractEdge, AbstractGraph, add_edge!, dst, edges, edgetype, has_edge,

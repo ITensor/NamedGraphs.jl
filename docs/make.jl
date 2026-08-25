@@ -15,7 +15,11 @@ makedocs(;
         edit_link = "main",
         assets = ["assets/favicon.ico", "assets/extras.css"]
     ),
-    pages = ["Home" => "index.md", "Reference" => "reference.md"]
+    pages = [
+        "Home" => "index.md",
+        "Upgrading from v0.13 to v0.14" => "upgrading.md",
+        "Reference" => "reference.md",
+    ]
 )
 
 deploydocs(;

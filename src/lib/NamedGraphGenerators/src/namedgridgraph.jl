@@ -1,6 +1,4 @@
-using ..NamedGraphs:
-    AbstractNamedEdge, AbstractNamedGraph, NamedEdge, NamedGraphs, PositionGraphView
-using Dictionaries: Dictionary
+using ..NamedGraphs: AbstractNamedEdge, AbstractNamedGraph, NamedEdge, NamedGraphs
 using Graphs: Graphs, AbstractEdge, AbstractEdgeIter, dst, edgetype, has_edge, has_vertex,
     ne, neighbors, src, vertices
 
@@ -43,7 +41,6 @@ Base.show(io::IO, eiter::NamedGridEdgeIter) = show(io, collect(eiter))
 grid_length(g) = prod(grid_size(g))
 grid_ndims(g) = length(grid_size(g))
 nv_grid(g) = grid_length(g)
-vertices_grid(g) = Tuple.(CartesianIndices(grid_size(g)))
 has_vertex_grid(g, v) = CartesianIndex(v) in CartesianIndices(grid_size(g))
 add_vertex_grid!(g, v) = error("Can't add vertices to immutable graph.")
 rem_vertex_grid!(g, v) = error("Can't remove vertices to immutable graph.")
@@ -99,11 +96,13 @@ function NamedGridGraph(grid_size::NTuple{N, Int}, ishypertorus::Bool = false) w
     return NamedGridGraph{N, ishypertorus}(grid_size)
 end
 # Minimal interface functions
-NamedGraphs.position_graph(g::NamedGridGraph) = PositionGraphView(g)
-function NamedGraphs.vertex_positions(g::NamedGridGraph)
-    return Dictionary(Tuple.(CartesianIndices(grid_size(g))), 1:nv(g))
+# `encoded_graph` uses the generic `EncodedGraphView` fallback.
+function NamedGraphs.encode_vertex(g::NamedGridGraph, vertex)
+    return LinearIndices(grid_size(g))[CartesianIndex(vertex)]
 end
-NamedGraphs.ordered_vertices(g::NamedGridGraph) = vertices(g)
+function NamedGraphs.decode_vertex(g::NamedGridGraph, code::Integer)
+    return Tuple(CartesianIndices(grid_size(g))[code])
+end
 ishypertorus(g::NamedGridGraph{<:Any, istorus}) where {istorus} = istorus
 grid_size(g::NamedGridGraph) = g.grid_size
 grid_ndims(::Type{<:NamedGridGraph{N}}) where {N} = N
@@ -114,7 +113,6 @@ Graphs.edgetype(G::Type{<:NamedGridGraph}) = edgetype_grid(G)
 Graphs.edgetype(g::NamedGridGraph) = edgetype_grid(g)
 Graphs.nv(g::NamedGridGraph) = nv_grid(g)
 Graphs.ne(g::NamedGridGraph) = ne_grid(g)
-Graphs.vertices(g::NamedGridGraph) = vertices_grid(g)
 Graphs.has_vertex(g::NamedGridGraph, v) = has_vertex_grid(g, v)
 Graphs.add_vertex!(g::NamedGridGraph, v) = add_vertex_grid!(g, v)
 Graphs.rem_vertex!(g::NamedGridGraph, v) = rem_vertex_grid!(g, v)
