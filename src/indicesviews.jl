@@ -1,6 +1,7 @@
 using .GraphsExtensions: vertextype
 using Dictionaries: Dictionaries, AbstractDictionary, AbstractIndices, Indices
-using Graphs: AbstractGraph, Edge, edges, edgetype, has_edge, has_vertex, ne, nv
+using Graphs:
+    AbstractEdge, AbstractGraph, Edge, edges, edgetype, has_edge, has_vertex, ne, nv
 
 # Read-only view of the vertices of a graph as a set (an `AbstractIndices`),
 # iterating in code order and testing membership through `has_vertex`.
@@ -40,7 +41,7 @@ Base.map(f, vs::VerticesView) = map(f, Indices(collect(vs)))
 # Read-only view of the edges of a graph as a set (an `AbstractIndices`),
 # iterating through the edges of `coded_graph(graph)` and testing membership
 # through `has_edge`. Output of `edges(graph::AbstractNamedGraph)`.
-struct EdgesView{V, E, G <: AbstractGraph{V}} <: AbstractIndices{E}
+struct EdgesView{V, E <: AbstractEdge{V}, G <: AbstractGraph{V}} <: AbstractIndices{E}
     graph::G
 end
 function EdgesView(graph::AbstractGraph)
