@@ -9,7 +9,7 @@ using Graphs: Edge, a_star, add_edge!, add_vertex!, adjacency_matrix,
     has_path, has_self_loops, has_vertex, indegree, is_connected, is_cyclic, is_directed,
     is_ordered, johnson_shortest_paths, kruskal_mst, merge_vertices, ne, neighborhood,
     neighborhood_dists, neighbors, nv, outdegree, path_digraph, path_graph, periphery,
-    prim_mst, radius, rem_vertex!, spfa_shortest_paths, src, steiner_tree,
+    prim_mst, radius, rem_edge!, rem_vertex!, spfa_shortest_paths, src, steiner_tree,
     topological_sort_by_dfs, vertices, yen_k_shortest_paths, Δ, δ
 using GraphsFlows: GraphsFlows
 using NamedGraphs.GraphsExtensions: GraphsExtensions, boundary_edges, boundary_vertices,
@@ -76,7 +76,9 @@ end
         @test has_vertices(g, ["A", "B", "C", "D", "E"])
 
         g = NamedGraph(grid((5,)), ["A", "B", "C", "D", "E"])
-        rem_vertex!(g, "E")
+        @test isconcretetype(typeof(g))
+        @test rem_vertex!(g, "E") === true
+        @test rem_vertex!(g, "E") === false
         @test !has_vertex(g, "E")
 
         g = NamedGraph(grid((4,)), ["A", "B", "C", "D"])
@@ -104,7 +106,10 @@ end
         show(io, "text/plain", g)
         @test String(take!(io)) isa String
 
-        add_edge!(g, "A" => "C")
+        @test add_edge!(g, "A" => "C") === true
+        @test add_edge!(g, "A" => "C") === false
+        @test add_edge!(g, "A" => "X") === false
+        @test rem_edge!(g, "A" => "X") === false
 
         @test has_edge(g, "A" => "C")
         @test issetequal(neighbors(g, "A"), ["B", "C"])
@@ -297,6 +302,13 @@ end
 
         p = bfs_parents(g, (1, 1))
         @test length(p) == 9
+        # Unreachable vertices are their own parents.
+        g_disconnected = NamedGraph(grid((4,)), ["A", "B", "C", "D"])
+        rem_vertex!(g_disconnected, "B")
+        p_disconnected = bfs_parents(g_disconnected, "A")
+        @test p_disconnected["A"] == "A"
+        @test p_disconnected["C"] == "C"
+        @test p_disconnected["D"] == "D"
         vertices_g =
             [(1, 1), (2, 1), (3, 1), (1, 2), (2, 2), (3, 2), (1, 3), (2, 3), (3, 3)]
         parent_vertices = [
@@ -335,6 +347,11 @@ end
             @test has_edge(t, e)
         end
 
+        g_disconnected = NamedGraph(grid((4,)), ["A", "B", "C", "D"])
+        rem_vertex!(g_disconnected, "B")
+        p_disconnected = dfs_parents(g_disconnected, "A")
+        @test p_disconnected["C"] == "C"
+        @test p_disconnected["D"] == "D"
         p = dfs_parents(g, (1, 1))
         @test length(p) == 9
         vertices_g =

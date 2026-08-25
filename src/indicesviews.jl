@@ -7,7 +7,7 @@ using Graphs: AbstractEdge, AbstractEdgeIter, AbstractGraph, Edge, edges, edgety
 # iterating in code order and testing membership through `has_vertex`.
 # Default output of `vertices(graph::AbstractNamedGraph)`. Mutable graph types
 # with a stored vertex set should return that directly instead so that
-# iteration follows insertion order, as `GenericNamedGraph` does (for immutable
+# iteration follows insertion order, as `NamedGraph` and `NamedDiGraph` do (for immutable
 # graph types like `NamedGridGraph`, code order and insertion order coincide).
 # Assumes `has_vertex` is implemented for the wrapped graph (rather than
 # falling back to a membership test on `vertices`, which would recurse).

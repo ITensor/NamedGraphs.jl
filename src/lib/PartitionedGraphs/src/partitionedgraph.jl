@@ -114,6 +114,7 @@ function delete_from_vertex_map!(
 end
 
 function Graphs.rem_vertex!(pg::PartitionedGraph{V}, vertex::V) where {V}
+    has_vertex(pg, vertex) || return false
     qv = parent(quotientvertex(pg, vertex))
 
     delete_from_vertex_map!(pg, qv, vertex)
@@ -123,30 +124,30 @@ function Graphs.rem_vertex!(pg::PartitionedGraph{V}, vertex::V) where {V}
     # If the super-vertex is now empty, remove it from the quotient graph
     qv ∈ keys(pg.partitioned_vertices) || rem_vertex!(pg.quotient_graph, qv)
 
-    return pg
+    return true
 end
 
 # Interface function
 function add_subquotientvertex!(pg::PartitionedGraph{V}, qv, vertex) where {V}
-    add_vertex!(pg.graph, vertex)
+    add_vertex!(pg.graph, vertex) || return false
     add_vertex!(pg.quotient_graph, qv)
     insert_to_vertex_map!(pg, vertex, qv)
-    return pg
+    return true
 end
 
 function Graphs.add_edge!(pg::PartitionedGraph, edge::AbstractEdge)
     @assert edge isa edgetype(pg)
-    add_edge!(pg.graph, edge)
+    add_edge!(pg.graph, edge) || return false
     pg_edge = parent(quotientedge(pg, edge))
     if src(pg_edge) != dst(pg_edge)
         add_edge!(pg.quotient_graph, pg_edge)
     end
-    return pg
+    return true
 end
 
 function Graphs.rem_edge!(pg::PartitionedGraph, edge::AbstractEdge)
     @assert edge isa edgetype(pg)
-    # This already checks if the edge is in pg
+    has_edge(pg, edge) || return false
     se = quotientedge(pg, edge)
     if se in quotientedges(pg) || reverse(se) in quotientedges(pg)
         g_edges = edges(pg, se)

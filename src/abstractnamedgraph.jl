@@ -389,14 +389,18 @@ function Graphs.prim_mst(g::AbstractNamedGraph, distmx::AbstractMatrix{<:Real} =
 end
 
 function Graphs.add_edge!(graph::AbstractNamedGraph, edge)
-    add_edge!(encoded_graph(graph), encode_edge(graph, edgetype(graph)(edge)))
-    return graph
+    e = edgetype(graph)(edge)
+    has_vertex(graph, src(e)) || return false
+    has_vertex(graph, dst(e)) || return false
+    return add_edge!(encoded_graph(graph), encode_edge(graph, e))
 end
 Graphs.add_edge!(g::AbstractNamedGraph, src, dst) = add_edge!(g, edgetype(g)(src, dst))
 
 function Graphs.rem_edge!(graph::AbstractNamedGraph, edge)
-    rem_edge!(encoded_graph(graph), encode_edge(graph, edgetype(graph)(edge)))
-    return graph
+    e = edgetype(graph)(edge)
+    has_vertex(graph, src(e)) || return false
+    has_vertex(graph, dst(e)) || return false
+    return rem_edge!(encoded_graph(graph), encode_edge(graph, e))
 end
 
 function Graphs.has_edge(graph::AbstractNamedGraph, edge::AbstractNamedEdge)
@@ -473,17 +477,6 @@ end
     return g
 end
 
-# TODO: Move to `namedgraph.jl`, or make the output generic?
-function Graphs.blockdiag(graph1::AbstractNamedGraph, graph2::AbstractNamedGraph)
-    new_encoded_graph = blockdiag(encoded_graph(graph1), encoded_graph(graph2))
-    new_vertices = vcat(
-        map(c -> decode_vertex(graph1, c), vertices(encoded_graph(graph1))),
-        map(c -> decode_vertex(graph2, c), vertices(encoded_graph(graph2)))
-    )
-    @assert allunique(new_vertices)
-    return GenericNamedGraph(new_encoded_graph, new_vertices)
-end
-
 Graphs.nv(graph::AbstractNamedGraph) = nv(encoded_graph(graph))
 Graphs.ne(graph::AbstractNamedGraph) = ne(encoded_graph(graph))
 function Graphs.adjacency_matrix(graph::AbstractNamedGraph)
@@ -553,10 +546,13 @@ function namedgraph_bfs_parents(graph::AbstractNamedGraph, vertex; kwargs...)
         encoded_graph(graph), encode_vertex(graph, vertex); kwargs...
     )
     graph_vertices = map(c -> decode_vertex(graph, c), vertices(encoded_graph(graph)))
-    return Dictionary(
-        graph_vertices,
-        map(c -> decode_vertex(graph, c), encoded_bfs_parents)
-    )
+    # Unreachable vertices have parent code 0; map them to themselves like
+    # `dijkstra_shortest_paths` does.
+    parents = map(eachindex(encoded_bfs_parents)) do c
+        p = encoded_bfs_parents[c]
+        return decode_vertex(graph, iszero(p) ? c : p)
+    end
+    return Dictionary(graph_vertices, parents)
 end
 # Disambiguation from Graphs.jl
 function Graphs.bfs_parents(graph::AbstractNamedGraph, vertex::Integer; kwargs...)

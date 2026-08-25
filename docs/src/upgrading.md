@@ -52,3 +52,25 @@ through `decode_vertex`.
 `has_edge`, and `==` between two edge iterators compares the edge sets. Code
 that indexed into the output or compared it against a `Vector` should
 `collect` it first.
+
+## Concrete `NamedGraph` and `NamedDiGraph` types
+
+`GenericNamedGraph{V, G}` is removed. `NamedGraph{V}` and `NamedDiGraph{V}`
+are now separately defined concrete types, hardcoded to `SimpleGraph{Int}` and
+`SimpleDiGraph{Int}` underlying storage. In practice those were the only
+instantiations, and the extra type parameter leaked into type signatures and
+printing. Graph types not backed by a stored integer graph implement the
+`encode_vertex`/`decode_vertex` interface directly instead.
+
+## Mutation functions return `Bool`
+
+`rem_vertex!`, `add_edge!`, and `rem_edge!` return `true` or `false` following
+Graphs.jl, matching `add_vertex!`. Previously they returned the graph on
+success, and `add_edge!`/`rem_edge!` threw for edges with vertices not in the
+graph, which now returns `false`.
+
+## Unreachable vertices in `bfs_parents` and `dfs_parents`
+
+`bfs_parents(g, v)` and `dfs_parents(g, v)` map vertices unreachable from `v`
+to themselves, like `dijkstra_shortest_paths` does. Previously they errored on
+graphs with unreachable vertices.
