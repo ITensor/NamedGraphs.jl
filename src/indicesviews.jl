@@ -9,34 +9,34 @@ using Graphs: AbstractEdge, AbstractEdgeIter, AbstractGraph, Edge, edges, edgety
 # types with a stored vertex set can return that directly instead.
 # Assumes `has_vertex` is implemented for the wrapped graph (rather than
 # falling back to a membership test on `vertices`, which would recurse).
-struct VerticesView{V, G <: AbstractGraph{V}} <: AbstractIndices{V}
+struct NamedVerticesView{V, G <: AbstractGraph{V}} <: AbstractIndices{V}
     graph::G
 end
 
-Base.length(vs::VerticesView) = nv(vs.graph)
-function Dictionaries.iterate(vs::VerticesView, state...)
+Base.length(vs::NamedVerticesView) = nv(vs.graph)
+function Dictionaries.iterate(vs::NamedVerticesView, state...)
     vertices = Iterators.map(c -> decode_vertex(vs.graph, c), Base.OneTo(nv(vs.graph)))
     return iterate(vertices, state...)
 end
-Base.in(vertex::V, vs::VerticesView{V}) where {V} = has_vertex(vs.graph, vertex)
+Base.in(vertex::V, vs::NamedVerticesView{V}) where {V} = has_vertex(vs.graph, vertex)
 
 # Token interface, with vertex codes as the tokens.
-Dictionaries.istokenizable(vs::VerticesView) = true
-Dictionaries.tokentype(vs::VerticesView) = Int
-function Dictionaries.iteratetoken(vs::VerticesView, state...)
+Dictionaries.istokenizable(vs::NamedVerticesView) = true
+Dictionaries.tokentype(vs::NamedVerticesView) = Int
+function Dictionaries.iteratetoken(vs::NamedVerticesView, state...)
     return iterate(Base.OneTo(nv(vs.graph)), state...)
 end
-function Dictionaries.iteratetoken_reverse(vs::VerticesView, state...)
+function Dictionaries.iteratetoken_reverse(vs::NamedVerticesView, state...)
     return iterate(reverse(Base.OneTo(nv(vs.graph))), state...)
 end
-function Dictionaries.gettoken(vs::VerticesView, vertex)
+function Dictionaries.gettoken(vs::NamedVerticesView, vertex)
     has_vertex(vs.graph, vertex) || return (false, 0)
     return (true, encode_vertex(vs.graph, vertex))
 end
-Dictionaries.gettokenvalue(vs::VerticesView, token) = decode_vertex(vs.graph, token)
+Dictionaries.gettokenvalue(vs::NamedVerticesView, token) = decode_vertex(vs.graph, token)
 
 # Snapshot the vertices so the output does not alias the (mutable) graph.
-Base.map(f, vs::VerticesView) = map(f, Indices(collect(vs)))
+Base.map(f, vs::NamedVerticesView) = map(f, Indices(collect(vs)))
 
 # Lazy iterator over the edges of a named graph, in the style of
 # `Graphs.SimpleGraphs.SimpleEdgeIter`: iterates by decoding the edges of

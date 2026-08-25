@@ -74,7 +74,7 @@ The output is a live read-only view of the graph: do not mutate it directly,
 and do not rely on it (or containers sharing its state) across mutations of
 the graph.
 """
-Graphs.vertices(graph::AbstractNamedGraph) = VerticesView(graph)
+Graphs.vertices(graph::AbstractNamedGraph) = NamedVerticesView(graph)
 
 # TODO: Is this a good definition? Maybe make it generic to any graph?
 function GraphsExtensions.permute_vertices(graph::AbstractNamedGraph, permutation)
