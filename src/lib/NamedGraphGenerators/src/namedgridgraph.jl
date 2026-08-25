@@ -96,7 +96,7 @@ function NamedGridGraph(grid_size::NTuple{N, Int}, ishypertorus::Bool = false) w
     return NamedGridGraph{N, ishypertorus}(grid_size)
 end
 # Minimal interface functions
-# `encode_graph` uses the generic `EncodedGraphView` fallback.
+# `encoded_graph` uses the generic `EncodedGraphView` fallback.
 function NamedGraphs.encode_vertex(g::NamedGridGraph, vertex)
     return LinearIndices(grid_size(g))[CartesianIndex(vertex)]
 end

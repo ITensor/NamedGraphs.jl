@@ -33,7 +33,7 @@ function encoded_path_state_to_path_state(
     end
     decode(c) = decode_vertex(graph, c)
     # Keys in code order, to align with the code-indexed path state.
-    graph_vertices = map(decode, vertices(encode_graph(graph)))
+    graph_vertices = map(decode, vertices(encoded_graph(graph)))
     return NamedDijkstraState(
         Dictionary(graph_vertices, map(decode, encoded_path_state_parents)),
         Dictionary(graph_vertices, encoded_path_state.dists),
@@ -51,7 +51,7 @@ function namedgraph_dijkstra_shortest_paths(
         trackvertices = false
     )
     encoded_path_state = dijkstra_shortest_paths(
-        encode_graph(graph),
+        encoded_graph(graph),
         map(v -> encode_vertex(graph, v), srcs),
         encode_dist_matrix(graph, distmx);
         allpaths,

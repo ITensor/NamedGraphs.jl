@@ -40,7 +40,7 @@ Base.map(f, vs::VerticesView) = map(f, Indices(collect(vs)))
 
 # Lazy iterator over the edges of a named graph, in the style of
 # `Graphs.SimpleGraphs.SimpleEdgeIter`: iterates by decoding the edges of
-# `encode_graph(graph)` and tests membership through `has_edge`.
+# `encoded_graph(graph)` and tests membership through `has_edge`.
 # Output of `edges(graph::AbstractNamedGraph)`.
 struct NamedEdgeIter{V, E <: AbstractEdge{V}, G <: AbstractGraph{V}} <: AbstractEdgeIter
     graph::G
@@ -53,7 +53,7 @@ Base.eltype(::Type{<:NamedEdgeIter{<:Any, E}}) where {E} = E
 Base.length(es::NamedEdgeIter) = ne(es.graph)
 function Base.iterate(es::NamedEdgeIter, state...)
     graph_edges = Iterators.map(
-        ce -> decode_edge(es.graph, ce), edges(encode_graph(es.graph))
+        ce -> decode_edge(es.graph, ce), edges(encoded_graph(es.graph))
     )
     return iterate(graph_edges, state...)
 end

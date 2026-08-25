@@ -19,7 +19,7 @@ abstract type AbstractNamedGraph{V} <: AbstractGraph{V} end
     encode_vertex(graph::AbstractNamedGraph, vertex) -> Int
 
 The code of `vertex` in `graph`, i.e. the corresponding vertex of
-[`encode_graph(graph)`](@ref encode_graph). `encode_vertex(graph, ·)` and
+[`encoded_graph(graph)`](@ref encoded_graph). `encode_vertex(graph, ·)` and
 [`decode_vertex(graph, ·)`](@ref decode_vertex) are inverse bijections between
 `vertices(graph)` and `Base.OneTo(nv(graph))`.
 
@@ -33,7 +33,7 @@ encode_vertex(graph::AbstractSimpleGraph, vertex) = vertex
     decode_vertex(graph::AbstractNamedGraph, code::Integer)
 
 The vertex of `graph` whose code is `code`, i.e. the vertex corresponding to the
-vertex `code` of [`encode_graph(graph)`](@ref encode_graph). Inverse of
+vertex `code` of [`encoded_graph(graph)`](@ref encoded_graph). Inverse of
 [`encode_vertex`](@ref).
 """
 decode_vertex(graph::AbstractNamedGraph, code::Integer) = not_implemented()
@@ -49,7 +49,7 @@ GraphsExtensions.rename_vertices(f::Function, g::AbstractNamedGraph) = not_imple
 #
 
 """
-    encode_graph(graph::AbstractNamedGraph) -> AbstractGraph{Int}
+    encoded_graph(graph::AbstractNamedGraph) -> AbstractGraph{Int}
 
 The graph in coded form: a graph with the same topology as `graph` whose
 vertices are the codes `1:nv(graph)` of the vertices of `graph`, i.e. it has
@@ -59,8 +59,8 @@ the edge `encode_vertex(graph, u) => encode_vertex(graph, v)` if and only if
 May be a stored field or a view of `graph`; mutate the graph only through
 `graph`.
 """
-encode_graph(graph::AbstractNamedGraph) = EncodedGraphView(graph)
-encode_graph(graph::AbstractSimpleGraph) = graph
+encoded_graph(graph::AbstractNamedGraph) = EncodedGraphView(graph)
+encoded_graph(graph::AbstractSimpleGraph) = graph
 
 """
     vertices(graph::AbstractNamedGraph) -> AbstractIndices
@@ -84,7 +84,7 @@ end
 Graphs.edgetype(graph::AbstractNamedGraph) = edgetype(typeof(graph))
 Graphs.edgetype(::Type{<:AbstractNamedGraph}) = not_implemented()
 
-# In terms of `encode_graph_type`
+# In terms of `encoded_graph_type`
 # is_directed(::Type{<:AbstractNamedGraph}) = not_implemented()
 
 GraphsExtensions.convert_vertextype(::Type{V}, g::AbstractNamedGraph{V}) where {V} = g
@@ -102,14 +102,14 @@ end
 # Derived interface
 #
 
-encode_graph_type(graph::AbstractNamedGraph) = typeof(encode_graph(graph))
-encode_graph_type(T::Type{<:AbstractNamedGraph}) = Base.promote_op(encode_graph, T)
+encoded_graph_type(graph::AbstractNamedGraph) = typeof(encoded_graph(graph))
+encoded_graph_type(T::Type{<:AbstractNamedGraph}) = Base.promote_op(encoded_graph, T)
 
 function Graphs.has_vertex(graph::AbstractNamedGraph, vertex)
     return vertex ∈ vertices(graph)
 end
 
-Graphs.SimpleDiGraph(graph::AbstractNamedGraph) = SimpleDiGraph(encode_graph(graph))
+Graphs.SimpleDiGraph(graph::AbstractNamedGraph) = SimpleDiGraph(encoded_graph(graph))
 
 Base.zero(G::Type{<:AbstractNamedGraph}) = G()
 
@@ -119,12 +119,12 @@ Base.eltype(graph::AbstractNamedGraph) = eltype(vertices(graph))
 """
     encode_edge(graph::AbstractNamedGraph, edge) -> AbstractEdge{Int}
 
-The edge of [`encode_graph(graph)`](@ref encode_graph) corresponding to `edge`,
+The edge of [`encoded_graph(graph)`](@ref encoded_graph) corresponding to `edge`,
 i.e. the edge between the codes of the vertices of `edge`.
 Inverse of [`decode_edge`](@ref).
 """
 function encode_edge(graph::AbstractNamedGraph, edge::AbstractEdge)
-    return edgetype(encode_graph(graph))(
+    return edgetype(encoded_graph(graph))(
         encode_vertex(graph, src(edge)), encode_vertex(graph, dst(edge))
     )
 end
@@ -133,7 +133,7 @@ end
     decode_edge(graph::AbstractNamedGraph, encode_edge)
 
 The edge of `graph` corresponding to the edge `encode_edge` of
-[`encode_graph(graph)`](@ref encode_graph). Inverse of [`encode_edge`](@ref).
+[`encoded_graph(graph)`](@ref encoded_graph). Inverse of [`encode_edge`](@ref).
 """
 function decode_edge(graph::AbstractNamedGraph, encode_edge::AbstractEdge)
     return edgetype(graph)(
@@ -164,13 +164,13 @@ for f in [
     ]
     @eval begin
         function $f(graph::AbstractNamedGraph, vertex)
-            encoded_neighbors = $f(encode_graph(graph), encode_vertex(graph, vertex))
+            encoded_neighbors = $f(encoded_graph(graph), encode_vertex(graph, vertex))
             return map(c -> decode_vertex(graph, c), encoded_neighbors)
         end
 
         # Ambiguity errors with Graphs.jl
         function $f(graph::AbstractNamedGraph, vertex::Integer)
-            encoded_neighbors = $f(encode_graph(graph), encode_vertex(graph, vertex))
+            encoded_neighbors = $f(encoded_graph(graph), encode_vertex(graph, vertex))
             return map(c -> decode_vertex(graph, c), encoded_neighbors)
         end
     end
@@ -227,7 +227,7 @@ function namedgraph_neighborhood(
     )
     encoded_distmx = encode_dist_matrix(graph, distmx)
     encoded_neighborhood = neighborhood(
-        encode_graph(graph), encode_vertex(graph, vertex), d, encoded_distmx; dir
+        encoded_graph(graph), encode_vertex(graph, vertex), d, encoded_distmx; dir
     )
     return [decode_vertex(graph, c) for c in encoded_neighborhood]
 end
@@ -256,7 +256,7 @@ end
 function namedgraph_neighborhood_dists(graph::AbstractNamedGraph, vertex, d, distmx; dir)
     encoded_distmx = encode_dist_matrix(graph, distmx)
     encoded_vertices_and_dists = neighborhood_dists(
-        encode_graph(graph), encode_vertex(graph, vertex), d, encoded_distmx; dir
+        encoded_graph(graph), encode_vertex(graph, vertex), d, encoded_distmx; dir
     )
     return [
         (decode_vertex(graph, c), dist) for (c, dist) in encoded_vertices_and_dists
@@ -286,8 +286,8 @@ end
 
 function namedgraph_mincut(graph::AbstractNamedGraph, distmx)
     encoded_distmx = encode_dist_matrix(graph, distmx)
-    encoded_parity, bestcut = Graphs.mincut(encode_graph(graph), encoded_distmx)
-    graph_vertices = map(c -> decode_vertex(graph, c), vertices(encode_graph(graph)))
+    encoded_parity, bestcut = Graphs.mincut(encoded_graph(graph), encoded_distmx)
+    graph_vertices = map(c -> decode_vertex(graph, c), vertices(encoded_graph(graph)))
     return Dictionary(graph_vertices, encoded_parity), bestcut
 end
 
@@ -305,7 +305,7 @@ function GraphsExtensions.partition_vertices(
         kwargs...
     )
     vertex_partitions = partition_vertices(
-        encode_graph(graph); npartitions, nvertices_per_partition, kwargs...
+        encoded_graph(graph); npartitions, nvertices_per_partition, kwargs...
     )
     # TODO: output the reverse of this dictionary (a Vector of Vector
     # of the vertices in each partition).
@@ -325,7 +325,7 @@ function namedgraph_a_star(
     )
     encoded_distmx = encode_dist_matrix(graph, distmx)
     encoded_shortest_path = a_star(
-        encode_graph(graph),
+        encoded_graph(graph),
         encode_vertex(graph, source),
         encode_vertex(graph, destination),
         encode_dist_matrix(graph, distmx),
@@ -358,39 +358,39 @@ function Graphs.spfa_shortest_paths(
     )
     encoded_distmx = encode_dist_matrix(graph, distmx)
     encoded_shortest_paths = spfa_shortest_paths(
-        encode_graph(graph), encode_vertex(graph, vertex), encoded_distmx
+        encoded_graph(graph), encode_vertex(graph, vertex), encoded_distmx
     )
-    graph_vertices = map(c -> decode_vertex(graph, c), vertices(encode_graph(graph)))
+    graph_vertices = map(c -> decode_vertex(graph, c), vertices(encoded_graph(graph)))
     return Dictionary(graph_vertices, encoded_shortest_paths)
 end
 
 function Graphs.boruvka_mst(
         g::AbstractNamedGraph, distmx::AbstractMatrix{<:Real} = weights(g); minimize = true
     )
-    encoded_mst, weights = boruvka_mst(encode_graph(g), distmx; minimize)
+    encoded_mst, weights = boruvka_mst(encoded_graph(g), distmx; minimize)
     return map(e -> decode_edge(g, e), encoded_mst), weights
 end
 
 function Graphs.kruskal_mst(
         g::AbstractNamedGraph, distmx::AbstractMatrix{<:Real} = weights(g); minimize = true
     )
-    encoded_mst = kruskal_mst(encode_graph(g), distmx; minimize)
+    encoded_mst = kruskal_mst(encoded_graph(g), distmx; minimize)
     return map(e -> decode_edge(g, e), encoded_mst)
 end
 
 function Graphs.prim_mst(g::AbstractNamedGraph, distmx::AbstractMatrix{<:Real} = weights(g))
-    encoded_mst = prim_mst(encode_graph(g), distmx)
+    encoded_mst = prim_mst(encoded_graph(g), distmx)
     return map(e -> decode_edge(g, e), encoded_mst)
 end
 
 function Graphs.add_edge!(graph::AbstractNamedGraph, edge)
-    add_edge!(encode_graph(graph), encode_edge(graph, edgetype(graph)(edge)))
+    add_edge!(encoded_graph(graph), encode_edge(graph, edgetype(graph)(edge)))
     return graph
 end
 Graphs.add_edge!(g::AbstractNamedGraph, src, dst) = add_edge!(g, edgetype(g)(src, dst))
 
 function Graphs.rem_edge!(graph::AbstractNamedGraph, edge)
-    rem_edge!(encode_graph(graph), encode_edge(graph, edgetype(graph)(edge)))
+    rem_edge!(encoded_graph(graph), encode_edge(graph, edgetype(graph)(edge)))
     return graph
 end
 
@@ -398,7 +398,7 @@ function Graphs.has_edge(graph::AbstractNamedGraph, edge::AbstractNamedEdge)
     has_vertex(graph, src(edge)) || return false
     has_vertex(graph, dst(edge)) || return false
     return has_edge(
-        encode_graph(graph), encode_vertex(graph, src(edge)),
+        encoded_graph(graph), encode_vertex(graph, src(edge)),
         encode_vertex(graph, dst(edge))
     )
 end
@@ -411,7 +411,7 @@ function Graphs.has_path(
         graph::AbstractNamedGraph, source, destination; exclude_vertices = vertextype(graph)[]
     )
     return has_path(
-        encode_graph(graph),
+        encoded_graph(graph),
         encode_vertex(graph, source),
         encode_vertex(graph, destination);
         exclude_vertices = map(v -> encode_vertex(graph, v), exclude_vertices)
@@ -441,14 +441,14 @@ function Base.union(
 end
 
 function Graphs.is_directed(graph_type::Type{<:AbstractNamedGraph})
-    return is_directed(encode_graph_type(graph_type))
+    return is_directed(encoded_graph_type(graph_type))
 end
 
-Graphs.is_directed(graph::AbstractNamedGraph) = is_directed(encode_graph(graph))
+Graphs.is_directed(graph::AbstractNamedGraph) = is_directed(encoded_graph(graph))
 
-Graphs.is_connected(graph::AbstractNamedGraph) = is_connected(encode_graph(graph))
+Graphs.is_connected(graph::AbstractNamedGraph) = is_connected(encoded_graph(graph))
 
-Graphs.is_cyclic(graph::AbstractNamedGraph) = is_cyclic(encode_graph(graph))
+Graphs.is_cyclic(graph::AbstractNamedGraph) = is_cyclic(encoded_graph(graph))
 
 @traitfn function Base.reverse(graph::AbstractNamedGraph::IsDirected)
     newgraph = edgeless_graph(graph)
@@ -470,23 +470,23 @@ end
 
 # TODO: Move to `namedgraph.jl`, or make the output generic?
 function Graphs.blockdiag(graph1::AbstractNamedGraph, graph2::AbstractNamedGraph)
-    new_encoded_graph = blockdiag(encode_graph(graph1), encode_graph(graph2))
+    new_encoded_graph = blockdiag(encoded_graph(graph1), encoded_graph(graph2))
     new_vertices = vcat(
-        map(c -> decode_vertex(graph1, c), vertices(encode_graph(graph1))),
-        map(c -> decode_vertex(graph2, c), vertices(encode_graph(graph2)))
+        map(c -> decode_vertex(graph1, c), vertices(encoded_graph(graph1))),
+        map(c -> decode_vertex(graph2, c), vertices(encoded_graph(graph2)))
     )
     @assert allunique(new_vertices)
     return GenericNamedGraph(new_encoded_graph, new_vertices)
 end
 
-Graphs.nv(graph::AbstractNamedGraph) = nv(encode_graph(graph))
-Graphs.ne(graph::AbstractNamedGraph) = ne(encode_graph(graph))
+Graphs.nv(graph::AbstractNamedGraph) = nv(encoded_graph(graph))
+Graphs.ne(graph::AbstractNamedGraph) = ne(encoded_graph(graph))
 function Graphs.adjacency_matrix(graph::AbstractNamedGraph)
-    return adjacency_matrix(encode_graph(graph))
+    return adjacency_matrix(encoded_graph(graph))
 end
 
 function Graphs.connected_components(graph::AbstractNamedGraph)
-    encoded_connected_components = connected_components(encode_graph(graph))
+    encoded_connected_components = connected_components(encoded_graph(graph))
     return map(encoded_connected_components) do encoded_connected_component
         return map(c -> decode_vertex(graph, c), encoded_connected_component)
     end
@@ -545,9 +545,9 @@ end
 # vertex in the traversal/spanning tree.
 function namedgraph_bfs_parents(graph::AbstractNamedGraph, vertex; kwargs...)
     encoded_bfs_parents = bfs_parents(
-        encode_graph(graph), encode_vertex(graph, vertex); kwargs...
+        encoded_graph(graph), encode_vertex(graph, vertex); kwargs...
     )
-    graph_vertices = map(c -> decode_vertex(graph, c), vertices(encode_graph(graph)))
+    graph_vertices = map(c -> decode_vertex(graph, c), vertices(encoded_graph(graph)))
     return Dictionary(
         graph_vertices,
         map(c -> decode_vertex(graph, c), encoded_bfs_parents)

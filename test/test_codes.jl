@@ -5,7 +5,7 @@ using Graphs: AbstractEdgeIter, add_edge!, add_vertex!, edges, has_edge, has_ver
     neighbors, nv, path_graph, rem_vertex!, vertices
 using NamedGraphs.NamedGraphGenerators: NamedGridGraph
 using NamedGraphs: NamedGraphs, NamedEdge, NamedGraph, decode_edge, decode_vertex,
-    encode_edge, encode_graph, encode_vertex
+    encode_edge, encode_vertex, encoded_graph
 using Test: @test, @testset
 
 @testset "Vertex codes" begin
@@ -19,12 +19,12 @@ using Test: @test, @testset
         g = NamedGraph(path_graph(3), ["a", "b", "c"])
         e = NamedEdge("a" => "b")
         ce = encode_edge(g, e)
-        @test ce == first(edges(encode_graph(g)))
+        @test ce == first(edges(encoded_graph(g)))
         @test decode_edge(g, ce) == e
     end
-    @testset "encode_graph matches the graph topology" begin
+    @testset "encoded_graph matches the graph topology" begin
         g = NamedGraph(path_graph(4), ["a", "b", "c", "d"])
-        cg = encode_graph(g)
+        cg = encoded_graph(g)
         @test nv(cg) == nv(g)
         @test ne(cg) == ne(g)
         @test all(e -> has_edge(g, decode_edge(g, e)), edges(cg))
@@ -68,7 +68,7 @@ using Test: @test, @testset
     end
     @testset "Graph types without a stored coded graph" begin
         g = NamedGridGraph((2, 2))
-        @test encode_graph(g) isa NamedGraphs.EncodedGraphView
+        @test encoded_graph(g) isa NamedGraphs.EncodedGraphView
         @test encode_vertex(g, (2, 1)) == 2
         @test decode_vertex(g, 3) == (1, 2)
         @test (2, 2) ∈ vertices(g)

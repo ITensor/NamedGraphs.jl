@@ -5,7 +5,7 @@ function namedgraph_steiner_tree(
         g::AbstractNamedGraph, term_vert, distmx = weights(g)
     )
     encoded_tree = steiner_tree(
-        encode_graph(g),
+        encoded_graph(g),
         map(v -> encode_vertex(g, v), term_vert),
         encode_dist_matrix(g, distmx)
     )

@@ -3,7 +3,7 @@ using Graphs: Graphs, Edge, add_edge!, add_vertex!, edges, has_edge, has_vertex,
 
 # Reinterprets an AbstractNamedGraph as an AbstractGraph{Int} whose vertices
 # are the codes `1:nv(graph)` of the named graph's vertices.
-# Default output of `encode_graph(graph::AbstractNamedGraph)` for graph types
+# Default output of `encoded_graph(graph::AbstractNamedGraph)` for graph types
 # that are implemented directly, as opposed to as a wrapper around a stored
 # integer graph, such as NamedGridGraph.
 # Assumes `encode_vertex(g.graph, v)` and `decode_vertex(g.graph, c)` are

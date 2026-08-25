@@ -22,10 +22,10 @@ struct GenericNamedGraph{V, G <: AbstractSimpleGraph{Int}} <: AbstractNamedGraph
 end
 
 # AbstractNamedGraph required interface.
-function encode_graph_type(graph_type::Type{<:GenericNamedGraph})
+function encoded_graph_type(graph_type::Type{<:GenericNamedGraph})
     return fieldtype(graph_type, :encoded_graph)
 end
-encode_graph(graph::GenericNamedGraph) = graph.encoded_graph
+encoded_graph(graph::GenericNamedGraph) = graph.encoded_graph
 encode_vertex(graph::GenericNamedGraph, vertex) = graph.encoded_vertices[vertex]
 decode_vertex(graph::GenericNamedGraph, code::Integer) = graph.decoded_vertices[code]
 
@@ -35,9 +35,9 @@ function Graphs.add_vertex!(graph::GenericNamedGraph, vertex)
     if vertex ∈ vertices(graph)
         return false
     end
-    add_vertex!(encode_graph(graph))
+    add_vertex!(encoded_graph(graph))
     push!(graph.decoded_vertices, vertex)
-    insert!(graph.encoded_vertices, vertex, nv(encode_graph(graph)))
+    insert!(graph.encoded_vertices, vertex, nv(encoded_graph(graph)))
     return true
 end
 
@@ -48,7 +48,7 @@ function Graphs.rem_vertex!(graph::GenericNamedGraph, vertex)
     code = encode_vertex(graph, vertex)
     # `rem_vertex!` on an `AbstractSimpleGraph` moves the last vertex into the
     # removed slot, so mirror that reassignment in the vertex-code maps.
-    rem_vertex!(encode_graph(graph), code)
+    rem_vertex!(encoded_graph(graph), code)
     last_vertex = pop!(graph.decoded_vertices)
     delete!(graph.encoded_vertices, vertex)
     if vertex ≠ last_vertex
@@ -59,7 +59,7 @@ function Graphs.rem_vertex!(graph::GenericNamedGraph, vertex)
 end
 
 function GraphsExtensions.rename_vertices(f::Function, graph::GenericNamedGraph)
-    return GenericNamedGraph(copy(encode_graph(graph)), map(f, graph.decoded_vertices))
+    return GenericNamedGraph(copy(encoded_graph(graph)), map(f, graph.decoded_vertices))
 end
 
 function GraphsExtensions.rename_vertices(f::Function, g::AbstractSimpleGraph)
@@ -70,7 +70,7 @@ end
 
 function GraphsExtensions.convert_vertextype(vertextype::Type, graph::GenericNamedGraph)
     return GenericNamedGraph(
-        encode_graph(graph), convert(Vector{vertextype}, graph.decoded_vertices)
+        encoded_graph(graph), convert(Vector{vertextype}, graph.decoded_vertices)
     )
 end
 
@@ -157,10 +157,10 @@ end
 GenericNamedGraph() = GenericNamedGraph(Any[])
 
 function GenericNamedGraph(graph::GenericNamedGraph)
-    return GenericNamedGraph{vertextype(graph), encode_graph_type(graph)}(graph)
+    return GenericNamedGraph{vertextype(graph), encoded_graph_type(graph)}(graph)
 end
 function GenericNamedGraph{V}(graph::GenericNamedGraph) where {V}
-    return GenericNamedGraph{V, encode_graph_type(graph)}(graph)
+    return GenericNamedGraph{V, encoded_graph_type(graph)}(graph)
 end
 function GenericNamedGraph{<:Any, G}(
         graph::GenericNamedGraph
@@ -170,7 +170,7 @@ end
 function GenericNamedGraph{V, G}(
         graph::GenericNamedGraph
     ) where {V, G <: AbstractSimpleGraph{Int}}
-    return GenericNamedGraph{V, G}(copy(encode_graph(graph)), copy(graph.decoded_vertices))
+    return GenericNamedGraph{V, G}(copy(encoded_graph(graph)), copy(graph.decoded_vertices))
 end
 
 function Base.convert(graph_type::Type{<:GenericNamedGraph}, graph::GenericNamedGraph)
@@ -183,25 +183,25 @@ Graphs.edgetype(graph_type::Type{<:GenericNamedGraph}) = NamedEdge{vertextype(gr
 
 function GraphsExtensions.directed_graph_type(graph_type::Type{<:GenericNamedGraph})
     return GenericNamedGraph{
-        vertextype(graph_type), directed_graph_type(encode_graph_type(graph_type)),
+        vertextype(graph_type), directed_graph_type(encoded_graph_type(graph_type)),
     }
 end
 function GraphsExtensions.undirected_graph_type(graph_type::Type{<:GenericNamedGraph})
     return GenericNamedGraph{
-        vertextype(graph_type), undirected_graph_type(encode_graph_type(graph_type)),
+        vertextype(graph_type), undirected_graph_type(encoded_graph_type(graph_type)),
     }
 end
 
 function Graphs.is_directed(graph_type::Type{<:GenericNamedGraph})
-    return is_directed(encode_graph_type(graph_type))
+    return is_directed(encoded_graph_type(graph_type))
 end
 
 function Base.reverse!(graph::GenericNamedGraph)
-    reverse!(encode_graph(graph))
+    reverse!(encoded_graph(graph))
     return graph
 end
 function Base.reverse(graph::GenericNamedGraph)
-    return GenericNamedGraph(reverse(encode_graph(graph)), copy(graph.decoded_vertices))
+    return GenericNamedGraph(reverse(encoded_graph(graph)), copy(graph.decoded_vertices))
 end
 
 #

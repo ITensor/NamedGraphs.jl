@@ -3,7 +3,7 @@ using Graphs: Graphs, dfs_parents, dfs_tree, topological_sort_by_dfs
 using SimpleTraits: SimpleTraits, @traitfn, Not
 
 @traitfn function Graphs.topological_sort_by_dfs(g::AbstractNamedGraph::IsDirected)
-    return map(c -> decode_vertex(g, c), topological_sort_by_dfs(encode_graph(g)))
+    return map(c -> decode_vertex(g, c), topological_sort_by_dfs(encoded_graph(g)))
 end
 
 function namedgraph_dfs_tree(graph::AbstractNamedGraph, vertex; kwargs...)
@@ -20,9 +20,9 @@ end
 # vertex in the traversal/spanning tree.
 function namedgraph_dfs_parents(graph::AbstractNamedGraph, vertex; kwargs...)
     encoded_dfs_parents = dfs_parents(
-        encode_graph(graph), encode_vertex(graph, vertex); kwargs...
+        encoded_graph(graph), encode_vertex(graph, vertex); kwargs...
     )
-    graph_vertices = map(c -> decode_vertex(graph, c), vertices(encode_graph(graph)))
+    graph_vertices = map(c -> decode_vertex(graph, c), vertices(encoded_graph(graph)))
     return Dictionary(
         graph_vertices,
         map(c -> decode_vertex(graph, c), encoded_dfs_parents)
