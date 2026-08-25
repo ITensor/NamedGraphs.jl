@@ -15,8 +15,10 @@ end
 
 Base.length(vs::NamedVerticesView) = nv(vs.graph)
 function Dictionaries.iterate(vs::NamedVerticesView, state...)
-    vertices = Iterators.map(c -> decode_vertex(vs.graph, c), Base.OneTo(nv(vs.graph)))
-    return iterate(vertices, state...)
+    next = iterate(Base.OneTo(nv(vs.graph)), state...)
+    isnothing(next) && return nothing
+    code, new_state = next
+    return decode_vertex(vs.graph, code), new_state
 end
 Base.in(vertex::V, vs::NamedVerticesView{V}) where {V} = has_vertex(vs.graph, vertex)
 
@@ -52,10 +54,10 @@ end
 Base.eltype(::Type{<:NamedEdgeIter{<:Any, E}}) where {E} = E
 Base.length(es::NamedEdgeIter) = ne(es.graph)
 function Base.iterate(es::NamedEdgeIter, state...)
-    graph_edges = Iterators.map(
-        ce -> decode_edge(es.graph, ce), edges(encoded_graph(es.graph))
-    )
-    return iterate(graph_edges, state...)
+    next = iterate(edges(encoded_graph(es.graph)), state...)
+    isnothing(next) && return nothing
+    encoded_edge, new_state = next
+    return decode_edge(es.graph, encoded_edge), new_state
 end
 Base.in(edge, es::NamedEdgeIter) = has_edge(es.graph, edge)
 function Base.:(==)(es1::NamedEdgeIter, es2::NamedEdgeIter)
