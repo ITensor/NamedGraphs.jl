@@ -21,10 +21,7 @@ function namedgraph_dfs_parents(graph::AbstractNamedGraph, vertex; kwargs...)
     coded_dfs_parents = dfs_parents(
         coded_graph(graph), coded_vertex(graph, vertex); kwargs...
     )
-    return dictionary(
-        decoded_vertex(graph, c) => decoded_vertex(graph, p) for
-            (c, p) in pairs(coded_dfs_parents)
-    )
+    return decode_keys(graph, map(decoded_vertex(graph), coded_dfs_parents))
 end
 # Disambiguation from Graphs.dfs_parents
 function Graphs.dfs_parents(graph::AbstractNamedGraph, vertex::Integer; kwargs...)

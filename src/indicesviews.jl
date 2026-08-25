@@ -71,26 +71,3 @@ Dictionaries.gettokenvalue(es::EdgesView, token) = decoded_edge(es.graph, token)
 
 # Snapshot the edges so the output does not alias the (mutable) graph.
 Base.map(f, es::EdgesView) = map(f, Indices(collect(es)))
-
-# Read-only view of the vertices of a graph in code order, i.e.
-# `DecodedVerticesView(g)[c] == decoded_vertex(g, c)`.
-# Default output of `decoded_vertices(graph::AbstractNamedGraph)`.
-struct DecodedVerticesView{V, G <: AbstractGraph{V}} <: AbstractVector{V}
-    graph::G
-end
-Base.size(vs::DecodedVerticesView) = (nv(vs.graph),)
-Base.getindex(vs::DecodedVerticesView, code::Integer) = decoded_vertex(vs.graph, code)
-
-# Read-only view of the code of each vertex of a graph, i.e.
-# `CodedVerticesView(g)[v] == coded_vertex(g, v)`, keyed by `vertices(g)`.
-# Default output of `coded_vertices(graph::AbstractNamedGraph)`.
-struct CodedVerticesView{V, G <: AbstractGraph{V}} <: AbstractDictionary{V, Int}
-    graph::G
-end
-Base.keys(vs::CodedVerticesView) = vertices(vs.graph)
-function Base.getindex(vs::CodedVerticesView{V}, vertex::V) where {V}
-    return coded_vertex(vs.graph, vertex)
-end
-function Base.isassigned(vs::CodedVerticesView{V}, vertex::V) where {V}
-    return has_vertex(vs.graph, vertex)
-end

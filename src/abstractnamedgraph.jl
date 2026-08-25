@@ -8,6 +8,7 @@ using Graphs: Graphs, AbstractGraph, AbstractSimpleGraph, IsDirected, SimpleDiGr
     is_connected, is_cyclic, kruskal_mst, ne, neighborhood, neighborhood_dists, nv,
     outdegree, prim_mst, rem_edge!, spfa_shortest_paths, vertices, weights
 using SimpleTraits: SimpleTraits, @traitfn, Not
+using SplitApplyCombine: mapview
 
 abstract type AbstractNamedGraph{V} <: AbstractGraph{V} end
 
@@ -95,7 +96,7 @@ state): do not mutate it directly, and do not rely on it across mutations of
 the graph — make a copy (for example with `copy` or `collect`) for a snapshot
 that stays valid.
 """
-decoded_vertices(graph) = DecodedVerticesView(graph)
+decoded_vertices(graph) = mapview(decoded_vertex(graph), Base.OneTo(nv(graph)))
 
 """
     coded_vertices(graph::AbstractNamedGraph) -> AbstractDictionary{_, Int}
@@ -108,11 +109,19 @@ The output is a live read-only view of the graph (possibly internal graph
 state): do not mutate it directly, and do not rely on it across mutations of
 the graph — make a copy for a snapshot that stays valid.
 """
-coded_vertices(graph) = CodedVerticesView(graph)
+coded_vertices(graph) = mapview(coded_vertex(graph), vertices(graph))
 
 # TODO: Is this a good definition? Maybe make it generic to any graph?
 function GraphsExtensions.permute_vertices(graph::AbstractNamedGraph, permutation)
     return subgraph(graph, map(decoded_vertex(graph), permutation))
+end
+
+# Convert a vector indexed by vertex codes (as output by Graphs.jl algorithms
+# on `coded_graph(graph)`) into a dictionary keyed by the decoded vertices.
+function decode_keys(graph, coded_values)
+    return dictionary(
+        decoded_vertex(graph, c) => value for (c, value) in pairs(coded_values)
+    )
 end
 
 Graphs.edgetype(graph::AbstractNamedGraph) = edgetype(typeof(graph))
@@ -324,10 +333,7 @@ end
 function namedgraph_mincut(graph::AbstractNamedGraph, distmx)
     coded_distmx = dist_matrix_to_coded_dist_matrix(graph, distmx)
     coded_parity, bestcut = Graphs.mincut(coded_graph(graph), coded_distmx)
-    parity = dictionary(
-        decoded_vertex(graph, c) => p for (c, p) in pairs(coded_parity)
-    )
-    return parity, bestcut
+    return decode_keys(graph, coded_parity), bestcut
 end
 
 function Graphs.mincut(graph::AbstractNamedGraph, distmx = weights(graph))
@@ -399,9 +405,7 @@ function Graphs.spfa_shortest_paths(
     coded_shortest_paths = spfa_shortest_paths(
         coded_graph(graph), coded_vertex(graph, vertex), coded_distmx
     )
-    return dictionary(
-        decoded_vertex(graph, c) => d for (c, d) in pairs(coded_shortest_paths)
-    )
+    return decode_keys(graph, coded_shortest_paths)
 end
 
 function Graphs.boruvka_mst(
@@ -586,10 +590,7 @@ function namedgraph_bfs_parents(graph::AbstractNamedGraph, vertex; kwargs...)
     coded_bfs_parents = bfs_parents(
         coded_graph(graph), coded_vertex(graph, vertex); kwargs...
     )
-    return dictionary(
-        decoded_vertex(graph, c) => decoded_vertex(graph, p) for
-            (c, p) in pairs(coded_bfs_parents)
-    )
+    return decode_keys(graph, map(decoded_vertex(graph), coded_bfs_parents))
 end
 # Disambiguation from Graphs.jl
 function Graphs.bfs_parents(graph::AbstractNamedGraph, vertex::Integer; kwargs...)

@@ -1,4 +1,4 @@
-using Dictionaries: Dictionary, dictionary
+using Dictionaries: Dictionary
 using Graphs: Graphs, dijkstra_shortest_paths, weights
 
 """
@@ -31,20 +31,13 @@ function coded_path_state_to_path_state(
         pᵢ = coded_path_state.parents[i]
         return iszero(pᵢ) ? i : pᵢ
     end
+    decode = decoded_vertex(graph)
     return NamedDijkstraState(
-        dictionary(
-            decoded_vertex(graph, c) => decoded_vertex(graph, p) for
-                (c, p) in pairs(coded_path_state_parents)
-        ),
-        dictionary(
-            decoded_vertex(graph, c) => d for (c, d) in pairs(coded_path_state.dists)
-        ),
-        map(x -> map(decoded_vertex(graph), x), coded_path_state.predecessors),
-        dictionary(
-            decoded_vertex(graph, c) => n for
-                (c, n) in pairs(coded_path_state.pathcounts)
-        ),
-        map(decoded_vertex(graph), coded_path_state.closest_vertices)
+        decode_keys(graph, map(decode, coded_path_state_parents)),
+        decode_keys(graph, coded_path_state.dists),
+        map(x -> map(decode, x), coded_path_state.predecessors),
+        decode_keys(graph, coded_path_state.pathcounts),
+        map(decode, coded_path_state.closest_vertices)
     )
 end
 
