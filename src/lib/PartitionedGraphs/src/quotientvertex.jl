@@ -1,5 +1,4 @@
 using ..NamedGraphs.GraphsExtensions: GraphsExtensions, rem_vertices!, subgraph
-using ..NamedGraphs.OrderedDictionaries: OrderedIndices
 using ..NamedGraphs: AbstractNamedGraph, AbstractVertices, Edges, NamedGraphs, Vertices,
     parent_graph_indices, to_graph_index, to_vertices
 using Graphs: Graphs, AbstractGraph, induced_subgraph, nv

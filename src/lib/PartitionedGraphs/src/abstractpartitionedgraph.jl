@@ -124,14 +124,14 @@ end
 Graphs.vertices(pg::AbstractPartitionedGraph) = vertices(unpartitioned_graph(pg))
 Graphs.edges(pg::AbstractPartitionedGraph) = edges(unpartitioned_graph(pg))
 
-function NamedGraphs.position_graph(pg::AbstractPartitionedGraph)
-    return NamedGraphs.position_graph(unpartitioned_graph(pg))
+function NamedGraphs.coded_graph(pg::AbstractPartitionedGraph)
+    return NamedGraphs.coded_graph(unpartitioned_graph(pg))
 end
-function NamedGraphs.vertex_positions(pg::AbstractPartitionedGraph)
-    return NamedGraphs.vertex_positions(unpartitioned_graph(pg))
+function NamedGraphs.coded_vertex(pg::AbstractPartitionedGraph, vertex)
+    return NamedGraphs.coded_vertex(unpartitioned_graph(pg), vertex)
 end
-function NamedGraphs.ordered_vertices(pg::AbstractPartitionedGraph)
-    return NamedGraphs.ordered_vertices(unpartitioned_graph(pg))
+function NamedGraphs.decoded_vertex(pg::AbstractPartitionedGraph, code::Integer)
+    return NamedGraphs.decoded_vertex(unpartitioned_graph(pg), code)
 end
 Graphs.edgetype(pg::AbstractPartitionedGraph) = edgetype(unpartitioned_graph(pg))
 

@@ -1,46 +1,45 @@
 using .GraphsExtensions: GraphsExtensions, directed_graph_type, similar_graph,
     similar_simplegraph, undirected_graph_type, vertextype
-using .OrderedDictionaries: OrderedDictionaries, OrderedIndices
-using .OrdinalIndexing: th
 using Dictionaries: Dictionary
 using Graphs.SimpleGraphs: AbstractSimpleGraph, SimpleDiGraph, SimpleGraph
 using Graphs: Graphs, AbstractGraph, add_edge!, add_vertex!, edgetype, has_edge,
     is_directed, outneighbors, rem_vertex!, vertices
 
 struct GenericNamedGraph{V, G <: AbstractSimpleGraph{Int}} <: AbstractNamedGraph{V}
-    position_graph::G
-    vertices::OrderedIndices{V}
+    coded_graph::G
+    decoded_vertices::Vector{V}
+    coded_vertices::Dictionary{V, Int}
     function GenericNamedGraph{V, G}(graph, vertices) where {V, G}
-        position_graph = G(graph)
-        vertices = OrderedIndices{V}(to_vertices(position_graph, vertices))
-
-        @assert length(vertices) == nv(graph)
-
-        return new{V, G}(position_graph, vertices)
+        coded_graph = G(graph)
+        decoded_vertices = collect(V, to_vertices(coded_graph, vertices))
+        @assert length(decoded_vertices) == nv(coded_graph)
+        # `copy` since the `Dictionary` takes ownership of the key vector, which
+        # would otherwise alias the `decoded_vertices` field.
+        coded_vertices =
+            Dictionary{V, Int}(copy(decoded_vertices), eachindex(decoded_vertices))
+        return new{V, G}(coded_graph, decoded_vertices, coded_vertices)
     end
 end
 
 # AbstractNamedGraph required interface.
-function position_graph_type(graph_type::Type{<:GenericNamedGraph})
-    return fieldtype(graph_type, :position_graph)
+function coded_graph_type(graph_type::Type{<:GenericNamedGraph})
+    return fieldtype(graph_type, :coded_graph)
 end
-position_graph(graph::GenericNamedGraph) = getfield(graph, :position_graph)
-function vertex_positions(graph::GenericNamedGraph)
-    return OrderedDictionaries.index_positions(vertices(graph))
-end
-function ordered_vertices(graph::GenericNamedGraph)
-    return OrderedDictionaries.ordered_indices(vertices(graph))
-end
+coded_graph(graph::GenericNamedGraph) = graph.coded_graph
+coded_vertex(graph::GenericNamedGraph, vertex) = graph.coded_vertices[vertex]
+decoded_vertex(graph::GenericNamedGraph, code::Integer) = graph.decoded_vertices[code]
+decoded_vertices(graph::GenericNamedGraph) = graph.decoded_vertices
+coded_vertices(graph::GenericNamedGraph) = graph.coded_vertices
 
-# TODO: Decide what this should output.
-Graphs.vertices(graph::GenericNamedGraph) = getfield(graph, :vertices)
+Graphs.vertices(graph::GenericNamedGraph) = keys(graph.coded_vertices)
 
 function Graphs.add_vertex!(graph::GenericNamedGraph, vertex)
     if vertex ∈ vertices(graph)
         return false
     end
-    add_vertex!(position_graph(graph))
-    insert!(vertices(graph), vertex)
+    add_vertex!(coded_graph(graph))
+    push!(graph.decoded_vertices, vertex)
+    insert!(graph.coded_vertices, vertex, nv(coded_graph(graph)))
     return true
 end
 
@@ -48,16 +47,21 @@ function Graphs.rem_vertex!(graph::GenericNamedGraph, vertex)
     if vertex ∉ vertices(graph)
         return false
     end
-    position_vertex = vertex_positions(graph)[vertex]
-    rem_vertex!(position_graph(graph), position_vertex)
-    delete!(vertices(graph), vertex)
+    code = coded_vertex(graph, vertex)
+    # `rem_vertex!` on an `AbstractSimpleGraph` moves the last vertex into the
+    # removed slot, so mirror that reassignment in the vertex-code maps.
+    rem_vertex!(coded_graph(graph), code)
+    last_vertex = pop!(graph.decoded_vertices)
+    delete!(graph.coded_vertices, vertex)
+    if vertex ≠ last_vertex
+        graph.decoded_vertices[code] = last_vertex
+        graph.coded_vertices[last_vertex] = code
+    end
     return graph
 end
 
 function GraphsExtensions.rename_vertices(f::Function, graph::GenericNamedGraph)
-    # TODO: Fix broadcasting of `OrderedIndices`.
-    # return GenericNamedGraph(position_graph(graph), f.(vertices(graph)))
-    return GenericNamedGraph(copy(position_graph(graph)), map(f, vertices(graph)))
+    return GenericNamedGraph(copy(coded_graph(graph)), map(f, graph.decoded_vertices))
 end
 
 function GraphsExtensions.rename_vertices(f::Function, g::AbstractSimpleGraph)
@@ -68,7 +72,7 @@ end
 
 function GraphsExtensions.convert_vertextype(vertextype::Type, graph::GenericNamedGraph)
     return GenericNamedGraph(
-        position_graph(graph), convert(Vector{vertextype}, ordered_vertices(graph))
+        coded_graph(graph), convert(Vector{vertextype}, graph.decoded_vertices)
     )
 end
 
@@ -84,28 +88,28 @@ to_vertices(vertices) = vertices
 to_vertices(vertices::AbstractArray) = vec(vertices)
 to_vertices(vertices::Integer) = Base.OneTo(vertices)
 
-function GenericNamedGraph{V}(position_graph::AbstractSimpleGraph, vertices) where {V}
-    return GenericNamedGraph{V, typeof(position_graph)}(position_graph, vertices)
+function GenericNamedGraph{V}(coded_graph::AbstractSimpleGraph, vertices) where {V}
+    return GenericNamedGraph{V, typeof(coded_graph)}(coded_graph, vertices)
 end
 
 function GenericNamedGraph{<:Any, G}(
-        position_graph::AbstractSimpleGraph, vertices
+        coded_graph::AbstractSimpleGraph, vertices
     ) where {G <: AbstractSimpleGraph{Int}}
-    return GenericNamedGraph{eltype(vertices), G}(position_graph, vertices)
+    return GenericNamedGraph{eltype(vertices), G}(coded_graph, vertices)
 end
 
 function GenericNamedGraph{<:Any, G}(
-        position_graph::AbstractSimpleGraph
+        coded_graph::AbstractSimpleGraph
     ) where {G <: AbstractSimpleGraph{Int}}
-    return GenericNamedGraph{<:Any, G}(position_graph, vertices(position_graph))
+    return GenericNamedGraph{<:Any, G}(coded_graph, vertices(coded_graph))
 end
 
-function GenericNamedGraph(position_graph::AbstractSimpleGraph, vertices)
-    return GenericNamedGraph{eltype(vertices)}(position_graph, vertices)
+function GenericNamedGraph(coded_graph::AbstractSimpleGraph, vertices)
+    return GenericNamedGraph{eltype(vertices)}(coded_graph, vertices)
 end
 
-function GenericNamedGraph(position_graph::AbstractSimpleGraph)
-    return GenericNamedGraph(position_graph, vertices(position_graph))
+function GenericNamedGraph(coded_graph::AbstractSimpleGraph)
+    return GenericNamedGraph(coded_graph, vertices(coded_graph))
 end
 
 #
@@ -155,10 +159,10 @@ end
 GenericNamedGraph() = GenericNamedGraph(Any[])
 
 function GenericNamedGraph(graph::GenericNamedGraph)
-    return GenericNamedGraph{vertextype(graph), position_graph_type(graph)}(graph)
+    return GenericNamedGraph{vertextype(graph), coded_graph_type(graph)}(graph)
 end
 function GenericNamedGraph{V}(graph::GenericNamedGraph) where {V}
-    return GenericNamedGraph{V, position_graph_type(graph)}(graph)
+    return GenericNamedGraph{V, coded_graph_type(graph)}(graph)
 end
 function GenericNamedGraph{<:Any, G}(
         graph::GenericNamedGraph
@@ -168,7 +172,7 @@ end
 function GenericNamedGraph{V, G}(
         graph::GenericNamedGraph
     ) where {V, G <: AbstractSimpleGraph{Int}}
-    return GenericNamedGraph{V, G}(copy(position_graph(graph)), copy(vertices(graph)))
+    return GenericNamedGraph{V, G}(copy(coded_graph(graph)), copy(graph.decoded_vertices))
 end
 
 function Base.convert(graph_type::Type{<:GenericNamedGraph}, graph::GenericNamedGraph)
@@ -181,25 +185,25 @@ Graphs.edgetype(graph_type::Type{<:GenericNamedGraph}) = NamedEdge{vertextype(gr
 
 function GraphsExtensions.directed_graph_type(graph_type::Type{<:GenericNamedGraph})
     return GenericNamedGraph{
-        vertextype(graph_type), directed_graph_type(position_graph_type(graph_type)),
+        vertextype(graph_type), directed_graph_type(coded_graph_type(graph_type)),
     }
 end
 function GraphsExtensions.undirected_graph_type(graph_type::Type{<:GenericNamedGraph})
     return GenericNamedGraph{
-        vertextype(graph_type), undirected_graph_type(position_graph_type(graph_type)),
+        vertextype(graph_type), undirected_graph_type(coded_graph_type(graph_type)),
     }
 end
 
 function Graphs.is_directed(graph_type::Type{<:GenericNamedGraph})
-    return is_directed(position_graph_type(graph_type))
+    return is_directed(coded_graph_type(graph_type))
 end
 
 function Base.reverse!(graph::GenericNamedGraph)
-    reverse!(graph.position_graph)
+    reverse!(coded_graph(graph))
     return graph
 end
 function Base.reverse(graph::GenericNamedGraph)
-    return GenericNamedGraph(reverse(graph.position_graph), copy(graph.vertices))
+    return GenericNamedGraph(reverse(coded_graph(graph)), copy(graph.decoded_vertices))
 end
 
 #

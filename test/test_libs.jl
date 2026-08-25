@@ -6,8 +6,6 @@ libs = [
     :GraphsExtensions,
     #:Keys,
     #:NamedGraphGenerators,
-    :OrderedDictionaries,
-    :OrdinalIndexing,
     #:PartitionedGraphs,
     #:SimilarType,
 ]

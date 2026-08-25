@@ -5,7 +5,7 @@ using Graphs: Graphs, AbstractGraph, DiGraph, Graph, SimpleDiGraph, SimpleGraph,
 using NamedGraphs.GraphsExtensions: GraphsExtensions, edgeless_graph, empty_graph,
     rename_vertices, similar_dataless_graph, similar_graph
 using NamedGraphs.NamedGraphGenerators: named_grid, named_path_graph
-using NamedGraphs: NamedGraphs, AbstractNamedGraph, NamedDiGraph, NamedGraph, position_graph
+using NamedGraphs: NamedGraphs, AbstractNamedGraph, NamedDiGraph, NamedGraph, coded_graph
 using Test: @test, @testset
 
 struct TestGraph{V} <: AbstractNamedGraph{V}
@@ -28,7 +28,7 @@ Base.:(==)(g1::TestGraph, g2::TestGraph) = g1.graph == g2.graph
 
 Graphs.edgetype(::Type{<:TestGraph{V}}) where {V} = edgetype(NamedGraph{V})
 
-NamedGraphs.position_graph(g::TestGraph) = position_graph(g.graph)
+NamedGraphs.coded_graph(g::TestGraph) = coded_graph(g.graph)
 
 Base.copy(g::TestGraph) = TestGraph(copy(g.graph))
 
@@ -43,7 +43,7 @@ Base.copy(g::TestGraph) = TestGraph(copy(g.graph))
     add_edge!(ng2, "A" => "C")
     add_edge!(ng2, "B" => "D")
     add_edge!(ng2, "C" => "D")
-    @test NamedGraphs.position_graph(ng1) != NamedGraphs.position_graph(ng2)
+    @test NamedGraphs.coded_graph(ng1) != NamedGraphs.coded_graph(ng2)
     @test ng1 == ng2
     rem_edge!(ng2, "B" => "A")
     @test ng1 != ng2
@@ -57,7 +57,7 @@ Base.copy(g::TestGraph) = TestGraph(copy(g.graph))
     add_edge!(ndg2, ("X", 1) => ("Y", 1))
     add_edge!(ndg2, ("X", 2) => ("Y", 2))
     add_edge!(ndg2, ("Y", 1) => ("Y", 2))
-    @test NamedGraphs.position_graph(ndg1) != NamedGraphs.position_graph(ndg2)
+    @test NamedGraphs.coded_graph(ndg1) != NamedGraphs.coded_graph(ndg2)
     @test ndg1 == ndg2
     rem_edge!(ndg2, ("Y", 1) => ("X", 1))
     @test ndg1 != ndg2
@@ -70,7 +70,7 @@ Base.copy(g::TestGraph) = TestGraph(copy(g.graph))
     add_edge!(nddg2, ("X", 1) => ("Y", 1))
     add_edge!(nddg2, ("X", 2) => ("Y", 2))
     add_edge!(nddg2, ("Y", 1) => ("Y", 2))
-    @test NamedGraphs.position_graph(nddg1) != NamedGraphs.position_graph(nddg2)
+    @test NamedGraphs.coded_graph(nddg1) != NamedGraphs.coded_graph(nddg2)
     @test nddg1 == nddg2
     rem_edge!(nddg2, ("X", 1) => ("Y", 1))
     add_edge!(nddg2, ("Y", 1) => ("X", 1))

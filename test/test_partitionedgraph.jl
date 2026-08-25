@@ -9,7 +9,6 @@ using NamedGraphs.GraphsExtensions: add_edges!, add_vertices!, boundary_edges,
     spanning_forest, spanning_tree, subgraph, vertextype
 using NamedGraphs.NamedGraphGenerators:
     named_comb_tree, named_grid, named_triangular_lattice_graph
-using NamedGraphs.OrderedDictionaries: OrderedDictionary
 using NamedGraphs.PartitionedGraphs: AbstractPartitionedGraph, PartitionedGraph,
     PartitionedGraphs, PartitionedView, QuotientEdge, QuotientEdgeEdge, QuotientEdgeEdges,
     QuotientEdgeSlice, QuotientEdges, QuotientEdgesEdges, QuotientVertex,
@@ -44,7 +43,7 @@ using Test: @test, @test_throws, @testset
     #PartionsGraphView test
     pgv = QuotientView(pg)
     @test collect(vertices(pgv)) == collect(parent.(quotientvertices(pg)))
-    @test edges(pgv) == parent.(quotientedges(pg))
+    @test issetequal(edges(pgv), parent.(quotientedges(pg)))
     @test is_tree(pgv) == true
     @test neighbors(pgv, 1) == [2]
     @test issetequal(vertices(subgraph(pgv, [2, 3, 4])), [2, 3, 4])
@@ -293,7 +292,7 @@ Graphs.edgetype(mg::MyGraph) = edgetype(mg.g)
 Graphs.has_edge(mg::MyGraph, e) = has_edge(mg.g, e)
 
 Graphs.is_directed(mg::MyGraph) = is_directed(mg.g)
-NamedGraphs.position_graph(mg::MyGraph) = NamedGraphs.position_graph(mg.g)
+NamedGraphs.coded_graph(mg::MyGraph) = NamedGraphs.coded_graph(mg.g)
 
 PartitionedGraphs.partitioned_vertices(mg::MyGraph) = mg.partitioned_vertices
 PartitionedGraphs.quotient_graph_type(::Type{<:MyGraph}) = NamedGraph{Int}
@@ -317,7 +316,7 @@ Graphs.edges(wg::WrapperGraph) = edges(wg.g)
 Graphs.vertices(wg::WrapperGraph) = vertices(wg.g)
 
 Graphs.is_directed(wg::WrapperGraph) = is_directed(wg.g)
-NamedGraphs.position_graph(wg::WrapperGraph) = NamedGraphs.position_graph(wg.g)
+NamedGraphs.coded_graph(wg::WrapperGraph) = NamedGraphs.coded_graph(wg.g)
 
 PartitionedGraphs.partitioned_vertices(wg::WrapperGraph) = partitioned_vertices(wg.g)
 
