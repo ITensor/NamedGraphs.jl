@@ -86,28 +86,28 @@ to_vertices(vertices) = vertices
 to_vertices(vertices::AbstractArray) = vec(vertices)
 to_vertices(vertices::Integer) = Base.OneTo(vertices)
 
-function GenericNamedGraph{V}(encode_graph::AbstractSimpleGraph, vertices) where {V}
-    return GenericNamedGraph{V, typeof(encode_graph)}(encode_graph, vertices)
+function GenericNamedGraph{V}(simple_graph::AbstractSimpleGraph, vertices) where {V}
+    return GenericNamedGraph{V, typeof(simple_graph)}(simple_graph, vertices)
 end
 
 function GenericNamedGraph{<:Any, G}(
-        encode_graph::AbstractSimpleGraph, vertices
+        simple_graph::AbstractSimpleGraph, vertices
     ) where {G <: AbstractSimpleGraph{Int}}
-    return GenericNamedGraph{eltype(vertices), G}(encode_graph, vertices)
+    return GenericNamedGraph{eltype(vertices), G}(simple_graph, vertices)
 end
 
 function GenericNamedGraph{<:Any, G}(
-        encode_graph::AbstractSimpleGraph
+        simple_graph::AbstractSimpleGraph
     ) where {G <: AbstractSimpleGraph{Int}}
-    return GenericNamedGraph{<:Any, G}(encode_graph, vertices(encode_graph))
+    return GenericNamedGraph{<:Any, G}(simple_graph, vertices(simple_graph))
 end
 
-function GenericNamedGraph(encode_graph::AbstractSimpleGraph, vertices)
-    return GenericNamedGraph{eltype(vertices)}(encode_graph, vertices)
+function GenericNamedGraph(simple_graph::AbstractSimpleGraph, vertices)
+    return GenericNamedGraph{eltype(vertices)}(simple_graph, vertices)
 end
 
-function GenericNamedGraph(encode_graph::AbstractSimpleGraph)
-    return GenericNamedGraph(encode_graph, vertices(encode_graph))
+function GenericNamedGraph(simple_graph::AbstractSimpleGraph)
+    return GenericNamedGraph(simple_graph, vertices(simple_graph))
 end
 
 #
