@@ -32,11 +32,13 @@ function encoded_path_state_to_path_state(
         return iszero(pᵢ) ? i : pᵢ
     end
     decode(c) = decode_vertex(graph, c)
+    # Keys in code order, to align with the code-indexed path state.
+    graph_vertices = map(decode, vertices(encode_graph(graph)))
     return NamedDijkstraState(
-        decode_keys(graph, map(decode, encoded_path_state_parents)),
-        decode_keys(graph, encoded_path_state.dists),
+        Dictionary(graph_vertices, map(decode, encoded_path_state_parents)),
+        Dictionary(graph_vertices, encoded_path_state.dists),
         map(x -> map(decode, x), encoded_path_state.predecessors),
-        decode_keys(graph, encoded_path_state.pathcounts),
+        Dictionary(graph_vertices, encoded_path_state.pathcounts),
         map(decode, encoded_path_state.closest_vertices)
     )
 end

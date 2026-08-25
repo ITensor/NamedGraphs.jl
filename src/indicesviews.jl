@@ -1,7 +1,7 @@
 using .GraphsExtensions: vertextype
 using Dictionaries: Dictionaries, AbstractDictionary, AbstractIndices, Indices
-using Graphs:
-    AbstractEdge, AbstractGraph, Edge, edges, edgetype, has_edge, has_vertex, ne, nv
+using Graphs: AbstractEdge, AbstractEdgeIter, AbstractGraph, Edge, edges, edgetype,
+    has_edge, has_vertex, ne, nv
 
 # Read-only view of the vertices of a graph as a set (an `AbstractIndices`),
 # iterating in code order and testing membership through `has_vertex`.
@@ -38,36 +38,28 @@ Dictionaries.gettokenvalue(vs::VerticesView, token) = decode_vertex(vs.graph, to
 # Snapshot the vertices so the output does not alias the (mutable) graph.
 Base.map(f, vs::VerticesView) = map(f, Indices(collect(vs)))
 
-# Read-only view of the edges of a graph as a set (an `AbstractIndices`),
-# iterating through the edges of `encode_graph(graph)` and testing membership
-# through `has_edge`. Output of `edges(graph::AbstractNamedGraph)`.
-struct EdgesView{V, E <: AbstractEdge{V}, G <: AbstractGraph{V}} <: AbstractIndices{E}
+# Lazy iterator over the edges of a named graph, in the style of
+# `Graphs.SimpleGraphs.SimpleEdgeIter`: iterates by decoding the edges of
+# `encode_graph(graph)` and tests membership through `has_edge`.
+# Output of `edges(graph::AbstractNamedGraph)`.
+struct NamedEdgeIter{V, E <: AbstractEdge{V}, G <: AbstractGraph{V}} <: AbstractEdgeIter
     graph::G
 end
-function EdgesView(graph::AbstractGraph)
-    return EdgesView{vertextype(graph), edgetype(graph), typeof(graph)}(graph)
+function NamedEdgeIter(graph::AbstractGraph)
+    return NamedEdgeIter{vertextype(graph), edgetype(graph), typeof(graph)}(graph)
 end
 
-Base.length(es::EdgesView) = ne(es.graph)
-function Dictionaries.iterate(es::EdgesView, state...)
+Base.eltype(::Type{<:NamedEdgeIter{<:Any, E}}) where {E} = E
+Base.length(es::NamedEdgeIter) = ne(es.graph)
+function Base.iterate(es::NamedEdgeIter, state...)
     graph_edges = Iterators.map(
         ce -> decode_edge(es.graph, ce), edges(encode_graph(es.graph))
     )
     return iterate(graph_edges, state...)
 end
-Base.in(edge::E, es::EdgesView{<:Any, E}) where {E} = has_edge(es.graph, edge)
-
-# Token interface, with coded edges as the tokens.
-Dictionaries.istokenizable(es::EdgesView) = true
-Dictionaries.tokentype(es::EdgesView) = Edge{Int}
-function Dictionaries.iteratetoken(es::EdgesView, state...)
-    return iterate(edges(encode_graph(es.graph)), state...)
+Base.in(edge, es::NamedEdgeIter) = has_edge(es.graph, edge)
+function Base.:(==)(es1::NamedEdgeIter, es2::NamedEdgeIter)
+    length(es1) == length(es2) || return false
+    return all(e -> e in es2, es1)
 end
-function Dictionaries.gettoken(es::EdgesView, edge)
-    has_edge(es.graph, edge) || return (false, Edge(0, 0))
-    return (true, encode_edge(es.graph, edge))
-end
-Dictionaries.gettokenvalue(es::EdgesView, token) = decode_edge(es.graph, token)
-
-# Snapshot the edges so the output does not alias the (mutable) graph.
-Base.map(f, es::EdgesView) = map(f, Indices(collect(es)))
+Base.show(io::IO, es::NamedEdgeIter) = show(io, collect(es))

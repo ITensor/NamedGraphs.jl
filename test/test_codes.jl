@@ -1,8 +1,8 @@
 @eval module $(gensym())
 
 using Dictionaries: AbstractDictionary, AbstractIndices, Dictionary
-using Graphs: add_edge!, add_vertex!, edges, has_edge, has_vertex, ne, neighbors, nv,
-    path_graph, rem_vertex!, vertices
+using Graphs: AbstractEdgeIter, add_edge!, add_vertex!, edges, has_edge, has_vertex, ne,
+    neighbors, nv, path_graph, rem_vertex!, vertices
 using NamedGraphs.NamedGraphGenerators: NamedGridGraph
 using NamedGraphs: NamedGraphs, NamedEdge, NamedGraph, decode_edge, decode_vertex,
     encode_edge, encode_graph, encode_vertex
@@ -58,15 +58,13 @@ using Test: @test, @testset
     @testset "edges output" begin
         g = NamedGraph(path_graph(3), ["a", "b", "c"])
         es = edges(g)
-        @test es isa AbstractIndices{NamedEdge{String}}
+        @test es isa AbstractEdgeIter
+        @test eltype(es) == NamedEdge{String}
         @test length(es) == 2
         @test NamedEdge("a" => "b") ∈ es
         @test NamedEdge("b" => "a") ∈ es
         @test NamedEdge("a" => "c") ∉ es
         @test issetequal(collect(es), [NamedEdge("a" => "b"), NamedEdge("b" => "c")])
-        d = map(e -> 1, es)
-        @test d isa Dictionary{NamedEdge{String}, Int}
-        @test d[NamedEdge("a" => "b")] == 1
     end
     @testset "Graph types without a stored coded graph" begin
         g = NamedGridGraph((2, 2))

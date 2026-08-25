@@ -7,17 +7,17 @@ using Graphs: Graphs, AbstractGraph, add_edge!, add_vertex!, edgetype, has_edge,
 
 struct GenericNamedGraph{V, G <: AbstractSimpleGraph{Int}} <: AbstractNamedGraph{V}
     encoded_graph::G
-    code_to_vertex::Vector{V}
-    vertex_to_code::Dictionary{V, Int}
+    decoded_vertices::Vector{V}
+    encoded_vertices::Dictionary{V, Int}
     function GenericNamedGraph{V, G}(graph, vertices) where {V, G}
         encoded_graph = G(graph)
-        code_to_vertex = collect(V, to_vertices(encoded_graph, vertices))
-        @assert length(code_to_vertex) == nv(encoded_graph)
+        decoded_vertices = collect(V, to_vertices(encoded_graph, vertices))
+        @assert length(decoded_vertices) == nv(encoded_graph)
         # `copy` since the `Dictionary` takes ownership of the key vector, which
-        # would otherwise alias the `code_to_vertex` field.
-        vertex_to_code =
-            Dictionary{V, Int}(copy(code_to_vertex), eachindex(code_to_vertex))
-        return new{V, G}(encoded_graph, code_to_vertex, vertex_to_code)
+        # would otherwise alias the `decoded_vertices` field.
+        encoded_vertices =
+            Dictionary{V, Int}(copy(decoded_vertices), eachindex(decoded_vertices))
+        return new{V, G}(encoded_graph, decoded_vertices, encoded_vertices)
     end
 end
 
@@ -26,20 +26,18 @@ function encode_graph_type(graph_type::Type{<:GenericNamedGraph})
     return fieldtype(graph_type, :encoded_graph)
 end
 encode_graph(graph::GenericNamedGraph) = graph.encoded_graph
-encode_vertex(graph::GenericNamedGraph, vertex) = graph.vertex_to_code[vertex]
-decode_vertex(graph::GenericNamedGraph, code::Integer) = graph.code_to_vertex[code]
-code_to_vertex(graph::GenericNamedGraph) = graph.code_to_vertex
-vertex_to_code(graph::GenericNamedGraph) = graph.vertex_to_code
+encode_vertex(graph::GenericNamedGraph, vertex) = graph.encoded_vertices[vertex]
+decode_vertex(graph::GenericNamedGraph, code::Integer) = graph.decoded_vertices[code]
 
-Graphs.vertices(graph::GenericNamedGraph) = keys(graph.vertex_to_code)
+Graphs.vertices(graph::GenericNamedGraph) = keys(graph.encoded_vertices)
 
 function Graphs.add_vertex!(graph::GenericNamedGraph, vertex)
     if vertex ∈ vertices(graph)
         return false
     end
     add_vertex!(encode_graph(graph))
-    push!(graph.code_to_vertex, vertex)
-    insert!(graph.vertex_to_code, vertex, nv(encode_graph(graph)))
+    push!(graph.decoded_vertices, vertex)
+    insert!(graph.encoded_vertices, vertex, nv(encode_graph(graph)))
     return true
 end
 
@@ -51,17 +49,17 @@ function Graphs.rem_vertex!(graph::GenericNamedGraph, vertex)
     # `rem_vertex!` on an `AbstractSimpleGraph` moves the last vertex into the
     # removed slot, so mirror that reassignment in the vertex-code maps.
     rem_vertex!(encode_graph(graph), code)
-    last_vertex = pop!(graph.code_to_vertex)
-    delete!(graph.vertex_to_code, vertex)
+    last_vertex = pop!(graph.decoded_vertices)
+    delete!(graph.encoded_vertices, vertex)
     if vertex ≠ last_vertex
-        graph.code_to_vertex[code] = last_vertex
-        graph.vertex_to_code[last_vertex] = code
+        graph.decoded_vertices[code] = last_vertex
+        graph.encoded_vertices[last_vertex] = code
     end
     return graph
 end
 
 function GraphsExtensions.rename_vertices(f::Function, graph::GenericNamedGraph)
-    return GenericNamedGraph(copy(encode_graph(graph)), map(f, graph.code_to_vertex))
+    return GenericNamedGraph(copy(encode_graph(graph)), map(f, graph.decoded_vertices))
 end
 
 function GraphsExtensions.rename_vertices(f::Function, g::AbstractSimpleGraph)
@@ -72,7 +70,7 @@ end
 
 function GraphsExtensions.convert_vertextype(vertextype::Type, graph::GenericNamedGraph)
     return GenericNamedGraph(
-        encode_graph(graph), convert(Vector{vertextype}, graph.code_to_vertex)
+        encode_graph(graph), convert(Vector{vertextype}, graph.decoded_vertices)
     )
 end
 
@@ -172,7 +170,7 @@ end
 function GenericNamedGraph{V, G}(
         graph::GenericNamedGraph
     ) where {V, G <: AbstractSimpleGraph{Int}}
-    return GenericNamedGraph{V, G}(copy(encode_graph(graph)), copy(graph.code_to_vertex))
+    return GenericNamedGraph{V, G}(copy(encode_graph(graph)), copy(graph.decoded_vertices))
 end
 
 function Base.convert(graph_type::Type{<:GenericNamedGraph}, graph::GenericNamedGraph)
@@ -203,7 +201,7 @@ function Base.reverse!(graph::GenericNamedGraph)
     return graph
 end
 function Base.reverse(graph::GenericNamedGraph)
-    return GenericNamedGraph(reverse(encode_graph(graph)), copy(graph.code_to_vertex))
+    return GenericNamedGraph(reverse(encode_graph(graph)), copy(graph.decoded_vertices))
 end
 
 #

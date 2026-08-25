@@ -1,7 +1,7 @@
 using .GraphsExtensions: GraphsExtensions, all_edges, directed_graph, empty_graph,
     incident_edges, partition_vertices, rem_edges, rem_edges!, rem_vertices,
     rename_vertices, similar_graph, subgraph
-using Dictionaries: dictionary, set!
+using Dictionaries: Dictionary, set!
 using Graphs: Graphs, AbstractGraph, AbstractSimpleGraph, IsDirected, SimpleDiGraph,
     SimpleEdge, SimpleGraph, a_star, add_edge!, adjacency_matrix, bfs_parents, boruvka_mst,
     connected_components, degree, edges, has_path, indegree, induced_subgraph, inneighbors,
@@ -81,14 +81,6 @@ function GraphsExtensions.permute_vertices(graph::AbstractNamedGraph, permutatio
     return subgraph(graph, map(c -> decode_vertex(graph, c), permutation))
 end
 
-# Convert a vector indexed by vertex codes (as output by Graphs.jl algorithms
-# on `encode_graph(graph)`) into a dictionary keyed by the decoded vertices.
-function decode_keys(graph, encoded_values)
-    return dictionary(
-        decode_vertex(graph, c) => value for (c, value) in pairs(encoded_values)
-    )
-end
-
 Graphs.edgetype(graph::AbstractNamedGraph) = edgetype(typeof(graph))
 Graphs.edgetype(::Type{<:AbstractNamedGraph}) = not_implemented()
 
@@ -151,17 +143,17 @@ function decode_edge(graph::AbstractNamedGraph, encode_edge::AbstractEdge)
 end
 
 """
-    edges(graph::AbstractNamedGraph) -> AbstractIndices
+    edges(graph::AbstractNamedGraph) -> AbstractEdgeIter
 
-The set of edges of `graph`: an `AbstractIndices` containing each edge exactly
-once, with membership testing matching `has_edge` (in particular, on
-undirected graphs an edge and its reverse are both members while iteration
-yields each edge once). The iteration order is unspecified.
+An iterator over the edges of `graph`, yielding each edge exactly once, with
+membership testing (`in`) matching `has_edge` (in particular, on undirected
+graphs an edge and its reverse are both members while iteration yields each
+edge once). The iteration order is unspecified.
 
-The output is a live read-only view of the graph: do not mutate it directly,
-and do not rely on it across mutations of the graph.
+The output is a live view of the graph: do not rely on it across mutations of
+the graph.
 """
-Graphs.edges(graph::AbstractNamedGraph) = EdgesView(graph)
+Graphs.edges(graph::AbstractNamedGraph) = NamedEdgeIter(graph)
 
 # TODO: write in terms of a generic function.
 for f in [
@@ -234,12 +226,10 @@ function namedgraph_neighborhood(
         graph::AbstractNamedGraph, vertex, d, distmx = weights(graph); dir = :out
     )
     encoded_distmx = encode_dist_matrix(graph, distmx)
-    vertex_to_code = neighborhood(
+    encoded_neighborhood = neighborhood(
         encode_graph(graph), encode_vertex(graph, vertex), d, encoded_distmx; dir
     )
-    return [
-        decode_vertex(graph, encode_vertex) for encode_vertex in vertex_to_code
-    ]
+    return [decode_vertex(graph, c) for c in encoded_neighborhood]
 end
 
 function Graphs.neighborhood(
@@ -269,8 +259,7 @@ function namedgraph_neighborhood_dists(graph::AbstractNamedGraph, vertex, d, dis
         encode_graph(graph), encode_vertex(graph, vertex), d, encoded_distmx; dir
     )
     return [
-        (decode_vertex(graph, encode_vertex), dist) for
-            (encode_vertex, dist) in encoded_vertices_and_dists
+        (decode_vertex(graph, c), dist) for (c, dist) in encoded_vertices_and_dists
     ]
 end
 
@@ -298,7 +287,8 @@ end
 function namedgraph_mincut(graph::AbstractNamedGraph, distmx)
     encoded_distmx = encode_dist_matrix(graph, distmx)
     encoded_parity, bestcut = Graphs.mincut(encode_graph(graph), encoded_distmx)
-    return decode_keys(graph, encoded_parity), bestcut
+    graph_vertices = map(c -> decode_vertex(graph, c), vertices(encode_graph(graph)))
+    return Dictionary(graph_vertices, encoded_parity), bestcut
 end
 
 function Graphs.mincut(graph::AbstractNamedGraph, distmx = weights(graph))
@@ -370,7 +360,8 @@ function Graphs.spfa_shortest_paths(
     encoded_shortest_paths = spfa_shortest_paths(
         encode_graph(graph), encode_vertex(graph, vertex), encoded_distmx
     )
-    return decode_keys(graph, encoded_shortest_paths)
+    graph_vertices = map(c -> decode_vertex(graph, c), vertices(encode_graph(graph)))
+    return Dictionary(graph_vertices, encoded_shortest_paths)
 end
 
 function Graphs.boruvka_mst(
@@ -556,7 +547,11 @@ function namedgraph_bfs_parents(graph::AbstractNamedGraph, vertex; kwargs...)
     encoded_bfs_parents = bfs_parents(
         encode_graph(graph), encode_vertex(graph, vertex); kwargs...
     )
-    return decode_keys(graph, map(c -> decode_vertex(graph, c), encoded_bfs_parents))
+    graph_vertices = map(c -> decode_vertex(graph, c), vertices(encode_graph(graph)))
+    return Dictionary(
+        graph_vertices,
+        map(c -> decode_vertex(graph, c), encoded_bfs_parents)
+    )
 end
 # Disambiguation from Graphs.jl
 function Graphs.bfs_parents(graph::AbstractNamedGraph, vertex::Integer; kwargs...)
