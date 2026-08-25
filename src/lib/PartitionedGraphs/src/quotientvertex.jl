@@ -50,7 +50,10 @@ QuotientVertices(g::AbstractGraph) = QuotientVertices(keys(partitioned_vertices(
 NamedGraphs.parent_graph_indices(qvs::QuotientVertices) = qvs.vertices
 
 function Base.iterate(qvs::QuotientVertices, state...)
-    return iterate(Iterators.map(QuotientVertex, qvs.vertices), state...)
+    next = iterate(qvs.vertices, state...)
+    isnothing(next) && return nothing
+    element, new_state = next
+    return QuotientVertex(element), new_state
 end
 
 Base.getindex(qvs::QuotientVertices, i::Int) = QuotientVertex(qvs.vertices[i])

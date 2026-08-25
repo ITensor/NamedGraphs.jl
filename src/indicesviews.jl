@@ -1,5 +1,5 @@
 using .GraphsExtensions: vertextype
-using Dictionaries: Dictionaries, AbstractDictionary, AbstractIndices, Indices
+using Dictionaries: Dictionaries, AbstractDictionary, AbstractIndices
 using Graphs: AbstractEdge, AbstractEdgeIter, AbstractGraph, Edge, edges, edgetype,
     has_edge, has_vertex, ne, nv
 
@@ -36,9 +36,6 @@ function Dictionaries.gettoken(vs::NamedVerticesView, vertex)
     return (true, encode_vertex(vs.graph, vertex))
 end
 Dictionaries.gettokenvalue(vs::NamedVerticesView, token) = decode_vertex(vs.graph, token)
-
-# Snapshot the vertices so the output does not alias the (mutable) graph.
-Base.map(f, vs::NamedVerticesView) = map(f, Indices(collect(vs)))
 
 # Lazy iterator over the edges of a named graph, in the style of
 # `Graphs.SimpleGraphs.SimpleEdgeIter`: iterates by decoding the edges of

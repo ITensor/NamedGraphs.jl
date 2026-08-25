@@ -66,7 +66,10 @@ QuotientEdges(g::AbstractGraph) = QuotientEdges(edges(quotient_graph(g)))
 NamedGraphs.parent_graph_indices(qes::QuotientEdges) = qes.edges
 
 function Base.iterate(qes::QuotientEdges, state...)
-    return iterate(Iterators.map(QuotientEdge, qes.edges), state...)
+    next = iterate(qes.edges, state...)
+    isnothing(next) && return nothing
+    element, new_state = next
+    return QuotientEdge(element), new_state
 end
 
 Base.getindex(qes::QuotientEdges, i::Int) = QuotientEdge(qes.edges[i])
