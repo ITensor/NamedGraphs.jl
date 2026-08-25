@@ -65,6 +65,10 @@ using Test: @test, @testset
         @test NamedEdge("b" => "a") ∈ es
         @test NamedEdge("a" => "c") ∉ es
         @test issetequal(collect(es), [NamedEdge("a" => "b"), NamedEdge("b" => "c")])
+        @test es == [NamedEdge("b" => "c"), NamedEdge("a" => "b")]
+        @test Set([NamedEdge("a" => "b"), NamedEdge("b" => "c")]) == es
+        @test es != [NamedEdge("a" => "b")]
+        @test es == edges(NamedGraph(path_graph(3), ["a", "b", "c"]))
     end
     @testset "Graph types without a stored coded graph" begin
         g = NamedGridGraph((2, 2))

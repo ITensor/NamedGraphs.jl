@@ -57,8 +57,23 @@ function Base.iterate(es::NamedEdgeIter, state...)
     return decode_edge(es.graph, encoded_edge), new_state
 end
 Base.in(edge, es::NamedEdgeIter) = has_edge(es.graph, edge)
-function Base.:(==)(es1::NamedEdgeIter, es2::NamedEdgeIter)
-    length(es1) == length(es2) || return false
-    return all(e -> e in es2, es1)
+
+# Edge-set equality through `has_edge`, following `SimpleEdgeIter`.
+function edge_iter_isequal(es::NamedEdgeIter, edge_collection)
+    k = 0
+    for e in edge_collection
+        e in es || return false
+        k += 1
+    end
+    return k == length(es)
 end
+Base.:(==)(es1::NamedEdgeIter, es2::NamedEdgeIter) = edge_iter_isequal(es1, es2)
+function Base.:(==)(es::NamedEdgeIter, edges::AbstractVector{<:AbstractEdge})
+    return edge_iter_isequal(es, edges)
+end
+function Base.:(==)(edges::AbstractVector{<:AbstractEdge}, es::NamedEdgeIter)
+    return edge_iter_isequal(es, edges)
+end
+Base.:(==)(es::NamedEdgeIter, edges::Set{<:AbstractEdge}) = edge_iter_isequal(es, edges)
+Base.:(==)(edges::Set{<:AbstractEdge}, es::NamedEdgeIter) = edge_iter_isequal(es, edges)
 Base.show(io::IO, es::NamedEdgeIter) = show(io, collect(es))
