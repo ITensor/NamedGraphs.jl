@@ -18,7 +18,7 @@ and edges used internally.
 - The `OrdinalIndexing` submodule is removed, so `vertices(g)[4th]` becomes
   `decode_vertex(g, 4)`
   ([#178](https://github.com/ITensor/NamedGraphs.jl/pull/178)).
-- `vertices(g::NamedGraph)` (and `NamedDiGraph`) outputs a
+- `vertices(g::Named[Di]Graph)` outputs a
   `Dictionaries.Indices` instead of the internal `OrderedIndices` type, which
   is removed along with the `OrderedDictionaries` submodule. Other
   `AbstractNamedGraph` types can output other `AbstractIndices` set views.
