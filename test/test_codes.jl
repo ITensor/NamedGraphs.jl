@@ -1,11 +1,8 @@
-@eval module $(gensym())
-
 using Dictionaries: AbstractDictionary, AbstractIndices, Dictionary
 using Graphs: AbstractEdgeIter, add_edge!, add_vertex!, edges, has_edge, has_vertex, ne,
     neighbors, nv, path_graph, rem_vertex!, vertices
-using NamedGraphs.NamedGraphGenerators: NamedGridGraph
-using NamedGraphs: NamedGraphs, NamedEdge, NamedGraph, decode_edge, decode_vertex,
-    encode_edge, encode_vertex, encoded_graph
+using NamedGraphs: NamedGraphs, NamedEdge, NamedGraph, NamedGridGraph, decode_edge,
+    decode_vertex, encode_edge, encode_vertex, encoded_graph
 using Test: @test, @testset
 
 @testset "Vertex codes" begin
@@ -88,6 +85,4 @@ using Test: @test, @testset
         )
         @test last(vertices(g)) == (2, 2)
     end
-end
-
 end

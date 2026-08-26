@@ -105,17 +105,15 @@ function extend_subgraph!(search::NoLeafSubgraphSearch, extension, root)
     return search
 end
 
-"""
-    leafless_edge_induced_subgraphs(g::AbstractGraph, max_edges::Integer) -> Vector
-
-Enumerate all connected edge-induced subgraphs of `g` with at most `max_edges` edges in which
-every vertex has induced degree `>= 2` (i.e. no leaf vertices) — the "generalized loops" used
-in a loop / linked-cluster series.
-
-Enumeration uses ESU on the line graph of `g`, so every connected edge set is visited exactly
-once without deduplication, and induced degrees and the leaf count are maintained incrementally.
-Returns a `Vector` of subgraphs of `g` (one per generalized loop).
-"""
+#     leafless_edge_induced_subgraphs(g::AbstractGraph, max_edges::Integer) -> Vector
+#
+# Enumerate all connected edge-induced subgraphs of `g` with at most `max_edges` edges in which
+# every vertex has induced degree `>= 2` (i.e. no leaf vertices) — the "generalized loops" used
+# in a loop / linked-cluster series.
+#
+# Enumeration uses ESU on the line graph of `g`, so every connected edge set is visited exactly
+# once without deduplication, and induced degrees and the leaf count are maintained incrementally.
+# Returns a `Vector` of subgraphs of `g` (one per generalized loop).
 function leafless_edge_induced_subgraphs(g::AbstractGraph, max_edges::Integer)
     edge_list = collect(edges(g))
     num_edges = length(edge_list)

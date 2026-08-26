@@ -1,7 +1,6 @@
-@eval module $(gensym())
 using Graphs: bfs_tree, edges, is_connected, vertices
 using NamedGraphs.GraphsExtensions: random_bfs_tree
-using NamedGraphs.NamedGraphGenerators: named_grid
+using NamedGraphs: named_grid
 using Random: Random
 using Test: @test, @testset
 
@@ -20,5 +19,4 @@ using Test: @test, @testset
         is_connected(g_randtree2)
     @test edges(g_randtree1) != edges(g_randtree2)
     @test edges(g_nonrandtree1) == edges(g_nonrandtree2)
-end
 end

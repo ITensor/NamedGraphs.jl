@@ -1,9 +1,7 @@
-@eval module $(gensym())
 using Graphs: edges, ne, vertices
 using NamedGraphs.GraphsExtensions: degree, edge_subgraph, is_connected, rem_vertex
-using NamedGraphs.NamedGraphGenerators:
-    named_comb_tree, named_grid, named_hexagonal_lattice_graph
-using NamedGraphs: leafless_edge_induced_subgraphs
+using NamedGraphs: leafless_edge_induced_subgraphs, named_comb_tree, named_grid,
+    named_hexagonal_lattice_graph
 using Test: @test, @testset
 
 @testset "leafless_edge_induced_subgraphs" begin
@@ -37,5 +35,4 @@ using Test: @test, @testset
     @test length(edge_subgraphs) == 1
     eg = only(edge_subgraphs)
     @test issetequal(edges(eg), edges(g))
-end
 end

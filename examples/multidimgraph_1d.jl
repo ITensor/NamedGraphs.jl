@@ -41,14 +41,3 @@ g_union = g ⊔ g
 
 @show has_vertex(g_union, ("A", 1))
 @show has_vertex(g_union, ("A", 2))
-
-# Error: vertex names are the same
-# g_vcat = [g; g]
-
-# TODO: Implement
-## g_hcat = [g;; g]
-##
-## @show nv(g_hcat) == 8
-## @show ne(g_hcat) == 6
-##
-## @show has_vertex(g_hcat, ("A", 1))

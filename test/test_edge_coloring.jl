@@ -1,7 +1,5 @@
-@eval module $(gensym())
 using Graphs: degree, dst, edges, ne, src, vertices
-using NamedGraphs.NamedGraphGenerators:
-    named_comb_tree, named_grid, named_hexagonal_lattice_graph
+using NamedGraphs: named_comb_tree, named_grid, named_hexagonal_lattice_graph
 using SimpleGraphAlgorithms: edge_color
 using SimpleGraphConverter
 using Test: @test, @testset
@@ -23,5 +21,4 @@ using Test: @test, @testset
             unique(vcat(src.(es), dst.(es))) == vcat(src.(es), dst.(es)) for es in colored_edges
         ]
     )
-end
 end

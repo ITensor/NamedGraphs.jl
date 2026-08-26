@@ -42,9 +42,21 @@ and edges used internally.
   graph on success, and `add_edge!`/`rem_edge!` threw for edges with vertices
   not in the graph, which now returns `false`
   ([#179](https://github.com/ITensor/NamedGraphs.jl/pull/179)).
+- The `Keys`, `SimilarType`, `GraphGenerators`, and `NamedGraphGenerators`
+  submodules are removed. The named graph generators (`named_grid`,
+  `named_path_graph`, and so on) and `similar_type` are accessible directly
+  from `NamedGraphs`, the simple graph generators `comb_tree` and
+  `binary_arborescence` move to `NamedGraphs.GraphsExtensions`, and the
+  unused `Key` type is deleted
+  ([#183](https://github.com/ITensor/NamedGraphs.jl/pull/183)).
 
 ### Non-breaking changes
 
+- The docs are reorganized into user and developer interface pages, the graph
+  types and generators are documented, and the README has an introduction and
+  examples ([#183](https://github.com/ITensor/NamedGraphs.jl/pull/183)).
+- `named_path_digraph` works, where previously it errored from missing
+  imports ([#183](https://github.com/ITensor/NamedGraphs.jl/pull/183)).
 - `bfs_parents(g, v)` and `dfs_parents(g, v)` map vertices unreachable from
   `v` to themselves, like `dijkstra_shortest_paths` does. Previously they
   errored on graphs with unreachable vertices

@@ -9,6 +9,14 @@ using Graphs: Graphs, AbstractGraph, AbstractSimpleGraph, IsDirected, SimpleDiGr
     nv, outdegree, prim_mst, rem_edge!, spfa_shortest_paths, vertices, weights
 using SimpleTraits: SimpleTraits, @traitfn, Not
 
+"""
+    AbstractNamedGraph{V} <: Graphs.AbstractGraph{V}
+
+Abstract type for graphs whose vertices are names of type `V` rather than
+contiguous integers. Subtypes implement the Graphs.jl interface in terms of a
+graph on integer vertex codes through the minimal interface
+[`encoded_graph`](@ref), [`encode_vertex`](@ref), and [`decode_vertex`](@ref).
+"""
 abstract type AbstractNamedGraph{V} <: AbstractGraph{V} end
 
 #
@@ -144,15 +152,15 @@ function encode_edge(graph::AbstractNamedGraph, edge::AbstractEdge)
 end
 
 """
-    decode_edge(graph::AbstractNamedGraph, encode_edge)
+    decode_edge(graph::AbstractNamedGraph, encoded_edge)
 
-The edge of `graph` corresponding to the edge `encode_edge` of
+The edge of `graph` corresponding to the edge `encoded_edge` of
 [`encoded_graph(graph)`](@ref encoded_graph). Inverse of [`encode_edge`](@ref).
 """
-function decode_edge(graph::AbstractNamedGraph, encode_edge::AbstractEdge)
+function decode_edge(graph::AbstractNamedGraph, encoded_edge::AbstractEdge)
     return edgetype(graph)(
-        decode_vertex(graph, src(encode_edge)),
-        decode_vertex(graph, dst(encode_edge))
+        decode_vertex(graph, src(encoded_edge)),
+        decode_vertex(graph, dst(encoded_edge))
     )
 end
 

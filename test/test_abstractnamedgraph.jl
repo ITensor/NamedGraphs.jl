@@ -1,11 +1,10 @@
-@eval module $(gensym())
 using Dictionaries: Dictionary
 using Graphs: Graphs, AbstractGraph, DiGraph, Graph, SimpleDiGraph, SimpleGraph, a_star,
     add_edge!, edges, edgetype, grid, has_edge, has_vertex, ne, nv, rem_edge!, vertices
 using NamedGraphs.GraphsExtensions: GraphsExtensions, edgeless_graph, empty_graph,
     rename_vertices, similar_dataless_graph, similar_graph
-using NamedGraphs.NamedGraphGenerators: named_grid, named_path_graph
-using NamedGraphs: NamedGraphs, AbstractNamedGraph, NamedDiGraph, NamedGraph, encoded_graph
+using NamedGraphs: NamedGraphs, AbstractNamedGraph, NamedDiGraph, NamedGraph, encoded_graph,
+    named_grid, named_path_graph
 using Test: @test, @testset
 
 struct TestGraph{V} <: AbstractNamedGraph{V}
@@ -224,6 +223,4 @@ end
     sdg = similar_dataless_graph(NamedDiGraph([1, 2, 3]), vertices(g))
     @test similar_dataless_graph(sdg, [1, 2]) isa NamedDiGraph
     @test similar_dataless_graph(sdg, 2) isa SimpleDiGraph
-end
-
 end

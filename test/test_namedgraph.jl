@@ -1,4 +1,3 @@
-@eval module $(gensym())
 using Dictionaries: Dictionary, Indices
 using Graphs.SimpleGraphs: SimpleDiGraph, SimpleEdge
 using Graphs: Edge, a_star, add_edge!, add_vertex!, adjacency_matrix,
@@ -17,9 +16,8 @@ using NamedGraphs.GraphsExtensions: GraphsExtensions, boundary_edges, boundary_v
     eccentricities, edge_subgraph, has_vertices, incident_edges, indegrees,
     inner_boundary_vertices, mincut_partitions, outdegrees, outer_boundary_vertices,
     permute_vertices, rename_vertices, subgraph, symrcm_perm, symrcm_permute, vertextype, ⊔
-using NamedGraphs.NamedGraphGenerators:
+using NamedGraphs: AbstractNamedEdge, NamedDiGraph, NamedEdge, NamedGraph, Vertices,
     named_binary_tree, named_grid, named_hexagonal_lattice_graph, named_path_graph
-using NamedGraphs: AbstractNamedEdge, NamedDiGraph, NamedEdge, NamedGraph, Vertices
 using SymRCM: SymRCM
 using Test: @test, @test_broken, @testset
 
@@ -704,5 +702,4 @@ end
             @test findfirst(x -> x == src(e), t) < findfirst(x -> x == dst(e), t)
         end
     end
-end
 end

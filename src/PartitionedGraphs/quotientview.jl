@@ -1,5 +1,5 @@
-using ..NamedGraphs: NamedGraph, encoded_graph_type, induced_subgraph_from_vertices
-using ..SimilarType: similar_type
+using ..NamedGraphs:
+    NamedGraph, encoded_graph_type, induced_subgraph_from_vertices, similar_type
 using .GraphsExtensions: directed_graph_type, undirected_graph_type
 using Graphs: AbstractGraph, edges, has_edge, rem_edge!, rem_vertex!, vertices
 
@@ -52,7 +52,7 @@ function NamedGraphs.decode_vertex(g::QuotientView, code::Integer)
     return NamedGraphs.decode_vertex(copy(g), code)
 end
 
-function NamedGraphs.SimilarType.similar_type(type::Type{<:QuotientView})
+function NamedGraphs.similar_type(type::Type{<:QuotientView})
     return similar_type(quotient_graph_type(parent_graph_type(type)))
 end
 

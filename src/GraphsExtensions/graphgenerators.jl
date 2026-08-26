@@ -1,4 +1,3 @@
-module GraphGenerators
 using Dictionaries: Dictionary
 using Graphs.SimpleGraphs: SimpleDiGraph, SimpleGraph, binary_tree
 using Graphs: add_edge!, dst, edges, nv, src
@@ -48,5 +47,4 @@ function binary_arborescence(k::Integer)
         add_edge!(digraph, e)
     end
     return digraph
-end
 end
