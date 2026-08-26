@@ -3,10 +3,10 @@ using .GraphsExtensions: GraphsExtensions, all_edges, directed_graph, empty_grap
     rename_vertices, similar_graph, subgraph
 using Dictionaries: Dictionary, set!
 using Graphs: Graphs, AbstractGraph, AbstractSimpleGraph, IsDirected, SimpleDiGraph,
-    SimpleEdge, SimpleGraph, a_star, add_edge!, adjacency_matrix, bfs_parents, boruvka_mst,
-    connected_components, degree, edges, has_path, indegree, induced_subgraph, inneighbors,
-    is_connected, is_cyclic, kruskal_mst, ne, neighborhood, neighborhood_dists, nv,
-    outdegree, prim_mst, rem_edge!, spfa_shortest_paths, vertices, weights
+    SimpleEdge, SimpleGraph, a_star, add_edge!, adjacency_matrix, bfs_parents, blockdiag,
+    boruvka_mst, connected_components, degree, edges, has_path, indegree, induced_subgraph,
+    inneighbors, is_connected, is_cyclic, kruskal_mst, ne, neighborhood, neighborhood_dists,
+    nv, outdegree, prim_mst, rem_edge!, spfa_shortest_paths, vertices, weights
 using SimpleTraits: SimpleTraits, @traitfn, Not
 
 abstract type AbstractNamedGraph{V} <: AbstractGraph{V} end
@@ -42,7 +42,10 @@ decode_vertex(graph::AbstractSimpleGraph, code::Integer) = code
 Graphs.rem_vertex!(graph::AbstractNamedGraph, vertex) = not_implemented()
 Graphs.add_vertex!(graph::AbstractNamedGraph, vertex) = not_implemented()
 
-GraphsExtensions.rename_vertices(f::Function, g::AbstractNamedGraph) = not_implemented()
+function GraphsExtensions.rename_vertices(f::Function, graph::AbstractNamedGraph)
+    new_vertices = map(c -> f(decode_vertex(graph, c)), vertices(encoded_graph(graph)))
+    return namedgraph(copy(encoded_graph(graph)), new_vertices)
+end
 
 #
 # Derived interface (overload for performance)
@@ -87,15 +90,21 @@ function GraphsExtensions.permute_vertices(graph::AbstractNamedGraph, permutatio
 end
 
 Graphs.edgetype(graph::AbstractNamedGraph) = edgetype(typeof(graph))
-Graphs.edgetype(::Type{<:AbstractNamedGraph}) = not_implemented()
+function Graphs.edgetype(graph_type::Type{<:AbstractNamedGraph})
+    return NamedEdge{vertextype(graph_type)}
+end
 
 # In terms of `encoded_graph_type`
 # is_directed(::Type{<:AbstractNamedGraph}) = not_implemented()
 
 GraphsExtensions.convert_vertextype(::Type{V}, g::AbstractNamedGraph{V}) where {V} = g
-GraphsExtensions.convert_vertextype(::Type, g::AbstractNamedGraph) = not_implemented()
+function GraphsExtensions.convert_vertextype(vertextype::Type, graph::AbstractNamedGraph)
+    new_vertices = map(c -> decode_vertex(graph, c), vertices(encoded_graph(graph)))
+    return namedgraph(copy(encoded_graph(graph)), convert(Vector{vertextype}, new_vertices))
+end
 
-Base.copy(graph::AbstractNamedGraph) = copyto!(similar_graph(graph), graph)
+# `similar_graph(graph)` copies the vertices and edges.
+Base.copy(graph::AbstractNamedGraph) = similar_graph(graph)
 
 function Graphs.merge_vertices!(
         graph::AbstractNamedGraph, merge_vertices; merged_vertex = first(merge_vertices)
@@ -389,14 +398,18 @@ function Graphs.prim_mst(g::AbstractNamedGraph, distmx::AbstractMatrix{<:Real} =
 end
 
 function Graphs.add_edge!(graph::AbstractNamedGraph, edge)
-    add_edge!(encoded_graph(graph), encode_edge(graph, edgetype(graph)(edge)))
-    return graph
+    e = edgetype(graph)(edge)
+    has_vertex(graph, src(e)) || return false
+    has_vertex(graph, dst(e)) || return false
+    return add_edge!(encoded_graph(graph), encode_edge(graph, e))
 end
 Graphs.add_edge!(g::AbstractNamedGraph, src, dst) = add_edge!(g, edgetype(g)(src, dst))
 
 function Graphs.rem_edge!(graph::AbstractNamedGraph, edge)
-    rem_edge!(encoded_graph(graph), encode_edge(graph, edgetype(graph)(edge)))
-    return graph
+    e = edgetype(graph)(edge)
+    has_vertex(graph, src(e)) || return false
+    has_vertex(graph, dst(e)) || return false
+    return rem_edge!(encoded_graph(graph), encode_edge(graph, e))
 end
 
 function Graphs.has_edge(graph::AbstractNamedGraph, edge::AbstractNamedEdge)
@@ -455,25 +468,16 @@ Graphs.is_connected(graph::AbstractNamedGraph) = is_connected(encoded_graph(grap
 
 Graphs.is_cyclic(graph::AbstractNamedGraph) = is_cyclic(encoded_graph(graph))
 
-@traitfn function Base.reverse(graph::AbstractNamedGraph::IsDirected)
-    newgraph = edgeless_graph(graph)
-    add_edges!(newgraph, map(reverse, edges(graph)))
-    return newgraph
+function Base.reverse(graph::AbstractNamedGraph)
+    new_vertices = map(c -> decode_vertex(graph, c), vertices(encoded_graph(graph)))
+    return namedgraph(reverse(encoded_graph(graph)), new_vertices)
 end
 
-# This wont be the most efficient way for a given graph type.
-@traitfn function Base.reverse!(g::AbstractNamedGraph::IsDirected)
-    edge_list = collect(edges(g))
-
-    for edge in edge_list
-        rem_edge!(g, edge)
-        add_edge!(g, reverse(edge))
-    end
-
-    return g
+function Base.reverse!(graph::AbstractNamedGraph)
+    reverse!(encoded_graph(graph))
+    return graph
 end
 
-# TODO: Move to `namedgraph.jl`, or make the output generic?
 function Graphs.blockdiag(graph1::AbstractNamedGraph, graph2::AbstractNamedGraph)
     new_encoded_graph = blockdiag(encoded_graph(graph1), encoded_graph(graph2))
     new_vertices = vcat(
@@ -481,7 +485,7 @@ function Graphs.blockdiag(graph1::AbstractNamedGraph, graph2::AbstractNamedGraph
         map(c -> decode_vertex(graph2, c), vertices(encoded_graph(graph2)))
     )
     @assert allunique(new_vertices)
-    return GenericNamedGraph(new_encoded_graph, new_vertices)
+    return namedgraph(new_encoded_graph, new_vertices)
 end
 
 Graphs.nv(graph::AbstractNamedGraph) = nv(encoded_graph(graph))
@@ -553,10 +557,13 @@ function namedgraph_bfs_parents(graph::AbstractNamedGraph, vertex; kwargs...)
         encoded_graph(graph), encode_vertex(graph, vertex); kwargs...
     )
     graph_vertices = map(c -> decode_vertex(graph, c), vertices(encoded_graph(graph)))
-    return Dictionary(
-        graph_vertices,
-        map(c -> decode_vertex(graph, c), encoded_bfs_parents)
-    )
+    # Unreachable vertices have parent code 0; map them to themselves like
+    # `dijkstra_shortest_paths` does.
+    parents = map(eachindex(encoded_bfs_parents)) do c
+        p = encoded_bfs_parents[c]
+        return decode_vertex(graph, iszero(p) ? c : p)
+    end
+    return Dictionary(graph_vertices, parents)
 end
 # Disambiguation from Graphs.jl
 function Graphs.bfs_parents(graph::AbstractNamedGraph, vertex::Integer; kwargs...)

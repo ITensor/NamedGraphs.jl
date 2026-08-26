@@ -33,12 +33,15 @@ function NamedGraphs.GraphsExtensions.undirected_graph_type(type::Type{<:Quotien
 end
 
 function Graphs.rem_vertex!(qg::QuotientView, v)
+    has_vertex(qg, v) || return false
     rem_quotientvertex!(parent(qg), QuotientVertex(v))
-    return qg
+    return true
 end
-function Graphs.rem_edge!(qg::QuotientView, v)
-    rem_quotientedge!(parent(qg), QuotientEdge(v))
-    return qg
+function Graphs.rem_edge!(qg::QuotientView, e)
+    e = edgetype(qg)(e)
+    has_edge(qg, e) || return false
+    rem_quotientedge!(parent(qg), QuotientEdge(e))
+    return true
 end
 
 NamedGraphs.encoded_graph(g::QuotientView) = NamedGraphs.encoded_graph(copy(g))

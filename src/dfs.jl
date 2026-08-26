@@ -23,10 +23,13 @@ function namedgraph_dfs_parents(graph::AbstractNamedGraph, vertex; kwargs...)
         encoded_graph(graph), encode_vertex(graph, vertex); kwargs...
     )
     graph_vertices = map(c -> decode_vertex(graph, c), vertices(encoded_graph(graph)))
-    return Dictionary(
-        graph_vertices,
-        map(c -> decode_vertex(graph, c), encoded_dfs_parents)
-    )
+    # Unreachable vertices have parent code 0; map them to themselves like
+    # `dijkstra_shortest_paths` does.
+    parents = map(eachindex(encoded_dfs_parents)) do c
+        p = encoded_dfs_parents[c]
+        return decode_vertex(graph, iszero(p) ? c : p)
+    end
+    return Dictionary(graph_vertices, parents)
 end
 # Disambiguation from Graphs.dfs_parents
 function Graphs.dfs_parents(graph::AbstractNamedGraph, vertex::Integer; kwargs...)
