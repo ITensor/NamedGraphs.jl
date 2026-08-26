@@ -1,11 +1,9 @@
 using Dictionaries: Dictionary
 using Graphs: Graphs, dijkstra_shortest_paths, weights
 
-"""
-    struct NamedDijkstraState{V,T}
-
-An `AbstractPathState` designed for Dijkstra shortest-paths calculations.
-"""
+#     struct NamedDijkstraState{V,T}
+#
+# An `AbstractPathState` designed for Dijkstra shortest-paths calculations.
 struct NamedDijkstraState{V, T <: Real} <: Graphs.AbstractPathState
     parents::Dictionary{V, V}
     dists::Dictionary{V, T}

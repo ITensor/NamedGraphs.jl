@@ -1,8 +1,6 @@
 module NamedGraphs
-include("lib/SimilarType/src/SimilarType.jl")
-include("lib/Keys/src/Keys.jl")
-include("lib/GraphGenerators/src/GraphGenerators.jl")
-include("lib/GraphsExtensions/src/GraphsExtensions.jl")
+include("similartype.jl")
+include("GraphsExtensions/GraphsExtensions.jl")
 include("utils.jl")
 include("abstractnamededge.jl")
 include("namededge.jl")
@@ -19,8 +17,9 @@ include("dfs.jl")
 include("namedgraph.jl")
 include("encodedgraphview.jl")
 include("simplecycles.jl")
-include("lib/NamedGraphGenerators/src/NamedGraphGenerators.jl")
-include("lib/PartitionedGraphs/src/PartitionedGraphs.jl")
+include("namedgraphgenerators.jl")
+include("namedgridgraph.jl")
+include("PartitionedGraphs/PartitionedGraphs.jl")
 
 export AbstractNamedGraph, NamedDiGraph, NamedEdge, NamedGraph
 

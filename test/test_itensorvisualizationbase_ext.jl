@@ -1,7 +1,6 @@
 @eval module $(gensym())
 using ITensorVisualizationBase: ITensorVisualizationBase
-using NamedGraphs.NamedGraphGenerators: named_grid
-using NamedGraphs: AbstractNamedGraph
+using NamedGraphs: AbstractNamedGraph, named_grid
 using Test: @test, @testset
 
 @testset "NamedGraphsITensorVisualizationBaseExt" begin

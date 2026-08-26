@@ -1,7 +1,7 @@
 @eval module $(gensym())
 using Graphs: ne, neighbors, nv, vertices
-using NamedGraphs.GraphGenerators: comb_tree
-using NamedGraphs.NamedGraphGenerators: named_comb_tree
+using NamedGraphs.GraphsExtensions: comb_tree
+using NamedGraphs: named_comb_tree
 using Random: Random
 using Test: @test, @testset
 

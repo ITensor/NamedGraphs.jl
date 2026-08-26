@@ -62,11 +62,9 @@ function encode_dist_matrix(
     return distmx
 end
 
-"""
-    DefaultNamedCapacity{T}
-
-Structure that returns `1` if a forward edge exists in `flow_graph`, and `0` otherwise.
-"""
+#     DefaultNamedCapacity{T}
+#
+# Structure that returns `1` if a forward edge exists in `flow_graph`, and `0` otherwise.
 struct DefaultNamedCapacity{G <: AbstractNamedGraph, T <: Integer} <: AbstractMatrix{T}
     flow_graph::G
     nv::T

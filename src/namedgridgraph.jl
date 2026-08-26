@@ -1,4 +1,3 @@
-using ..NamedGraphs: AbstractNamedEdge, AbstractNamedGraph, NamedEdge, NamedGraphs
 using Graphs: Graphs, AbstractEdge, AbstractEdgeIter, dst, edgetype, has_edge, has_vertex,
     ne, neighbors, src, vertices
 
@@ -89,6 +88,14 @@ inneighbors_grid(g, v) = neighbors_grid(g, v)
 outneighbors_grid(g, v) = neighbors_grid(g, v)
 edges_grid(g) = NamedGridEdgeIter(g)
 
+"""
+    NamedGridGraph{N} <: AbstractNamedGraph{NTuple{N, Int}}
+    NamedGridGraph(grid_size::NTuple{N, Int}, ishypertorus::Bool = false)
+
+An immutable grid graph with each vertex named by its coordinate tuple,
+computed lazily from the grid size rather than stored, `ishypertorus = true`
+connects the boundaries. See [`named_grid`](@ref) for the mutable equivalent.
+"""
 struct NamedGridGraph{N, ishypertorus} <: AbstractNamedGraph{NTuple{N, Int}}
     grid_size::NTuple{N, Int}
 end
@@ -97,10 +104,10 @@ function NamedGridGraph(grid_size::NTuple{N, Int}, ishypertorus::Bool = false) w
 end
 # Minimal interface functions
 # `encoded_graph` uses the generic `EncodedGraphView` fallback.
-function NamedGraphs.encode_vertex(g::NamedGridGraph, vertex)
+function encode_vertex(g::NamedGridGraph, vertex)
     return LinearIndices(grid_size(g))[CartesianIndex(vertex)]
 end
-function NamedGraphs.decode_vertex(g::NamedGridGraph, code::Integer)
+function decode_vertex(g::NamedGridGraph, code::Integer)
     return Tuple(CartesianIndices(grid_size(g))[code])
 end
 ishypertorus(g::NamedGridGraph{<:Any, istorus}) where {istorus} = istorus

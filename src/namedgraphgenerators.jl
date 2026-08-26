@@ -1,9 +1,7 @@
-using ..GraphGenerators: comb_tree
-using ..GraphsExtensions: add_edges!, rem_vertices!
-using ..NamedGraphs: NamedGraph
+using .GraphsExtensions: add_edges!, comb_tree, rem_vertices!
 using Graphs.SimpleGraphs: AbstractSimpleGraph
 using Graphs: IsDirected, bfs_tree, binary_tree, cycle_graph, grid, inneighbors,
-    merge_vertices, nv, outneighbors, path_graph, rem_vertex!
+    merge_vertices, nv, outneighbors, path_digraph, path_graph, rem_vertex!
 using SimpleTraits: SimpleTraits, @traitfn, Not
 
 ## TODO: Bring this back in some form?
@@ -65,6 +63,13 @@ function named_bfs_tree(
     return NamedGraph(simple_graph, vertex_names)
 end
 
+"""
+    named_binary_tree(k::Integer)
+
+A named binary tree of depth `k`, with each vertex named by the path from the
+root as a vector of child indices: the root is `[1]`, its children are
+`[1, 1]` and `[1, 2]`, and so on.
+"""
 function named_binary_tree(
         k::Integer, source::Integer = 1; source_name = 1, child_name = identity
     )
@@ -72,18 +77,42 @@ function named_binary_tree(
     return named_bfs_tree(simple_graph, source; source_name, child_name)
 end
 
+"""
+    named_path_graph(dim::Integer)
+
+A named path graph on the vertices `1:dim`.
+"""
 function named_path_graph(dim::Integer)
     return NamedGraph(path_graph(dim))
 end
 
+"""
+    named_cycle_graph(dim::Integer)
+
+A named cycle graph on the vertices `1:dim`.
+"""
 function named_cycle_graph(dim::Integer)
     return NamedGraph(cycle_graph(dim))
 end
 
+"""
+    named_path_digraph(dim::Integer)
+
+A named directed path graph on the vertices `1:dim`.
+"""
 function named_path_digraph(dim::Integer)
     return NamedDiGraph(path_digraph(dim))
 end
 
+"""
+    named_grid(dims; periodic = false)
+    named_grid(dim::Integer; periodic = false)
+
+A named grid graph of size `dims`, with each vertex named by its coordinate
+tuple, so the grid `named_grid((2, 2))` has vertices `(1, 1)`, `(2, 1)`,
+`(1, 2)`, and `(2, 2)`. A single integer `dim` gives a one-dimensional grid on
+the vertices `1:dim`. `periodic = true` connects the boundaries.
+"""
 function named_grid(dim::Integer; kwargs...)
     simple_graph = grid((dim,); kwargs...)
     return NamedGraph(simple_graph)
@@ -94,6 +123,14 @@ function named_grid(dims; kwargs...)
     return NamedGraph(simple_graph, Tuple.(CartesianIndices(Tuple(dims))))
 end
 
+"""
+    named_comb_tree(dims::Tuple)
+    named_comb_tree(tooth_lengths::AbstractVector{<:Integer})
+
+A named comb tree with `dims[1]` teeth of length `dims[2]`, or teeth of the
+given lengths, with each vertex named by its coordinate tuple: `(jx, jy)` is
+the `jy`th vertex of tooth `jx`, and the `(jx, 1)` vertices form the backbone.
+"""
 function named_comb_tree(dims::Tuple)
     simple_graph = comb_tree(dims)
     return NamedGraph(simple_graph, Tuple.(CartesianIndices(Tuple(dims))))
@@ -111,8 +148,12 @@ function named_comb_tree(tooth_lengths::AbstractVector{<:Integer})
 end
 
 """
-Generate a graph which corresponds to a hexagonal tiling of the plane. There are m rows and n columns of hexagons.
-Based off of the generator in Networkx hexagonal_lattice_graph()
+    named_hexagonal_lattice_graph(m::Integer, n::Integer; periodic = false)
+
+A named graph of a hexagonal tiling of the plane, with `m` rows and `n`
+columns of hexagons and each vertex named by its coordinate tuple.
+`periodic = true` tiles the torus instead. Based on the NetworkX generator
+`hexagonal_lattice_graph`.
 """
 function named_hexagonal_lattice_graph(m::Integer, n::Integer; periodic = false)
     M = 2 * m
@@ -152,8 +193,12 @@ function named_hexagonal_lattice_graph(m::Integer, n::Integer; periodic = false)
 end
 
 """
-Generate a graph which corresponds to a equilateral triangle tiling of the plane. There are m rows and n columns of triangles.
-Based off of the generator in Networkx triangular_lattice_graph()
+    named_triangular_lattice_graph(m::Integer, n::Integer; periodic = false)
+
+A named graph of an equilateral triangle tiling of the plane, with `m` rows
+and `n` columns of triangles and each vertex named by its coordinate tuple.
+`periodic = true` tiles the torus instead. Based on the NetworkX generator
+`triangular_lattice_graph`.
 """
 function named_triangular_lattice_graph(m::Integer, n::Integer; periodic = false)
     N = floor(Int64, (n + 1) / 2.0)

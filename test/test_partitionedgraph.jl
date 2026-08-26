@@ -7,8 +7,6 @@ using Metis: Metis
 using NamedGraphs.GraphsExtensions: add_edges!, add_vertices!, boundary_edges,
     default_root_vertex, edgetype, forest_cover, is_path_graph, is_self_loop,
     spanning_forest, spanning_tree, subgraph, vertextype
-using NamedGraphs.NamedGraphGenerators:
-    named_comb_tree, named_grid, named_triangular_lattice_graph
 using NamedGraphs.PartitionedGraphs: AbstractPartitionedGraph, PartitionedGraph,
     PartitionedGraphs, PartitionedView, QuotientEdge, QuotientEdgeEdge, QuotientEdgeEdges,
     QuotientEdgeSlice, QuotientEdges, QuotientEdgesEdges, QuotientVertex,
@@ -18,8 +16,8 @@ using NamedGraphs.PartitionedGraphs: AbstractPartitionedGraph, PartitionedGraph,
     partitionedgraph, quotient_graph, quotientedge, quotientedges, quotientvertex,
     quotientvertices, rem_quotientvertex!, to_quotient_index, unpartition,
     unpartitioned_graph
-using NamedGraphs: NamedGraphs, Edges, NamedEdge, NamedGraph, Vertices,
-    parent_graph_indices, to_graph_index
+using NamedGraphs: NamedGraphs, Edges, NamedEdge, NamedGraph, Vertices, named_comb_tree,
+    named_grid, named_triangular_lattice_graph, parent_graph_indices, to_graph_index
 using Pkg: Pkg
 using Test: @test, @test_throws, @testset
 

@@ -3,8 +3,7 @@
 using Graphs: Graphs, Edge, edges, edgetype, has_edge, has_vertex, inneighbors, is_directed,
     ne, neighbors, nv, outneighbors, vertices
 using NamedGraphs.GraphsExtensions: vertextype
-using NamedGraphs.NamedGraphGenerators: NamedGridGraph
-using NamedGraphs: EncodedGraphView, NamedEdge
+using NamedGraphs: EncodedGraphView, NamedEdge, NamedGridGraph
 using Test: @test, @test_broken, @testset
 
 @testset "EncodedGraphView" begin

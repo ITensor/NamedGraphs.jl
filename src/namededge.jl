@@ -1,6 +1,14 @@
 using .GraphsExtensions: GraphsExtensions
 using Graphs: Graphs
 
+"""
+    NamedEdge{V} <: AbstractNamedEdge{V}
+    NamedEdge(src, dst)
+    NamedEdge(src => dst)
+
+An edge between two named vertices, the edge type of [`NamedGraph`](@ref) and
+[`NamedDiGraph`](@ref).
+"""
 struct NamedEdge{V} <: AbstractNamedEdge{V}
     src::V
     dst::V

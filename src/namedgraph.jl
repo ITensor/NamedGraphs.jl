@@ -100,6 +100,70 @@ for T in (:NamedGraph, :NamedDiGraph)
     end
 end
 
+"""
+    NamedGraph{V} <: AbstractNamedGraph{V}
+    NamedGraph(vertices)
+    NamedGraph(simple_graph::AbstractSimpleGraph, vertices)
+
+An undirected graph whose vertices are the names in `vertices`, backed by a
+`Graphs.SimpleGraph` on the integer vertex codes. When constructed from a
+simple graph, the `i`th name corresponds to the vertex `i` of `simple_graph`,
+and otherwise the graph starts with no edges.
+
+# Examples
+
+```jldoctest
+julia> using Graphs: add_edge!, has_edge, ne, nv, path_graph
+
+julia> using NamedGraphs: NamedGraph
+
+julia> g = NamedGraph(["a", "b", "c", "d"]);
+
+julia> add_edge!(g, "a" => "b")
+true
+
+julia> has_edge(g, "b", "a")
+true
+
+julia> g = NamedGraph(path_graph(4), ["a", "b", "c", "d"]);
+
+julia> (nv(g), ne(g))
+(4, 3)
+```
+"""
+NamedGraph
+
+"""
+    NamedDiGraph{V} <: AbstractNamedGraph{V}
+    NamedDiGraph(vertices)
+    NamedDiGraph(simple_graph::AbstractSimpleGraph, vertices)
+
+A directed graph whose vertices are the names in `vertices`, backed by a
+`Graphs.SimpleDiGraph` on the integer vertex codes. When constructed from a
+simple graph, the `i`th name corresponds to the vertex `i` of `simple_graph`,
+and otherwise the graph starts with no edges.
+
+# Examples
+
+```jldoctest
+julia> using Graphs: add_edge!, has_edge
+
+julia> using NamedGraphs: NamedDiGraph
+
+julia> g = NamedDiGraph(["a", "b"]);
+
+julia> add_edge!(g, "a" => "b")
+true
+
+julia> has_edge(g, "a", "b")
+true
+
+julia> has_edge(g, "b", "a")
+false
+```
+"""
+NamedDiGraph
+
 # Generic constructor for the named graph type corresponding to an encoded graph.
 @traitfn function namedgraph(simple_graph::AbstractSimpleGraph::IsDirected, vertices)
     return NamedDiGraph(simple_graph, vertices)

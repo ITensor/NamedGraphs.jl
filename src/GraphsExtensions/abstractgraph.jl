@@ -163,6 +163,13 @@ end
 # TODO: Should this preserve vertex names by
 # converting to `NamedGraph` if indexed by
 # something besides `Base.OneTo`?
+"""
+    subgraph(graph::AbstractGraph, vertices)
+    subgraph(f::Function, graph::AbstractGraph)
+
+The subgraph of `graph` induced by the given vertices, or by the vertices
+selected by the filter function `f`. Vertex names are preserved.
+"""
 function subgraph(graph::AbstractGraph, vertices)
     subgraph, _ = induced_subgraph(graph, vertices)
     return subgraph
@@ -254,23 +261,19 @@ function ⊔(graphs...; kwargs...)
     return disjoint_union(graphs...; kwargs...)
 end
 
-"""
-Check if an undirected graph is a path/linear graph:
-
-https://en.wikipedia.org/wiki/Path_graph
-
-but not a path/linear forest:
-
-https://en.wikipedia.org/wiki/Linear_forest
-"""
+# Check if an undirected graph is a path/linear graph:
+#
+# https://en.wikipedia.org/wiki/Path_graph
+#
+# but not a path/linear forest:
+#
+# https://en.wikipedia.org/wiki/Linear_forest
 @traitfn function is_path_graph(graph::::(!IsDirected))
     return is_tree(graph) && (Δ(graph) == 2)
 end
 
-"""
-https://juliagraphs.org/Graphs.jl/dev/core_functions/simplegraphs_generators/#Graphs.SimpleGraphs.cycle_graph-Tuple%7BT%7D%20where%20T%3C:Integer
-https://en.wikipedia.org/wiki/Cycle_graph
-"""
+# https://juliagraphs.org/Graphs.jl/dev/core_functions/simplegraphs_generators/#Graphs.SimpleGraphs.cycle_graph-Tuple%7BT%7D%20where%20T%3C:Integer
+# https://en.wikipedia.org/wiki/Cycle_graph
 @traitfn function is_cycle_graph(graph::::(!IsDirected))
     return all(==(2), degrees(graph))
 end
@@ -357,9 +360,7 @@ function leaf_vertices(graph::AbstractGraph)
     return filter(v -> is_leaf_vertex(graph, v), vertices(graph))
 end
 
-"""
-Determine if an edge involves a leaf (at src or dst)
-"""
+# Determine if an edge involves a leaf (at src or dst)
 @traitfn function is_leaf_edge(g::::(!IsDirected), e::AbstractEdge)
     return has_edge(g, e) && (is_leaf_vertex(g, src(e)) || is_leaf_vertex(g, dst(e)))
 end
@@ -370,25 +371,19 @@ function is_leaf_edge(g::AbstractGraph, e::Pair)
     return is_leaf_edge(g, edgetype(g)(e))
 end
 
-"""
-Determine if a node has any neighbors which are leaves
-"""
+# Determine if a node has any neighbors which are leaves
 function has_leaf_neighbor(g::AbstractGraph, v)
     return any(w -> is_leaf_vertex(g, w), neighbors(g, v))
 end
 
-"""
-Get all edges which do not involve a leaf
-
-https://en.wikipedia.org/wiki/Tree_(graph_theory)#Definitions
-"""
+# Get all edges which do not involve a leaf
+#
+# https://en.wikipedia.org/wiki/Tree_(graph_theory)#Definitions
 function non_leaf_edges(g::AbstractGraph)
     return Iterators.filter(e -> !is_leaf_edge(g, e), edges(g))
 end
 
-"""
-Get distance of a vertex from a leaf
-"""
+# Get distance of a vertex from a leaf
 function distance_to_leaves(g::AbstractGraph, v)
     return map(Indices(leaf_vertices(g))) do leaf
         v == leaf && return 0
@@ -420,12 +415,10 @@ end
     return true
 end
 
-"""
-Return the root vertex of a rooted directed graph.
-
-This will return the first root vertex that is found,
-so won't error if there is more than one.
-"""
+# Return the root vertex of a rooted directed graph.
+#
+# This will return the first root vertex that is found,
+# so won't error if there is more than one.
 @traitfn function root_vertex(graph::::IsDirected)
     if is_cyclic(graph)
         return error("Graph must not have any cycles.")
@@ -588,9 +581,7 @@ function rem_vertex(g::AbstractGraph, vs)
     return g
 end
 
-"""
-Remove a list of vertices from a graph g
-"""
+# Remove a list of vertices from a graph g
 function rem_vertices!(g::AbstractGraph, vs)
     for v in vs
         rem_vertex!(g, v)
@@ -610,9 +601,7 @@ function add_edge(g::AbstractGraph, edge)
     return g
 end
 
-"""
-Add a list of edges to a graph g
-"""
+# Add a list of edges to a graph g
 function add_edges!(g::AbstractGraph, edges)
     for e in edges
         add_edge!(g, edgetype(g)(e))
@@ -632,9 +621,7 @@ function rem_edge(g::AbstractGraph, edge)
     return g
 end
 
-"""
-Remove a list of edges from a graph g
-"""
+# Remove a list of edges from a graph g
 function rem_edges!(g::AbstractGraph, edges)
     for e in edges
         rem_edge!(g, edgetype(g)(e))
@@ -662,9 +649,7 @@ function decorate_graph_vertices(g::AbstractGraph; kwargs...)
     return not_implemented()
 end
 
-"""
-Do a BFS search to construct a tree, but do it with randomness to avoid generating the same tree. Based on Int. J. Comput. Their Appl. 15 pp 177-186 (2008). Edges will point away from source vertex s.
-"""
+# Do a BFS search to construct a tree, but do it with randomness to avoid generating the same tree. Based on Int. J. Comput. Their Appl. 15 pp 177-186 (2008). Edges will point away from source vertex s.
 function random_bfs_tree(g::AbstractGraph, s; maxiter = 1000 * (nv(g) + ne(g)))
     Q = [s]
     d = map(v -> v == s ? 0.0 : Inf, Indices(vertices(g)))

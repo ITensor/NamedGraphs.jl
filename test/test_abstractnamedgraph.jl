@@ -4,8 +4,8 @@ using Graphs: Graphs, AbstractGraph, DiGraph, Graph, SimpleDiGraph, SimpleGraph,
     add_edge!, edges, edgetype, grid, has_edge, has_vertex, ne, nv, rem_edge!, vertices
 using NamedGraphs.GraphsExtensions: GraphsExtensions, edgeless_graph, empty_graph,
     rename_vertices, similar_dataless_graph, similar_graph
-using NamedGraphs.NamedGraphGenerators: named_grid, named_path_graph
-using NamedGraphs: NamedGraphs, AbstractNamedGraph, NamedDiGraph, NamedGraph, encoded_graph
+using NamedGraphs: NamedGraphs, AbstractNamedGraph, NamedDiGraph, NamedGraph, encoded_graph,
+    named_grid, named_path_graph
 using Test: @test, @testset
 
 struct TestGraph{V} <: AbstractNamedGraph{V}

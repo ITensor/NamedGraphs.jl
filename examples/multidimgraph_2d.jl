@@ -26,7 +26,6 @@ g_sub = subgraph(g, [("X", 1), ("X", 2)])
 @show !has_vertex(g_sub, ("Y", 1))
 @show !has_vertex(g_sub, ("Y", 2))
 
-# g_sub = g["X", :]
 g_sub = subgraph(v -> v[1] == "X", g)
 
 @show has_vertex(g_sub, ("X", 1))
@@ -34,7 +33,6 @@ g_sub = subgraph(v -> v[1] == "X", g)
 @show !has_vertex(g_sub, ("Y", 1))
 @show !has_vertex(g_sub, ("Y", 2))
 
-# g_sub = g[:, 2]
 g_sub = subgraph(v -> v[2] == 2, g)
 
 @show !has_vertex(g_sub, ("X", 1))
@@ -49,11 +47,3 @@ g2 = NamedGraph(simple_graph, Tuple.(CartesianIndices((2, 2))))
 g_disjoint_union = g1 ⊔ g2
 
 @show nv(g_disjoint_union) == 8
-
-## g_vcat = [g1; g2]
-##
-## @show nv(g_vcat) == 8
-##
-## g_hcat = [g1;; g2]
-##
-## @show nv(g_hcat) == 8

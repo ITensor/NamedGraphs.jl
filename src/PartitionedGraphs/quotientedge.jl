@@ -76,7 +76,7 @@ Base.getindex(qes::QuotientEdges, i::Int) = QuotientEdge(qes.edges[i])
 Base.getindex(qes::QuotientEdges, i) = QuotientEdges(qes.edges[i])
 
 """
-    quotientedges(g::AbstractGraph, es = edges(pg)) -> QuotientEdges
+    quotientedges(g::AbstractGraph, es = edges(g)) -> QuotientEdges
 
 Return an iterator over all unique quotient edges corresponding to the set of edges `es` of
 the graph `g`.
@@ -130,7 +130,7 @@ See also: `nv`.
 Graphs.ne(g::AbstractGraph, se::QuotientEdge) = length(edges(g, se))
 
 """
-    rem_edges!(g::AbstractGraph, qe::QuotientEdge) -> Int
+    rem_edges!(g::AbstractGraph, qe::QuotientEdge)
 
 Remove, in place, all the edges of `g` that correspond to the quotient edge `qe`.
 """

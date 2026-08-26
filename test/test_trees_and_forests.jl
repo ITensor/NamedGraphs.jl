@@ -2,9 +2,8 @@
 using Graphs: connected_components, edges, is_tree, vertices
 using NamedGraphs.GraphsExtensions:
     GraphsExtensions, all_edges, forest_cover, spanning_tree, vertextype
-using NamedGraphs.NamedGraphGenerators: named_comb_tree, named_grid,
+using NamedGraphs: NamedGraph, Vertices, named_comb_tree, named_grid,
     named_hexagonal_lattice_graph, named_triangular_lattice_graph
-using NamedGraphs: NamedGraph, Vertices
 using Test: @test, @testset
 
 gs = [

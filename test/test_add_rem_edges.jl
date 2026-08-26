@@ -1,8 +1,7 @@
 @eval module $(gensym())
 using Graphs: has_edge, is_connected
 using NamedGraphs.GraphsExtensions: add_edges!, rem_edges!
-using NamedGraphs.NamedGraphGenerators: named_grid
-using NamedGraphs: NamedGraph
+using NamedGraphs: NamedGraph, named_grid
 using Test: @test, @testset
 
 @testset "Adding and Removing Edge Lists" begin

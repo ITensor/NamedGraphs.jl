@@ -1,4 +1,5 @@
 module GraphsExtensions
+include("graphgenerators.jl")
 include("abstractgraph.jl")
 include("abstracttrees.jl")
 include("boundary.jl")
