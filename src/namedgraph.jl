@@ -97,17 +97,6 @@ for T in (:NamedGraph, :NamedDiGraph)
         end
         $T(graph::$T) = $T{vertextype(graph)}(graph)
         Base.convert(graph_type::Type{<:$T}, graph::$T) = graph_type(graph)
-
-        Graphs.is_directed(graph_type::Type{<:$T}) =
-            is_directed(encoded_graph_type(graph_type))
-
-        function Base.reverse!(graph::$T)
-            reverse!(encoded_graph(graph))
-            return graph
-        end
-        function Base.reverse(graph::$T)
-            return $T(reverse(encoded_graph(graph)), copy(graph.decoded_vertices))
-        end
     end
 end
 

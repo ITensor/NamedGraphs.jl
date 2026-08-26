@@ -468,22 +468,14 @@ Graphs.is_connected(graph::AbstractNamedGraph) = is_connected(encoded_graph(grap
 
 Graphs.is_cyclic(graph::AbstractNamedGraph) = is_cyclic(encoded_graph(graph))
 
-@traitfn function Base.reverse(graph::AbstractNamedGraph::IsDirected)
-    newgraph = edgeless_graph(graph)
-    add_edges!(newgraph, map(reverse, edges(graph)))
-    return newgraph
+function Base.reverse(graph::AbstractNamedGraph)
+    new_vertices = map(c -> decode_vertex(graph, c), vertices(encoded_graph(graph)))
+    return namedgraph(reverse(encoded_graph(graph)), new_vertices)
 end
 
-# This wont be the most efficient way for a given graph type.
-@traitfn function Base.reverse!(g::AbstractNamedGraph::IsDirected)
-    edge_list = collect(edges(g))
-
-    for edge in edge_list
-        rem_edge!(g, edge)
-        add_edge!(g, reverse(edge))
-    end
-
-    return g
+function Base.reverse!(graph::AbstractNamedGraph)
+    reverse!(encoded_graph(graph))
+    return graph
 end
 
 function Graphs.blockdiag(graph1::AbstractNamedGraph, graph2::AbstractNamedGraph)
