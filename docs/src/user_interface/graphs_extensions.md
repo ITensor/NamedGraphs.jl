@@ -11,6 +11,7 @@ graphs. This section documents the most commonly used functions and will grow
 over time.
 
 ```@docs; canonical=false
+GraphsExtensions
 subgraph
 incident_edges
 ```
