@@ -17,8 +17,8 @@ makedocs(;
     ),
     pages = [
         "Home" => "index.md",
-        "Upgrading from v0.13 to v0.14" => "upgrading.md",
         "Reference" => "reference.md",
+        "Changelog" => "changelog.md",
     ]
 )
 
