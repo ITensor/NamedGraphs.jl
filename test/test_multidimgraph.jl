@@ -1,4 +1,3 @@
-@eval module $(gensym())
 using Graphs: add_edge!, add_vertex!, grid, has_edge, has_vertex, ne, nv
 using NamedGraphs.GraphsExtensions: disjoint_union, subgraph, ⊔
 using NamedGraphs: NamedGraph
@@ -110,5 +109,4 @@ end
 
     @test ne(g) == 1
     @test has_edge(g, ("X", 1) => ("Y", 2))
-end
 end

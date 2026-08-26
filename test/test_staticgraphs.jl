@@ -1,4 +1,3 @@
-@eval module $(gensym())
 using Graphs: ne, neighbors, nv, vertices
 using NamedGraphs.GraphsExtensions: comb_tree
 using NamedGraphs: named_comb_tree
@@ -39,5 +38,4 @@ using Test: @test, @testset
             end
         end
     end
-end
 end

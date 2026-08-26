@@ -1,5 +1,3 @@
-@eval module $(gensym())
-
 using Graphs: a_star, add_edge!, add_vertex!, degree, edges, edgetype, has_edge, has_vertex,
     is_directed, ne, neighbors, nv, rem_edge!, rem_vertex!, vertices
 using NamedGraphs.GraphsExtensions: is_cycle_graph, vertextype
@@ -111,6 +109,4 @@ end
     @test all(vertices(g)) do v
         return all(v′ -> degree(g, v′) == 6, neighbors(g, v))
     end
-end
-
 end

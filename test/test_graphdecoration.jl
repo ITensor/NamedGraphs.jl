@@ -1,4 +1,3 @@
-@eval module $(gensym())
 using Graphs: a_star, edges, vertices
 using NamedGraphs.GraphsExtensions: decorate_graph_edges, decorate_graph_vertices
 using NamedGraphs: named_grid, named_hexagonal_lattice_graph
@@ -47,5 +46,4 @@ using Test: @test, @testset
     @test length(vertices(g_comb)) == 5 * length(vertices(g_1d))
     @test length(a_star(g_1d, (1, 1), (L, 1))) ==
         length(a_star(g_comb, ((1,), (1, 1)), ((1,), (L, 1))))
-end
 end

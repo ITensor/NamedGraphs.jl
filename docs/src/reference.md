@@ -10,14 +10,14 @@ CollapsedDocStrings = true
 Modules = [NamedGraphs]
 ```
 
-## GraphsExtensions
-
-```@autodocs
-Modules = [NamedGraphs.GraphsExtensions]
-```
-
 ## PartitionedGraphs
 
 ```@autodocs
 Modules = [NamedGraphs.PartitionedGraphs]
+```
+
+## GraphsExtensions
+
+```@autodocs
+Modules = [NamedGraphs.GraphsExtensions]
 ```

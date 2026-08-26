@@ -1,5 +1,3 @@
-@eval module $(gensym())
-
 using Dictionaries: AbstractDictionary, AbstractIndices, Dictionary
 using Graphs: AbstractEdgeIter, add_edge!, add_vertex!, edges, has_edge, has_vertex, ne,
     neighbors, nv, path_graph, rem_vertex!, vertices
@@ -87,6 +85,4 @@ using Test: @test, @testset
         )
         @test last(vertices(g)) == (2, 2)
     end
-end
-
 end

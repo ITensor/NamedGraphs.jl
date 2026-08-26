@@ -1,4 +1,3 @@
-@eval module $(gensym())
 using Graphs: has_edge, is_connected
 using NamedGraphs.GraphsExtensions: add_edges!, rem_edges!
 using NamedGraphs: NamedGraph, named_grid
@@ -15,5 +14,4 @@ using Test: @test, @testset
     g = NamedGraph([(i,) for i in 1:n])
     add_edges!(g, [(i,) => (i + 1,) for i in 1:(n - 1)])
     @test is_connected(g)
-end
 end

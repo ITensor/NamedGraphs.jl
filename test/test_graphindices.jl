@@ -1,4 +1,3 @@
-@eval module $(gensym())
 using Graphs: Edge, path_graph
 using NamedGraphs.GraphsExtensions: vertextype
 using NamedGraphs: Edges, NamedEdge, Vertices, to_graph_index
@@ -27,5 +26,4 @@ using Test
             @test to_graph_index(g, e) === e
         end
     end
-end
 end

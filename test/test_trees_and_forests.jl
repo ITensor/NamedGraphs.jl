@@ -1,4 +1,3 @@
-@eval module $(gensym())
 using Graphs: connected_components, edges, is_tree, vertices
 using NamedGraphs.GraphsExtensions:
     GraphsExtensions, all_edges, forest_cover, spanning_tree, vertextype
@@ -32,5 +31,4 @@ end
         trees = NamedGraph[forest[Vertices(vs)] for vs in connected_components(forest)]
         @test all(is_tree.(trees))
     end
-end
 end

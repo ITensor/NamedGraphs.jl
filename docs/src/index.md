@@ -26,6 +26,10 @@ by one. Please raise an issue if functionality you need is missing. The
 package also includes tools for working with partitioned graphs and their
 quotient graphs, and generic extensions of the Graphs.jl interface.
 
+[DataGraphs.jl](https://github.com/ITensor/DataGraphs.jl) builds on top of
+this package to provide named graphs with data associated with the vertices
+and edges.
+
 ## Support
 
 ```@raw html
@@ -87,6 +91,17 @@ g = NamedGraph(path_graph(4), ["a", "b", "c", "d"])
 @test ne(g) == 3
 @test has_edge(g, "a" => "b")
 ````
+
+## Contributors
+
+This package is primarily developed by:
+
+- [Matt Fishman](https://github.com/mtfishman)
+- [Joey Tindall](https://github.com/JoeyT1994)
+- [Jack Dunham](https://github.com/jack-dunham)
+
+See the [contributors page](https://github.com/ITensor/NamedGraphs.jl/graphs/contributors)
+for the full list of contributors.
 
 ---
 

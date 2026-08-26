@@ -1,5 +1,3 @@
-@eval module $(gensym())
-
 using AbstractTrees: IndexNode, Leaves, PostOrderDFS, childindices, children, nodevalue,
     nodevalues, parent, parentindex, rootindex
 using Dictionaries: Dictionary, Indices
@@ -608,6 +606,4 @@ using Test: @test, @test_broken, @test_throws, @testset
             @test issetequal(arranged_edges(dig), edges(dig))
         end
     end
-end
-
 end

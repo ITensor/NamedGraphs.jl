@@ -1,5 +1,3 @@
-@eval module $(gensym())
-
 using Graphs: Graphs, Edge, edges, edgetype, has_edge, has_vertex, inneighbors, is_directed,
     ne, neighbors, nv, outneighbors, vertices
 using NamedGraphs.GraphsExtensions: vertextype
@@ -18,6 +16,4 @@ using Test: @test, @test_broken, @testset
     @test vertices(pg) == Base.OneTo(nv(g))
     @test length(edges(pg)) == ne(g)
     @test all(e -> has_edge(pg, e), edges(pg))
-end
-
 end

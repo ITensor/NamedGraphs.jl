@@ -1,4 +1,3 @@
-@eval module $(gensym())
 using Dictionaries: Dictionary, dictionary
 using Graphs: Graphs, AbstractGraph, a_star, center, connected_components, diameter, edges,
     has_edge, has_vertex, is_connected, is_directed, is_tree, ne, neighbors, nv, radius,
@@ -585,5 +584,4 @@ end
         @test Union{} != getindex_type(PG, QVS) <: PartitionedGraph
         # runic: on
     end
-end
 end

@@ -1,4 +1,3 @@
-@eval module $(gensym())
 using Dictionaries: Dictionary, Indices
 using Graphs.SimpleGraphs: SimpleDiGraph, SimpleEdge
 using Graphs: Edge, a_star, add_edge!, add_vertex!, adjacency_matrix,
@@ -703,5 +702,4 @@ end
             @test findfirst(x -> x == src(e), t) < findfirst(x -> x == dst(e), t)
         end
     end
-end
 end

@@ -1,4 +1,3 @@
-@eval module $(gensym())
 using Graphs: binary_tree, dfs_tree, edgetype, grid, path_graph
 using NamedGraphs.GraphsExtensions: comb_tree, edge_path, is_leaf_vertex, is_path_graph,
     leaf_vertices, post_order_dfs_vertices, pre_order_dfs_vertices, vertex_path
@@ -91,5 +90,4 @@ end
     @test !is_leaf_vertex(dng, (2, 2))
     @test !is_leaf_vertex(dng, (1, 1))
     @test issetequal(leaf_vertices(dng), [(1, 2), (3, 2)])
-end
 end
