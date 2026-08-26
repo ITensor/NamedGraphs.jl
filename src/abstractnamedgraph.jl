@@ -3,10 +3,10 @@ using .GraphsExtensions: GraphsExtensions, all_edges, directed_graph, empty_grap
     rename_vertices, similar_graph, subgraph
 using Dictionaries: Dictionary, set!
 using Graphs: Graphs, AbstractGraph, AbstractSimpleGraph, IsDirected, SimpleDiGraph,
-    SimpleEdge, SimpleGraph, a_star, add_edge!, adjacency_matrix, bfs_parents, boruvka_mst,
-    connected_components, degree, edges, has_path, indegree, induced_subgraph, inneighbors,
-    is_connected, is_cyclic, kruskal_mst, ne, neighborhood, neighborhood_dists, nv,
-    outdegree, prim_mst, rem_edge!, spfa_shortest_paths, vertices, weights
+    SimpleEdge, SimpleGraph, a_star, add_edge!, adjacency_matrix, bfs_parents, blockdiag,
+    boruvka_mst, connected_components, degree, edges, has_path, indegree, induced_subgraph,
+    inneighbors, is_connected, is_cyclic, kruskal_mst, ne, neighborhood, neighborhood_dists,
+    nv, outdegree, prim_mst, rem_edge!, spfa_shortest_paths, vertices, weights
 using SimpleTraits: SimpleTraits, @traitfn, Not
 
 abstract type AbstractNamedGraph{V} <: AbstractGraph{V} end
@@ -42,7 +42,10 @@ decode_vertex(graph::AbstractSimpleGraph, code::Integer) = code
 Graphs.rem_vertex!(graph::AbstractNamedGraph, vertex) = not_implemented()
 Graphs.add_vertex!(graph::AbstractNamedGraph, vertex) = not_implemented()
 
-GraphsExtensions.rename_vertices(f::Function, g::AbstractNamedGraph) = not_implemented()
+function GraphsExtensions.rename_vertices(f::Function, graph::AbstractNamedGraph)
+    new_vertices = map(c -> f(decode_vertex(graph, c)), vertices(encoded_graph(graph)))
+    return namedgraph(copy(encoded_graph(graph)), new_vertices)
+end
 
 #
 # Derived interface (overload for performance)
@@ -87,15 +90,21 @@ function GraphsExtensions.permute_vertices(graph::AbstractNamedGraph, permutatio
 end
 
 Graphs.edgetype(graph::AbstractNamedGraph) = edgetype(typeof(graph))
-Graphs.edgetype(::Type{<:AbstractNamedGraph}) = not_implemented()
+function Graphs.edgetype(graph_type::Type{<:AbstractNamedGraph})
+    return NamedEdge{vertextype(graph_type)}
+end
 
 # In terms of `encoded_graph_type`
 # is_directed(::Type{<:AbstractNamedGraph}) = not_implemented()
 
 GraphsExtensions.convert_vertextype(::Type{V}, g::AbstractNamedGraph{V}) where {V} = g
-GraphsExtensions.convert_vertextype(::Type, g::AbstractNamedGraph) = not_implemented()
+function GraphsExtensions.convert_vertextype(vertextype::Type, graph::AbstractNamedGraph)
+    new_vertices = map(c -> decode_vertex(graph, c), vertices(encoded_graph(graph)))
+    return namedgraph(copy(encoded_graph(graph)), convert(Vector{vertextype}, new_vertices))
+end
 
-Base.copy(graph::AbstractNamedGraph) = copyto!(similar_graph(graph), graph)
+# `similar_graph(graph)` copies the vertices and edges.
+Base.copy(graph::AbstractNamedGraph) = similar_graph(graph)
 
 function Graphs.merge_vertices!(
         graph::AbstractNamedGraph, merge_vertices; merged_vertex = first(merge_vertices)
@@ -475,6 +484,16 @@ end
     end
 
     return g
+end
+
+function Graphs.blockdiag(graph1::AbstractNamedGraph, graph2::AbstractNamedGraph)
+    new_encoded_graph = blockdiag(encoded_graph(graph1), encoded_graph(graph2))
+    new_vertices = vcat(
+        map(c -> decode_vertex(graph1, c), vertices(encoded_graph(graph1))),
+        map(c -> decode_vertex(graph2, c), vertices(encoded_graph(graph2)))
+    )
+    @assert allunique(new_vertices)
+    return namedgraph(new_encoded_graph, new_vertices)
 end
 
 Graphs.nv(graph::AbstractNamedGraph) = nv(encoded_graph(graph))

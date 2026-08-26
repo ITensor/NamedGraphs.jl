@@ -1,8 +1,9 @@
 using .GraphsExtensions: GraphsExtensions, similar_graph, similar_simplegraph, vertextype
 using Dictionaries: Dictionary
 using Graphs.SimpleGraphs: AbstractSimpleGraph, SimpleDiGraph, SimpleGraph
-using Graphs: Graphs, AbstractGraph, add_edge!, add_vertex!, blockdiag, edgetype, has_edge,
+using Graphs: Graphs, AbstractGraph, IsDirected, add_edge!, add_vertex!, edgetype, has_edge,
     is_directed, outneighbors, rem_vertex!, vertices
+using SimpleTraits: SimpleTraits, @traitfn, Not
 
 to_vertices(graph, vertices) = _to_vertices(graph, vertices)
 _to_vertices(::AbstractSimpleGraph, vertices) = to_vertices(vertices)
@@ -19,7 +20,7 @@ for (T, GT) in ((:NamedGraph, :SimpleGraph), (:NamedDiGraph, :SimpleDiGraph))
             decoded_vertices::Vector{V}
             encoded_vertices::Dictionary{V, Int}
             function $T{V}(graph::AbstractSimpleGraph, vertices) where {V}
-                encoded_graph = $GT{Int}(graph)
+                encoded_graph = encoded_graph_type($T)(graph)
                 decoded_vertices = collect(V, to_vertices(encoded_graph, vertices))
                 @assert length(decoded_vertices) == nv(encoded_graph)
                 # `copy` since the `Dictionary` takes ownership of the key vector,
@@ -32,6 +33,11 @@ for (T, GT) in ((:NamedGraph, :SimpleGraph), (:NamedDiGraph, :SimpleDiGraph))
 
         # AbstractNamedGraph required interface.
         encoded_graph_type(graph_type::Type{<:$T}) = $GT{Int}
+    end
+end
+
+for T in (:NamedGraph, :NamedDiGraph)
+    @eval begin
         encoded_graph(graph::$T) = graph.encoded_graph
         encode_vertex(graph::$T, vertex) = graph.encoded_vertices[vertex]
         decode_vertex(graph::$T, code::Integer) = graph.decoded_vertices[code]
@@ -65,16 +71,6 @@ for (T, GT) in ((:NamedGraph, :SimpleGraph), (:NamedDiGraph, :SimpleDiGraph))
             return true
         end
 
-        function GraphsExtensions.rename_vertices(f::Function, graph::$T)
-            return $T(copy(encoded_graph(graph)), map(f, graph.decoded_vertices))
-        end
-
-        function GraphsExtensions.convert_vertextype(vertextype::Type, graph::$T)
-            return $T(
-                encoded_graph(graph), convert(Vector{vertextype}, graph.decoded_vertices)
-            )
-        end
-
         # Constructors from `AbstractSimpleGraph`.
         function $T{V}(simple_graph::AbstractSimpleGraph) where {V}
             return $T{V}(simple_graph, vertices(simple_graph))
@@ -86,7 +82,7 @@ for (T, GT) in ((:NamedGraph, :SimpleGraph), (:NamedDiGraph, :SimpleDiGraph))
 
         # Constructors from vertex names.
         function $T{V}(vertices) where {V}
-            return $T{V}($GT{Int}(length(to_vertices(vertices))), vertices)
+            return $T{V}(encoded_graph_type($T)(length(to_vertices(vertices))), vertices)
         end
         $T(vertices) = $T{eltype(vertices)}(vertices)
 
@@ -102,11 +98,8 @@ for (T, GT) in ((:NamedGraph, :SimpleGraph), (:NamedDiGraph, :SimpleDiGraph))
         $T(graph::$T) = $T{vertextype(graph)}(graph)
         Base.convert(graph_type::Type{<:$T}, graph::$T) = graph_type(graph)
 
-        Base.copy(graph::$T) = similar_graph(graph)
-
-        Graphs.edgetype(graph_type::Type{<:$T}) = NamedEdge{vertextype(graph_type)}
-
-        Graphs.is_directed(graph_type::Type{<:$T}) = is_directed($GT{Int})
+        Graphs.is_directed(graph_type::Type{<:$T}) =
+            is_directed(encoded_graph_type(graph_type))
 
         function Base.reverse!(graph::$T)
             reverse!(encoded_graph(graph))
@@ -115,23 +108,15 @@ for (T, GT) in ((:NamedGraph, :SimpleGraph), (:NamedDiGraph, :SimpleDiGraph))
         function Base.reverse(graph::$T)
             return $T(reverse(encoded_graph(graph)), copy(graph.decoded_vertices))
         end
-
-        function GraphsExtensions.similar_graph(graph::$T, nv::Int)
-            return similar_simplegraph(graph, nv)
-        end
-        function GraphsExtensions.similar_graph(::$T, vertices)
-            return $T{eltype(vertices)}(vertices)
-        end
-        GraphsExtensions.similar_graph(graph_type::Type{<:$T}, vertices) =
-            graph_type(vertices)
-
-        function Graphs.blockdiag(graph1::$T, graph2::$T)
-            new_encoded_graph = blockdiag(encoded_graph(graph1), encoded_graph(graph2))
-            new_vertices = vcat(graph1.decoded_vertices, graph2.decoded_vertices)
-            @assert allunique(new_vertices)
-            return $T(new_encoded_graph, new_vertices)
-        end
     end
+end
+
+# Generic constructor for the named graph type corresponding to an encoded graph.
+@traitfn function namedgraph(simple_graph::AbstractSimpleGraph::IsDirected, vertices)
+    return NamedDiGraph(simple_graph, vertices)
+end
+@traitfn function namedgraph(simple_graph::AbstractSimpleGraph::(!IsDirected), vertices)
+    return NamedGraph(simple_graph, vertices)
 end
 
 function GraphsExtensions.rename_vertices(f::Function, g::AbstractSimpleGraph)
