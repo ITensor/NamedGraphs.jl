@@ -100,9 +100,6 @@ This package is primarily developed by:
 - [Joey Tindall](https://github.com/JoeyT1994)
 - [Jack Dunham](https://github.com/jack-dunham)
 
-See the [contributors page](https://github.com/ITensor/NamedGraphs.jl/graphs/contributors)
-for the full list of contributors.
-
 ---
 
 *This page was generated using [Literate.jl](https://github.com/fredrikekre/Literate.jl).*

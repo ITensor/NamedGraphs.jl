@@ -83,6 +83,3 @@ g = NamedGraph(path_graph(4), ["a", "b", "c", "d"])
 # - [Matt Fishman](https://github.com/mtfishman)
 # - [Joey Tindall](https://github.com/JoeyT1994)
 # - [Jack Dunham](https://github.com/jack-dunham)
-#
-# See the [contributors page](https://github.com/ITensor/NamedGraphs.jl/graphs/contributors)
-# for the full list of contributors.
