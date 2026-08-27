@@ -8,35 +8,27 @@ using Graphs: AbstractEdge, AbstractGraph, add_edge!, dst, edges, edgetype, has_
 # TODO: Parametrize `partitioned_vertices` and `which_partition`,
 # see https://github.com/mtfishman/NamedGraphs.jl/issues/63.
 """
-    PartitionedGraph{V, PV, G, QG, P} <: AbstractPartitionedGraph{V, PV}
+    PartitionedGraph{V, PV} <: AbstractPartitionedGraph{V, PV}
     PartitionedGraph(graph::AbstractGraph, partitioned_vertices)
     PartitionedGraph(partitioned_vertices)
     PartitionedGraph(graph::AbstractGraph; kwargs...)
 
-A graph `graph` with vertex type `V` together with a partitioning of its
-vertices into quotient vertices of type `PV`. In addition to the graph and the
-partitioning, it caches the quotient graph and the map from each vertex to the
-quotient vertex containing it, so that quotient level queries such as
-[`quotientvertices`](@ref) and [`has_quotientedge`](@ref) do not have to search
-through the partitioning. Use [`PartitionedView`](@ref) instead when that extra
-storage is not wanted.
+A graph with vertex type `V` and a partitioning of its vertices into quotient
+vertices of type `PV`. It caches the quotient graph and the vertex to quotient
+vertex map, so quotient level queries do not search the partitioning.
+[`PartitionedView`](@ref) is the alternative that stores neither.
 
-`partitioned_vertices` maps each quotient vertex to the vertices of `graph` it
-contains. It can be a `Dictionaries.Dictionary` or a `Dict`, whose keys are the
-quotient vertices, or a vector of vertex collections, in which case the quotient
-vertices are the indices `1:length(partitioned_vertices)`. Every vertex of
-`graph` must be contained in exactly one quotient vertex.
+The vertices of `graph` are partitioned according to `partitioned_vertices`,
+whose keys are the quotient vertices and whose values are the sets of vertices in
+each partition. It can be a `Dictionaries.Dictionary`, a `Dict`, or a vector of
+vertex collections keyed by `1:length(partitioned_vertices)`. Every vertex must
+land in exactly one quotient vertex.
 
-Passing `partitioned_vertices` on its own gives the discrete partitioning of a
-graph with no edges: every vertex sits in its own quotient vertex, as in
-`PartitionedGraph(1:4)`. It requires each key of `partitioned_vertices` to be a
-member of its own value, since the vertices are taken from
-`keys(partitioned_vertices)` while the partition memberships come from the
-values, and it errors otherwise. Passing `graph` on its own instead
-partitions its vertices automatically with
-`GraphsExtensions.partition_vertices`, which the keyword arguments are forwarded
-to: it needs either `npartitions` or `nvertices_per_partition`, and a
-partitioning backend such as Metis.jl or KaHyPar.jl to be loaded.
+Passing `partitioned_vertices` alone gives the discrete partitioning of an
+edgeless graph. Passing `graph` alone partitions with
+`GraphsExtensions.partition_vertices`, which the keyword arguments go to: it
+needs either `npartitions` or `nvertices_per_partition`, and a backend such as
+Metis.jl loaded.
 
 # Examples
 
@@ -75,33 +67,11 @@ end
 """
     partitionedgraph(graph::AbstractGraph, partitioned_vertices) -> PartitionedGraph
 
-Partition the vertices of `graph` into the quotient vertices given by
-`partitioned_vertices`, returning a [`PartitionedGraph`](@ref). See
-[`PartitionedGraph`](@ref) for the accepted forms of `partitioned_vertices`.
+The function form of the [`PartitionedGraph`](@ref) constructor, which documents
+the accepted forms of `partitioned_vertices`.
 
-`graph` may itself be a partitioned graph, in which case the result has two
-layers of partitioning, which can be removed again with
-[`departition`](@ref) and [`unpartition`](@ref).
-
-# Examples
-
-```jldoctest
-julia> using Graphs: ne, nv, path_graph
-
-julia> using NamedGraphs: NamedGraph
-
-julia> using NamedGraphs.PartitionedGraphs: QuotientView, partitionedgraph
-
-julia> g = NamedGraph(path_graph(4), ["a", "b", "c", "d"]);
-
-julia> pg = partitionedgraph(g, [["a", "b"], ["c", "d"]]);
-
-julia> (nv(pg), ne(pg))
-(4, 3)
-
-julia> (nv(QuotientView(pg)), ne(QuotientView(pg)))
-(2, 1)
-```
+`graph` may itself be a partitioned graph, giving two layers of partitioning,
+which [`departition`](@ref) and [`unpartition`](@ref) remove.
 """
 partitionedgraph(g::AbstractGraph, partition) = PartitionedGraph(g, partition)
 
