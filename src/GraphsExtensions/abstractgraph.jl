@@ -219,46 +219,9 @@ end
     return is_ditree(graph) && all(v -> indegree(graph, v) ≤ 1, vertices(graph))
 end
 
-#
-# Graph unions
-#
-
-# Function `f` maps original vertices `vᵢ` of `g`
-# to new vertices `f(vᵢ)` of the output graph.
-rename_vertices(f, g::AbstractGraph) = not_implemented()
-
 # TODO: Does this relabel the vertices and/or change the adjacency matrix?
 function permute_vertices(graph::AbstractGraph, permutation)
     return not_implemented()
-end
-
-# https://en.wikipedia.org/wiki/Disjoint_union
-# Input maps the new index being appended to the vertices
-# to the associated graph.
-function disjoint_union(graphs::Dictionary{<:Any, <:AbstractGraph})
-    return reduce(union, (rename_vertices(v -> (v, i), graphs[i]) for i in keys(graphs)))
-end
-
-function disjoint_union(graphs::Vector{<:AbstractGraph})
-    return disjoint_union(Dictionary(graphs))
-end
-
-disjoint_union(graph::AbstractGraph) = graph
-
-function disjoint_union(graph1::AbstractGraph, graphs_tail::AbstractGraph...)
-    return disjoint_union(Dictionary([graph1, graphs_tail...]))
-end
-
-function disjoint_union(pairs::Pair...)
-    return disjoint_union([pairs...])
-end
-
-function disjoint_union(iter::Vector{<:Pair})
-    return disjoint_union(dictionary(iter))
-end
-
-function ⊔(graphs...; kwargs...)
-    return disjoint_union(graphs...; kwargs...)
 end
 
 # Check if an undirected graph is a path/linear graph:

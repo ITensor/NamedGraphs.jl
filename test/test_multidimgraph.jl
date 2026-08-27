@@ -1,6 +1,6 @@
 using Graphs: add_edge!, add_vertex!, grid, has_edge, has_vertex, ne, nv
-using NamedGraphs.GraphsExtensions: disjoint_union, subgraph, ⊔
-using NamedGraphs: NamedGraph
+using NamedGraphs.GraphsExtensions: subgraph
+using NamedGraphs: NamedGraph, disjoint_union, ⊔
 using Test: @test, @testset
 
 @testset "NamedGraph" begin

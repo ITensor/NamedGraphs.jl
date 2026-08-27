@@ -41,7 +41,7 @@ function encoded_path_state_to_path_state(
     )
 end
 
-function namedgraph_dijkstra_shortest_paths(
+function dijkstra_shortest_paths_namedgraph(
         graph::AbstractNamedGraph,
         srcs,
         distmx = weights(graph);
@@ -63,7 +63,7 @@ end
 function Graphs.dijkstra_shortest_paths(
         graph::AbstractNamedGraph, srcs, distmx = weights(graph); kwargs...
     )
-    return namedgraph_dijkstra_shortest_paths(graph, srcs, distmx; kwargs...)
+    return dijkstra_shortest_paths_namedgraph(graph, srcs, distmx; kwargs...)
 end
 
 # Mirror the `AbstractGraph` signatures in Graphs.jl so the wrappers are not
@@ -76,7 +76,7 @@ function Graphs.dijkstra_shortest_paths(
         distmx::AbstractMatrix{<:Number} = weights(graph);
         kwargs...
     )
-    return namedgraph_dijkstra_shortest_paths(graph, srcs, distmx; kwargs...)
+    return dijkstra_shortest_paths_namedgraph(graph, srcs, distmx; kwargs...)
 end
 
 function Graphs.dijkstra_shortest_paths(
@@ -85,7 +85,7 @@ function Graphs.dijkstra_shortest_paths(
         distmx::AbstractMatrix = weights(graph);
         kwargs...
     )
-    return namedgraph_dijkstra_shortest_paths(graph, [vertex], distmx; kwargs...)
+    return dijkstra_shortest_paths_namedgraph(graph, [vertex], distmx; kwargs...)
 end
 
 for f in [

@@ -132,7 +132,9 @@ Graphs.add_edge!(g::NamedGridGraph, e::AbstractNamedEdge) = add_edge_grid!(g, e)
 Graphs.rem_edge!(g::NamedGridGraph, s, d) = rem_edge_grid!(g, s, d)
 Graphs.rem_edge!(g::NamedGridGraph, e) = rem_edge_grid!(g, e)
 Graphs.rem_edge!(g::NamedGridGraph, e::AbstractNamedEdge) = rem_edge_grid!(g, e)
-Graphs.neighbors(g::NamedGridGraph, v) = neighbors_grid(g, v)
-Graphs.inneighbors(g::NamedGridGraph, v) = inneighbors_grid(g, v)
-Graphs.outneighbors(g::NamedGridGraph, v) = outneighbors_grid(g, v)
+# Override the hooks rather than the Graphs.jl functions, so the `::Integer`
+# forms defined on `AbstractNamedGraph` keep working and stay unambiguous.
+neighbors_namedgraph(g::NamedGridGraph, v) = neighbors_grid(g, v)
+inneighbors_namedgraph(g::NamedGridGraph, v) = inneighbors_grid(g, v)
+outneighbors_namedgraph(g::NamedGridGraph, v) = outneighbors_grid(g, v)
 Graphs.edges(g::NamedGridGraph) = edges_grid(g)

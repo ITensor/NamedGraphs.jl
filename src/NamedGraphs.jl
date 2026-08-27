@@ -5,6 +5,7 @@ include("utils.jl")
 include("abstractnamededge.jl")
 include("namededge.jl")
 include("abstractnamedgraph.jl")
+include("graph_unions.jl")
 include("indicesviews.jl")
 include("abstractgraphindices.jl")
 include("similar_graph.jl")
@@ -21,7 +22,7 @@ include("namedgraphgenerators.jl")
 include("namedgridgraph.jl")
 include("PartitionedGraphs/PartitionedGraphs.jl")
 
-export AbstractNamedGraph, NamedDiGraph, NamedEdge, NamedGraph
+export ⊔, AbstractNamedGraph, NamedDiGraph, NamedEdge, NamedGraph
 
 using PackageExtensionCompat: @require_extensions
 function __init__()

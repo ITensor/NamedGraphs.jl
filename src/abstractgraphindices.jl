@@ -1,5 +1,5 @@
 using Dictionaries: Dictionaries
-using Graphs: AbstractEdge
+using Graphs: AbstractEdge, vertices
 
 abstract type AbstractGraphIndices{T} end
 abstract type AbstractVertices{V} <: AbstractGraphIndices{V} end
@@ -69,6 +69,34 @@ end
 
 function Dictionaries.getindices(graph::AbstractNamedGraph, inds)
     return get_graph_indices(graph, to_graph_index(graph, inds))
+end
+
+# Indexing.jl and Dictionaries.jl dispatch `getindices` on the index container,
+# which ties with the untyped `inds` above, so each of those containers needs a
+# method here. A `Colon` is an indexing convention rather than a plausible
+# vertex, so it means every vertex.
+function Dictionaries.getindices(graph::AbstractNamedGraph, ::Colon)
+    return getindex_namedgraph(graph, to_vertices(graph, collect(vertices(graph))))
+end
+
+# An `AbstractIndices` is a set of vertices rather than a lookup table, and
+# `vertices(graph)` is itself one, so this has to be more specific than the
+# `AbstractDictionary` method below.
+function Dictionaries.getindices(
+        graph::AbstractNamedGraph, inds::Dictionaries.AbstractIndices
+    )
+    return getindex_namedgraph(graph, to_vertices(graph, collect(inds)))
+end
+
+# A dictionary mapping keys to values has no meaning as a graph index.
+for T in (:AbstractDict, :(Dictionaries.AbstractDictionary))
+    @eval function Dictionaries.getindices(graph::AbstractNamedGraph, inds::$T)
+        throw(
+            ArgumentError(
+                "Can't index a graph by a dictionary. Index by a collection of vertices or edges instead."
+            )
+        )
+    end
 end
 
 function get_graph_indices(graph::AbstractGraph, vertices::AbstractVertices)
