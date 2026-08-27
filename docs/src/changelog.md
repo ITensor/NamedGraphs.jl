@@ -71,10 +71,9 @@ and edges used internally.
   ([#187](https://github.com/ITensor/NamedGraphs.jl/pull/187)).
 - Everything NamedGraphs documents is now exported, where previously only the
   four graph and edge types were, so `using NamedGraphs` brings considerably
-  more into scope and can collide with another package's exports. Loading
-  NamedGraphs and SimpleGraphs together, for one, now gives two
-  `disjoint_union`. `NamedGraphs.GraphsExtensions` and
-  `NamedGraphs.PartitionedGraphs` are marked `public` on Julia 1.11 and newer
+  more into scope and can collide with names another package exports.
+  `NamedGraphs.GraphsExtensions` and `NamedGraphs.PartitionedGraphs` are marked
+  `public` on Julia 1.11 and newer
   ([#188](https://github.com/ITensor/NamedGraphs.jl/pull/188)).
 - The internal helpers behind the Graphs.jl wrappers are renamed from
   `namedgraph_f` to `f_namedgraph`, matching the suffix convention already used
