@@ -88,14 +88,9 @@ inneighbors_grid(g, v) = neighbors_grid(g, v)
 outneighbors_grid(g, v) = neighbors_grid(g, v)
 edges_grid(g) = NamedGridEdgeIter(g)
 
-"""
-    NamedGridGraph{N} <: AbstractNamedGraph{NTuple{N, Int}}
-    NamedGridGraph(grid_size::NTuple{N, Int}, ishypertorus::Bool = false)
-
-An immutable grid graph with each vertex named by its coordinate tuple,
-computed lazily from the grid size rather than stored, `ishypertorus = true`
-connects the boundaries. See [`named_grid`](@ref) for the mutable equivalent.
-"""
+# Experimental and internal for now: an immutable grid graph with each vertex named by
+# its coordinate tuple, computed lazily from the grid size rather than stored.
+# `ishypertorus = true` connects the boundaries. `named_grid` is the mutable equivalent.
 struct NamedGridGraph{N, ishypertorus} <: AbstractNamedGraph{NTuple{N, Int}}
     grid_size::NTuple{N, Int}
 end

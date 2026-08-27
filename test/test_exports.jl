@@ -9,13 +9,7 @@ using Test: @test, @testset
             :NamedEdge,
             :NamedGraph,
             :NamedGraphs,
-            :NamedGridGraph,
-            :decode_edge,
-            :decode_vertex,
             :disjoint_union,
-            :encode_edge,
-            :encode_vertex,
-            :encoded_graph,
             :named_binary_tree,
             :named_comb_tree,
             :named_cycle_graph,
@@ -29,7 +23,15 @@ using Test: @test, @testset
         ]
         # `names` includes `public` names as well as exported ones.
         public_names = if VERSION >= v"1.11.0-DEV.469"
-            [:GraphsExtensions, :PartitionedGraphs]
+            [
+                :GraphsExtensions,
+                :PartitionedGraphs,
+                :decode_edge,
+                :decode_vertex,
+                :encode_edge,
+                :encode_vertex,
+                :encoded_graph,
+            ]
         else
             Symbol[]
         end

@@ -69,11 +69,17 @@ and edges used internally.
   graphs whose vertices are names, while `GraphsExtensions` holds extensions
   valid for any `Graphs.AbstractGraph`
   ([#187](https://github.com/ITensor/NamedGraphs.jl/pull/187)).
-- Everything NamedGraphs documents is now exported, where previously only the
-  four graph and edge types were, so `using NamedGraphs` brings considerably
-  more into scope and can collide with names another package exports.
-  `NamedGraphs.GraphsExtensions` and `NamedGraphs.PartitionedGraphs` are marked
-  `public` on Julia 1.11 and newer
+- Everything NamedGraphs documents is now either exported or marked `public`,
+  where previously only the four graph and edge types were exported. The
+  generators, `rename_vertices`, `disjoint_union`, and `⊔` are exported, so
+  `using NamedGraphs` brings considerably more into scope and can collide with
+  names another package exports. The encode and decode interface
+  (`encoded_graph`, `encode_vertex`, `decode_vertex`, `encode_edge`,
+  `decode_edge`) is `public` rather than exported, since it is what a new
+  `AbstractNamedGraph` overloads, so reach it with
+  `using NamedGraphs: decode_vertex` or by qualifying it. The two submodules are
+  `public` as well. `public` requires Julia 1.11, so on 1.10 those names are
+  simply not listed by `names(NamedGraphs)`
   ([#188](https://github.com/ITensor/NamedGraphs.jl/pull/188)).
 - The internal helpers behind the Graphs.jl wrappers are renamed from
   `namedgraph_f` to `f_namedgraph`, matching the suffix convention already used

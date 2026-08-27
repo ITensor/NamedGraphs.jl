@@ -29,5 +29,4 @@ named_binary_tree
 named_comb_tree
 named_hexagonal_lattice_graph
 named_triangular_lattice_graph
-NamedGridGraph
 ```
