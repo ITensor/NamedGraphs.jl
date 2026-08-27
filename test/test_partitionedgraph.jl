@@ -1,11 +1,11 @@
 using Dictionaries: Dictionary, dictionary
-using Graphs: Graphs, AbstractGraph, a_star, center, connected_components, diameter, edges,
-    has_edge, has_vertex, is_connected, is_directed, is_tree, ne, neighbors, nv, radius,
-    random_regular_graph, rem_vertex!, vertices
+using Graphs: Graphs, AbstractGraph, a_star, add_vertices!, center, connected_components,
+    diameter, edges, has_edge, has_vertex, is_connected, is_directed, is_tree, ne,
+    neighbors, nv, radius, random_regular_graph, rem_vertex!, vertices
 using Metis: Metis
-using NamedGraphs.GraphsExtensions: add_edges!, add_vertices!, boundary_edges,
-    default_root_vertex, edgetype, forest_cover, is_path_graph, is_self_loop,
-    spanning_forest, spanning_tree, subgraph, vertextype
+using NamedGraphs.GraphsExtensions: add_edges!, boundary_edges, default_root_vertex,
+    edgetype, forest_cover, is_path_graph, is_self_loop, spanning_forest, spanning_tree,
+    subgraph, vertextype
 using NamedGraphs.PartitionedGraphs: AbstractPartitionedGraph, PartitionedGraph,
     PartitionedGraphs, PartitionedView, QuotientEdge, QuotientEdgeEdge, QuotientEdgeEdges,
     QuotientEdgeSlice, QuotientEdges, QuotientEdgesEdges, QuotientVertex,

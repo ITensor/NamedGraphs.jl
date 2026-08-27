@@ -47,8 +47,11 @@ rename_vertices(f, g::AbstractGraph) = not_implemented()
 The [disjoint union](https://en.wikipedia.org/wiki/Disjoint_union) of the
 graphs: their union after renaming each vertex `v` of the `i`th graph to
 `(v, i)`, so that vertices shared between the inputs stay distinct in the
-output. `⊔` is an alias. Passing pairs `i => graph` names the graphs explicitly
-instead of by position.
+output. Passing pairs `i => graph` names the graphs explicitly instead of by
+position.
+
+Unicode `⊔` can be typed by writing `\\sqcup` then pressing tab in the Julia
+REPL, and in many editors. This is an infix operator, allowing `graph1 ⊔ graph2`.
 
 Only defined for graphs with named vertices, since it renames them (see
 [`rename_vertices`](@ref)).
@@ -99,12 +102,4 @@ function disjoint_union(iter::Vector{<:Pair})
     return disjoint_union(dictionary(iter))
 end
 
-"""
-    graph1 ⊔ graph2
-    ⊔(graphs...)
-
-Alias for [`disjoint_union`](@ref).
-"""
-function ⊔(graphs...; kwargs...)
-    return disjoint_union(graphs...; kwargs...)
-end
+const ⊔ = disjoint_union

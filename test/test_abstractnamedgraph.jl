@@ -5,8 +5,9 @@ using Graphs: Graphs, AbstractGraph, DiGraph, Graph, SimpleDiGraph, SimpleEdge, 
     floyd_warshall_shortest_paths, grid, has_edge, has_path, has_vertex,
     johnson_shortest_paths, ne, nv, path_graph, rem_edge!, spfa_shortest_paths,
     steiner_tree, vertices, weights, yen_k_shortest_paths
-using NamedGraphs.GraphsExtensions: GraphsExtensions, eccentricities, edgeless_graph,
-    empty_graph, similar_dataless_graph, similar_graph, subgraph
+using NamedGraphs.GraphsExtensions: GraphsExtensions, add_vertices, eccentricities,
+    edgeless_graph, empty_graph, rem_vertices, similar_dataless_graph, similar_graph,
+    subgraph
 using NamedGraphs: NamedGraphs, AbstractNamedGraph, NamedDiGraph, NamedEdge, NamedGraph,
     encoded_graph, named_grid, named_path_graph, rename_vertices
 using Test: @test, @test_throws, @testset
@@ -356,4 +357,28 @@ end
     @test (1, 1) ∈ vertices(tree)
     @test (2, 2) ∈ vertices(tree)
     @test ne(tree) == nv(tree) - 1
+end
+
+@testset "AbstractNamedGraph add_vertices/rem_vertices copy" begin
+    g = named_path_graph(3)
+    added = add_vertices(g, [4, 5])
+    @test nv(g) == 3
+    @test issetequal(vertices(added), [1, 2, 3, 4, 5])
+    @test ne(added) == ne(g)
+
+    removed = rem_vertices(g, [1, 2])
+    @test nv(g) == 3
+    @test issetequal(vertices(removed), [3])
+    @test ne(removed) == 0
+
+    # A vertex that is not there is simply not removed.
+    @test issetequal(vertices(rem_vertices(g, [99])), vertices(g))
+
+    @test nv(empty_graph(g)) == 0
+    @test ne(empty_graph(g)) == 0
+
+    # `vs` aliasing the graph's own vertices must still remove all of them.
+    h = named_grid((2, 2))
+    @test Graphs.rem_vertices!(h, vertices(h)) == 4
+    @test nv(h) == 0
 end

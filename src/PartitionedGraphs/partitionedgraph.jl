@@ -7,6 +7,53 @@ using Graphs: AbstractEdge, AbstractGraph, add_edge!, dst, edges, edgetype, has_
 
 # TODO: Parametrize `partitioned_vertices` and `which_partition`,
 # see https://github.com/mtfishman/NamedGraphs.jl/issues/63.
+"""
+    PartitionedGraph(graph::AbstractGraph, partitioned_vertices)
+    PartitionedGraph(partitioned_vertices)
+    PartitionedGraph(graph::AbstractGraph; kwargs...)
+
+A graph together with a partitioning of its vertices into quotient vertices. It
+caches the quotient graph and the vertex to quotient vertex map, so quotient
+level queries do not search the partitioning. [`PartitionedView`](@ref) is the
+alternative that stores neither.
+
+The vertices of `graph` are partitioned according to `partitioned_vertices`,
+whose keys are the quotient vertices and whose values are the sets of vertices in
+each partition. It can be a `Dictionaries.Dictionary`, a `Dict`, or a vector of
+vertex collections keyed by `1:length(partitioned_vertices)`. Every vertex must
+land in exactly one quotient vertex.
+
+Passing `partitioned_vertices` alone gives the discrete partitioning of an
+edgeless graph. Passing `graph` alone partitions with
+`GraphsExtensions.partition_vertices`, which the keyword arguments go to: it
+needs either `npartitions` or `nvertices_per_partition`, and a backend such as
+Metis.jl loaded.
+
+# Examples
+
+```jldoctest
+julia> using Graphs: ne, nv, path_graph, vertices
+
+julia> using NamedGraphs: NamedGraph
+
+julia> using NamedGraphs.PartitionedGraphs: PartitionedGraph, QuotientVertex, QuotientView
+
+julia> g = NamedGraph(path_graph(4), ["a", "b", "c", "d"]);
+
+julia> pg = PartitionedGraph(g, [["a", "b"], ["c", "d"]]);
+
+julia> (nv(pg), ne(pg))
+(4, 3)
+
+julia> vertices(pg, QuotientVertex(1))
+2-element Vector{String}:
+ "a"
+ "b"
+
+julia> (nv(QuotientView(pg)), ne(QuotientView(pg)))
+(2, 1)
+```
+"""
 struct PartitionedGraph{
         V, PV, G <: AbstractGraph{V}, QG <: AbstractGraph{PV}, P <: Dictionary,
     } <: AbstractPartitionedGraph{V, PV}
@@ -16,6 +63,15 @@ struct PartitionedGraph{
     which_partition::Dictionary{V, PV}
 end
 
+"""
+    partitionedgraph(graph::AbstractGraph, partitioned_vertices) -> PartitionedGraph
+
+The function form of the [`PartitionedGraph`](@ref) constructor, which documents
+the accepted forms of `partitioned_vertices`.
+
+`graph` may itself be a partitioned graph, giving two layers of partitioning,
+which [`departition`](@ref) and [`unpartition`](@ref) remove.
+"""
 partitionedgraph(g::AbstractGraph, partition) = PartitionedGraph(g, partition)
 
 # Interface overloads

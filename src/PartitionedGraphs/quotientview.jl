@@ -3,6 +3,53 @@ using ..NamedGraphs:
 using .GraphsExtensions: directed_graph_type, undirected_graph_type
 using Graphs: AbstractGraph, edges, has_edge, rem_edge!, rem_vertex!, vertices
 
+"""
+    QuotientView(graph::AbstractGraph)
+
+A view of `graph` as its quotient graph: the graph whose vertices are the
+quotient vertices of `graph` and which has an edge between two quotient vertices
+whenever `graph` has an edge between them. Its vertices are the quotient
+vertices themselves rather than [`QuotientVertex`](@ref) wrappers, so it can be
+used with the `Graphs.jl` interface like any other named graph.
+
+The view is backed by `graph`, so mutating it mutates `graph`: removing a vertex
+of the view removes all of the vertices of `graph` in that quotient vertex (see
+[`rem_quotientvertex!`](@ref)), and removing an edge of the view removes all of
+the edges of `graph` between those two quotient vertices (see
+[`rem_quotientedge!`](@ref)).
+
+Any `Graphs.AbstractGraph` can be viewed this way. A graph with no partitioning
+defined has the trivial partitioning with all of its vertices in a single
+quotient vertex, so its quotient graph is a single vertex with no edges.
+
+# Examples
+
+```jldoctest
+julia> using Graphs: edges, ne, nv, path_graph, vertices
+
+julia> using NamedGraphs: NamedEdge, NamedGraph
+
+julia> using NamedGraphs.PartitionedGraphs: PartitionedGraph, QuotientView
+
+julia> g = NamedGraph(path_graph(4), ["a", "b", "c", "d"]);
+
+julia> pg = PartitionedGraph(g, [["a", "b"], ["c", "d"]]);
+
+julia> qg = QuotientView(pg);
+
+julia> collect(vertices(qg))
+2-element Vector{Int64}:
+ 1
+ 2
+
+julia> collect(edges(qg))
+1-element Vector{NamedEdge{Int64}}:
+ 1 => 2
+
+julia> (nv(QuotientView(g)), ne(QuotientView(g)))
+(1, 0)
+```
+"""
 struct QuotientView{V, G <: AbstractGraph} <: AbstractNamedGraph{V}
     graph::G
     QuotientView(graph::G) where {G} = new{quotient_graph_vertextype(graph), G}(graph)
@@ -56,6 +103,12 @@ function NamedGraphs.similar_type(type::Type{<:QuotientView})
     return similar_type(quotient_graph_type(parent_graph_type(type)))
 end
 
+"""
+    quotientview(graph::AbstractGraph) -> QuotientView
+
+The quotient graph of `graph` as a [`QuotientView`](@ref), a view of the graph
+induced on the quotient vertices of `graph`.
+"""
 quotientview(g::AbstractGraph) = QuotientView(g)
 
 function NamedGraphs.induced_subgraph_from_vertices(g::QuotientView, vertices)

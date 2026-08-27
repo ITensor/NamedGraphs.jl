@@ -48,7 +48,9 @@ for T in (:NamedGraph, :NamedDiGraph)
             if vertex ∈ vertices(graph)
                 return false
             end
-            add_vertex!(encoded_graph(graph))
+            # `add_vertex!` on the encoded graph fails if the code type is out of
+            # space, which must not leave a name mapped to a nonexistent code.
+            add_vertex!(encoded_graph(graph)) || return false
             push!(graph.decoded_vertices, vertex)
             insert!(graph.encoded_vertices, vertex, nv(encoded_graph(graph)))
             return true
@@ -101,7 +103,6 @@ for T in (:NamedGraph, :NamedDiGraph)
 end
 
 """
-    NamedGraph{V} <: AbstractNamedGraph{V}
     NamedGraph(vertices)
     NamedGraph(simple_graph::AbstractSimpleGraph, vertices)
 
@@ -134,7 +135,6 @@ julia> (nv(g), ne(g))
 NamedGraph
 
 """
-    NamedDiGraph{V} <: AbstractNamedGraph{V}
     NamedDiGraph(vertices)
     NamedDiGraph(simple_graph::AbstractSimpleGraph, vertices)
 
@@ -186,6 +186,6 @@ GraphsExtensions.undirected_graph_type(::Type{<:NamedDiGraph{V}}) where {V} = Na
 function edge_subgraph_namedgraph(graph::NamedDiGraph, edgelist)
     vs = unique(vcat(src.(edgelist), dst.(edgelist)))
     g = subgraph(graph, vs)
-    g = rem_edges!(g, setdiff(edges(g), edgelist))
+    rem_edges!(g, setdiff(edges(g), edgelist))
     return g
 end

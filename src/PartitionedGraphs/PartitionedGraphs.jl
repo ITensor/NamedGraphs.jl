@@ -94,6 +94,13 @@ for adding `vertex` to the quotient vertex `quotientvertex` in the partitioned
 graph.
 """
 module PartitionedGraphs
+
+export AbstractPartitionedGraph, PartitionedGraph, PartitionedView, QuotientEdge,
+    QuotientVertex, QuotientView, boundary_quotientedges, departition,
+    has_quotientedge, has_quotientvertex, is_partition_boundary_edge, partitionedgraph,
+    quotientedge, quotientedges, quotientvertices, quotientview, rem_quotientedge!,
+    rem_quotientvertex!, unpartition
+
 include("quotientvertex.jl")
 include("quotientedge.jl")
 include("quotientvertexoredge.jl")

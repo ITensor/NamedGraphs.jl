@@ -42,6 +42,19 @@ and edges used internally.
   graph on success, and `add_edge!`/`rem_edge!` threw for edges with vertices
   not in the graph, which now returns `false`
   ([#179](https://github.com/ITensor/NamedGraphs.jl/pull/179)).
+- The plural mutators `add_edges!`, `rem_edges!`, `add_vertices!`, and
+  `rem_vertices!` return the number of successful additions or removals, where
+  they previously returned the graph. `Bool` from the singular `Graphs.add_edge!`
+  is the one-element case of the same count, and `Graphs.add_vertices!` already
+  returned a count. `rem_quotientvertex!` and `rem_quotientedge!` likewise return
+  how many underlying vertices or edges went, so `0` means the quotient vertex or
+  edge was not there ([#188](https://github.com/ITensor/NamedGraphs.jl/pull/188)).
+- `add_vertices!` and `rem_vertices!` are methods of the Graphs.jl functions of
+  those names rather than separate `NamedGraphs.GraphsExtensions` functions, and
+  are declared on `AbstractNamedGraph`. `NamedGraphs.GraphsExtensions.add_vertices!`
+  and `.rem_vertices!` no longer exist, so import them from `Graphs` instead. An
+  integer second argument is a vertex name here, not upstream's count of vertices
+  to append, since a named graph cannot invent names ([#188](https://github.com/ITensor/NamedGraphs.jl/pull/188)).
 - The `Keys`, `SimilarType`, `GraphGenerators`, and `NamedGraphGenerators`
   submodules are removed. The named graph generators (`named_grid`,
   `named_path_graph`, and so on) and `similar_type` are accessible directly
@@ -49,38 +62,33 @@ and edges used internally.
   `binary_arborescence` move to `NamedGraphs.GraphsExtensions`, and the
   unused `Key` type is deleted
   ([#183](https://github.com/ITensor/NamedGraphs.jl/pull/183)).
-- The wrappers around Graphs.jl functions now mirror the upstream positional
-  signatures instead of taking `args...` or untyped arguments, so some
-  argument types that were previously accepted no longer are
-  ([#186](https://github.com/ITensor/NamedGraphs.jl/pull/186)). Three
-  behaviours change with it. `eccentricity(graph, x)` always means the
-  eccentricity of the single vertex `x`, so a bare distance matrix is a vertex
-  rather than the every-vertex form, which is `eccentricities`. A `Vector{Bool}`
-  passed to `induced_subgraph` is a list of vertex names rather than a mask over
-  `1:nv(graph)`, since named graphs promise no correspondence between a
-  vertex's position and its name. And an induced subgraph now throws for
-  vertices the graph does not have, where it previously returned a graph built
-  on them.
-- `rename_vertices(edge, name_map)` is removed. It took its arguments in the
-  opposite order from every other method of the interface, which always takes
-  the mapping first: write `rename_vertices(v -> name_map[v], edge)`
-  ([#184](https://github.com/ITensor/NamedGraphs.jl/pull/184)).
+- The wrappers around Graphs.jl functions mirror the upstream positional
+  signatures instead of taking `args...` or untyped arguments, so some argument
+  types that were previously accepted no longer are ([#186](https://github.com/ITensor/NamedGraphs.jl/pull/186)).
+- `eccentricity(graph, x)` is always the eccentricity of the single vertex `x`.
+  The every-vertex form is `eccentricities` ([#186](https://github.com/ITensor/NamedGraphs.jl/pull/186)).
+- A `Vector{Bool}` passed to `induced_subgraph` is a list of vertex names, not a
+  mask over `1:nv(graph)` ([#186](https://github.com/ITensor/NamedGraphs.jl/pull/186)).
+- `induced_subgraph` throws for vertices the graph does not have, where it
+  previously returned a graph built on them ([#186](https://github.com/ITensor/NamedGraphs.jl/pull/186)).
+- `rename_vertices(edge, name_map)` is removed. Write
+  `rename_vertices(v -> name_map[v], edge)` ([#184](https://github.com/ITensor/NamedGraphs.jl/pull/184)).
 - `rename_vertices`, `disjoint_union`, and `⊔` move from
   `NamedGraphs.GraphsExtensions` to `NamedGraphs`, since they only work for
   graphs whose vertices are names, while `GraphsExtensions` holds extensions
-  valid for any `Graphs.AbstractGraph`. `⊔` is now exported
+  valid for any `Graphs.AbstractGraph`
   ([#187](https://github.com/ITensor/NamedGraphs.jl/pull/187)).
+- Considerably more names are exported, where previously only the four graph and
+  edge types were, so `using NamedGraphs` can collide with names another package
+  exports. `NamedGraphs.GraphsExtensions` also exports its documented names now,
+  where it exported nothing, so `using NamedGraphs.GraphsExtensions` brings them
+  into scope ([#188](https://github.com/ITensor/NamedGraphs.jl/pull/188)).
 - The internal helpers behind the Graphs.jl wrappers are renamed from
   `namedgraph_f` to `f_namedgraph`, matching the suffix convention already used
   by `similar_namedgraph` and others. `AbstractNamedGraph` subtypes should now
   override these hooks rather than the Graphs.jl functions themselves, which
   means a subtype no longer needs its own `::Integer` disambiguator
   ([#187](https://github.com/ITensor/NamedGraphs.jl/pull/187)).
-- `Combinatorics`, `Random`, `Suppressor`, and `SimpleGraphConverter` are no
-  longer dependencies, so a NamedGraphs install no longer pulls in `Optim` or
-  `LightXML`. The SimpleGraphAlgorithms extension now also lists `SimpleGraphs`
-  as a trigger, which does not change when it activates
-  ([#185](https://github.com/ITensor/NamedGraphs.jl/pull/185)).
 
 ### Non-breaking changes
 
@@ -90,17 +98,20 @@ and edges used internally.
   methods and raised a `MethodError`
   ([#186](https://github.com/ITensor/NamedGraphs.jl/pull/186),
   [#187](https://github.com/ITensor/NamedGraphs.jl/pull/187)).
-- `dijkstra_shortest_paths` accepts `maxdist`, and `a_star` honors
-  `edgetype_to_return` rather than ignoring it
-  ([#186](https://github.com/ITensor/NamedGraphs.jl/pull/186)).
-- Indexing a `QuotientView` by a collection of vertices or edges works, where
-  it previously raised an ambiguity `MethodError`
-  ([#187](https://github.com/ITensor/NamedGraphs.jl/pull/187)).
+  Indexing a `QuotientView` by a collection of vertices or edges was broken the
+  same way and also works now.
+- `Combinatorics`, `Random`, `Suppressor`, `SimpleGraphConverter`, and
+  `PackageExtensionCompat` are no longer dependencies, so installing
+  NamedGraphs no longer pulls in `Optim` or `LightXML`
+  ([#185](https://github.com/ITensor/NamedGraphs.jl/pull/185),
+  [#188](https://github.com/ITensor/NamedGraphs.jl/pull/188)).
 - The docs are reorganized into user and developer interface pages, the graph
   types and generators are documented, and the README has an introduction and
   examples ([#183](https://github.com/ITensor/NamedGraphs.jl/pull/183)).
-- `named_path_digraph` works, where previously it errored from missing
-  imports ([#183](https://github.com/ITensor/NamedGraphs.jl/pull/183)).
+- `NamedGraphs.PartitionedGraphs` documents and exports its user-facing API, so
+  `using NamedGraphs.PartitionedGraphs` brings the partitioned graph types and
+  the quotient vertex and edge functions into scope where it previously brought
+  nothing ([#188](https://github.com/ITensor/NamedGraphs.jl/pull/188)).
 - `bfs_parents(g, v)` and `dfs_parents(g, v)` map vertices unreachable from
   `v` to themselves, like `dijkstra_shortest_paths` does. Previously they
   errored on graphs with unreachable vertices
