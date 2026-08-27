@@ -3,6 +3,5 @@ using NamedGraphs: NamedGraphs
 using Test: @testset
 
 @testset "Code quality (Aqua.jl)" begin
-    # TODO: fix and re-enable ambiguity checks
-    Aqua.test_all(NamedGraphs; ambiguities = false)
+    Aqua.test_all(NamedGraphs; undocumented_names = true)
 end

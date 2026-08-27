@@ -81,6 +81,19 @@ end
     named_path_graph(dim::Integer)
 
 A named path graph on the vertices `1:dim`.
+
+# Examples
+
+```jldoctest
+julia> using Graphs: ne, nv
+
+julia> using NamedGraphs: named_path_graph
+
+julia> g = named_path_graph(4);
+
+julia> (nv(g), ne(g))
+(4, 3)
+```
 """
 function named_path_graph(dim::Integer)
     return NamedGraph(path_graph(dim))
@@ -112,6 +125,26 @@ A named grid graph of size `dims`, with each vertex named by its coordinate
 tuple, so the grid `named_grid((2, 2))` has vertices `(1, 1)`, `(2, 1)`,
 `(1, 2)`, and `(2, 2)`. A single integer `dim` gives a one-dimensional grid on
 the vertices `1:dim`. `periodic = true` connects the boundaries.
+
+# Examples
+
+```jldoctest
+julia> using Graphs: nv, vertices
+
+julia> using NamedGraphs: named_grid
+
+julia> g = named_grid((2, 2));
+
+julia> collect(vertices(g))
+4-element Vector{Tuple{Int64, Int64}}:
+ (1, 1)
+ (2, 1)
+ (1, 2)
+ (2, 2)
+
+julia> nv(named_grid(3))
+3
+```
 """
 function named_grid(dim::Integer; kwargs...)
     simple_graph = grid((dim,); kwargs...)
@@ -130,6 +163,20 @@ end
 A named comb tree with `dims[1]` teeth of length `dims[2]`, or teeth of the
 given lengths, with each vertex named by its coordinate tuple: `(jx, jy)` is
 the `jy`th vertex of tooth `jx`, and the `(jx, 1)` vertices form the backbone.
+
+# Examples
+
+```jldoctest
+julia> using Graphs: vertices
+
+julia> using NamedGraphs: named_comb_tree
+
+julia> collect(vertices(named_comb_tree([2, 1])))
+3-element Vector{Tuple{Int64, Int64}}:
+ (1, 1)
+ (2, 1)
+ (1, 2)
+```
 """
 function named_comb_tree(dims::Tuple)
     simple_graph = comb_tree(dims)

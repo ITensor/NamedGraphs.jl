@@ -33,6 +33,22 @@ The code of `vertex` in `graph`, i.e. the corresponding vertex of
 
 Codes are not stable across mutation: adding or removing vertices may reassign
 the codes of other vertices.
+
+# Examples
+
+```jldoctest
+julia> using Graphs: path_graph
+
+julia> using NamedGraphs: NamedGraph, decode_vertex, encode_vertex
+
+julia> g = NamedGraph(path_graph(3), ["a", "b", "c"]);
+
+julia> encode_vertex(g, "b")
+2
+
+julia> decode_vertex(g, 2)
+"b"
+```
 """
 encode_vertex(graph::AbstractNamedGraph, vertex) = not_implemented()
 encode_vertex(graph::AbstractSimpleGraph, vertex) = vertex
@@ -43,6 +59,22 @@ encode_vertex(graph::AbstractSimpleGraph, vertex) = vertex
 The vertex of `graph` whose code is `code`, i.e. the vertex corresponding to the
 vertex `code` of [`encoded_graph(graph)`](@ref encoded_graph). Inverse of
 [`encode_vertex`](@ref).
+
+# Examples
+
+```jldoctest
+julia> using Graphs: nv, path_graph
+
+julia> using NamedGraphs: NamedGraph, decode_vertex
+
+julia> g = NamedGraph(path_graph(3), ["a", "b", "c"]);
+
+julia> [decode_vertex(g, c) for c in 1:nv(g)]
+3-element Vector{String}:
+ "a"
+ "b"
+ "c"
+```
 """
 decode_vertex(graph::AbstractNamedGraph, code::Integer) = not_implemented()
 decode_vertex(graph::AbstractSimpleGraph, code::Integer) = code
@@ -69,6 +101,24 @@ the edge `encode_vertex(graph, u) => encode_vertex(graph, v)` if and only if
 
 May be a stored field or a view of `graph`; mutate the graph only through
 `graph`.
+
+# Examples
+
+```jldoctest
+julia> using Graphs: has_edge, ne, nv, path_graph
+
+julia> using NamedGraphs: NamedGraph, encode_vertex, encoded_graph
+
+julia> g = NamedGraph(path_graph(3), ["a", "b", "c"]);
+
+julia> cg = encoded_graph(g);
+
+julia> (nv(cg), ne(cg))
+(3, 2)
+
+julia> has_edge(cg, encode_vertex(g, "a"), encode_vertex(g, "b"))
+true
+```
 """
 encoded_graph(graph::AbstractNamedGraph) = EncodedGraphView(graph)
 encoded_graph(graph::AbstractSimpleGraph) = graph
@@ -89,6 +139,33 @@ match the vertex codes after removals, since codes are reassigned. Use
 The output is a live read-only view of the graph: do not mutate it directly,
 and do not rely on it (or containers sharing its state) across mutations of
 the graph.
+
+# Examples
+
+Removing a vertex does not reorder the rest, but it does reassign codes, so the
+two orders come apart:
+
+```jldoctest
+julia> using Graphs: nv, path_graph, rem_vertex!, vertices
+
+julia> using NamedGraphs: NamedGraph, decode_vertex
+
+julia> g = NamedGraph(path_graph(4), ["v1", "v2", "v3", "v4"]);
+
+julia> rem_vertex!(g, "v2");
+
+julia> collect(vertices(g))
+3-element Vector{String}:
+ "v1"
+ "v3"
+ "v4"
+
+julia> [decode_vertex(g, c) for c in 1:nv(g)]
+3-element Vector{String}:
+ "v1"
+ "v4"
+ "v3"
+```
 """
 Graphs.vertices(graph::AbstractNamedGraph) = NamedVerticesView(graph)
 
@@ -144,6 +221,22 @@ Base.eltype(graph::AbstractNamedGraph) = eltype(vertices(graph))
 The edge of [`encoded_graph(graph)`](@ref encoded_graph) corresponding to `edge`,
 i.e. the edge between the codes of the vertices of `edge`.
 Inverse of [`decode_edge`](@ref).
+
+# Examples
+
+```jldoctest
+julia> using Graphs: path_graph
+
+julia> using NamedGraphs: NamedEdge, NamedGraph, decode_edge, encode_edge
+
+julia> g = NamedGraph(path_graph(3), ["a", "b", "c"]);
+
+julia> ce = encode_edge(g, NamedEdge("a" => "b"))
+Edge 1 => 2
+
+julia> decode_edge(g, ce)
+"a" => "b"
+```
 """
 function encode_edge(graph::AbstractNamedGraph, edge::AbstractEdge)
     return edgetype(encoded_graph(graph))(
@@ -174,6 +267,22 @@ edge once). The iteration order is unspecified.
 
 The output is a live view of the graph: do not rely on it across mutations of
 the graph.
+
+# Examples
+
+```jldoctest
+julia> using Graphs: edges, path_graph
+
+julia> using NamedGraphs: NamedEdge, NamedGraph
+
+julia> g = NamedGraph(path_graph(3), ["a", "b", "c"]);
+
+julia> length(edges(g))
+2
+
+julia> NamedEdge("b" => "a") in edges(g)
+true
+```
 """
 Graphs.edges(graph::AbstractNamedGraph) = NamedEdgeIter(graph)
 
