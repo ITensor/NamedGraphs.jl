@@ -202,6 +202,12 @@ function Graphs.common_neighbors(g::AbstractNamedGraph, u, v)
     return intersect(neighbors(g, u), neighbors(g, v))
 end
 
+# Mirrors the `AbstractGraph` signature in Graphs.jl so the wrapper above is
+# not ambiguous with it.
+function Graphs.common_neighbors(g::AbstractNamedGraph, u::Integer, v::Integer)
+    return intersect(neighbors(g, u), neighbors(g, v))
+end
+
 namedgraph_indegree(graph::AbstractNamedGraph, vertex) = length(inneighbors(graph, vertex))
 function namedgraph_outdegree(graph::AbstractNamedGraph, vertex)
     return length(outneighbors(graph, vertex))
@@ -317,7 +323,11 @@ function Graphs.mincut(graph::AbstractNamedGraph, distmx = weights(graph))
     return namedgraph_mincut(graph, distmx)
 end
 
-function Graphs.mincut(graph::AbstractNamedGraph, distmx::AbstractMatrix{<:Real})
+# Mirrors the `AbstractGraph` signature in Graphs.jl so the wrapper above is
+# not ambiguous with it.
+# The bound matches Graphs.jl exactly: widening `<:Number` to `<:Real` here
+# would leave `Complex` distance matrices ambiguous.
+function Graphs.mincut(graph::AbstractNamedGraph, distmx::AbstractMatrix{<:Number})
     return namedgraph_mincut(graph, distmx)
 end
 
@@ -342,48 +352,79 @@ function namedgraph_a_star(
         source,
         destination,
         distmx = weights(graph),
-        heuristic::Function = (v -> zero(eltype(distmx))),
+        heuristic = (v -> zero(eltype(distmx))),
         edgetype_to_return = edgetype(graph)
     )
-    encoded_distmx = encode_dist_matrix(graph, distmx)
     encoded_shortest_path = a_star(
         encoded_graph(graph),
         encode_vertex(graph, source),
         encode_vertex(graph, destination),
         encode_dist_matrix(graph, distmx),
         heuristic,
+        # The encoded graph has integer vertices, so the inner search returns
+        # `SimpleEdge`s regardless of the edge type requested for the output.
         SimpleEdge
     )
-    return map(e -> decode_edge(graph, e), encoded_shortest_path)
+    return map(encoded_shortest_path) do encoded_edge
+        edge = decode_edge(graph, encoded_edge)
+        # Build from the endpoints rather than converting, so edge types other
+        # than `edgetype(graph)` do not need a constructor taking a `NamedEdge`.
+        return edgetype_to_return(src(edge), dst(edge))
+    end
 end
 
-function Graphs.a_star(graph::AbstractNamedGraph, source, destination, args...)
-    return namedgraph_a_star(graph, source, destination, args...)
-end
-
-# Fix ambiguity error with `AbstractGraph` version
 function Graphs.a_star(
-        graph::AbstractNamedGraph{U}, source::Integer, destination::Integer, args...
-    ) where {U <: Integer}
-    return namedgraph_a_star(graph, source, destination, args...)
+        graph::AbstractNamedGraph,
+        source,
+        destination,
+        distmx = weights(graph),
+        heuristic = (v -> zero(eltype(distmx))),
+        edgetype_to_return = edgetype(graph)
+    )
+    return namedgraph_a_star(
+        graph, source, destination, distmx, heuristic, edgetype_to_return
+    )
 end
 
-# Fix ambiguity error with `AbstractGraph` version
+# Mirrors the `AbstractGraph` signature in Graphs.jl so the wrapper above is not
+# ambiguous with it. `distmx` is left unbounded because Graphs.jl does not
+# constrain its element type here.
 function Graphs.a_star(
-        graph::AbstractNamedGraph, source::Integer, destination::Integer, args...
+        graph::AbstractNamedGraph,
+        source::Integer,
+        destination::Integer,
+        distmx::AbstractMatrix = weights(graph),
+        heuristic = (v -> zero(eltype(distmx))),
+        edgetype_to_return::Type{<:AbstractEdge} = edgetype(graph)
     )
-    return namedgraph_a_star(graph, source, destination, args...)
+    return namedgraph_a_star(
+        graph, source, destination, distmx, heuristic, edgetype_to_return
+    )
 end
 
-function Graphs.spfa_shortest_paths(
-        graph::AbstractNamedGraph, vertex, distmx = weights(graph)
-    )
+function namedgraph_spfa_shortest_paths(graph::AbstractNamedGraph, vertex, distmx)
     encoded_distmx = encode_dist_matrix(graph, distmx)
     encoded_shortest_paths = spfa_shortest_paths(
         encoded_graph(graph), encode_vertex(graph, vertex), encoded_distmx
     )
     graph_vertices = map(c -> decode_vertex(graph, c), vertices(encoded_graph(graph)))
     return Dictionary(graph_vertices, encoded_shortest_paths)
+end
+
+function Graphs.spfa_shortest_paths(
+        graph::AbstractNamedGraph, vertex, distmx = weights(graph)
+    )
+    return namedgraph_spfa_shortest_paths(graph, vertex, distmx)
+end
+
+# Mirrors the `AbstractGraph` signature in Graphs.jl so the wrapper above is
+# not ambiguous with it.
+function Graphs.spfa_shortest_paths(
+        graph::AbstractNamedGraph,
+        vertex::Integer,
+        distmx::AbstractMatrix{<:Number} = weights(graph)
+    )
+    return namedgraph_spfa_shortest_paths(graph, vertex, distmx)
 end
 
 function Graphs.boruvka_mst(
@@ -433,8 +474,11 @@ end
 Graphs.has_edge(g::AbstractNamedGraph, edge) = has_edge(g, edgetype(g)(edge))
 Graphs.has_edge(g::AbstractNamedGraph, src, dst) = has_edge(g, edgetype(g)(src, dst))
 
-function Graphs.has_path(
-        graph::AbstractNamedGraph, source, destination; exclude_vertices = vertextype(graph)[]
+function namedgraph_has_path(
+        graph::AbstractNamedGraph,
+        source,
+        destination,
+        exclude_vertices
     )
     return has_path(
         encoded_graph(graph),
@@ -442,6 +486,23 @@ function Graphs.has_path(
         encode_vertex(graph, destination);
         exclude_vertices = map(v -> encode_vertex(graph, v), exclude_vertices)
     )
+end
+
+function Graphs.has_path(
+        graph::AbstractNamedGraph, source, destination; exclude_vertices = vertextype(graph)[]
+    )
+    return namedgraph_has_path(graph, source, destination, exclude_vertices)
+end
+
+# Mirrors the `AbstractGraph` signature in Graphs.jl so the wrapper above is
+# not ambiguous with it.
+function Graphs.has_path(
+        graph::AbstractNamedGraph,
+        source::Integer,
+        destination::Integer;
+        exclude_vertices = vertextype(graph)[]
+    )
+    return namedgraph_has_path(graph, source, destination, exclude_vertices)
 end
 
 function Base.union(graph1::AbstractNamedGraph, graph2::AbstractNamedGraph)
@@ -612,9 +673,24 @@ end
 function Graphs.induced_subgraph(graph::AbstractNamedGraph, subvertices)
     return induced_subgraph_namedgraph(graph, subvertices)
 end
-# For method ambiguity resolution with Graphs.jl
+# Mirrors the `AbstractGraph` signatures in Graphs.jl so the wrapper above is
+# not ambiguous with them.
 function Graphs.induced_subgraph(
         graph::AbstractNamedGraph, subvertices::AbstractVector{<:Integer}
+    )
+    return induced_subgraph_namedgraph(graph, subvertices)
+end
+function Graphs.induced_subgraph(
+        graph::AbstractNamedGraph, edgelist::AbstractVector{<:AbstractEdge}
+    )
+    return edge_subgraph_namedgraph(graph, to_edges(graph, edgelist)), nothing
+end
+# Graphs.jl reads a `Vector{Bool}` as a mask over `1:nv(graph)`. That is
+# position-dependent, and a named graph does not promise any correspondence
+# between a vertex's position and its name, so here it is a list of vertex
+# names like any other, which happen to be `Bool`s.
+function Graphs.induced_subgraph(
+        graph::AbstractNamedGraph, subvertices::AbstractVector{Bool}
     )
     return induced_subgraph_namedgraph(graph, subvertices)
 end
@@ -623,8 +699,18 @@ function induced_subgraph_namedgraph(graph::AbstractGraph, subvertices)
     return induced_subgraph_from_vertices(graph, to_vertices(graph, subvertices))
 end
 
-# TODO: Implement an edgelist version
 function induced_subgraph_from_vertices(graph::AbstractGraph, subvertices)
+    # `subvertices` is an arbitrary iterable here (`to_vertices` wraps vectors in
+    # `Vertices`, which is not an `AbstractArray`), so this avoids `filter` and
+    # only builds the list of offenders when there is something to report.
+    if any(v -> v ∉ vertices(graph), subvertices)
+        unknown_vertices = [v for v in subvertices if v ∉ vertices(graph)]
+        throw(
+            ArgumentError(
+                "Can't take the subgraph induced by vertices that aren't in the graph: $(unknown_vertices)."
+            )
+        )
+    end
     subgraph = similar_graph(graph, subvertices)
     add_edges!(subgraph, subgraph_edges(graph, subvertices))
     return subgraph, nothing

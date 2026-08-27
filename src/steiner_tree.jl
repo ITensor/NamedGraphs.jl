@@ -1,4 +1,4 @@
-using Graphs: Graphs, IsDirected, is_tree, nv, steiner_tree
+using Graphs: Graphs, IsDirected, is_tree, nv, steiner_tree, weights
 using SimpleTraits: SimpleTraits, @traitfn, Not
 
 function namedgraph_steiner_tree(
@@ -34,8 +34,13 @@ end
     return namedgraph_steiner_tree(g, term_vert, args...)
 end
 
+# Mirrors the `AbstractGraph` signature in Graphs.jl so the wrapper above is
+# not ambiguous with it. Graphs.jl bounds this `distmx` as `<:Real`, unlike the
+# `<:Number` it uses elsewhere.
 @traitfn function Graphs.steiner_tree(
-        g::AbstractNamedGraph::(!IsDirected), term_vert::Vector{<:Integer}, args...
+        g::AbstractNamedGraph::(!IsDirected),
+        term_vert::Vector{<:Integer},
+        distmx::AbstractMatrix{<:Real} = weights(g)
     )
-    return namedgraph_steiner_tree(g, term_vert, args...)
+    return namedgraph_steiner_tree(g, term_vert, distmx)
 end

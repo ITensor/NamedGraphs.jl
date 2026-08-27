@@ -11,15 +11,31 @@ function Graphs.eccentricity(graph::AbstractNamedGraph, vertex, distmx = weights
     return namedgraph_eccentricity(graph, vertex, distmx)
 end
 
-# Fix for ambiguity error with `AbstractGraph`
+# Mirrors the `AbstractGraph` signature in Graphs.jl so the wrapper above is
+# not ambiguous with it. The bound matches Graphs.jl exactly: widening
+# `<:Number` to `<:Real` here would leave `Complex` distance matrices
+# ambiguous.
 function Graphs.eccentricity(
-        graph::AbstractNamedGraph, vertex::Integer, distmx::AbstractMatrix{<:Real}
+        graph::AbstractNamedGraph,
+        vertex::Integer,
+        distmx::AbstractMatrix{<:Number} = weights(graph)
     )
     return namedgraph_eccentricity(graph, vertex, distmx)
 end
 
 function Graphs.eccentricity(graph::AbstractNamedGraph, vertex, distmx::AbstractMatrix)
     return namedgraph_eccentricity(graph, vertex, distmx)
+end
+
+# Graphs.jl reads a lone matrix as the distance matrix and returns the
+# eccentricity of every vertex. Here `eccentricity` is always the eccentricity
+# of a single vertex and `eccentricities` is the plural form, so rather than
+# silently returning a collection this points at the plural. Without this
+# method the call is ambiguous with the `AbstractGraph` version.
+function Graphs.eccentricity(graph::AbstractNamedGraph, distmx::AbstractMatrix)
+    return error(
+        "`eccentricity(graph, distmx)` is the eccentricity of a single vertex, so a bare distance matrix is not a valid second argument. Use `eccentricities(graph, vertices(graph), distmx)` for the eccentricity of every vertex."
+    )
 end
 
 function eccentricities_center(eccentricities)
