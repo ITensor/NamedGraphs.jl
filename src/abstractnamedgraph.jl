@@ -133,10 +133,12 @@ encoded_graph(graph::AbstractNamedGraph) = EncodedGraphView(graph)
 encoded_graph(graph::AbstractSimpleGraph) = graph
 
 """
-    vertices(graph::AbstractNamedGraph) -> AbstractIndices
+    vertices(graph::AbstractNamedGraph) -> Dictionaries.AbstractIndices
 
-The set of vertices of `graph`: an `AbstractIndices` containing each vertex
-exactly once, with fast membership testing.
+The set of vertices of `graph`: a `Dictionaries.AbstractIndices` containing each
+vertex exactly once, with fast membership testing. See
+[Dictionaries.jl](https://github.com/andyferris/Dictionaries.jl) for that
+interface.
 
 The vertices iterate in insertion order: they appear in the order they were
 added to the graph, removing a vertex does not reorder the rest, and added
@@ -269,10 +271,10 @@ end
 """
     edges(graph::AbstractNamedGraph) -> AbstractEdgeIter
 
-An iterator over the edges of `graph`, yielding each edge exactly once, with
-membership testing (`in`) matching `has_edge` (in particular, on undirected
-graphs an edge and its reverse are both members while iteration yields each
-edge once). The iteration order is unspecified.
+A Graphs.jl `AbstractEdgeIter` over the edges of `graph`, yielding each edge
+exactly once, with membership testing (`in`) matching `has_edge` (in particular,
+on undirected graphs an edge and its reverse are both members while iteration
+yields each edge once). The iteration order is unspecified.
 
 The output is a live view of the graph: do not rely on it across mutations of
 the graph.
