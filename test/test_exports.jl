@@ -39,6 +39,13 @@ using Test: @test, @testset
         end
         @test issetequal(names(NamedGraphs), [exports; public_names])
     end
+    @testset "GraphsExtensions" begin
+        exports = [:GraphsExtensions, :incident_edges, :subgraph]
+        @test issetequal(names(NamedGraphs.GraphsExtensions), exports)
+        # Unlike `PartitionedGraphs`, these are also exported from `NamedGraphs`, so
+        # downstream does not have to name the submodule.
+        @test issubset(setdiff(exports, [:GraphsExtensions]), names(NamedGraphs))
+    end
     @testset "PartitionedGraphs" begin
         exports = [
             :AbstractPartitionedGraph,

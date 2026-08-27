@@ -13,6 +13,13 @@ boundaries (`incident_edges`, `boundary_vertices`), directedness conversions
 (`partition_vertices`), and edge arranging (`arrange_edge`).
 """
 module GraphsExtensions
+
+# These mirror the names `NamedGraphs` exports, so downstream never has to name
+# this submodule. Everything else stays reachable by qualifying or by
+# `using NamedGraphs.GraphsExtensions: name`, and moves here as it gets a
+# docstring, which `Aqua.test_all(; undocumented_names = true)` requires.
+export incident_edges, subgraph
+
 include("graphgenerators.jl")
 include("abstractgraph.jl")
 include("abstracttrees.jl")
