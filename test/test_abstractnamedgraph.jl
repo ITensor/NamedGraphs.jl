@@ -6,9 +6,9 @@ using Graphs: Graphs, AbstractGraph, DiGraph, Graph, SimpleDiGraph, SimpleEdge, 
     johnson_shortest_paths, ne, nv, path_graph, rem_edge!, spfa_shortest_paths,
     steiner_tree, vertices, weights, yen_k_shortest_paths
 using NamedGraphs.GraphsExtensions: GraphsExtensions, eccentricities, edgeless_graph,
-    empty_graph, rename_vertices, similar_dataless_graph, similar_graph, subgraph
+    empty_graph, similar_dataless_graph, similar_graph, subgraph
 using NamedGraphs: NamedGraphs, AbstractNamedGraph, NamedDiGraph, NamedEdge, NamedGraph,
-    encoded_graph, named_grid, named_path_graph
+    encoded_graph, named_grid, named_path_graph, rename_vertices
 using Test: @test, @test_throws, @testset
 
 # A callable that is not a `Function`, to check that heuristics are not

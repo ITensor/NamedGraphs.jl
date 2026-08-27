@@ -1,4 +1,4 @@
-using .GraphsExtensions: GraphsExtensions, convert_vertextype, rename_vertices
+using .GraphsExtensions: GraphsExtensions, convert_vertextype
 using Graphs: Graphs, AbstractEdge, dst, src
 
 abstract type AbstractNamedEdge{V} <: AbstractEdge{V} end
@@ -46,11 +46,11 @@ set_src(e::AbstractNamedEdge, src) = set_vertices(e, src, dst(e))
 # TODO: Define generic `set_vertices` in `GraphsExtensions`.
 set_dst(e::AbstractNamedEdge, dst) = set_vertices(e, src(e), dst)
 
-function GraphsExtensions.rename_vertices(f::Function, e::AbstractNamedEdge)
+function rename_vertices(f::Function, e::AbstractNamedEdge)
     # TODO: Define generic `set_vertices` in `GraphsExtensions`.
     return set_vertices(e, f(src(e)), f(dst(e)))
 end
 
-function GraphsExtensions.rename_vertices(f::Function, e::AbstractEdge)
+function rename_vertices(f::Function, e::AbstractEdge)
     return rename_vertices(f, AbstractNamedEdge(e))
 end

@@ -1,6 +1,6 @@
 using .GraphsExtensions: GraphsExtensions, all_edges, directed_graph, empty_graph,
-    incident_edges, partition_vertices, rem_edges, rem_edges!, rem_vertices,
-    rename_vertices, similar_graph, subgraph
+    incident_edges, partition_vertices, rem_edges, rem_edges!, rem_vertices, similar_graph,
+    subgraph
 using Dictionaries: Dictionary, set!
 using Graphs: Graphs, AbstractGraph, AbstractSimpleGraph, IsDirected, SimpleDiGraph,
     SimpleEdge, SimpleGraph, a_star, add_edge!, adjacency_matrix, bfs_parents, blockdiag,
@@ -82,7 +82,7 @@ decode_vertex(graph::AbstractSimpleGraph, code::Integer) = code
 Graphs.rem_vertex!(graph::AbstractNamedGraph, vertex) = not_implemented()
 Graphs.add_vertex!(graph::AbstractNamedGraph, vertex) = not_implemented()
 
-function GraphsExtensions.rename_vertices(f::Function, graph::AbstractNamedGraph)
+function rename_vertices(f::Function, graph::AbstractNamedGraph)
     new_vertices = map(c -> f(decode_vertex(graph, c)), vertices(encoded_graph(graph)))
     return namedgraph(copy(encoded_graph(graph)), new_vertices)
 end
@@ -288,8 +288,10 @@ julia> using NamedGraphs: NamedEdge, NamedGraph
 
 julia> g = NamedGraph(path_graph(3), ["a", "b", "c"]);
 
-julia> length(edges(g))
-2
+julia> collect(edges(g))
+2-element Vector{NamedEdge{String}}:
+ "a" => "b"
+ "b" => "c"
 
 julia> NamedEdge("b" => "a") in edges(g)
 true
@@ -303,21 +305,17 @@ Graphs.edges(graph::AbstractNamedGraph) = NamedEdgeIter(graph)
 # Subtypes override the hook rather than the Graphs.jl function, so they never
 # add a method to a function upstream also defines on `::Integer` and never need
 # an `::Integer` disambiguator of their own.
-for f in [
-        :(Graphs.outneighbors),
-        :(Graphs.inneighbors),
-        :(Graphs.all_neighbors),
-        :(Graphs.neighbors),
-    ]
-    hook = Symbol(last(split(string(f), '.')), "_namedgraph")
+for f in [:outneighbors, :inneighbors, :all_neighbors, :neighbors]
+    f_namedgraph = Symbol(f, :_namedgraph)
     @eval begin
-        function $hook(graph::AbstractNamedGraph, vertex)
-            encoded_neighbors = $f(encoded_graph(graph), encode_vertex(graph, vertex))
+        function $f_namedgraph(graph::AbstractNamedGraph, vertex)
+            encoded_neighbors =
+                Graphs.$f(encoded_graph(graph), encode_vertex(graph, vertex))
             return map(c -> decode_vertex(graph, c), encoded_neighbors)
         end
 
-        $f(graph::AbstractNamedGraph, vertex) = $hook(graph, vertex)
-        $f(graph::AbstractNamedGraph, vertex::Integer) = $hook(graph, vertex)
+        Graphs.$f(graph::AbstractNamedGraph, vertex) = $f_namedgraph(graph, vertex)
+        Graphs.$f(graph::AbstractNamedGraph, vertex::Integer) = $f_namedgraph(graph, vertex)
     end
 end
 

@@ -15,9 +15,10 @@ using NamedGraphs.GraphsExtensions: GraphsExtensions, boundary_edges, boundary_v
     convert_vertextype, degrees, dijkstra_mst, dijkstra_parents, dijkstra_tree,
     eccentricities, edge_subgraph, has_vertices, incident_edges, indegrees,
     inner_boundary_vertices, mincut_partitions, outdegrees, outer_boundary_vertices,
-    permute_vertices, rename_vertices, subgraph, symrcm_perm, symrcm_permute, vertextype, ⊔
+    permute_vertices, subgraph, symrcm_perm, symrcm_permute, vertextype
 using NamedGraphs: AbstractNamedEdge, NamedDiGraph, NamedEdge, NamedGraph, Vertices,
-    named_binary_tree, named_grid, named_hexagonal_lattice_graph, named_path_graph
+    named_binary_tree, named_grid, named_hexagonal_lattice_graph, named_path_graph,
+    rename_vertices, ⊔
 using SymRCM: SymRCM
 using Test: @test, @test_broken, @testset
 

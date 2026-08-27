@@ -172,7 +172,7 @@ end
     return NamedGraph(simple_graph, vertices)
 end
 
-function GraphsExtensions.rename_vertices(f::Function, g::AbstractSimpleGraph)
+function rename_vertices(f::Function, g::AbstractSimpleGraph)
     return error(
         "Can't rename the vertices of a graph of type `$(typeof(g)) <: AbstractSimpleGraph`, try converting to a named graph."
     )

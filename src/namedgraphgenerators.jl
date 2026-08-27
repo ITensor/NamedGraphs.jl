@@ -85,14 +85,24 @@ A named path graph on the vertices `1:dim`.
 # Examples
 
 ```jldoctest
-julia> using Graphs: ne, nv
+julia> using Graphs: edges, vertices
 
 julia> using NamedGraphs: named_path_graph
 
 julia> g = named_path_graph(4);
 
-julia> (nv(g), ne(g))
-(4, 3)
+julia> collect(vertices(g))
+4-element Vector{Int64}:
+ 1
+ 2
+ 3
+ 4
+
+julia> collect(edges(g))
+3-element Vector{NamedEdge{Int64}}:
+ 1 => 2
+ 2 => 3
+ 3 => 4
 ```
 """
 function named_path_graph(dim::Integer)
@@ -129,7 +139,7 @@ the vertices `1:dim`. `periodic = true` connects the boundaries.
 # Examples
 
 ```jldoctest
-julia> using Graphs: nv, vertices
+julia> using Graphs: edges, vertices
 
 julia> using NamedGraphs: named_grid
 
@@ -142,8 +152,12 @@ julia> collect(vertices(g))
  (1, 2)
  (2, 2)
 
-julia> nv(named_grid(3))
-3
+julia> collect(edges(g))
+4-element Vector{NamedEdge{Tuple{Int64, Int64}}}:
+ (1, 1) => (2, 1)
+ (1, 1) => (1, 2)
+ (2, 1) => (2, 2)
+ (1, 2) => (2, 2)
 ```
 """
 function named_grid(dim::Integer; kwargs...)
@@ -167,15 +181,22 @@ the `jy`th vertex of tooth `jx`, and the `(jx, 1)` vertices form the backbone.
 # Examples
 
 ```jldoctest
-julia> using Graphs: vertices
+julia> using Graphs: edges, vertices
 
 julia> using NamedGraphs: named_comb_tree
 
-julia> collect(vertices(named_comb_tree([2, 1])))
+julia> g = named_comb_tree([2, 1]);
+
+julia> collect(vertices(g))
 3-element Vector{Tuple{Int64, Int64}}:
  (1, 1)
  (2, 1)
  (1, 2)
+
+julia> collect(edges(g))
+2-element Vector{NamedEdge{Tuple{Int64, Int64}}}:
+ (1, 1) => (2, 1)
+ (1, 1) => (1, 2)
 ```
 """
 function named_comb_tree(dims::Tuple)

@@ -4,6 +4,7 @@ using Test: @test, @testset
 @testset "Test exports" begin
     @testset "NamedGraphs" begin
         exports = [
+            :⊔,
             :NamedGraphs,
             :AbstractNamedGraph,
             :NamedDiGraph,
