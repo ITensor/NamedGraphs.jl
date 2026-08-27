@@ -20,9 +20,9 @@ graphs, and [`GraphsExtensions`](@ref) for extensions that apply to any
 module NamedGraphs
 
 export ⊔, AbstractNamedGraph, NamedDiGraph, NamedEdge, NamedGraph,
-    disjoint_union, named_binary_tree, named_comb_tree, named_cycle_graph, named_grid,
-    named_hexagonal_lattice_graph, named_path_digraph, named_path_graph,
-    named_triangular_lattice_graph, rename_vertices
+    disjoint_union, incident_edges, named_binary_tree, named_comb_tree,
+    named_cycle_graph, named_grid, named_hexagonal_lattice_graph, named_path_digraph,
+    named_path_graph, named_triangular_lattice_graph, rename_vertices, subgraph
 if VERSION >= v"1.11.0-DEV.469"
     eval(Meta.parse("public GraphsExtensions, PartitionedGraphs"))
     # The encode and decode interface is what a new `AbstractNamedGraph` overloads,

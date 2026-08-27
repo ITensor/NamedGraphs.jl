@@ -20,7 +20,6 @@ makedocs(;
         "User Interface" => [
             "Named graphs" => "user_interface/named_graphs.md",
             "Partitioned graphs" => "user_interface/partitioned_graphs.md",
-            "Graphs interface extensions" => "user_interface/graphs_extensions.md",
         ],
         "Developer Interface" => "dev_interface.md",
         "Reference" => "reference.md",

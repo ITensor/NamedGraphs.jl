@@ -10,6 +10,7 @@ using Test: @test, @testset
             :NamedGraph,
             :NamedGraphs,
             :disjoint_union,
+            :incident_edges,
             :named_binary_tree,
             :named_comb_tree,
             :named_cycle_graph,
@@ -19,6 +20,7 @@ using Test: @test, @testset
             :named_path_graph,
             :named_triangular_lattice_graph,
             :rename_vertices,
+            :subgraph,
             :⊔,
         ]
         # `names` includes `public` names as well as exported ones.

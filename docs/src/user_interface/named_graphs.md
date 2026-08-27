@@ -11,9 +11,24 @@ and return the vertex names. `NamedGraph` and `NamedDiGraph` are the
 undirected and directed graph types, with edges of type `NamedEdge`.
 
 ```@docs; canonical=false
+AbstractNamedGraph
 NamedGraph
 NamedDiGraph
 NamedEdge
+```
+
+## Graph functionality
+
+Most functionality comes from Graphs.jl itself and is documented there. Listed
+here are the functions whose named graph behaviour is worth knowing about, along
+with extensions NamedGraphs adds that work on any `Graphs.AbstractGraph`. This
+section will grow over time.
+
+```@docs; canonical=false
+vertices(::AbstractNamedGraph)
+edges(::AbstractNamedGraph)
+subgraph
+incident_edges
 ```
 
 ## Generators
