@@ -46,14 +46,16 @@ function namedgraph_dijkstra_shortest_paths(
         srcs,
         distmx = weights(graph);
         allpaths = false,
-        trackvertices = false
+        trackvertices = false,
+        maxdist = typemax(eltype(distmx))
     )
     encoded_path_state = dijkstra_shortest_paths(
         encoded_graph(graph),
         map(v -> encode_vertex(graph, v), srcs),
         encode_dist_matrix(graph, distmx);
         allpaths,
-        trackvertices
+        trackvertices,
+        maxdist
     )
     return encoded_path_state_to_path_state(graph, encoded_path_state)
 end
@@ -64,18 +66,24 @@ function Graphs.dijkstra_shortest_paths(
     return namedgraph_dijkstra_shortest_paths(graph, srcs, distmx; kwargs...)
 end
 
-# Fix ambiguity error with `AbstractGraph` version
+# Mirror the `AbstractGraph` signatures in Graphs.jl so the wrappers are not
+# ambiguous with them. Copy each bound from Graphs.jl rather than picking one:
+# they differ between the two methods below, and narrowing `<:Number` to
+# `<:Real` is what left `Complex` distance matrices ambiguous before.
 function Graphs.dijkstra_shortest_paths(
         graph::AbstractNamedGraph,
         srcs::Vector{<:Integer},
-        distmx::AbstractMatrix{<:Real} = weights(graph);
+        distmx::AbstractMatrix{<:Number} = weights(graph);
         kwargs...
     )
     return namedgraph_dijkstra_shortest_paths(graph, srcs, distmx; kwargs...)
 end
 
 function Graphs.dijkstra_shortest_paths(
-        graph::AbstractNamedGraph, vertex::Integer, distmx::AbstractMatrix; kwargs...
+        graph::AbstractNamedGraph,
+        vertex::Integer,
+        distmx::AbstractMatrix = weights(graph);
+        kwargs...
     )
     return namedgraph_dijkstra_shortest_paths(graph, [vertex], distmx; kwargs...)
 end
@@ -92,4 +100,55 @@ for f in [
             return not_implemented()
         end
     end
+end
+
+# These are not implemented for named graphs yet, but they still need methods
+# that mirror the `AbstractGraph` signatures in Graphs.jl. Without them a call
+# on a graph whose vertices happen to be integers is ambiguous, and resolving
+# the ambiguity in Graphs.jl's favour would silently run the algorithm against
+# vertex codes as though they were the vertex names. Erroring is the only safe
+# answer until these are implemented. Bounds are copied from Graphs.jl.
+function Graphs.bellman_ford_shortest_paths(
+        graph::AbstractNamedGraph,
+        sources::AbstractVector{<:Integer},
+        distmx::AbstractMatrix{<:Number} = weights(graph)
+    )
+    return not_implemented()
+end
+function Graphs.bellman_ford_shortest_paths(
+        graph::AbstractNamedGraph,
+        source::Integer,
+        distmx::AbstractMatrix{<:Number} = weights(graph)
+    )
+    return not_implemented()
+end
+function Graphs.desopo_pape_shortest_paths(
+        graph::AbstractNamedGraph,
+        source::Integer,
+        distmx::AbstractMatrix{<:Number} = weights(graph)
+    )
+    return not_implemented()
+end
+function Graphs.floyd_warshall_shortest_paths(
+        graph::AbstractNamedGraph, distmx::AbstractMatrix{<:Number} = weights(graph)
+    )
+    return not_implemented()
+end
+function Graphs.johnson_shortest_paths(
+        graph::AbstractNamedGraph, distmx::AbstractMatrix{<:Number} = weights(graph)
+    )
+    return not_implemented()
+end
+# Graphs.jl constrains `source` and `target` to the same `U <: Integer`. That
+# constraint is meaningless for named vertices, so this method exists only to
+# resolve the ambiguity; named calls go to the generic method above.
+function Graphs.yen_k_shortest_paths(
+        graph::AbstractNamedGraph,
+        source::U,
+        target::U,
+        distmx::AbstractMatrix{<:Number} = weights(graph),
+        K::Int = 1;
+        kwargs...
+    ) where {U <: Integer}
+    return not_implemented()
 end
