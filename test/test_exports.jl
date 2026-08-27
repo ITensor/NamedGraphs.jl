@@ -9,6 +9,9 @@ using Test: @test, @testset
             :NamedEdge,
             :NamedGraph,
             :NamedGraphs,
+            :add_edges,
+            :add_edges!,
+            :add_vertices,
             :disjoint_union,
             :incident_edges,
             :named_binary_tree,
@@ -19,6 +22,9 @@ using Test: @test, @testset
             :named_path_digraph,
             :named_path_graph,
             :named_triangular_lattice_graph,
+            :rem_edges,
+            :rem_edges!,
+            :rem_vertices,
             :rename_vertices,
             :subgraph,
             :⊔,
@@ -40,7 +46,17 @@ using Test: @test, @testset
         @test issetequal(names(NamedGraphs), [exports; public_names])
     end
     @testset "GraphsExtensions" begin
-        exports = [:GraphsExtensions, :incident_edges, :subgraph]
+        exports = [
+            :GraphsExtensions,
+            :add_edges,
+            :add_edges!,
+            :add_vertices,
+            :incident_edges,
+            :rem_edges,
+            :rem_edges!,
+            :rem_vertices,
+            :subgraph,
+        ]
         @test issetequal(names(NamedGraphs.GraphsExtensions), exports)
         # Unlike `PartitionedGraphs`, these are also exported from `NamedGraphs`, so
         # downstream does not have to name the submodule.

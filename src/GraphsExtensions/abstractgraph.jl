@@ -184,7 +184,7 @@ end
 function edge_subgraph(graph::AbstractGraph, edgelist::Vector{<:AbstractEdge})
     vs = unique(vcat(src.(edgelist), dst.(edgelist)))
     g = subgraph(graph, vs)
-    g = rem_edges!(g, setdiff(edges(g), edgelist))
+    rem_edges!(g, setdiff(edges(g), edgelist))
     return g
 end
 
@@ -525,16 +525,16 @@ function add_vertex(g::AbstractGraph, vs)
     return g
 end
 
-function add_vertices!(graph::AbstractGraph, vs)
-    for vertex in vs
-        add_vertex!(graph, vertex)
-    end
-    return graph
-end
+"""
+    add_vertices(graph::AbstractGraph, vs)
 
+A copy of `graph` with the vertices `vs` added.
+"""
 function add_vertices(g::AbstractGraph, vs)
     g = copy(g)
-    add_vertices!(g, vs)
+    for v in vs
+        add_vertex!(g, v)
+    end
     return g
 end
 
@@ -544,17 +544,16 @@ function rem_vertex(g::AbstractGraph, vs)
     return g
 end
 
-# Remove a list of vertices from a graph g
-function rem_vertices!(g::AbstractGraph, vs)
+"""
+    rem_vertices(graph::AbstractGraph, vs)
+
+A copy of `graph` with the vertices `vs` removed.
+"""
+function rem_vertices(g::AbstractGraph, vs)
+    g = copy(g)
     for v in vs
         rem_vertex!(g, v)
     end
-    return g
-end
-
-function rem_vertices(g::AbstractGraph, vs)
-    g = copy(g)
-    rem_vertices!(g, vs)
     return g
 end
 
@@ -564,14 +563,24 @@ function add_edge(g::AbstractGraph, edge)
     return g
 end
 
-# Add a list of edges to a graph g
+"""
+    add_edges!(graph::AbstractGraph, edges)
+
+Add `edges` to `graph` in place, returning how many were added. An edge already
+in `graph`, or one naming a vertex `graph` does not have, is not added and does
+not count, following `Graphs.add_edge!`.
+
+See also [`add_edges`](@ref) for the non-mutating form.
+"""
 function add_edges!(g::AbstractGraph, edges)
-    for e in edges
-        add_edge!(g, edgetype(g)(e))
-    end
-    return g
+    return count(e -> add_edge!(g, edgetype(g)(e)), edges)
 end
 
+"""
+    add_edges(graph::AbstractGraph, edges)
+
+A copy of `graph` with `edges` added. See also [`add_edges!`](@ref).
+"""
 function add_edges(g::AbstractGraph, edges)
     g = copy(g)
     add_edges!(g, edges)
@@ -584,14 +593,24 @@ function rem_edge(g::AbstractGraph, edge)
     return g
 end
 
-# Remove a list of edges from a graph g
+"""
+    rem_edges!(graph::AbstractGraph, edges)
+
+Remove `edges` from `graph` in place, leaving its vertices alone and returning
+how many were removed. An edge not in `graph` does not count, following
+`Graphs.rem_edge!`.
+
+See also [`rem_edges`](@ref) for the non-mutating form.
+"""
 function rem_edges!(g::AbstractGraph, edges)
-    for e in edges
-        rem_edge!(g, edgetype(g)(e))
-    end
-    return g
+    return count(e -> rem_edge!(g, edgetype(g)(e)), edges)
 end
 
+"""
+    rem_edges(graph::AbstractGraph, edges)
+
+A copy of `graph` with `edges` removed. See also [`rem_edges!`](@ref).
+"""
 function rem_edges(g::AbstractGraph, edges)
     g = copy(g)
     rem_edges!(g, edges)

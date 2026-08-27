@@ -1,4 +1,4 @@
-using ..NamedGraphs.GraphsExtensions: GraphsExtensions, rem_vertices!, subgraph
+using ..NamedGraphs.GraphsExtensions: GraphsExtensions, subgraph
 using ..NamedGraphs: AbstractNamedGraph, AbstractVertices, Edges, NamedGraphs, Vertices,
     parent_graph_indices, to_graph_index, to_vertices
 using Graphs: Graphs, AbstractGraph, induced_subgraph, nv
@@ -106,8 +106,12 @@ end
 
 Graphs.nv(g::AbstractGraph, sv::QuotientVertex) = length(vertices(g, sv))
 
-function GraphsExtensions.rem_vertices!(g::AbstractGraph, sv::QuotientVertex)
-    return rem_vertices!(g, vertices(g, sv))
+# Dispatches on `AbstractNamedGraph` rather than `AbstractGraph` so that it stays
+# strictly more specific than `Graphs.rem_vertices!(::AbstractNamedGraph, vs)`.
+# Every partitioned graph is an `AbstractNamedGraph`, so nothing that can carry a
+# `QuotientVertex` is excluded.
+function Graphs.rem_vertices!(g::AbstractNamedGraph, sv::QuotientVertex)
+    return count(v -> rem_vertex!(g, v), vertices(g, sv))
 end
 
 """
@@ -117,15 +121,14 @@ Remove, in place, all of the vertices of `g` contained in the quotient vertex
 `quotientvertex`, which also removes `quotientvertex` from the quotient graph of
 `g`.
 
-Returns `true` if `quotientvertex` was in the quotient graph of `g` and was
-removed, and `false` otherwise, following `Graphs.rem_vertex!`.
+Returns the number of vertices removed, like `rem_vertices!`. A quotient vertex
+is never empty, so `0` means `quotientvertex` was not in the quotient graph.
 
 See also: [`rem_quotientedge!`](@ref), [`has_quotientvertex`](@ref).
 """
 function rem_quotientvertex!(pg::AbstractGraph, sv::QuotientVertex)
-    has_quotientvertex(pg, sv) || return false
-    rem_vertices!(pg, sv)
-    return true
+    has_quotientvertex(pg, sv) || return 0
+    return Graphs.rem_vertices!(pg, sv)
 end
 
 # Represents a single vertex in a QuotientVertex

@@ -575,6 +575,53 @@ function Graphs.add_edge!(graph::AbstractNamedGraph, edge)
 end
 Graphs.add_edge!(g::AbstractNamedGraph, src, dst) = add_edge!(g, edgetype(g)(src, dst))
 
+# Hook so the `::Integer` disambiguator below does not repeat the body. The name
+# is `Symbol(f, :_namedgraph)` like the other hooks, keeping the bang where the
+# function name has it rather than special-casing mutating functions.
+function add_vertices!_namedgraph(graph::AbstractNamedGraph, vs)
+    return count(v -> add_vertex!(graph, v), vs)
+end
+
+"""
+    add_vertices!(graph::AbstractNamedGraph, vs)
+
+Add the vertices `vs` to `graph` in place, returning how many were added. A vertex
+already in `graph` is not added and does not count.
+
+This is a method of `Graphs.add_vertices!`, whose other form takes a count of
+vertices to append. A named graph cannot invent names, so an integer here is a
+vertex name rather than a count.
+"""
+Graphs.add_vertices!(graph::AbstractNamedGraph, vs) = add_vertices!_namedgraph(graph, vs)
+# Disambiguates against `Graphs.add_vertices!(::AbstractGraph, ::Integer)`, whose
+# integer is a count of vertices to append. A named graph cannot invent names, so
+# that reading is undefined here and the integer is a vertex name instead, as
+# everywhere else an integer sits in a vertex position. Deliberately not an error:
+# an integer in a vertex position is a name throughout this interface, and making
+# this one spelling the exception would be the surprise.
+function Graphs.add_vertices!(graph::AbstractNamedGraph, vertex::Integer)
+    return add_vertices!_namedgraph(graph, (vertex,))
+end
+
+function rem_vertices!_namedgraph(graph::AbstractNamedGraph, vs)
+    return count(v -> rem_vertex!(graph, v), vs)
+end
+
+"""
+    rem_vertices!(graph::AbstractNamedGraph, vs)
+
+Remove the vertices `vs` from `graph` in place, along with their incident edges,
+returning how many were removed. A vertex not in `graph` does not count.
+
+This is a method of `Graphs.rem_vertices!`, and it deliberately differs from the
+`Graphs.SimpleGraph` and `SimpleDiGraph` methods, the only ones Graphs.jl
+provides, which throw for a vertex outside `1:nv(graph)` and return a vector
+mapping new vertex labels back to old ones. Named vertices are
+stable under removal, so there is nothing to map, and a name that is not present
+is simply not removed.
+"""
+Graphs.rem_vertices!(graph::AbstractNamedGraph, vs) = rem_vertices!_namedgraph(graph, vs)
+
 function Graphs.rem_edge!(graph::AbstractNamedGraph, edge)
     e = edgetype(graph)(edge)
     has_vertex(graph, src(e)) || return false

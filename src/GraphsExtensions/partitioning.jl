@@ -1,9 +1,8 @@
 using Graphs: AbstractGraph, AbstractSimpleGraph, nv, vertices
 using SplitApplyCombine: group
 
-"""
-Graph partitioning backend
-"""
+# Backend tag, dispatched on by the `partition_vertices` methods that the `ext/`
+# packages define, e.g. `partition_vertices(::Backend"metis", ...)`.
 struct Backend{T} end
 
 Backend(s::Symbol) = Backend{s}()
@@ -14,19 +13,16 @@ macro Backend_str(s)
     return :(Backend{$(Expr(:quote, Symbol(s)))})
 end
 
-"""
-Current default graph partitioning backend
-"""
+# Process-wide default backend for `partition_vertices`, and dead in practice:
+# the `ext/` packages call `set_partitioning_backend!` at module top level, which
+# runs at precompile time and writes to a `Ref` in this package's image, so the
+# write is not replayed when the cached extension loads. It stays `missing` even
+# after `using Metis`, which is why `partition_vertices` needs an explicit
+# `backend`.
 const CURRENT_PARTITIONING_BACKEND = Ref{Union{Missing, Backend}}(missing)
 
-"""
-Get the graph partitioning backend
-"""
 current_partitioning_backend() = CURRENT_PARTITIONING_BACKEND[]
 
-"""
-Set the graph partitioning backend
-"""
 function set_partitioning_backend!(backend::Union{Missing, Backend, String})
     CURRENT_PARTITIONING_BACKEND[] = Backend(backend)
     return nothing

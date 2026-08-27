@@ -1,5 +1,5 @@
-using ..NamedGraphs.GraphsExtensions: GraphsExtensions, add_vertices!, convert_vertextype,
-    not_implemented, rem_vertices!, subgraph
+using ..NamedGraphs.GraphsExtensions:
+    GraphsExtensions, convert_vertextype, not_implemented, subgraph
 using ..NamedGraphs:
     AbstractNamedGraph, NamedDiGraph, NamedGraph, NamedGraphs, get_graph_index
 using Dictionaries: Dictionary
@@ -24,7 +24,9 @@ end
 function quotient_graph(g::AbstractGraph)
     qg = similar_quotient_graph(g)
 
-    add_vertices!(qg, keys(partitioned_vertices(g)))
+    for qv in keys(partitioned_vertices(g))
+        add_vertex!(qg, qv)
+    end
 
     for e in edges(g)
         qv_src = parent(quotientvertex(g, src(e)))

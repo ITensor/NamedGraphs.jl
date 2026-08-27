@@ -19,10 +19,15 @@ graphs, and [`GraphsExtensions`](@ref) for extensions that apply to any
 """
 module NamedGraphs
 
+# `add_vertices!` and `rem_vertices!` are deliberately not exported: Graphs.jl
+# exports its own, different, generic functions under those names, so exporting
+# ours would leave both dead after `using Graphs, NamedGraphs`.
 export ⊔, AbstractNamedGraph, NamedDiGraph, NamedEdge, NamedGraph,
-    disjoint_union, incident_edges, named_binary_tree, named_comb_tree,
-    named_cycle_graph, named_grid, named_hexagonal_lattice_graph, named_path_digraph,
-    named_path_graph, named_triangular_lattice_graph, rename_vertices, subgraph
+    add_edges, add_edges!, add_vertices, disjoint_union, incident_edges,
+    named_binary_tree, named_comb_tree, named_cycle_graph, named_grid,
+    named_hexagonal_lattice_graph, named_path_digraph, named_path_graph,
+    named_triangular_lattice_graph, rem_edges, rem_edges!, rem_vertices,
+    rename_vertices, subgraph
 if VERSION >= v"1.11.0-DEV.469"
     eval(Meta.parse("public GraphsExtensions, PartitionedGraphs"))
     # The encode and decode interface is what a new `AbstractNamedGraph` overloads,
@@ -36,6 +41,10 @@ end
 
 include("similartype.jl")
 include("GraphsExtensions/GraphsExtensions.jl")
+# The `GraphsExtensions` names re-exported below, listed here rather than relying
+# on the per-file imports that happen to bring them into scope.
+using .GraphsExtensions: add_edges, add_edges!, add_vertices, incident_edges, rem_edges,
+    rem_edges!, rem_vertices, subgraph
 include("utils.jl")
 include("abstractnamededge.jl")
 include("namededge.jl")

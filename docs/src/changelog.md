@@ -42,10 +42,19 @@ and edges used internally.
   graph on success, and `add_edge!`/`rem_edge!` threw for edges with vertices
   not in the graph, which now returns `false`
   ([#179](https://github.com/ITensor/NamedGraphs.jl/pull/179)).
-- `rem_quotientvertex!` and `rem_quotientedge!` return `true` or `false`
-  following `Graphs.rem_vertex!` and `Graphs.rem_edge!`, where they previously
-  returned the graph
-  ([#188](https://github.com/ITensor/NamedGraphs.jl/pull/188)).
+- The plural mutators `add_edges!`, `rem_edges!`, `add_vertices!`, and
+  `rem_vertices!` return the number of successful additions or removals, where
+  they previously returned the graph. `Bool` from the singular `Graphs.add_edge!`
+  is the one-element case of the same count, and `Graphs.add_vertices!` already
+  returned a count. `rem_quotientvertex!` and `rem_quotientedge!` likewise return
+  how many underlying vertices or edges went, so `0` means the quotient vertex or
+  edge was not there ([#188](https://github.com/ITensor/NamedGraphs.jl/pull/188)).
+- `add_vertices!` and `rem_vertices!` are methods of the Graphs.jl functions of
+  those names rather than separate `NamedGraphs.GraphsExtensions` functions, and
+  are declared on `AbstractNamedGraph`. `NamedGraphs.GraphsExtensions.add_vertices!`
+  and `.rem_vertices!` no longer exist, so import them from `Graphs` instead. An
+  integer second argument is a vertex name here, not upstream's count of vertices
+  to append, since a named graph cannot invent names ([#188](https://github.com/ITensor/NamedGraphs.jl/pull/188)).
 - The `Keys`, `SimilarType`, `GraphGenerators`, and `NamedGraphGenerators`
   submodules are removed. The named graph generators (`named_grid`,
   `named_path_graph`, and so on) and `similar_type` are accessible directly
@@ -71,7 +80,9 @@ and edges used internally.
   ([#187](https://github.com/ITensor/NamedGraphs.jl/pull/187)).
 - Considerably more names are exported, where previously only the four graph and
   edge types were, so `using NamedGraphs` can collide with names another package
-  exports ([#188](https://github.com/ITensor/NamedGraphs.jl/pull/188)).
+  exports. `NamedGraphs.GraphsExtensions` also exports its documented names now,
+  where it exported nothing, so `using NamedGraphs.GraphsExtensions` brings them
+  into scope ([#188](https://github.com/ITensor/NamedGraphs.jl/pull/188)).
 - The internal helpers behind the Graphs.jl wrappers are renamed from
   `namedgraph_f` to `f_namedgraph`, matching the suffix convention already used
   by `similar_namedgraph` and others. `AbstractNamedGraph` subtypes should now

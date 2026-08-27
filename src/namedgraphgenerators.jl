@@ -1,7 +1,7 @@
-using .GraphsExtensions: add_edges!, comb_tree, rem_vertices!
+using .GraphsExtensions: add_edges!, comb_tree
 using Graphs.SimpleGraphs: AbstractSimpleGraph
 using Graphs: IsDirected, bfs_tree, binary_tree, cycle_graph, grid, inneighbors,
-    merge_vertices, nv, outneighbors, path_digraph, path_graph, rem_vertex!
+    merge_vertices, nv, outneighbors, path_digraph, path_graph, rem_vertex!, rem_vertices!
 using SimpleTraits: SimpleTraits, @traitfn, Not
 
 ## TODO: Bring this back in some form?
