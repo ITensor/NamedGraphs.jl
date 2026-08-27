@@ -105,18 +105,27 @@ May be a stored field or a view of `graph`; mutate the graph only through
 # Examples
 
 ```jldoctest
-julia> using Graphs: has_edge, ne, nv, path_graph
+julia> using Graphs: edges, has_edge, path_graph, vertices
 
 julia> using NamedGraphs: NamedGraph, encode_vertex, encoded_graph
 
 julia> g = NamedGraph(path_graph(3), ["a", "b", "c"]);
 
-julia> cg = encoded_graph(g);
+julia> cg = encoded_graph(g)
+{3, 2} undirected simple Int64 graph
 
-julia> (nv(cg), ne(cg))
-(3, 2)
+julia> vertices(cg)
+Base.OneTo(3)
 
-julia> has_edge(cg, encode_vertex(g, "a"), encode_vertex(g, "b"))
+julia> collect(edges(cg))
+2-element Vector{Graphs.SimpleGraphs.SimpleEdge{Int64}}:
+ Edge 1 => 2
+ Edge 2 => 3
+
+julia> encode_vertex(g, "a"), encode_vertex(g, "b")
+(1, 2)
+
+julia> has_edge(cg, 1, 2)
 true
 ```
 """
