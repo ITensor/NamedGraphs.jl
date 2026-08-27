@@ -27,15 +27,15 @@ function Graphs.eccentricity(graph::AbstractNamedGraph, vertex, distmx::Abstract
     return namedgraph_eccentricity(graph, vertex, distmx)
 end
 
-# Graphs.jl reads a lone matrix as the distance matrix and returns the
-# eccentricity of every vertex. Here `eccentricity` is always the eccentricity
-# of a single vertex and `eccentricities` is the plural form, so rather than
-# silently returning a collection this points at the plural. Without this
-# method the call is ambiguous with the `AbstractGraph` version.
-function Graphs.eccentricity(graph::AbstractNamedGraph, distmx::AbstractMatrix)
-    return error(
-        "`eccentricity(graph, distmx)` is the eccentricity of a single vertex, so a bare distance matrix is not a valid second argument. Use `eccentricities(graph, vertices(graph), distmx)` for the eccentricity of every vertex."
-    )
+# Graphs.jl reads a lone matrix here as the distance matrix, and returns the
+# eccentricity of every vertex. It can do that because its vertices are always
+# integers, so the type of this argument is free to carry another meaning. A
+# named graph's vertices are arbitrary and may themselves be matrices, so the
+# argument stays a vertex and this is the eccentricity of the vertex `vertex`.
+# Use `eccentricities` for every vertex. Without this method the call is
+# ambiguous with the `AbstractGraph` version.
+function Graphs.eccentricity(graph::AbstractNamedGraph, vertex::AbstractMatrix)
+    return namedgraph_eccentricity(graph, vertex, weights(graph))
 end
 
 function eccentricities_center(eccentricities)

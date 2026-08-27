@@ -291,10 +291,19 @@ end
     g = NamedGraph(path_graph(4))
     @test eccentricity(g, 1) == 3
     @test eccentricities(g, vertices(g)) == eccentricities(g)
-    # A bare distance matrix means "every vertex" in Graphs.jl; here that is
-    # `eccentricities`, so the singular form rejects it instead of silently
-    # returning a collection.
-    @test_throws ErrorException eccentricity(g, weights(g))
+
+    # Graphs.jl reads a lone matrix as the distance matrix and returns every
+    # vertex's eccentricity, which it can do because its vertices are always
+    # integers. Named vertices are arbitrary and may be matrices, so the second
+    # argument stays a vertex: with a matrix that is not a vertex of the graph
+    # this fails to find it rather than returning a collection.
+    @test_throws Exception eccentricity(g, weights(g))
+
+    # And with matrices as the vertex names it is that vertex's eccentricity.
+    m1, m2, m3 = [1 2; 3 4], [5 6; 7 8], [9 10; 11 12]
+    gm = NamedGraph(path_graph(3), [m1, m2, m3])
+    @test eccentricity(gm, m1) == 2
+    @test eccentricity(gm, m2) == 1
 end
 
 @testset "AbstractNamedGraph induced_subgraph" begin
