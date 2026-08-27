@@ -13,9 +13,8 @@ the Graphs.jl implementation, which assumes contiguous integer vertices, so they
 have to be wrapped one at a time. Please raise an issue if functionality you need
 is missing.
 
-See also [`PartitionedGraphs`](@ref) for partitioned graphs and their quotient
-graphs, and [`GraphsExtensions`](@ref) for extensions that apply to any
-`Graphs.AbstractGraph`.
+See also [`NamedGraphs.PartitionedGraphs`](@ref) for partitioned graphs and their
+quotient graphs.
 """
 module NamedGraphs
 

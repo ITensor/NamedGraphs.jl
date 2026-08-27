@@ -1,10 +1,8 @@
 """
-    PartitionedView{V, PV}
     PartitionedView(graph::AbstractGraph, partitioned_vertices)
 
-A lightweight view of `graph` as a partitioned graph, with vertex type `V` and
-quotient vertex type `PV`. See [`PartitionedGraph`](@ref) for the accepted forms
-of `partitioned_vertices`.
+A lightweight view of `graph` as a partitioned graph. See
+[`PartitionedGraph`](@ref) for the accepted forms of `partitioned_vertices`.
 
 Unlike [`PartitionedGraph`](@ref), it stores nothing beyond `graph` and
 `partitioned_vertices`, recomputing the quotient graph and the vertex to quotient

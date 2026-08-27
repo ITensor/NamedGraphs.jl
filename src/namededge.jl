@@ -2,7 +2,6 @@ using .GraphsExtensions: GraphsExtensions
 using Graphs: Graphs
 
 """
-    NamedEdge{V}
     NamedEdge(src, dst)
     NamedEdge(src => dst)
 

@@ -8,15 +8,14 @@ using Graphs: AbstractEdge, AbstractGraph, add_edge!, dst, edges, edgetype, has_
 # TODO: Parametrize `partitioned_vertices` and `which_partition`,
 # see https://github.com/mtfishman/NamedGraphs.jl/issues/63.
 """
-    PartitionedGraph{V, PV}
     PartitionedGraph(graph::AbstractGraph, partitioned_vertices)
     PartitionedGraph(partitioned_vertices)
     PartitionedGraph(graph::AbstractGraph; kwargs...)
 
-A graph with vertex type `V` and a partitioning of its vertices into quotient
-vertices of type `PV`. It caches the quotient graph and the vertex to quotient
-vertex map, so quotient level queries do not search the partitioning.
-[`PartitionedView`](@ref) is the alternative that stores neither.
+A graph together with a partitioning of its vertices into quotient vertices. It
+caches the quotient graph and the vertex to quotient vertex map, so quotient
+level queries do not search the partitioning. [`PartitionedView`](@ref) is the
+alternative that stores neither.
 
 The vertices of `graph` are partitioned according to `partitioned_vertices`,
 whose keys are the quotient vertices and whose values are the sets of vertices in

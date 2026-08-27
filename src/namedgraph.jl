@@ -103,7 +103,6 @@ for T in (:NamedGraph, :NamedDiGraph)
 end
 
 """
-    NamedGraph{V}
     NamedGraph(vertices)
     NamedGraph(simple_graph::AbstractSimpleGraph, vertices)
 
@@ -136,7 +135,6 @@ julia> (nv(g), ne(g))
 NamedGraph
 
 """
-    NamedDiGraph{V}
     NamedDiGraph(vertices)
     NamedDiGraph(simple_graph::AbstractSimpleGraph, vertices)
 
