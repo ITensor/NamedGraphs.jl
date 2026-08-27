@@ -8,7 +8,7 @@ using Graphs: AbstractEdge, AbstractGraph, add_edge!, dst, edges, edgetype, has_
 # TODO: Parametrize `partitioned_vertices` and `which_partition`,
 # see https://github.com/mtfishman/NamedGraphs.jl/issues/63.
 """
-    PartitionedGraph{V, PV} <: AbstractPartitionedGraph{V, PV}
+    PartitionedGraph{V, PV}
     PartitionedGraph(graph::AbstractGraph, partitioned_vertices)
     PartitionedGraph(partitioned_vertices)
     PartitionedGraph(graph::AbstractGraph; kwargs...)

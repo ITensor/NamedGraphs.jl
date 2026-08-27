@@ -1,5 +1,5 @@
 """
-    PartitionedView{V, PV} <: AbstractPartitionedGraph{V, PV}
+    PartitionedView{V, PV}
     PartitionedView(graph::AbstractGraph, partitioned_vertices)
 
 A lightweight view of `graph` as a partitioned graph, with vertex type `V` and

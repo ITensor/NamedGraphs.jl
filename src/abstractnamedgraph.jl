@@ -600,11 +600,7 @@ Graphs.add_vertices!(graph::AbstractNamedGraph, vs) = add_vertices!_namedgraph(g
 # an integer in a vertex position is a name throughout this interface, and making
 # this one spelling the exception would be the surprise.
 function Graphs.add_vertices!(graph::AbstractNamedGraph, vertex::Integer)
-    return add_vertices!_namedgraph(graph, (vertex,))
-end
-
-function rem_vertices!_namedgraph(graph::AbstractNamedGraph, vs)
-    return count(v -> rem_vertex!(graph, v), vs)
+    return add_vertices!_namedgraph(graph, vertex)
 end
 
 """
@@ -620,7 +616,38 @@ mapping new vertex labels back to old ones. Named vertices are
 stable under removal, so there is nothing to map, and a name that is not present
 is simply not removed.
 """
-Graphs.rem_vertices!(graph::AbstractNamedGraph, vs) = rem_vertices!_namedgraph(graph, vs)
+function Graphs.rem_vertices!(graph::AbstractNamedGraph, vs)
+    # `collect` because `vs` is commonly `vertices(graph)`, a live view that removing
+    # from the graph invalidates mid-iteration, which silently leaves vertices behind
+    # and returns too small a count. `Graphs.rem_vertices!` copies for the same reason.
+    return count(v -> rem_vertex!(graph, v), collect(vs))
+end
+
+"""
+    add_vertices(graph::AbstractNamedGraph, vs)
+
+A copy of `graph` with the vertices `vs` added.
+"""
+function GraphsExtensions.add_vertices(graph::AbstractNamedGraph, vs)
+    graph = copy(graph)
+    Graphs.add_vertices!(graph, vs)
+    return graph
+end
+
+"""
+    rem_vertices(graph::AbstractNamedGraph, vs)
+
+A copy of `graph` with the vertices `vs` removed, along with their incident edges.
+"""
+function GraphsExtensions.rem_vertices(graph::AbstractNamedGraph, vs)
+    graph = copy(graph)
+    Graphs.rem_vertices!(graph, vs)
+    return graph
+end
+
+function GraphsExtensions.empty_graph(graph::AbstractNamedGraph)
+    return GraphsExtensions.rem_vertices(graph, vertices(graph))
+end
 
 function Graphs.rem_edge!(graph::AbstractNamedGraph, edge)
     e = edgetype(graph)(edge)

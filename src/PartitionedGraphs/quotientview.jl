@@ -4,7 +4,7 @@ using .GraphsExtensions: directed_graph_type, undirected_graph_type
 using Graphs: AbstractGraph, edges, has_edge, rem_edge!, rem_vertex!, vertices
 
 """
-    QuotientView{V} <: AbstractNamedGraph{V}
+    QuotientView{V}
     QuotientView(graph::AbstractGraph)
 
 A view of `graph` as its quotient graph: the graph whose vertices are the

@@ -9,6 +9,14 @@ using SplitApplyCombine: groupfind
 
 not_implemented() = error("Not implemented")
 
+# Only meaningful for named graphs, so the methods live in NamedGraphs proper.
+# `Graphs.add_vertices!` takes a count rather than a collection, and
+# `Graphs.rem_vertices!` throws for an unknown vertex where a named graph
+# forgives, so neither of these is generic over `AbstractGraph`.
+function add_vertices end
+function rem_vertices end
+function empty_graph end
+
 is_self_loop(e::AbstractEdge) = src(e) == dst(e)
 is_self_loop(e::Pair) = first(e) == last(e)
 
@@ -100,7 +108,6 @@ end
 end
 
 edgeless_graph(graph::AbstractGraph) = rem_edges(graph, edges(graph))
-empty_graph(graph::AbstractGraph) = rem_vertices(graph, vertices(graph))
 
 @traitfn directed_graph(graph::::IsDirected) = graph
 @traitfn undirected_graph(graph::::(!IsDirected)) = graph
@@ -525,35 +532,9 @@ function add_vertex(g::AbstractGraph, vs)
     return g
 end
 
-"""
-    add_vertices(graph::AbstractGraph, vs)
-
-A copy of `graph` with the vertices `vs` added.
-"""
-function add_vertices(g::AbstractGraph, vs)
-    g = copy(g)
-    for v in vs
-        add_vertex!(g, v)
-    end
-    return g
-end
-
 function rem_vertex(g::AbstractGraph, vs)
     g = copy(g)
     rem_vertex!(g, vs)
-    return g
-end
-
-"""
-    rem_vertices(graph::AbstractGraph, vs)
-
-A copy of `graph` with the vertices `vs` removed.
-"""
-function rem_vertices(g::AbstractGraph, vs)
-    g = copy(g)
-    for v in vs
-        rem_vertex!(g, v)
-    end
     return g
 end
 
@@ -609,7 +590,8 @@ end
 """
     rem_edges(graph::AbstractGraph, edges)
 
-A copy of `graph` with `edges` removed. See also [`rem_edges!`](@ref).
+A copy of `graph` with `edges` removed. See also
+[`rem_edges!`](@ref rem_edges!(::AbstractGraph, ::Any)).
 """
 function rem_edges(g::AbstractGraph, edges)
     g = copy(g)

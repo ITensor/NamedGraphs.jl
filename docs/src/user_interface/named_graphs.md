@@ -29,6 +29,14 @@ vertices(::AbstractNamedGraph)
 edges(::AbstractNamedGraph)
 subgraph
 incident_edges
+Graphs.add_vertices!(::AbstractNamedGraph, ::Any)
+add_vertices
+Graphs.rem_vertices!(::AbstractNamedGraph, ::Any)
+rem_vertices
+add_edges!
+add_edges
+rem_edges!(::AbstractGraph, ::Any)
+rem_edges
 ```
 
 ## Generators
