@@ -1,4 +1,14 @@
 module NamedGraphs
+
+export ⊔, AbstractNamedGraph, NamedDiGraph, NamedEdge, NamedGraph, NamedGridGraph,
+    decode_edge, decode_vertex, disjoint_union, encode_edge, encode_vertex,
+    encoded_graph, named_binary_tree, named_comb_tree, named_cycle_graph, named_grid,
+    named_hexagonal_lattice_graph, named_path_digraph, named_path_graph,
+    named_triangular_lattice_graph, rename_vertices
+if VERSION >= v"1.11.0-DEV.469"
+    eval(Meta.parse("public GraphsExtensions, PartitionedGraphs"))
+end
+
 include("similartype.jl")
 include("GraphsExtensions/GraphsExtensions.jl")
 include("utils.jl")
@@ -22,10 +32,4 @@ include("namedgraphgenerators.jl")
 include("namedgridgraph.jl")
 include("PartitionedGraphs/PartitionedGraphs.jl")
 
-export ⊔, AbstractNamedGraph, NamedDiGraph, NamedEdge, NamedGraph
-
-using PackageExtensionCompat: @require_extensions
-function __init__()
-    return @require_extensions
-end
 end

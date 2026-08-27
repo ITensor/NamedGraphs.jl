@@ -4,13 +4,35 @@ using Test: @test, @testset
 @testset "Test exports" begin
     @testset "NamedGraphs" begin
         exports = [
-            :⊔,
-            :NamedGraphs,
             :AbstractNamedGraph,
             :NamedDiGraph,
             :NamedEdge,
             :NamedGraph,
+            :NamedGraphs,
+            :NamedGridGraph,
+            :decode_edge,
+            :decode_vertex,
+            :disjoint_union,
+            :encode_edge,
+            :encode_vertex,
+            :encoded_graph,
+            :named_binary_tree,
+            :named_comb_tree,
+            :named_cycle_graph,
+            :named_grid,
+            :named_hexagonal_lattice_graph,
+            :named_path_digraph,
+            :named_path_graph,
+            :named_triangular_lattice_graph,
+            :rename_vertices,
+            :⊔,
         ]
-        @test issetequal(names(NamedGraphs), exports)
+        # `names` includes `public` names as well as exported ones.
+        public_names = if VERSION >= v"1.11.0-DEV.469"
+            [:GraphsExtensions, :PartitionedGraphs]
+        else
+            Symbol[]
+        end
+        @test issetequal(names(NamedGraphs), [exports; public_names])
     end
 end

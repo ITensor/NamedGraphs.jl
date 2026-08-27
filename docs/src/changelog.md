@@ -67,8 +67,15 @@ and edges used internally.
 - `rename_vertices`, `disjoint_union`, and `⊔` move from
   `NamedGraphs.GraphsExtensions` to `NamedGraphs`, since they only work for
   graphs whose vertices are names, while `GraphsExtensions` holds extensions
-  valid for any `Graphs.AbstractGraph`. `⊔` is now exported
+  valid for any `Graphs.AbstractGraph`
   ([#187](https://github.com/ITensor/NamedGraphs.jl/pull/187)).
+- Everything NamedGraphs documents is now exported, where previously only the
+  four graph and edge types were, so `using NamedGraphs` brings considerably
+  more into scope and can collide with another package's exports. Loading
+  NamedGraphs and SimpleGraphs together, for one, now gives two
+  `disjoint_union`. `NamedGraphs.GraphsExtensions` and
+  `NamedGraphs.PartitionedGraphs` are marked `public` on Julia 1.11 and newer
+  ([#188](https://github.com/ITensor/NamedGraphs.jl/pull/188)).
 - The internal helpers behind the Graphs.jl wrappers are renamed from
   `namedgraph_f` to `f_namedgraph`, matching the suffix convention already used
   by `similar_namedgraph` and others. `AbstractNamedGraph` subtypes should now
@@ -86,9 +93,11 @@ and edges used internally.
   [#187](https://github.com/ITensor/NamedGraphs.jl/pull/187)).
   Indexing a `QuotientView` by a collection of vertices or edges was broken the
   same way and also works now.
-- `Combinatorics`, `Random`, `Suppressor`, and `SimpleGraphConverter` are no
-  longer dependencies, so installing NamedGraphs no longer pulls in `Optim` or
-  `LightXML` ([#185](https://github.com/ITensor/NamedGraphs.jl/pull/185)).
+- `Combinatorics`, `Random`, `Suppressor`, `SimpleGraphConverter`, and
+  `PackageExtensionCompat` are no longer dependencies, so installing
+  NamedGraphs no longer pulls in `Optim` or `LightXML`
+  ([#185](https://github.com/ITensor/NamedGraphs.jl/pull/185),
+  [#188](https://github.com/ITensor/NamedGraphs.jl/pull/188)).
 - The docs are reorganized into user and developer interface pages, the graph
   types and generators are documented, and the README has an introduction and
   examples ([#183](https://github.com/ITensor/NamedGraphs.jl/pull/183)).
