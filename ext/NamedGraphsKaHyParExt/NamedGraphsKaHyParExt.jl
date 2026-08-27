@@ -3,7 +3,6 @@ using Graphs: AbstractSimpleGraph, incidence_matrix
 using KaHyPar: KaHyPar
 using NamedGraphs.GraphsExtensions: @Backend_str, GraphsExtensions
 using SplitApplyCombine: groupfind
-using Suppressor: @suppress
 
 GraphsExtensions.set_partitioning_backend!(Backend"kahypar"())
 
@@ -49,10 +48,13 @@ function GraphsExtensions.partition_vertices(
             KAHYPAR_ALGS[(; objective = objective, alg = alg)]
         )
     end
+    # KaHyPar prints to stdout unconditionally,
     # https://github.com/kahypar/KaHyPar.jl/issues/20
-    partitioned_verts = @suppress KaHyPar.partition(
-        incidence_matrix(g), npartitions; configuration, kwargs...
-    )
+    partitioned_verts = redirect_stdout(devnull) do
+        return KaHyPar.partition(
+            incidence_matrix(g), npartitions; configuration, kwargs...
+        )
+    end
     return groupfind(partitioned_verts .+ 1)
 end
 end
