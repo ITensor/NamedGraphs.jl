@@ -1,3 +1,18 @@
+"""
+    NamedGraphs
+
+An extension of [Graphs.jl](https://github.com/JuliaGraphs/Graphs.jl) providing
+graph types with named vertices. The vertices of a [`NamedGraph`](@ref) or
+[`NamedDiGraph`](@ref) can be strings, tuples, or any other names, rather than
+the contiguous integers of a `Graphs.SimpleGraph`. Named graphs aim to implement
+the functionality of Graphs.jl accounting for named vertices and edges, so see
+the [Graphs.jl documentation](https://juliagraphs.org/Graphs.jl/stable/) for the
+available functionality.
+
+See also [`PartitionedGraphs`](@ref) for partitioned graphs and their quotient
+graphs, and [`GraphsExtensions`](@ref) for extensions that apply to any
+`Graphs.AbstractGraph`.
+"""
 module NamedGraphs
 
 export ⊔, AbstractNamedGraph, NamedDiGraph, NamedEdge, NamedGraph, NamedGridGraph,
