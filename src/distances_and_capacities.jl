@@ -31,7 +31,7 @@ end
 getindex_dist_matrix(dist_matrix, I...) = dist_matrix[I...]
 getindex_dist_matrix(dist_matrix::AbstractDictionary, I...) = dist_matrix[I]
 
-function namedgraph_encode_dist_matrix(
+function encode_dist_matrix_namedgraph(
         graph::AbstractNamedGraph, dist_matrix
     )
     encoded_dist_matrix = spzeros(valtype(dist_matrix), nv(graph), nv(graph))
@@ -47,13 +47,13 @@ end
 @traitfn function encode_dist_matrix(
         graph::AbstractNamedGraph::IsDirected, dist_matrix
     )
-    return namedgraph_encode_dist_matrix(graph, dist_matrix)
+    return encode_dist_matrix_namedgraph(graph, dist_matrix)
 end
 
 @traitfn function encode_dist_matrix(
         graph::AbstractNamedGraph::(!IsDirected), dist_matrix
     )
-    return _symmetrize(namedgraph_encode_dist_matrix(graph, dist_matrix))
+    return _symmetrize(encode_dist_matrix_namedgraph(graph, dist_matrix))
 end
 
 function encode_dist_matrix(

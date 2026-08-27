@@ -63,4 +63,10 @@ function NamedGraphs.induced_subgraph_from_vertices(g::QuotientView, vertices)
     return QuotientView(subgraph), subvertices
 end
 
-NamedGraphs.getindex_namedgraph(qv::QuotientView, ind) = parent(qv)[to_quotient_index(ind)]
+# Override the scalar hook rather than `getindex_namedgraph` itself, which would
+# shadow the `AbstractGraphIndices` dispatch and make `qv[Vertices(...)]`
+# ambiguous. Collection indexing then flows through `get_graph_indices` to
+# `induced_subgraph_from_vertices` above.
+function NamedGraphs.get_graph_index(qv::QuotientView, index)
+    return parent(qv)[to_quotient_index(index)]
+end

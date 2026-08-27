@@ -1,7 +1,7 @@
 using Graphs: Graphs, IsDirected, is_tree, nv, steiner_tree, weights
 using SimpleTraits: SimpleTraits, @traitfn, Not
 
-function namedgraph_steiner_tree(
+function steiner_tree_namedgraph(
         g::AbstractNamedGraph, term_vert, distmx = weights(g)
     )
     encoded_tree = steiner_tree(
@@ -31,7 +31,7 @@ end
 @traitfn function Graphs.steiner_tree(
         g::AbstractNamedGraph::(!IsDirected), term_vert, args...
     )
-    return namedgraph_steiner_tree(g, term_vert, args...)
+    return steiner_tree_namedgraph(g, term_vert, args...)
 end
 
 # Mirrors the `AbstractGraph` signature in Graphs.jl so the wrapper above is
@@ -42,5 +42,5 @@ end
         term_vert::Vector{<:Integer},
         distmx::AbstractMatrix{<:Real} = weights(g)
     )
-    return namedgraph_steiner_tree(g, term_vert, distmx)
+    return steiner_tree_namedgraph(g, term_vert, distmx)
 end

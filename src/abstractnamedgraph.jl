@@ -177,24 +177,27 @@ the graph.
 """
 Graphs.edges(graph::AbstractNamedGraph) = NamedEdgeIter(graph)
 
-# TODO: write in terms of a generic function.
+# Graphs.jl declares these with an `::Integer` vertex, which ties with an
+# untyped vertex argument on a graph whose vertices are integers. Both forms are
+# therefore defined here, once, and both forward to an `f_namedgraph` hook.
+# Subtypes override the hook rather than the Graphs.jl function, so they never
+# add a method to a function upstream also defines on `::Integer` and never need
+# an `::Integer` disambiguator of their own.
 for f in [
         :(Graphs.outneighbors),
         :(Graphs.inneighbors),
         :(Graphs.all_neighbors),
         :(Graphs.neighbors),
     ]
+    hook = Symbol(last(split(string(f), '.')), "_namedgraph")
     @eval begin
-        function $f(graph::AbstractNamedGraph, vertex)
+        function $hook(graph::AbstractNamedGraph, vertex)
             encoded_neighbors = $f(encoded_graph(graph), encode_vertex(graph, vertex))
             return map(c -> decode_vertex(graph, c), encoded_neighbors)
         end
 
-        # Ambiguity errors with Graphs.jl
-        function $f(graph::AbstractNamedGraph, vertex::Integer)
-            encoded_neighbors = $f(encoded_graph(graph), encode_vertex(graph, vertex))
-            return map(c -> decode_vertex(graph, c), encoded_neighbors)
-        end
+        $f(graph::AbstractNamedGraph, vertex) = $hook(graph, vertex)
+        $f(graph::AbstractNamedGraph, vertex::Integer) = $hook(graph, vertex)
     end
 end
 
@@ -208,36 +211,36 @@ function Graphs.common_neighbors(g::AbstractNamedGraph, u::Integer, v::Integer)
     return intersect(neighbors(g, u), neighbors(g, v))
 end
 
-namedgraph_indegree(graph::AbstractNamedGraph, vertex) = length(inneighbors(graph, vertex))
-function namedgraph_outdegree(graph::AbstractNamedGraph, vertex)
+indegree_namedgraph(graph::AbstractNamedGraph, vertex) = length(inneighbors(graph, vertex))
+function outdegree_namedgraph(graph::AbstractNamedGraph, vertex)
     return length(outneighbors(graph, vertex))
 end
 
-Graphs.indegree(graph::AbstractNamedGraph, vertex) = namedgraph_indegree(graph, vertex)
-Graphs.outdegree(graph::AbstractNamedGraph, vertex) = namedgraph_outdegree(graph, vertex)
+Graphs.indegree(graph::AbstractNamedGraph, vertex) = indegree_namedgraph(graph, vertex)
+Graphs.outdegree(graph::AbstractNamedGraph, vertex) = outdegree_namedgraph(graph, vertex)
 
 # Fix for ambiguity error with `AbstractGraph` version
 function Graphs.indegree(graph::AbstractNamedGraph, vertex::Integer)
-    return namedgraph_indegree(graph, vertex)
+    return indegree_namedgraph(graph, vertex)
 end
 function Graphs.outdegree(graph::AbstractNamedGraph, vertex::Integer)
-    return namedgraph_outdegree(graph, vertex)
+    return outdegree_namedgraph(graph, vertex)
 end
 
-@traitfn function namedgraph_degree(graph::AbstractNamedGraph::IsDirected, vertex)
+@traitfn function degree_namedgraph(graph::AbstractNamedGraph::IsDirected, vertex)
     return indegree(graph, vertex) + outdegree(graph, vertex)
 end
-@traitfn namedgraph_degree(graph::AbstractNamedGraph::(!IsDirected), vertex) = indegree(
+@traitfn degree_namedgraph(graph::AbstractNamedGraph::(!IsDirected), vertex) = indegree(
     graph, vertex
 )
 
 function Graphs.degree(graph::AbstractNamedGraph, vertex)
-    return namedgraph_degree(graph::AbstractNamedGraph, vertex)
+    return degree_namedgraph(graph::AbstractNamedGraph, vertex)
 end
 
 # Fix for ambiguity error with `AbstractGraph` version
 function Graphs.degree(graph::AbstractNamedGraph, vertex::Integer)
-    return namedgraph_degree(graph::AbstractNamedGraph, vertex)
+    return degree_namedgraph(graph::AbstractNamedGraph, vertex)
 end
 
 function Graphs.degree_histogram(g::AbstractNamedGraph, degfn = degree)
@@ -250,7 +253,7 @@ function Graphs.degree_histogram(g::AbstractNamedGraph, degfn = degree)
     return hist
 end
 
-function namedgraph_neighborhood(
+function neighborhood_namedgraph(
         graph::AbstractNamedGraph, vertex, d, distmx = weights(graph); dir = :out
     )
     encoded_distmx = encode_dist_matrix(graph, distmx)
@@ -263,14 +266,14 @@ end
 function Graphs.neighborhood(
         graph::AbstractNamedGraph, vertex, d, distmx = weights(graph); dir = :out
     )
-    return namedgraph_neighborhood(graph, vertex, d, distmx; dir)
+    return neighborhood_namedgraph(graph, vertex, d, distmx; dir)
 end
 
 # Fix for ambiguity error with `AbstractGraph` version
 function Graphs.neighborhood(
         graph::AbstractNamedGraph, vertex::Integer, d, distmx = weights(graph); dir = :out
     )
-    return namedgraph_neighborhood(graph, vertex, d, distmx; dir)
+    return neighborhood_namedgraph(graph, vertex, d, distmx; dir)
 end
 
 # Fix for ambiguity error with `AbstractGraph` version
@@ -278,10 +281,10 @@ function Graphs.neighborhood(
         graph::AbstractNamedGraph, vertex::Integer, d, distmx::AbstractMatrix{<:Real};
         dir = :out
     )
-    return namedgraph_neighborhood(graph, vertex, d, distmx; dir)
+    return neighborhood_namedgraph(graph, vertex, d, distmx; dir)
 end
 
-function namedgraph_neighborhood_dists(graph::AbstractNamedGraph, vertex, d, distmx; dir)
+function neighborhood_dists_namedgraph(graph::AbstractNamedGraph, vertex, d, distmx; dir)
     encoded_distmx = encode_dist_matrix(graph, distmx)
     encoded_vertices_and_dists = neighborhood_dists(
         encoded_graph(graph), encode_vertex(graph, vertex), d, encoded_distmx; dir
@@ -294,14 +297,14 @@ end
 function Graphs.neighborhood_dists(
         graph::AbstractNamedGraph, vertex, d, distmx = weights(graph); dir = :out
     )
-    return namedgraph_neighborhood_dists(graph, vertex, d, distmx; dir)
+    return neighborhood_dists_namedgraph(graph, vertex, d, distmx; dir)
 end
 
 # Fix for ambiguity error with `AbstractGraph` version
 function Graphs.neighborhood_dists(
         graph::AbstractNamedGraph, vertex::Integer, d, distmx = weights(graph); dir = :out
     )
-    return namedgraph_neighborhood_dists(graph, vertex, d, distmx; dir)
+    return neighborhood_dists_namedgraph(graph, vertex, d, distmx; dir)
 end
 
 # Fix for ambiguity error with `AbstractGraph` version
@@ -309,10 +312,10 @@ function Graphs.neighborhood_dists(
         graph::AbstractNamedGraph, vertex::Integer, d, distmx::AbstractMatrix{<:Real};
         dir = :out
     )
-    return namedgraph_neighborhood_dists(graph, vertex, d, distmx; dir)
+    return neighborhood_dists_namedgraph(graph, vertex, d, distmx; dir)
 end
 
-function namedgraph_mincut(graph::AbstractNamedGraph, distmx)
+function mincut_namedgraph(graph::AbstractNamedGraph, distmx)
     encoded_distmx = encode_dist_matrix(graph, distmx)
     encoded_parity, bestcut = Graphs.mincut(encoded_graph(graph), encoded_distmx)
     graph_vertices = map(c -> decode_vertex(graph, c), vertices(encoded_graph(graph)))
@@ -320,7 +323,7 @@ function namedgraph_mincut(graph::AbstractNamedGraph, distmx)
 end
 
 function Graphs.mincut(graph::AbstractNamedGraph, distmx = weights(graph))
-    return namedgraph_mincut(graph, distmx)
+    return mincut_namedgraph(graph, distmx)
 end
 
 # Mirrors the `AbstractGraph` signature in Graphs.jl so the wrapper above is
@@ -328,7 +331,7 @@ end
 # The bound matches Graphs.jl exactly: widening `<:Number` to `<:Real` here
 # would leave `Complex` distance matrices ambiguous.
 function Graphs.mincut(graph::AbstractNamedGraph, distmx::AbstractMatrix{<:Number})
-    return namedgraph_mincut(graph, distmx)
+    return mincut_namedgraph(graph, distmx)
 end
 
 # TODO: Make this more generic?
@@ -347,7 +350,7 @@ function GraphsExtensions.partition_vertices(
     end
 end
 
-function namedgraph_a_star(
+function a_star_namedgraph(
         graph::AbstractNamedGraph,
         source,
         destination,
@@ -381,7 +384,7 @@ function Graphs.a_star(
         heuristic = (v -> zero(eltype(distmx))),
         edgetype_to_return = edgetype(graph)
     )
-    return namedgraph_a_star(
+    return a_star_namedgraph(
         graph, source, destination, distmx, heuristic, edgetype_to_return
     )
 end
@@ -397,12 +400,12 @@ function Graphs.a_star(
         heuristic = (v -> zero(eltype(distmx))),
         edgetype_to_return::Type{<:AbstractEdge} = edgetype(graph)
     )
-    return namedgraph_a_star(
+    return a_star_namedgraph(
         graph, source, destination, distmx, heuristic, edgetype_to_return
     )
 end
 
-function namedgraph_spfa_shortest_paths(graph::AbstractNamedGraph, vertex, distmx)
+function spfa_shortest_paths_namedgraph(graph::AbstractNamedGraph, vertex, distmx)
     encoded_distmx = encode_dist_matrix(graph, distmx)
     encoded_shortest_paths = spfa_shortest_paths(
         encoded_graph(graph), encode_vertex(graph, vertex), encoded_distmx
@@ -414,7 +417,7 @@ end
 function Graphs.spfa_shortest_paths(
         graph::AbstractNamedGraph, vertex, distmx = weights(graph)
     )
-    return namedgraph_spfa_shortest_paths(graph, vertex, distmx)
+    return spfa_shortest_paths_namedgraph(graph, vertex, distmx)
 end
 
 # Mirrors the `AbstractGraph` signature in Graphs.jl so the wrapper above is
@@ -424,7 +427,7 @@ function Graphs.spfa_shortest_paths(
         vertex::Integer,
         distmx::AbstractMatrix{<:Number} = weights(graph)
     )
-    return namedgraph_spfa_shortest_paths(graph, vertex, distmx)
+    return spfa_shortest_paths_namedgraph(graph, vertex, distmx)
 end
 
 function Graphs.boruvka_mst(
@@ -474,7 +477,7 @@ end
 Graphs.has_edge(g::AbstractNamedGraph, edge) = has_edge(g, edgetype(g)(edge))
 Graphs.has_edge(g::AbstractNamedGraph, src, dst) = has_edge(g, edgetype(g)(src, dst))
 
-function namedgraph_has_path(
+function has_path_namedgraph(
         graph::AbstractNamedGraph,
         source,
         destination,
@@ -491,7 +494,7 @@ end
 function Graphs.has_path(
         graph::AbstractNamedGraph, source, destination; exclude_vertices = vertextype(graph)[]
     )
-    return namedgraph_has_path(graph, source, destination, exclude_vertices)
+    return has_path_namedgraph(graph, source, destination, exclude_vertices)
 end
 
 # Mirrors the `AbstractGraph` signature in Graphs.jl so the wrapper above is
@@ -502,7 +505,7 @@ function Graphs.has_path(
         destination::Integer;
         exclude_vertices = vertextype(graph)[]
     )
-    return namedgraph_has_path(graph, source, destination, exclude_vertices)
+    return has_path_namedgraph(graph, source, destination, exclude_vertices)
 end
 
 function Base.union(graph1::AbstractNamedGraph, graph2::AbstractNamedGraph)
@@ -608,20 +611,20 @@ function Graphs.tree(graph::AbstractNamedGraph, parents)
     return t
 end
 
-function namedgraph_bfs_tree(graph::AbstractNamedGraph, vertex; kwargs...)
+function bfs_tree_namedgraph(graph::AbstractNamedGraph, vertex; kwargs...)
     return Graphs.tree(graph, bfs_parents(graph, vertex; kwargs...))
 end
 # Disambiguation from Graphs.bfs_tree
 function Graphs.bfs_tree(graph::AbstractNamedGraph, vertex::Integer; kwargs...)
-    return namedgraph_bfs_tree(graph, vertex; kwargs...)
+    return bfs_tree_namedgraph(graph, vertex; kwargs...)
 end
 function Graphs.bfs_tree(graph::AbstractNamedGraph, vertex; kwargs...)
-    return namedgraph_bfs_tree(graph, vertex; kwargs...)
+    return bfs_tree_namedgraph(graph, vertex; kwargs...)
 end
 
 # Returns a Dictionary mapping a vertex to it's parent
 # vertex in the traversal/spanning tree.
-function namedgraph_bfs_parents(graph::AbstractNamedGraph, vertex; kwargs...)
+function bfs_parents_namedgraph(graph::AbstractNamedGraph, vertex; kwargs...)
     encoded_bfs_parents = bfs_parents(
         encoded_graph(graph), encode_vertex(graph, vertex); kwargs...
     )
@@ -636,10 +639,10 @@ function namedgraph_bfs_parents(graph::AbstractNamedGraph, vertex; kwargs...)
 end
 # Disambiguation from Graphs.jl
 function Graphs.bfs_parents(graph::AbstractNamedGraph, vertex::Integer; kwargs...)
-    return namedgraph_bfs_parents(graph, vertex; kwargs...)
+    return bfs_parents_namedgraph(graph, vertex; kwargs...)
 end
 function Graphs.bfs_parents(graph::AbstractNamedGraph, vertex; kwargs...)
-    return namedgraph_bfs_parents(graph, vertex; kwargs...)
+    return bfs_parents_namedgraph(graph, vertex; kwargs...)
 end
 
 #
