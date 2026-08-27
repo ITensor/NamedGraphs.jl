@@ -7,7 +7,11 @@ graph types with named vertices. The vertices of a [`NamedGraph`](@ref) or
 the contiguous integers of a `Graphs.SimpleGraph`. Named graphs aim to implement
 the functionality of Graphs.jl accounting for named vertices and edges, so see
 the [Graphs.jl documentation](https://juliagraphs.org/Graphs.jl/stable/) for the
-available functionality.
+available functionality. Not all of it is wrapped yet: for performance, functions
+are usually implemented by translating to the integer vertices and forwarding to
+the Graphs.jl implementation, which assumes contiguous integer vertices, so they
+have to be wrapped one at a time. Please raise an issue if functionality you need
+is missing.
 
 See also [`PartitionedGraphs`](@ref) for partitioned graphs and their quotient
 graphs, and [`GraphsExtensions`](@ref) for extensions that apply to any
