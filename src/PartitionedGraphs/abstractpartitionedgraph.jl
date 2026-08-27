@@ -53,11 +53,32 @@ function partitioned_edges(g::AbstractGraph)
     return dict
 end
 
+"""
+    is_partition_boundary_edge(graph::AbstractGraph, edge) -> Bool
+
+Whether `edge` of `graph` crosses between two different quotient vertices, as
+opposed to being contained inside a single one. Equivalently, whether the
+quotient edge [`quotientedge(graph, edge)`](@ref quotientedge) is not a
+self-loop.
+"""
 function is_partition_boundary_edge(pg::AbstractGraph, edge)
     p_edge = quotientedge(pg, edge)
     return src(p_edge) != dst(p_edge)
 end
 
+"""
+    boundary_quotientedges(graph::AbstractGraph, quotientvertices; dir = :out)
+    boundary_quotientedges(graph::AbstractGraph, quotientvertex::QuotientVertex; dir = :out)
+
+The [`QuotientEdge`](@ref)s of `graph` that connect the given quotient vertices
+to the quotient vertices outside of them, i.e. the boundary edges of
+`quotientvertices` in the quotient graph of `graph`. Returns a
+`Vector{<:QuotientEdge}`.
+
+Keyword arguments are forwarded to `GraphsExtensions.boundary_edges`, in
+particular `dir`, which selects the edge direction to consider in a directed
+graph.
+"""
 function boundary_quotientedges(pg::AbstractGraph, quotientvertices; kwargs...)
     return QuotientEdge.(
         boundary_edges(quotient_graph(pg), parent.(quotientvertices); kwargs...)
@@ -80,18 +101,86 @@ quotient_graph_edgetype(G) = edgetype(quotient_graph_type(G))
 add_subquotientvertex!(pg::AbstractGraph, quotientvertex, vertex) = not_implemented()
 
 """
-abstract type AbstractPartitionedGraph{V, PV} <: AbstractNamedGraph{V}
+    abstract type AbstractPartitionedGraph{V, PV} <: AbstractNamedGraph{V}
 
-To use `AbstractPartitionedGraph` one should defined `unpartitioned_graph` that returns
-an underlying graph *without* any partitioning. One should also define:
+Supertype for named graphs that carry a partitioning of their vertices, with
+vertex type `V` and quotient vertex type `PV`.
+
+A subtype must define `unpartitioned_graph`, returning the underlying graph
+*without* any partitioning, on top of the partitioned-graph interface documented
+in [`PartitionedGraphs`](@ref). Note that interface can also be implemented by a
+graph type that does not subtype `AbstractPartitionedGraph`.
 """
 abstract type AbstractPartitionedGraph{V, PV} <: AbstractNamedGraph{V} end
 
-# Remove one layer of partitioning.
+"""
+    departition(graph::AbstractGraph)
+
+The graph underlying `graph` with a single layer of partitioning removed: the
+graph that was partitioned to make `graph`, without the partitioning. Graphs
+that are not an [`AbstractPartitionedGraph`](@ref) are returned as-is, so
+`departition` is the identity on them.
+
+Note that a partitioned graph can itself be partitioned, so removing one layer
+may leave a graph that is still partitioned. Use [`unpartition`](@ref) to remove
+every layer at once.
+
+# Examples
+
+```jldoctest
+julia> using Graphs: path_graph
+
+julia> using NamedGraphs: NamedGraph
+
+julia> using NamedGraphs.PartitionedGraphs: departition, partitionedgraph
+
+julia> g = NamedGraph(path_graph(4), ["a", "b", "c", "d"]);
+
+julia> pg = partitionedgraph(g, [["a", "b"], ["c", "d"]]);
+
+julia> departition(pg) === g
+true
+
+julia> departition(g) === g
+true
+
+julia> departition(partitionedgraph(pg, [["a", "c"], ["b", "d"]])) === pg
+true
+```
+"""
 departition(pg::AbstractPartitionedGraph) = unpartitioned_graph(pg)
 departition(g::AbstractGraph) = g
 
-# Recursively remove all layers of partitioning.
+"""
+    unpartition(graph::AbstractGraph)
+
+The graph underlying `graph` with every layer of partitioning removed, i.e.
+[`departition`](@ref) applied repeatedly until the result is no longer
+partitioned. Graphs that are not an [`AbstractPartitionedGraph`](@ref) are
+returned as-is.
+
+# Examples
+
+```jldoctest
+julia> using Graphs: path_graph
+
+julia> using NamedGraphs: NamedGraph
+
+julia> using NamedGraphs.PartitionedGraphs: partitionedgraph, unpartition
+
+julia> g = NamedGraph(path_graph(4), ["a", "b", "c", "d"]);
+
+julia> pg = partitionedgraph(g, [["a", "b"], ["c", "d"]]);
+
+julia> pg2 = partitionedgraph(pg, [["a", "c"], ["b", "d"]]);
+
+julia> unpartition(pg2) === g
+true
+
+julia> unpartition(g) === g
+true
+```
+"""
 function unpartition(pg::AbstractGraph)
     g = departition(pg)
     g === pg && return pg

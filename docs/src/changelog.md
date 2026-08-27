@@ -42,6 +42,10 @@ and edges used internally.
   graph on success, and `add_edge!`/`rem_edge!` threw for edges with vertices
   not in the graph, which now returns `false`
   ([#179](https://github.com/ITensor/NamedGraphs.jl/pull/179)).
+- `rem_quotientvertex!` and `rem_quotientedge!` return `true` or `false` the
+  same way, where they previously returned the graph. A quotient vertex or edge
+  that is not in the quotient graph now returns `false` instead of silently
+  doing nothing ([#188](https://github.com/ITensor/NamedGraphs.jl/pull/188)).
 - The `Keys`, `SimilarType`, `GraphGenerators`, and `NamedGraphGenerators`
   submodules are removed. The named graph generators (`named_grid`,
   `named_path_graph`, and so on) and `similar_type` are accessible directly
@@ -106,6 +110,10 @@ and edges used internally.
 - The docs are reorganized into user and developer interface pages, the graph
   types and generators are documented, and the README has an introduction and
   examples ([#183](https://github.com/ITensor/NamedGraphs.jl/pull/183)).
+- `NamedGraphs.PartitionedGraphs` documents and exports its user-facing API, so
+  `using NamedGraphs.PartitionedGraphs` brings the partitioned graph types and
+  the quotient vertex and edge functions into scope where it previously brought
+  nothing ([#188](https://github.com/ITensor/NamedGraphs.jl/pull/188)).
 - `bfs_parents(g, v)` and `dfs_parents(g, v)` map vertices unreachable from
   `v` to themselves, like `dijkstra_shortest_paths` does. Previously they
   errored on graphs with unreachable vertices

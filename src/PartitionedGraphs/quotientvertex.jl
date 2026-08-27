@@ -91,6 +91,14 @@ function Graphs.vertices(g::AbstractGraph, quotientvertices::QuotientVertices)
     return unique(mapreduce(qv -> vertices(g, qv), vcat, quotientvertices))
 end
 
+"""
+    has_quotientvertex(g::AbstractGraph, quotientvertex::QuotientVertex) -> Bool
+
+Whether the quotient vertex `quotientvertex` exists in the quotient graph of
+`g`, i.e. whether `g` has a partition with that name.
+
+See also: [`has_quotientedge`](@ref).
+"""
 function has_quotientvertex(g::AbstractGraph, quotientvertex::QuotientVertex)
     # Can't use `haskey` since it is not defined on vectors.
     return parent(quotientvertex) ∈ keys(partitioned_vertices(g))
@@ -101,7 +109,24 @@ Graphs.nv(g::AbstractGraph, sv::QuotientVertex) = length(vertices(g, sv))
 function GraphsExtensions.rem_vertices!(g::AbstractGraph, sv::QuotientVertex)
     return rem_vertices!(g, vertices(g, sv))
 end
-rem_quotientvertex!(pg::AbstractGraph, sv::QuotientVertex) = rem_vertices!(pg, sv)
+
+"""
+    rem_quotientvertex!(g::AbstractGraph, quotientvertex::QuotientVertex)
+
+Remove, in place, all of the vertices of `g` contained in the quotient vertex
+`quotientvertex`, which also removes `quotientvertex` from the quotient graph of
+`g`.
+
+Returns `true` if `quotientvertex` was in the quotient graph of `g` and was
+removed, and `false` otherwise, following `Graphs.rem_vertex!`.
+
+See also: [`rem_quotientedge!`](@ref), [`has_quotientvertex`](@ref).
+"""
+function rem_quotientvertex!(pg::AbstractGraph, sv::QuotientVertex)
+    has_quotientvertex(pg, sv) || return false
+    rem_vertices!(pg, sv)
+    return true
+end
 
 # Represents a single vertex in a QuotientVertex
 struct QuotientVertexVertex{V, QV}

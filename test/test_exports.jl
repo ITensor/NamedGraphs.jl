@@ -37,4 +37,31 @@ using Test: @test, @testset
         end
         @test issetequal(names(NamedGraphs), [exports; public_names])
     end
+    @testset "PartitionedGraphs" begin
+        exports = [
+            :AbstractPartitionedGraph,
+            :PartitionedGraph,
+            :PartitionedGraphs,
+            :PartitionedView,
+            :QuotientEdge,
+            :QuotientVertex,
+            :QuotientView,
+            :boundary_quotientedges,
+            :departition,
+            :has_quotientedge,
+            :has_quotientvertex,
+            :is_partition_boundary_edge,
+            :partitionedgraph,
+            :quotientedge,
+            :quotientedges,
+            :quotientvertices,
+            :quotientview,
+            :rem_quotientedge!,
+            :rem_quotientvertex!,
+            :unpartition,
+        ]
+        @test issetequal(names(NamedGraphs.PartitionedGraphs), exports)
+        # `PartitionedGraphs` names are not re-exported from `NamedGraphs`.
+        @test isempty(intersect(setdiff(exports, [:PartitionedGraphs]), names(NamedGraphs)))
+    end
 end

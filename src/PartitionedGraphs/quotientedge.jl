@@ -138,7 +138,23 @@ function GraphsExtensions.rem_edges!(g::AbstractGraph, sv::QuotientEdge)
     return rem_edges!(g, edges(g, sv))
 end
 
-rem_quotientedge!(g::AbstractGraph, sv::QuotientEdge) = rem_edges!(g, sv)
+"""
+    rem_quotientedge!(g::AbstractGraph, quotientedge::QuotientEdge)
+
+Remove, in place, all of the edges of `g` that correspond to the quotient edge
+`quotientedge`, which also removes `quotientedge` from the quotient graph of
+`g`. The vertices of `g` are left alone.
+
+Returns `true` if `quotientedge` was in the quotient graph of `g` and was
+removed, and `false` otherwise, following `Graphs.rem_edge!`.
+
+See also: [`rem_quotientvertex!`](@ref), [`has_quotientedge`](@ref).
+"""
+function rem_quotientedge!(g::AbstractGraph, se::QuotientEdge)
+    has_quotientedge(g, se) || return false
+    rem_edges!(g, se)
+    return true
+end
 
 # Represents a single edge in a QuotientEdge
 struct QuotientEdgeEdge{V, E <: AbstractNamedEdge{V}, QE} <: AbstractNamedEdge{V}
