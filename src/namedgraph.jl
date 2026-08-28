@@ -38,7 +38,7 @@ end
 for T in (:NamedGraph, :NamedDiGraph)
     @eval begin
         encoded_graph(graph::$T) = graph.encoded_graph
-        function encode_vertex(graph::$T, vertex)
+        function encoded_vertex(graph::$T, vertex)
             # A single lookup, so that checking membership costs nothing when the
             # vertex is there. Indexing directly would report a missing vertex as a
             # `convert` error from inside Dictionaries.jl.
@@ -47,7 +47,7 @@ for T in (:NamedGraph, :NamedDiGraph)
                 throw(ArgumentError("$(repr(vertex)) is not a vertex of the graph."))
             return code
         end
-        decode_vertex(graph::$T, code::Integer) = graph.decoded_vertices[code]
+        decoded_vertex(graph::$T, code::Integer) = graph.decoded_vertices[code]
 
         Graphs.vertices(graph::$T) = keys(graph.encoded_vertices)
 
@@ -67,7 +67,7 @@ for T in (:NamedGraph, :NamedDiGraph)
             if vertex ∉ vertices(graph)
                 return false
             end
-            code = encode_vertex(graph, vertex)
+            code = encoded_vertex(graph, vertex)
             # `rem_vertex!` on an `AbstractSimpleGraph` moves the last vertex into
             # the removed slot, so mirror that reassignment in the vertex-code maps.
             rem_vertex!(encoded_graph(graph), code)

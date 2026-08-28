@@ -1,6 +1,6 @@
 using Graphs: a_star, add_edge!, add_vertex!, degree, dst, edges, edgetype, has_edge,
     has_vertex, is_directed, ne, neighbors, nv, rem_edge!, rem_vertex!, src, vertices
-using NamedGraphs: NamedEdge, NamedGridGraph, decode_vertex, encode_vertex, grid_ndims,
+using NamedGraphs: NamedEdge, NamedGridGraph, decoded_vertex, encoded_vertex, grid_ndims,
     grid_size, is_cycle_graph, is_directed_grid, ishypertorus, named_binary_tree,
     named_cycle_graph, named_grid, named_hexagonal_lattice_graph,
     named_triangular_lattice_graph, vertextype
@@ -107,11 +107,11 @@ end
     @test !has_vertex(g, 1)
     @test !has_vertex(g, nothing)
 
-    @test all(v -> decode_vertex(g, encode_vertex(g, v)) == v, vertices(g))
-    @test all(c -> encode_vertex(g, decode_vertex(g, c)) == c, 1:nv(g))
-    @test encode_vertex(g, (Int32(2), Int32(3))) == encode_vertex(g, (2, 3))
-    @test_throws ArgumentError encode_vertex(g, "abc")
-    @test_throws ArgumentError encode_vertex(g, (5, 2))
+    @test all(v -> decoded_vertex(g, encoded_vertex(g, v)) == v, vertices(g))
+    @test all(c -> encoded_vertex(g, decoded_vertex(g, c)) == c, 1:nv(g))
+    @test encoded_vertex(g, (Int32(2), Int32(3))) == encoded_vertex(g, (2, 3))
+    @test_throws ArgumentError encoded_vertex(g, "abc")
+    @test_throws ArgumentError encoded_vertex(g, (5, 2))
 
     @test_throws ArgumentError neighbors(g, "abc")
     @test_throws ArgumentError neighbors(g, (5, 2))

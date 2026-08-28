@@ -1,6 +1,6 @@
 module NamedGraphsSimpleGraphAlgorithmsExt
 using Graphs: AbstractGraph, dst, edges, edgetype, src, vertices
-using NamedGraphs: AbstractNamedGraph, decode_vertex, encoded_graph
+using NamedGraphs: AbstractNamedGraph, decoded_vertex, encoded_graph
 using SimpleGraphAlgorithms: SimpleGraphAlgorithms
 using SimpleGraphs: UndirectedGraph, add!
 
@@ -23,7 +23,7 @@ function SimpleGraphAlgorithms.edge_color(g::AbstractNamedGraph, k::Int64)
     return [
         [
                 edgetype(g)(
-                    decode_vertex(g, first(first(e))), decode_vertex(g, last(first(e)))
+                    decoded_vertex(g, first(first(e))), decoded_vertex(g, last(first(e)))
                 ) for
                 e in ec_dict if last(e) == i
             ]

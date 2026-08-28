@@ -6,7 +6,7 @@ function steiner_tree_namedgraph(
     )
     encoded_tree = steiner_tree(
         encoded_graph(g),
-        map(v -> encode_vertex(g, v), term_vert),
+        map(v -> encoded_vertex(g, v), term_vert),
         encode_dist_matrix(g, distmx)
     )
 
@@ -16,7 +16,7 @@ function steiner_tree_namedgraph(
 
     # Get only those vertices that appear in an edge
     for edge in edges(encoded_tree)
-        tree_edge = decode_edge(g, edge)
+        tree_edge = decoded_edge(g, edge)
         push!(tree_edges, tree_edge)
         push!(featured_vertices, src(tree_edge))
         push!(featured_vertices, dst(tree_edge))

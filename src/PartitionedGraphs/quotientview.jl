@@ -90,11 +90,11 @@ function Graphs.rem_edge!(qg::QuotientView, e)
 end
 
 NamedGraphs.encoded_graph(g::QuotientView) = NamedGraphs.encoded_graph(copy(g))
-function NamedGraphs.encode_vertex(g::QuotientView, vertex)
-    return NamedGraphs.encode_vertex(copy(g), vertex)
+function NamedGraphs.encoded_vertex(g::QuotientView, vertex)
+    return NamedGraphs.encoded_vertex(copy(g), vertex)
 end
-function NamedGraphs.decode_vertex(g::QuotientView, code::Integer)
-    return NamedGraphs.decode_vertex(copy(g), code)
+function NamedGraphs.decoded_vertex(g::QuotientView, code::Integer)
+    return NamedGraphs.decoded_vertex(copy(g), code)
 end
 
 function NamedGraphs.similar_type(type::Type{<:QuotientView})

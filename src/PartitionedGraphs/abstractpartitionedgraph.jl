@@ -283,11 +283,11 @@ Graphs.edges(pg::AbstractPartitionedGraph) = edges(unpartitioned_graph(pg))
 function NamedGraphs.encoded_graph(pg::AbstractPartitionedGraph)
     return NamedGraphs.encoded_graph(unpartitioned_graph(pg))
 end
-function NamedGraphs.encode_vertex(pg::AbstractPartitionedGraph, vertex)
-    return NamedGraphs.encode_vertex(unpartitioned_graph(pg), vertex)
+function NamedGraphs.encoded_vertex(pg::AbstractPartitionedGraph, vertex)
+    return NamedGraphs.encoded_vertex(unpartitioned_graph(pg), vertex)
 end
-function NamedGraphs.decode_vertex(pg::AbstractPartitionedGraph, code::Integer)
-    return NamedGraphs.decode_vertex(unpartitioned_graph(pg), code)
+function NamedGraphs.decoded_vertex(pg::AbstractPartitionedGraph, code::Integer)
+    return NamedGraphs.decoded_vertex(unpartitioned_graph(pg), code)
 end
 Graphs.edgetype(pg::AbstractPartitionedGraph) = edgetype(unpartitioned_graph(pg))
 

@@ -2,7 +2,7 @@ module NamedGraphsGraphsFlowsExt
 using Graphs: AbstractGraph, IsDirected
 using GraphsFlows: GraphsFlows
 using NamedGraphs: NamedGraphs, AbstractNamedGraph, DefaultNamedCapacity, _symmetrize,
-    decode_vertex, directed_graph, encode_dist_matrix, encode_vertex, encoded_graph
+    decoded_vertex, directed_graph, encode_dist_matrix, encoded_graph, encoded_vertex
 using SimpleTraits: SimpleTraits, @traitfn
 
 @traitfn function NamedGraphs.encode_dist_matrix(
@@ -20,13 +20,13 @@ end
     )
     encoded_part1, encoded_part2, flow = GraphsFlows.mincut(
         encoded_graph(graph),
-        encode_vertex(graph, source),
-        encode_vertex(graph, target),
+        encoded_vertex(graph, source),
+        encoded_vertex(graph, target),
         encode_dist_matrix(graph, capacity_matrix),
         algorithm
     )
     (part1, part2) = map((encoded_part1, encoded_part2)) do encoded_part
-        return map(c -> decode_vertex(graph, c), encoded_part)
+        return map(c -> decoded_vertex(graph, c), encoded_part)
     end
     return (part1, part2, flow)
 end
