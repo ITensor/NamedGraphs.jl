@@ -96,10 +96,15 @@ graph.
 module PartitionedGraphs
 
 export AbstractPartitionedGraph, PartitionedGraph, PartitionedView, QuotientEdge,
-    QuotientVertex, QuotientView, boundary_quotientedges, departition,
-    has_quotientedge, has_quotientvertex, is_partition_boundary_edge, partitionedgraph,
-    quotientedge, quotientedges, quotientvertices, quotientview, rem_quotientedge!,
-    rem_quotientvertex!, unpartition
+    QuotientEdges, QuotientVertex, QuotientView, quotient_graph, quotientedge,
+    quotientedges, quotientvertices, unpartitioned_graph
+if VERSION >= v"1.11.0-DEV.469"
+    eval(
+        Meta.parse(
+            "public boundary_quotientedges, departition, partitioned_vertices, partitionedgraph, unpartition"
+        )
+    )
+end
 
 include("quotientvertex.jl")
 include("quotientedge.jl")

@@ -20,7 +20,7 @@ end
         algorithm::GraphsFlows.AbstractFlowAlgorithm = GraphsFlows.PushRelabelAlgorithm()
     )
     encoded_part1, encoded_part2, flow = GraphsFlows.mincut(
-        directed_graph(encoded_graph(graph)),
+        encoded_graph(graph),
         encode_vertex(graph, source),
         encode_vertex(graph, target),
         encode_dist_matrix(graph, capacity_matrix),

@@ -39,7 +39,20 @@ Base.eltype(::Type{<:AbstractGraphIndices{T}}) where {T} = T
 
 Base.length(gi::AbstractGraphIndices) = length(parent_graph_indices(gi))
 
-# Canonize assuming nothing about `index`.
+"""
+    to_graph_index(graph, index)
+
+Canonicalize `index` into the index type that `graph` is indexed by, for example
+turning a `Pair` of vertices into an edge of `edgetype(graph)`. Indices that are
+already canonical are returned unchanged.
+
+The indexing entry points call this on the index they are given, so overload it to
+teach a graph type or an index type a new spelling of a vertex or an edge. That
+covers writes as well as reads: downstream routes `setindex!` and `isassigned`
+through it too, not only `getindex`. The first argument is
+deliberately untyped, so anything indexed by vertices and edges can use it rather
+than graphs alone.
+"""
 to_graph_index(graph, index) = index
 to_graph_index(graph, index::Pair) = edgetype(graph)(index)
 

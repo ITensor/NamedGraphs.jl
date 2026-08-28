@@ -1,6 +1,7 @@
-using .GraphsExtensions: GraphsExtensions, all_edges, directed_graph, empty_graph,
-    incident_edges, partition_vertices, rem_edges, rem_edges!, rem_vertices, similar_graph,
-    subgraph
+using .GraphsExtensions: GraphsExtensions, add_edges!, all_edges, directed_graph,
+    directed_graph_type, empty_graph, incident_edges, partition_vertices, rem_edges,
+    rem_edges!, rem_vertices, similar_graph, subgraph, undirected_graph,
+    undirected_graph_type
 using Dictionaries: Dictionary, set!
 using Graphs: Graphs, AbstractGraph, AbstractSimpleGraph, IsDirected, SimpleDiGraph,
     SimpleEdge, SimpleGraph, a_star, add_edge!, adjacency_matrix, bfs_parents, blockdiag,
@@ -319,6 +320,45 @@ for f in [:outneighbors, :inneighbors, :all_neighbors, :neighbors]
     end
 end
 
+# Attached to the signature rather than written inside the loop above, so that
+# the four functions share one docstring instead of four near-identical ones.
+"""
+    neighbors(graph::AbstractNamedGraph, vertex) -> AbstractVector
+
+The neighbors of `vertex` in `graph`, as vertex names. On a directed graph these
+are the out-neighbors, following the Graphs.jl convention. `inneighbors`,
+`outneighbors`, and `all_neighbors` select the other directions and behave the
+same way in every other respect, including the caveat below.
+
+The output may be a view into the graph's own data, so treat it as read-only and
+discard it before mutating `graph`. Only its `AbstractVector` interface is
+promised; the concrete type may change.
+
+# Examples
+
+```jldoctest
+julia> using Graphs: all_neighbors, inneighbors, neighbors, path_digraph
+
+julia> using NamedGraphs: NamedDiGraph
+
+julia> g = NamedDiGraph(path_digraph(3), ["a", "b", "c"]);
+
+julia> neighbors(g, "b")
+1-element Vector{String}:
+ "c"
+
+julia> inneighbors(g, "b")
+1-element Vector{String}:
+ "a"
+
+julia> all_neighbors(g, "b")
+2-element Vector{String}:
+ "a"
+ "c"
+```
+"""
+Graphs.neighbors(graph::AbstractNamedGraph, vertex::Any)
+
 function Graphs.common_neighbors(g::AbstractNamedGraph, u, v)
     return intersect(neighbors(g, u), neighbors(g, v))
 end
@@ -575,6 +615,70 @@ function Graphs.add_edge!(graph::AbstractNamedGraph, edge)
 end
 Graphs.add_edge!(g::AbstractNamedGraph, src, dst) = add_edge!(g, edgetype(g)(src, dst))
 
+function GraphsExtensions.add_edge(g::AbstractNamedGraph, edge)
+    g = copy(g)
+    add_edge!(g, edgetype(g)(edge))
+    return g
+end
+
+"""
+    add_edges!(graph::AbstractNamedGraph, edges)
+
+Add `edges` to `graph` in place, returning how many were added. An edge already
+in `graph`, or one naming a vertex `graph` does not have, is not added and does
+not count, following `Graphs.add_edge!`.
+
+See also [`add_edges`](@ref) for the non-mutating form.
+
+# Examples
+
+```jldoctest
+julia> using Graphs: ne
+
+julia> using NamedGraphs: NamedGraph, add_edges!
+
+julia> g = NamedGraph(["a", "b", "c"]);
+
+julia> add_edges!(g, ["a" => "b", "b" => "c"])
+2
+
+julia> add_edges!(g, ["a" => "b", "a" => "z"])
+0
+
+julia> ne(g)
+2
+```
+"""
+function GraphsExtensions.add_edges!(g::AbstractNamedGraph, edges)
+    return count(e -> add_edge!(g, edgetype(g)(e)), edges)
+end
+
+"""
+    add_edges(graph::AbstractNamedGraph, edges)
+
+A copy of `graph` with `edges` added. See also [`add_edges!`](@ref).
+
+# Examples
+
+```jldoctest
+julia> using Graphs: ne
+
+julia> using NamedGraphs: NamedGraph, add_edges
+
+julia> g = NamedGraph(["a", "b", "c"]);
+
+julia> h = add_edges(g, ["a" => "b", "b" => "c"]);
+
+julia> (ne(g), ne(h))
+(0, 2)
+```
+"""
+function GraphsExtensions.add_edges(g::AbstractNamedGraph, edges)
+    g = copy(g)
+    add_edges!(g, edges)
+    return g
+end
+
 # Hook so the `::Integer` disambiguator below does not repeat the body. The name
 # is `Symbol(f, :_namedgraph)` like the other hooks, keeping the bang where the
 # function name has it rather than special-casing mutating functions.
@@ -601,7 +705,7 @@ julia> using NamedGraphs: NamedGraph
 
 julia> g = NamedGraph([1, 2, 3]);
 
-julia> add_vertices!(g, 5)
+julia> add_vertices!(g, [3, 4])
 1
 
 julia> collect(vertices(g))
@@ -609,9 +713,9 @@ julia> collect(vertices(g))
  1
  2
  3
- 5
+ 4
 
-julia> add_vertices!(g, [3, 4])
+julia> add_vertices!(g, 5) # Integers are iterable, so equivalent to add_vertices!(g, [5])
 1
 ```
 """
@@ -660,6 +764,18 @@ function Graphs.rem_vertices!(graph::AbstractNamedGraph, vs)
     # from the graph invalidates mid-iteration, which silently leaves vertices behind
     # and returns too small a count. `Graphs.rem_vertices!` copies for the same reason.
     return count(v -> rem_vertex!(graph, v), collect(vs))
+end
+
+function GraphsExtensions.add_vertex(g::AbstractNamedGraph, vs)
+    g = copy(g)
+    add_vertex!(g, vs)
+    return g
+end
+
+function GraphsExtensions.rem_vertex(g::AbstractNamedGraph, vs)
+    g = copy(g)
+    rem_vertex!(g, vs)
+    return g
 end
 
 """
@@ -723,6 +839,131 @@ function Graphs.rem_edge!(graph::AbstractNamedGraph, edge)
     has_vertex(graph, src(e)) || return false
     has_vertex(graph, dst(e)) || return false
     return rem_edge!(encoded_graph(graph), encode_edge(graph, e))
+end
+
+function GraphsExtensions.rem_edge(g::AbstractNamedGraph, edge)
+    g = copy(g)
+    rem_edge!(g, edgetype(g)(edge))
+    return g
+end
+
+"""
+    rem_edges!(graph::AbstractNamedGraph, edges)
+
+Remove `edges` from `graph` in place, leaving its vertices alone and returning
+how many were removed. An edge not in `graph` does not count, following
+`Graphs.rem_edge!`.
+
+See also [`rem_edges`](@ref) for the non-mutating form.
+
+# Examples
+
+```jldoctest
+julia> using Graphs: ne
+
+julia> using NamedGraphs: named_path_graph, rem_edges!
+
+julia> g = named_path_graph(3);
+
+julia> rem_edges!(g, [1 => 2, 1 => 3])
+1
+
+julia> ne(g)
+1
+```
+"""
+function GraphsExtensions.rem_edges!(g::AbstractNamedGraph, edges)
+    return count(e -> rem_edge!(g, edgetype(g)(e)), edges)
+end
+
+"""
+    rem_edges(graph::AbstractNamedGraph, edges)
+
+A copy of `graph` with `edges` removed. See also
+[`rem_edges!`](@ref rem_edges!(::AbstractNamedGraph, ::Any)).
+
+# Examples
+
+```jldoctest
+julia> using Graphs: ne
+
+julia> using NamedGraphs: named_path_graph, rem_edges
+
+julia> g = named_path_graph(3);
+
+julia> h = rem_edges(g, [1 => 2]);
+
+julia> (ne(g), ne(h))
+(2, 1)
+```
+"""
+function GraphsExtensions.rem_edges(g::AbstractNamedGraph, edges)
+    g = copy(g)
+    rem_edges!(g, edges)
+    return g
+end
+
+function GraphsExtensions.edgeless_graph(graph::AbstractNamedGraph)
+    return rem_edges(graph, edges(graph))
+end
+
+"""
+    directed_graph(graph::AbstractNamedGraph)
+
+A directed version of `graph`, with each undirected edge replaced by a pair of
+edges pointing in both directions. An already directed `graph` is returned as-is.
+
+See also [`undirected_graph`](@ref).
+
+# Examples
+
+```jldoctest
+julia> using Graphs: ne
+
+julia> using NamedGraphs: named_path_graph
+
+julia> using NamedGraphs.GraphsExtensions: directed_graph, undirected_graph
+
+julia> g = named_path_graph(3);
+
+julia> ne(directed_graph(g))
+4
+
+julia> ne(undirected_graph(directed_graph(g)))
+2
+```
+"""
+GraphsExtensions.directed_graph(graph::AbstractNamedGraph) = directed_namedgraph(graph)
+
+"""
+    undirected_graph(graph::AbstractNamedGraph)
+
+An undirected version of `graph`, with each directed edge replaced by an
+undirected one and a pair of opposite edges collapsing into a single edge. An
+already undirected `graph` is returned as-is.
+
+See also [`directed_graph`](@ref).
+"""
+GraphsExtensions.undirected_graph(graph::AbstractNamedGraph) = undirected_namedgraph(graph)
+
+# The trait dispatch happens in these hooks so that the two documented methods
+# above are plain ones, like `similar_namedgraph` in `similar_graph.jl`.
+@traitfn directed_namedgraph(graph::AbstractNamedGraph::IsDirected) = graph
+@traitfn undirected_namedgraph(graph::AbstractNamedGraph::(!IsDirected)) = graph
+
+@traitfn function directed_namedgraph(graph::AbstractNamedGraph::(!IsDirected))
+    digraph = similar_graph(directed_graph_type(graph), vertices(graph))
+    add_edges!(digraph, all_edges(graph))
+    return digraph
+end
+
+@traitfn function undirected_namedgraph(graph::AbstractNamedGraph::IsDirected)
+    undigraph = similar_graph(undirected_graph_type(graph), vertices(graph))
+    for e in edges(graph)
+        has_edge(undigraph, e) && continue
+        add_edge!(undigraph, e)
+    end
+    return undigraph
 end
 
 function Graphs.has_edge(graph::AbstractNamedGraph, edge::AbstractNamedEdge)

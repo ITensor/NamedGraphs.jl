@@ -27,6 +27,7 @@ section will grow over time.
 ```@docs; canonical=false
 vertices(::AbstractNamedGraph)
 edges(::AbstractNamedGraph)
+neighbors(::AbstractNamedGraph, ::Any)
 subgraph
 incident_edges
 Graphs.add_vertices!(::AbstractNamedGraph, ::Any)
@@ -35,7 +36,7 @@ Graphs.rem_vertices!(::AbstractNamedGraph, ::Any)
 rem_vertices
 add_edges!
 add_edges
-rem_edges!(::AbstractGraph, ::Any)
+rem_edges!(::AbstractNamedGraph, ::Any)
 rem_edges
 ```
 

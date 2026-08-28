@@ -12,8 +12,17 @@ using Test: @test, @testset
             :add_edges,
             :add_edges!,
             :add_vertices,
+            :boundary_edges,
+            :convert_vertextype,
+            :default_root_vertex,
+            :directed_graph,
             :disjoint_union,
+            :forest_cover,
+            :forest_cover_edge_sequence,
+            :in_incident_edges,
             :incident_edges,
+            :is_leaf_vertex,
+            :leaf_vertices,
             :named_binary_tree,
             :named_comb_tree,
             :named_cycle_graph,
@@ -22,11 +31,16 @@ using Test: @test, @testset
             :named_path_digraph,
             :named_path_graph,
             :named_triangular_lattice_graph,
+            :post_order_dfs_edges,
+            :post_order_dfs_vertices,
             :rem_edges,
             :rem_edges!,
             :rem_vertices,
             :rename_vertices,
+            :similar_graph,
             :subgraph,
+            :undirected_graph,
+            :vertextype,
             :⊔,
         ]
         # `names` includes `public` names as well as exported ones.
@@ -39,6 +53,7 @@ using Test: @test, @testset
                 :encode_edge,
                 :encode_vertex,
                 :encoded_graph,
+                :to_graph_index,
             ]
         else
             Symbol[]
@@ -51,11 +66,25 @@ using Test: @test, @testset
             :add_edges,
             :add_edges!,
             :add_vertices,
+            :boundary_edges,
+            :convert_vertextype,
+            :default_root_vertex,
+            :directed_graph,
+            :forest_cover,
+            :forest_cover_edge_sequence,
+            :in_incident_edges,
             :incident_edges,
+            :is_leaf_vertex,
+            :leaf_vertices,
+            :post_order_dfs_edges,
+            :post_order_dfs_vertices,
             :rem_edges,
             :rem_edges!,
             :rem_vertices,
+            :similar_graph,
             :subgraph,
+            :undirected_graph,
+            :vertextype,
         ]
         @test issetequal(names(NamedGraphs.GraphsExtensions), exports)
         # Unlike `PartitionedGraphs`, these are also exported from `NamedGraphs`, so
@@ -69,24 +98,33 @@ using Test: @test, @testset
             :PartitionedGraphs,
             :PartitionedView,
             :QuotientEdge,
+            :QuotientEdges,
             :QuotientVertex,
             :QuotientView,
-            :boundary_quotientedges,
-            :departition,
-            :has_quotientedge,
-            :has_quotientvertex,
-            :is_partition_boundary_edge,
-            :partitionedgraph,
+            :quotient_graph,
             :quotientedge,
             :quotientedges,
             :quotientvertices,
-            :quotientview,
-            :rem_quotientedge!,
-            :rem_quotientvertex!,
-            :unpartition,
+            :unpartitioned_graph,
         ]
-        @test issetequal(names(NamedGraphs.PartitionedGraphs), exports)
+        # `names` includes `public` names as well as exported ones.
+        public_names = if VERSION >= v"1.11.0-DEV.469"
+            [
+                :boundary_quotientedges,
+                :departition,
+                :partitioned_vertices,
+                :partitionedgraph,
+                :unpartition,
+            ]
+        else
+            Symbol[]
+        end
+        @test issetequal(names(NamedGraphs.PartitionedGraphs), [exports; public_names])
         # `PartitionedGraphs` names are not re-exported from `NamedGraphs`.
-        @test isempty(intersect(setdiff(exports, [:PartitionedGraphs]), names(NamedGraphs)))
+        @test isempty(
+            intersect(
+                setdiff([exports; public_names], [:PartitionedGraphs]), names(NamedGraphs)
+            )
+        )
     end
 end

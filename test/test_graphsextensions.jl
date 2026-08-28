@@ -16,7 +16,8 @@ using NamedGraphs.GraphsExtensions: TreeGraph, add_edge, add_edges, add_edges!, 
     rem_edges, rem_edges!, root_vertex, similar_dataless_graph, similar_graph, subgraph,
     tree_graph_node, undirected_graph, undirected_graph_type, vertextype,
     vertices_at_distance
-using NamedGraphs: NamedDiGraph, NamedEdge, NamedGraph, disjoint_union, rename_vertices, ⊔
+using NamedGraphs: NamedDiGraph, NamedEdge, NamedGraph, disjoint_union, named_path_digraph,
+    named_path_graph, rename_vertices, ⊔
 using Test: @test, @test_broken, @test_throws, @testset
 
 # TODO: Still need to test:
@@ -74,11 +75,11 @@ using Test: @test, @test_broken, @test_throws, @testset
     @test undirected_graph_type(SimpleGraph(4)) === SimpleGraph{Int}
 
     # directed_graph
-    @test directed_graph(path_digraph(4)) == path_digraph(4)
-    @test typeof(directed_graph(path_digraph(4))) === SimpleDiGraph{Int}
-    g = path_graph(4)
+    @test directed_graph(named_path_digraph(4)) == named_path_digraph(4)
+    @test typeof(directed_graph(named_path_digraph(4))) === NamedDiGraph{Int}
+    g = named_path_graph(4)
     dig = directed_graph(g)
-    @test typeof(dig) === SimpleDiGraph{Int}
+    @test typeof(dig) === NamedDiGraph{Int}
     @test nv(dig) == 4
     @test ne(dig) == 6
     @test issetequal(
@@ -86,12 +87,12 @@ using Test: @test, @test_broken, @test_throws, @testset
     )
 
     # undirected_graph
-    @test undirected_graph(path_graph(4)) == path_graph(4)
-    @test typeof(undirected_graph(path_graph(4))) === SimpleGraph{Int}
-    dig = path_digraph(4)
+    @test undirected_graph(named_path_graph(4)) == named_path_graph(4)
+    @test typeof(undirected_graph(named_path_graph(4))) === NamedGraph{Int}
+    dig = named_path_digraph(4)
     g = undirected_graph(dig)
-    @test typeof(g) === SimpleGraph{Int}
-    @test g == path_graph(4)
+    @test typeof(g) === NamedGraph{Int}
+    @test g == named_path_graph(4)
 
     # vertextype
     for f in (path_graph, path_digraph)
@@ -482,10 +483,13 @@ using Test: @test, @test_broken, @test_throws, @testset
     @test_throws MethodError root_vertex(binary_tree(3))
 
     # similar_graph
+    # The one-argument form copies the edges over as well, so it is only defined
+    # for named graphs. The rest works for any graph type.
+    @test similar_graph(named_path_graph(4)) isa NamedGraph{Int}
+    @test similar_graph(named_path_graph(4)) == named_path_graph(4)
+
     g = path_graph(4)
 
-    @test similar_graph(g) isa typeof(g)
-    @test similar_graph(g) == g
     @test similar_graph(typeof(g)) isa typeof(g)
     @test similar_graph(typeof(g)) == typeof(g)()
     @test isempty(edges(similar_graph(typeof(g))))
@@ -497,48 +501,47 @@ using Test: @test, @test_broken, @test_throws, @testset
     @test isempty(edges(similar_graph(typeof(g), vertices(g))))
 
     # similar_dataless_graph
-    g = path_graph(4)
+    # As with `similar_graph`, the one-argument form is only defined for named
+    # graphs.
+    @test similar_dataless_graph(named_path_graph(4)) isa NamedGraph
+    @test similar_dataless_graph(named_path_digraph(4)) isa NamedDiGraph
+    @test similar_dataless_graph(named_path_graph(4)) == named_path_graph(4)
 
-    @test similar_dataless_graph(g) isa SimpleGraph
-    @test similar_dataless_graph(SimpleDiGraph(4)) isa SimpleDiGraph
-    @test similar_dataless_graph(g) == g
+    g = path_graph(4)
 
     @test similar_dataless_graph(SimpleDiGraph(4), 2) isa SimpleDiGraph
     @test similar_dataless_graph(g, vertices(g)) == typeof(g)(4)
     @test isempty(edges(similar_dataless_graph(g, vertices(g))))
 
     # add_edge
-    g = SimpleGraph(4)
+    g = NamedGraph(1:4)
     add_edge!(g, 1 => 2)
-    @test add_edge(SimpleGraph(4), 1 => 2) == g
+    @test add_edge(NamedGraph(1:4), 1 => 2) == g
 
     # add_edges
-    @test add_edges(SimpleGraph(4), [1 => 2, 2 => 3, 3 => 4]) == path_graph(4)
+    @test add_edges(NamedGraph(1:4), [1 => 2, 2 => 3, 3 => 4]) == named_path_graph(4)
 
     # add_edges!
-    g = SimpleGraph(4)
+    g = NamedGraph(1:4)
     add_edges!(g, [1 => 2, 2 => 3, 3 => 4])
-    @test g == path_graph(4)
+    @test g == named_path_graph(4)
 
     # rem_edge
-    g = path_graph(4)
-    # https://github.com/JuliaGraphs/Graphs.jl/issues/364
-    rem_edge!(g, 2, 3)
-    @test rem_edge(path_graph(4), 2 => 3) == g
+    g = named_path_graph(4)
+    rem_edge!(g, 2 => 3)
+    @test rem_edge(named_path_graph(4), 2 => 3) == g
 
     # rem_edges
-    g = path_graph(4)
-    # https://github.com/JuliaGraphs/Graphs.jl/issues/364
-    rem_edge!(g, 2, 3)
-    rem_edge!(g, 3, 4)
-    @test rem_edges(path_graph(4), [2 => 3, 3 => 4]) == g
+    g = named_path_graph(4)
+    rem_edge!(g, 2 => 3)
+    rem_edge!(g, 3 => 4)
+    @test rem_edges(named_path_graph(4), [2 => 3, 3 => 4]) == g
 
     # rem_edges!
-    g = path_graph(4)
-    # https://github.com/JuliaGraphs/Graphs.jl/issues/364
-    rem_edge!(g, 2, 3)
-    rem_edge!(g, 3, 4)
-    g′ = path_graph(4)
+    g = named_path_graph(4)
+    rem_edge!(g, 2 => 3)
+    rem_edge!(g, 3 => 4)
+    g′ = named_path_graph(4)
     rem_edges!(g′, [2 => 3, 3 => 4])
     @test g′ == g
 
