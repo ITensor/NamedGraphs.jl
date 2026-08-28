@@ -26,6 +26,13 @@ using Test: @test, @test_throws, @testset
         # `weights(g)` sits in the vertex position of `eccentricity`, so this has to
         # name the offending value rather than fail converting it to a vertex.
         @test_throws "is not a vertex of the graph" eccentricity(gi, weights(gi))
+        # The same report from a graph type that computes codes rather than storing
+        # them, including for a coordinate that is outside the grid.
+        gg = NamedGridGraph((2, 2))
+        @test_throws ArgumentError encode_vertex(gg, "z")
+        @test_throws "\"z\" is not a vertex of the graph" encode_vertex(gg, "z")
+        @test_throws ArgumentError encode_vertex(gg, (3, 1))
+        @test_throws "(3, 1) is not a vertex of the graph" encode_vertex(gg, (3, 1))
     end
     @testset "Edge codes" begin
         g = NamedGraph(path_graph(3), ["a", "b", "c"])
