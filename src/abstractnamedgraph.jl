@@ -591,6 +591,29 @@ already in `graph` is not added and does not count.
 This is a method of `Graphs.add_vertices!`, whose other form takes a count of
 vertices to append. A named graph cannot invent names, so an integer here is a
 vertex name rather than a count.
+
+# Examples
+
+```jldoctest
+julia> using Graphs: add_vertices!, vertices
+
+julia> using NamedGraphs: NamedGraph
+
+julia> g = NamedGraph([1, 2, 3]);
+
+julia> add_vertices!(g, 5)
+1
+
+julia> collect(vertices(g))
+4-element Vector{Int64}:
+ 1
+ 2
+ 3
+ 5
+
+julia> add_vertices!(g, [3, 4])
+1
+```
 """
 Graphs.add_vertices!(graph::AbstractNamedGraph, vs) = add_vertices!_namedgraph(graph, vs)
 # Disambiguates against `Graphs.add_vertices!(::AbstractGraph, ::Integer)`, whose
@@ -612,9 +635,25 @@ returning how many were removed. A vertex not in `graph` does not count.
 This is a method of `Graphs.rem_vertices!`, and it deliberately differs from the
 `Graphs.SimpleGraph` and `SimpleDiGraph` methods, the only ones Graphs.jl
 provides, which throw for a vertex outside `1:nv(graph)` and return a vector
-mapping new vertex labels back to old ones. Named vertices are
-stable under removal, so there is nothing to map, and a name that is not present
-is simply not removed.
+mapping new vertex labels back to old ones. Named vertices are stable under
+removal, so there is nothing to map, and a name that is not present is simply not
+removed.
+
+# Examples
+
+```jldoctest
+julia> using Graphs: ne, rem_vertices!, vertices
+
+julia> using NamedGraphs: named_path_graph
+
+julia> g = named_path_graph(3);
+
+julia> rem_vertices!(g, [2, 4])
+1
+
+julia> (collect(vertices(g)), ne(g))
+([1, 3], 0)
+```
 """
 function Graphs.rem_vertices!(graph::AbstractNamedGraph, vs)
     # `collect` because `vs` is commonly `vertices(graph)`, a live view that removing
@@ -627,6 +666,21 @@ end
     add_vertices(graph::AbstractNamedGraph, vs)
 
 A copy of `graph` with the vertices `vs` added.
+
+# Examples
+
+```jldoctest
+julia> using Graphs: nv
+
+julia> using NamedGraphs: NamedGraph, add_vertices
+
+julia> g = NamedGraph(["a", "b"]);
+
+julia> h = add_vertices(g, ["c", "d"]);
+
+julia> (nv(g), nv(h))
+(2, 4)
+```
 """
 function GraphsExtensions.add_vertices(graph::AbstractNamedGraph, vs)
     graph = copy(graph)
@@ -638,6 +692,21 @@ end
     rem_vertices(graph::AbstractNamedGraph, vs)
 
 A copy of `graph` with the vertices `vs` removed, along with their incident edges.
+
+# Examples
+
+```jldoctest
+julia> using Graphs: nv
+
+julia> using NamedGraphs: named_path_graph, rem_vertices
+
+julia> g = named_path_graph(3);
+
+julia> h = rem_vertices(g, [2]);
+
+julia> (nv(g), nv(h))
+(3, 2)
+```
 """
 function GraphsExtensions.rem_vertices(graph::AbstractNamedGraph, vs)
     graph = copy(graph)

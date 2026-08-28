@@ -176,6 +176,26 @@ end
 
 The subgraph of `graph` induced by the given vertices, or by the vertices
 selected by the filter function `f`. Vertex names are preserved.
+
+# Examples
+
+```jldoctest
+julia> using Graphs: edges, vertices
+
+julia> using NamedGraphs: NamedEdge, named_grid, subgraph
+
+julia> g = named_grid((2, 2));
+
+julia> collect(edges(subgraph(g, [(1, 1), (2, 1), (2, 2)])))
+2-element Vector{NamedEdge{Tuple{Int64, Int64}}}:
+ (1, 1) => (2, 1)
+ (2, 1) => (2, 2)
+
+julia> collect(vertices(subgraph(v -> first(v) == 1, g)))
+2-element Vector{Tuple{Int64, Int64}}:
+ (1, 1)
+ (1, 2)
+```
 """
 function subgraph(graph::AbstractGraph, vertices)
     subgraph, _ = induced_subgraph(graph, vertices)
@@ -274,11 +294,23 @@ end
 
 Edges incident to the vertex `vertex`.
 
-`dir ∈ (:in, :out, :both)`, defaults to `:out`.
+`dir ∈ (:in, :out, :both)`, defaults to `:out`. The interface is similar to
+[Graphs.adjacency_matrix](https://juliagraphs.org/Graphs.jl/v1.7/algorithms/linalg/#Graphs.LinAlg.adjacency_matrix).
 
 For undirected graphs, returns all incident edges.
 
-Like: https://juliagraphs.org/Graphs.jl/v1.7/algorithms/linalg/#Graphs.LinAlg.adjacency_matrix
+# Examples
+
+```jldoctest
+julia> using NamedGraphs: NamedEdge, incident_edges, named_grid
+
+julia> g = named_grid((2, 2));
+
+julia> incident_edges(g, (1, 1))
+2-element Vector{NamedEdge{Tuple{Int64, Int64}}}:
+ (1, 1) => (2, 1)
+ (1, 1) => (1, 2)
+```
 """
 function incident_edges(graph::AbstractGraph, vertex; dir = :out)
     if dir == :out
@@ -552,6 +584,25 @@ in `graph`, or one naming a vertex `graph` does not have, is not added and does
 not count, following `Graphs.add_edge!`.
 
 See also [`add_edges`](@ref) for the non-mutating form.
+
+# Examples
+
+```jldoctest
+julia> using Graphs: ne
+
+julia> using NamedGraphs: NamedGraph, add_edges!
+
+julia> g = NamedGraph(["a", "b", "c"]);
+
+julia> add_edges!(g, ["a" => "b", "b" => "c"])
+2
+
+julia> add_edges!(g, ["a" => "b", "a" => "z"])
+0
+
+julia> ne(g)
+2
+```
 """
 function add_edges!(g::AbstractGraph, edges)
     return count(e -> add_edge!(g, edgetype(g)(e)), edges)
@@ -561,6 +612,21 @@ end
     add_edges(graph::AbstractGraph, edges)
 
 A copy of `graph` with `edges` added. See also [`add_edges!`](@ref).
+
+# Examples
+
+```jldoctest
+julia> using Graphs: ne
+
+julia> using NamedGraphs: NamedGraph, add_edges
+
+julia> g = NamedGraph(["a", "b", "c"]);
+
+julia> h = add_edges(g, ["a" => "b", "b" => "c"]);
+
+julia> (ne(g), ne(h))
+(0, 2)
+```
 """
 function add_edges(g::AbstractGraph, edges)
     g = copy(g)
@@ -582,6 +648,22 @@ how many were removed. An edge not in `graph` does not count, following
 `Graphs.rem_edge!`.
 
 See also [`rem_edges`](@ref) for the non-mutating form.
+
+# Examples
+
+```jldoctest
+julia> using Graphs: ne
+
+julia> using NamedGraphs: named_path_graph, rem_edges!
+
+julia> g = named_path_graph(3);
+
+julia> rem_edges!(g, [1 => 2, 1 => 3])
+1
+
+julia> ne(g)
+1
+```
 """
 function rem_edges!(g::AbstractGraph, edges)
     return count(e -> rem_edge!(g, edgetype(g)(e)), edges)
@@ -592,6 +674,21 @@ end
 
 A copy of `graph` with `edges` removed. See also
 [`rem_edges!`](@ref rem_edges!(::AbstractGraph, ::Any)).
+
+# Examples
+
+```jldoctest
+julia> using Graphs: ne
+
+julia> using NamedGraphs: named_path_graph, rem_edges
+
+julia> g = named_path_graph(3);
+
+julia> h = rem_edges(g, [1 => 2]);
+
+julia> (ne(g), ne(h))
+(2, 1)
+```
 """
 function rem_edges(g::AbstractGraph, edges)
     g = copy(g)
