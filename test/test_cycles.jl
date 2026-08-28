@@ -1,7 +1,7 @@
 using Graphs: edges, ne, vertices
-using NamedGraphs.GraphsExtensions: degree, edge_subgraph, is_connected, rem_vertex
-using NamedGraphs: leafless_edge_induced_subgraphs, named_comb_tree, named_grid,
-    named_hexagonal_lattice_graph
+using NamedGraphs.GraphsExtensions: degree, is_connected
+using NamedGraphs: edge_subgraph, leafless_edge_induced_subgraphs, named_comb_tree,
+    named_grid, named_hexagonal_lattice_graph, rem_vertex
 using Test: @test, @testset
 
 @testset "leafless_edge_induced_subgraphs" begin

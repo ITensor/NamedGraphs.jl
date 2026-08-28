@@ -1,6 +1,5 @@
 using Graphs: has_edge, is_connected
-using NamedGraphs.GraphsExtensions: add_edges!, rem_edges!
-using NamedGraphs: NamedGraph, named_grid
+using NamedGraphs: NamedGraph, add_edges!, named_grid, rem_edges!
 using Test: @test, @testset
 
 @testset "Adding and Removing Edge Lists" begin

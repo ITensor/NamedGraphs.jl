@@ -3,9 +3,7 @@ using Graphs: Graphs, AbstractGraph, a_star, add_vertices!, center, connected_co
     diameter, edges, has_edge, has_vertex, is_connected, is_directed, is_tree, ne,
     neighbors, nv, radius, random_regular_graph, rem_vertex!, vertices
 using Metis: Metis
-using NamedGraphs.GraphsExtensions: add_edges!, boundary_edges, default_root_vertex,
-    edgetype, forest_cover, is_path_graph, is_self_loop, spanning_forest, spanning_tree,
-    subgraph, vertextype
+using NamedGraphs.GraphsExtensions: edgetype, is_path_graph, is_self_loop
 using NamedGraphs.PartitionedGraphs: AbstractPartitionedGraph, PartitionedGraph,
     PartitionedGraphs, PartitionedView, QuotientEdge, QuotientEdgeEdge, QuotientEdgeEdges,
     QuotientEdgeSlice, QuotientEdges, QuotientEdgesEdges, QuotientVertex,
@@ -15,8 +13,10 @@ using NamedGraphs.PartitionedGraphs: AbstractPartitionedGraph, PartitionedGraph,
     partitionedgraph, quotient_graph, quotientedge, quotientedges, quotientvertex,
     quotientvertices, rem_quotientvertex!, to_quotient_index, unpartition,
     unpartitioned_graph
-using NamedGraphs: NamedGraphs, Edges, NamedEdge, NamedGraph, Vertices, named_comb_tree,
-    named_grid, named_triangular_lattice_graph, parent_graph_indices, to_graph_index
+using NamedGraphs: NamedGraphs, Edges, NamedEdge, NamedGraph, Vertices, add_edges!,
+    boundary_edges, default_root_vertex, forest_cover, named_comb_tree, named_grid,
+    named_triangular_lattice_graph, parent_graph_indices, spanning_forest, spanning_tree,
+    subgraph, to_graph_index, vertextype
 using Pkg: Pkg
 using Test: @test, @test_throws, @testset
 

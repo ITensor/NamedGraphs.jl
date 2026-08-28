@@ -1,7 +1,14 @@
-using .GraphsExtensions: rem_edges, rem_vertices, similar_graph, similar_simplegraph
+using .GraphsExtensions: similar_dataless_graph, similar_graph, similar_simplegraph
+using Graphs: edges, vertices
 using SimpleTraits: SimpleTraits, @traitfn, Not
 
 # =================================== `similar_graph` ==================================== #
+
+function GraphsExtensions.similar_graph(graph::AbstractNamedGraph)
+    newgraph = similar_graph(graph, vertices(graph))
+    add_edges!(newgraph, edges(graph))
+    return newgraph
+end
 
 function GraphsExtensions.similar_graph(graph::AbstractNamedGraph, vertices)
     return similar_namedgraph(graph, vertices)
@@ -34,6 +41,12 @@ end
 # =============================== `similar_dataless_graph` =============================== #
 # This function behaves much the same as `similar_graph`, but should strictly return a
 # a similar graph type that has no notion of data (in the abstract sense).
+
+function GraphsExtensions.similar_dataless_graph(graph::AbstractNamedGraph)
+    dataless_graph = similar_dataless_graph(graph, vertices(graph))
+    add_edges!(dataless_graph, edges(graph))
+    return dataless_graph
+end
 
 function GraphsExtensions.similar_dataless_graph(graph::AbstractNamedGraph, vertices)
     return similar_dataless_namedgraph(graph, vertices)

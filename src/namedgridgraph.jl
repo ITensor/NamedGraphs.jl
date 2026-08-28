@@ -40,7 +40,14 @@ Base.show(io::IO, eiter::NamedGridEdgeIter) = show(io, collect(eiter))
 grid_length(g) = prod(grid_size(g))
 grid_ndims(g) = length(grid_size(g))
 nv_grid(g) = grid_length(g)
-has_vertex_grid(g, v) = CartesianIndex(v) in CartesianIndices(grid_size(g))
+function has_vertex_grid(g, v)
+    # `Integer` rather than `Int` because `(Int32(1), Int32(1))` names the vertex
+    # `(1, 1)`, as it does in `NamedGraph`, where `isequal` finds it. The bounds check
+    # avoids `CartesianIndex`, which converts to `Int` and so throws for a coordinate
+    # outside its range instead of reporting a non-vertex.
+    v isa NTuple{grid_ndims(g), Integer} || return false
+    return all(((vᵢ, sᵢ),) -> vᵢ in Base.OneTo(sᵢ), zip(v, grid_size(g)))
+end
 add_vertex_grid!(g, v) = error("Can't add vertices to immutable graph.")
 rem_vertex_grid!(g, v) = error("Can't remove vertices to immutable graph.")
 edgetype_grid(G::Type) = NamedEdge{NTuple{grid_ndims(G), Int}}
@@ -54,23 +61,20 @@ function ne_grid(g)
 end
 function plus_neighbors(g, v)
     ns = [v .+ oneelement_tuple(d, length(v)) for d in Base.OneTo(grid_ndims(g))]
-    if !ishypertorus(g)
-        ns = filter(ns) do n
-            return CartesianIndex(n) in CartesianIndices(grid_size(g))
-        end
-    end
-    return ns
+    # A hypertorus connects the boundaries, so a coordinate stepping off the grid wraps
+    # around to the far side. Otherwise it simply isn't a neighbor.
+    ishypertorus(g) && return [mod1.(n, grid_size(g)) for n in ns]
+    return filter(n -> has_vertex(g, n), ns)
 end
 function minus_neighbors(g, v)
-    ns = [v .- oneelement_tuple(d, length(v)) for d in 1:grid_ndims(g)]
-    if !ishypertorus(g)
-        ns = filter(ns) do n
-            return CartesianIndex(n) in CartesianIndices(grid_size(g))
-        end
-    end
-    return ns
+    ns = [v .- oneelement_tuple(d, length(v)) for d in Base.OneTo(grid_ndims(g))]
+    ishypertorus(g) && return [mod1.(n, grid_size(g)) for n in ns]
+    return filter(n -> has_vertex(g, n), ns)
 end
-neighbors_grid(g, v) = [minus_neighbors(g, v); plus_neighbors(g, v)]
+function neighbors_grid(g, v)
+    has_vertex(g, v) || throw(ArgumentError("$(repr(v)) is not a vertex of the graph."))
+    return [minus_neighbors(g, v); plus_neighbors(g, v)]
+end
 function has_edge_grid(g, s, d)
     has_vertex(g, s) || return false
     has_vertex(g, d) || return false
@@ -93,6 +97,18 @@ edges_grid(g) = NamedGridEdgeIter(g)
 # `ishypertorus = true` connects the boundaries. `named_grid` is the mutable equivalent.
 struct NamedGridGraph{N, ishypertorus} <: AbstractNamedGraph{NTuple{N, Int}}
     grid_size::NTuple{N, Int}
+    function NamedGridGraph{N, ishypertorus}(grid_size) where {N, ishypertorus}
+        # Wrapping a dimension of size 1 makes a vertex its own neighbor, and size 2 makes
+        # its plus and minus neighbors coincide, neither of which a simple graph can express.
+        if ishypertorus && any(<(3), grid_size)
+            throw(
+                ArgumentError(
+                    "A hypertorus requires every dimension to have size 3 or more, got grid size $(grid_size)."
+                )
+            )
+        end
+        return new{N, ishypertorus}(grid_size)
+    end
 end
 function NamedGridGraph(grid_size::NTuple{N, Int}, ishypertorus::Bool = false) where {N}
     return NamedGridGraph{N, ishypertorus}(grid_size)
@@ -100,6 +116,10 @@ end
 # Minimal interface functions
 # `encoded_graph` uses the generic `EncodedGraphView` fallback.
 function encode_vertex(g::NamedGridGraph, vertex)
+    # Membership is just a bounds check here, unlike the dictionary lookup in
+    # `NamedGraph`, so checking it up front costs nothing worth avoiding.
+    has_vertex(g, vertex) ||
+        throw(ArgumentError("$(repr(vertex)) is not a vertex of the graph."))
     return LinearIndices(grid_size(g))[CartesianIndex(vertex)]
 end
 function decode_vertex(g::NamedGridGraph, code::Integer)

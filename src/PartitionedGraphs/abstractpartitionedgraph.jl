@@ -6,8 +6,38 @@ using Dictionaries: Dictionary
 using Graphs: Graphs, AbstractEdge, AbstractGraph, AbstractSimpleGraph, add_vertex!, dst,
     edgetype, has_vertex, is_directed, rem_vertex!, src, vertices
 
-# For you own graph type `g`, you should define a method for this function if you
-# desire custom partitioning.
+"""
+    partitioned_vertices(graph::AbstractGraph)
+
+The partitioning of the vertices of `graph`: a mapping from each quotient vertex
+to the collection of vertices of `graph` it contains. Overload this on your own
+graph type to give it a non-trivial partitioning; the fallback puts every vertex
+into a single quotient vertex.
+
+# Examples
+
+```jldoctest
+julia> using Graphs: path_graph
+
+julia> using NamedGraphs: NamedGraph
+
+julia> using NamedGraphs.PartitionedGraphs: PartitionedGraph, partitioned_vertices
+
+julia> g = NamedGraph(path_graph(4), ["a", "b", "c", "d"]);
+
+julia> pvs = partitioned_vertices(PartitionedGraph(g, [["a", "b"], ["c", "d"]]));
+
+julia> pvs[1]
+2-element Vector{String}:
+ "a"
+ "b"
+
+julia> pvs[2]
+2-element Vector{String}:
+ "c"
+ "d"
+```
+"""
 partitioned_vertices(g::AbstractGraph) = [vertices(g)]
 
 #TODO: Write this in terms of traits
@@ -20,7 +50,39 @@ function similar_quotient_graph(g::AbstractGraph)
     return convert_vertextype(keytype(partitioned_vertices(g)), sg)
 end
 
-# For fast quotient edge checking and graph construction, one should overload this function.
+"""
+    quotient_graph(graph::AbstractGraph)
+
+The graph on the quotient vertices of `graph`, with an edge between two quotient
+vertices whenever `graph` has an edge between them. Its vertices are the quotient
+vertices themselves rather than [`QuotientVertex`](@ref) wrappers, and
+[`QuotientView`](@ref) is the corresponding lazy view that mutates `graph` when
+it is mutated.
+
+Overload this on your own graph type for fast quotient graph construction and
+fast quotient level `has_edge`; the fallback builds it from
+[`partitioned_vertices`](@ref) and the edges of `graph`.
+
+# Examples
+
+```jldoctest
+julia> using Graphs: ne, nv, path_graph, vertices
+
+julia> using NamedGraphs: NamedGraph
+
+julia> using NamedGraphs.PartitionedGraphs: PartitionedGraph, quotient_graph
+
+julia> g = NamedGraph(path_graph(4), ["a", "b", "c", "d"]);
+
+julia> qg = quotient_graph(PartitionedGraph(g, [["a", "b"], ["c", "d"]]));
+
+julia> (nv(qg), ne(qg))
+(2, 1)
+
+julia> issetequal(vertices(qg), [1, 2])
+true
+```
+"""
 function quotient_graph(g::AbstractGraph)
     qg = similar_quotient_graph(g)
 
@@ -55,14 +117,6 @@ function partitioned_edges(g::AbstractGraph)
     return dict
 end
 
-"""
-    is_partition_boundary_edge(graph::AbstractGraph, edge) -> Bool
-
-Whether `edge` of `graph` crosses between two different quotient vertices, as
-opposed to being contained inside a single one. Equivalently, whether the
-quotient edge [`quotientedge(graph, edge)`](@ref quotientedge) is not a
-self-loop.
-"""
 function is_partition_boundary_edge(pg::AbstractGraph, edge)
     p_edge = quotientedge(pg, edge)
     return src(p_edge) != dst(p_edge)
@@ -74,8 +128,10 @@ end
 
 The [`QuotientEdge`](@ref)s of `graph` that connect the given quotient vertices
 to the quotient vertices outside of them, i.e. the boundary edges of
-`quotientvertices` in the quotient graph of `graph`. Returns a
-`Vector{<:QuotientEdge}`.
+`quotientvertices` in the quotient graph of `graph`. Returns an `AbstractVector`
+of [`QuotientEdge`](@ref)s; the concrete type is not part of the interface, and
+the result may be a view into `graph`, so do not modify it or use it after
+mutating `graph`.
 
 Keyword arguments are forwarded to `GraphsExtensions.boundary_edges`, in
 particular `dir`, which selects the edge direction to consider in a directed
@@ -189,8 +245,19 @@ function unpartition(pg::AbstractGraph)
     return unpartition(g)
 end
 
-# Required for interface
+"""
+    unpartitioned_graph(graph::AbstractPartitionedGraph)
+
+The graph that was partitioned to make `graph`, without the partitioning. Every
+[`AbstractPartitionedGraph`](@ref) subtype must overload this, on top of the
+partitioned graph interface documented in [`PartitionedGraphs`](@ref).
+
+[`departition`](@ref) is the equivalent that also accepts graphs that are not
+partitioned, returning them as-is.
+"""
 unpartitioned_graph(::AbstractPartitionedGraph) = not_implemented()
+
+# Required for interface
 Base.copy(::AbstractPartitionedGraph) = not_implemented()
 
 function unpartitioned_graph_type(::Type{<:AbstractPartitionedGraph})

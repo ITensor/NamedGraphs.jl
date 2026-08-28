@@ -76,6 +76,10 @@ end
 
 Return the set of vertices in the graph `g` associated with the quotient vertex
 `quotientvertex` or set of quotient vertices `quotientvertices`.
+
+The result can alias the partitioning stored in `g`, so do not modify it and do
+not use it after mutating `g`. Rely only on it being an `AbstractVector` of
+vertices.
 """
 function Graphs.vertices(g::AbstractGraph, quotientvertex::QuotientVertex)
     qv = parent(quotientvertex)
@@ -91,14 +95,6 @@ function Graphs.vertices(g::AbstractGraph, quotientvertices::QuotientVertices)
     return unique(mapreduce(qv -> vertices(g, qv), vcat, quotientvertices))
 end
 
-"""
-    has_quotientvertex(g::AbstractGraph, quotientvertex::QuotientVertex) -> Bool
-
-Whether the quotient vertex `quotientvertex` exists in the quotient graph of
-`g`, i.e. whether `g` has a partition with that name.
-
-See also: [`has_quotientedge`](@ref).
-"""
 function has_quotientvertex(g::AbstractGraph, quotientvertex::QuotientVertex)
     # Can't use `haskey` since it is not defined on vectors.
     return parent(quotientvertex) ∈ keys(partitioned_vertices(g))
@@ -114,18 +110,8 @@ function Graphs.rem_vertices!(g::AbstractNamedGraph, sv::QuotientVertex)
     return count(v -> rem_vertex!(g, v), vertices(g, sv))
 end
 
-"""
-    rem_quotientvertex!(g::AbstractGraph, quotientvertex::QuotientVertex)
-
-Remove, in place, all of the vertices of `g` contained in the quotient vertex
-`quotientvertex`, which also removes `quotientvertex` from the quotient graph of
-`g`.
-
-Returns the number of vertices removed, like `rem_vertices!`. A quotient vertex
-is never empty, so `0` means `quotientvertex` was not in the quotient graph.
-
-See also: [`rem_quotientedge!`](@ref), [`has_quotientvertex`](@ref).
-"""
+# Returns the number of vertices removed, like `rem_vertices!`. A quotient vertex
+# is never empty, so `0` unambiguously means `sv` was not in the quotient graph.
 function rem_quotientvertex!(pg::AbstractGraph, sv::QuotientVertex)
     has_quotientvertex(pg, sv) || return 0
     return Graphs.rem_vertices!(pg, sv)

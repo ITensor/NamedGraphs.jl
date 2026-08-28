@@ -3,14 +3,10 @@
 
 Generic extensions of the Graphs.jl interface.
 
-The functions here are defined against `Graphs.AbstractGraph` rather than
-against named graphs, so they work for any graph type, including
-`Graphs.SimpleGraph`. They cover subgraphs and vertex/edge removal
-(`subgraph`, `rem_vertices`, `rem_edges!`), trees and forests
-(`is_tree`, `root_vertex`, `forest_cover_edge_sequence`), neighborhoods and
-boundaries (`incident_edges`, `boundary_vertices`), directedness conversions
-(`directed_graph`, `undirected_graph`), graph partitioning backends
-(`partition_vertices`), and edge arranging (`arrange_edge`).
+Covers subgraphs, tree queries and traversals, neighborhoods and boundaries,
+edge arranging, and vertex partitioning. Most of it is defined against
+`Graphs.AbstractGraph` rather than against named graphs, so it works for any
+graph type, including `Graphs.SimpleGraph`.
 """
 module GraphsExtensions
 
@@ -18,9 +14,10 @@ module GraphsExtensions
 # this submodule. Everything else stays reachable by qualifying or by
 # `using NamedGraphs.GraphsExtensions: name`, and moves here as it gets a
 # docstring, which `Aqua.test_all(; undocumented_names = true)` requires.
-export add_edges,
-    add_edges!, add_vertices, incident_edges, rem_edges, rem_edges!,
-    rem_vertices, subgraph
+export boundary_edges,
+    convert_vertextype, default_root_vertex, in_incident_edges, incident_edges,
+    is_leaf_vertex, leaf_vertices, post_order_dfs_edges, post_order_dfs_vertices,
+    similar_graph, subgraph, vertextype
 
 include("graphgenerators.jl")
 include("abstractgraph.jl")

@@ -28,7 +28,6 @@ unpartition
 
 ```@docs; canonical=false
 QuotientView
-quotientview
 ```
 
 ## Quotient vertices and edges
@@ -36,13 +35,8 @@ quotientview
 ```@docs; canonical=false
 QuotientVertex
 quotientvertices
-has_quotientvertex
-rem_quotientvertex!
 QuotientEdge
 quotientedge
 quotientedges
-has_quotientedge
-rem_quotientedge!
 boundary_quotientedges
-is_partition_boundary_edge
 ```

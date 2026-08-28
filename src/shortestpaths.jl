@@ -41,6 +41,7 @@ function encoded_path_state_to_path_state(
     )
 end
 
+# Hook so the disambiguators below do not repeat the body.
 function dijkstra_shortest_paths_namedgraph(
         graph::AbstractNamedGraph,
         srcs,
@@ -60,10 +61,45 @@ function dijkstra_shortest_paths_namedgraph(
     return encoded_path_state_to_path_state(graph, encoded_path_state)
 end
 
+"""
+    dijkstra_shortest_paths(graph::AbstractNamedGraph, vs, distmx = weights(graph))
+
+Compute shortest paths in `graph` from the source vertices `vs`, returning a path
+state whose `parents`, `dists`, and `pathcounts` are keyed by vertex name.
+
+`vs` is a collection of sources, so a single source is passed as a one-element
+collection. A bare vertex is a different thing: `[(1, 1)]` is the one source
+`(1, 1)`, while `(1, 1)` is read as the two sources `1` and `1`, and `"ab"` as the
+two sources `'a'` and `'b'`.
+
+This is a method of `Graphs.dijkstra_shortest_paths`, whose other form takes a
+single integer source. An integer here is a vertex name rather than a vertex code,
+and a bare integer means one source.
+
+# Examples
+
+```jldoctest
+julia> using Graphs: dijkstra_shortest_paths
+
+julia> using NamedGraphs: named_grid
+
+julia> g = named_grid((2, 2));
+
+julia> state = dijkstra_shortest_paths(g, [(1, 1)]); # One source
+
+julia> state.dists[(2, 2)]
+2
+
+julia> state = dijkstra_shortest_paths(g, [(1, 1), (2, 2)]); # Two sources
+
+julia> state.dists[(2, 2)]
+0
+```
+"""
 function Graphs.dijkstra_shortest_paths(
-        graph::AbstractNamedGraph, srcs, distmx = weights(graph); kwargs...
+        graph::AbstractNamedGraph, vs, distmx = weights(graph); kwargs...
     )
-    return dijkstra_shortest_paths_namedgraph(graph, srcs, distmx; kwargs...)
+    return dijkstra_shortest_paths_namedgraph(graph, vs, distmx; kwargs...)
 end
 
 # Mirror the `AbstractGraph` signatures in Graphs.jl so the wrappers are not
@@ -85,7 +121,9 @@ function Graphs.dijkstra_shortest_paths(
         distmx::AbstractMatrix = weights(graph);
         kwargs...
     )
-    return dijkstra_shortest_paths_namedgraph(graph, [vertex], distmx; kwargs...)
+    # Not wrapped in a collection: `map` treats a `Number` as a scalar, so an integer
+    # source reaches the single-source method in Graphs.jl.
+    return dijkstra_shortest_paths_namedgraph(graph, vertex, distmx; kwargs...)
 end
 
 for f in [

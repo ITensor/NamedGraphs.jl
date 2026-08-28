@@ -1,6 +1,30 @@
 using Graphs: AbstractGraph, dst, src, vertices
 
 # https://en.wikipedia.org/wiki/Boundary_(graph_theory)
+"""
+    boundary_edges(graph::AbstractGraph, subgraph_vertices; dir=:out)
+
+The edges of `graph` with one endpoint in `subgraph_vertices` and the other
+outside of it. `dir` orients the returned edges as in [`incident_edges`](@ref),
+so by default each one points from the vertex inside to the vertex outside.
+
+The result may be a view into `graph` rather than freshly allocated storage:
+do not modify it, and do not use it after mutating `graph`. Its concrete
+`AbstractVector` type is not part of the interface.
+
+# Examples
+
+```jldoctest
+julia> using NamedGraphs: NamedEdge, boundary_edges, named_grid
+
+julia> g = named_grid((2, 2));
+
+julia> es = boundary_edges(g, [(1, 1), (1, 2)]);
+
+julia> issetequal(es, [NamedEdge((1, 1) => (2, 1)), NamedEdge((1, 2) => (2, 2))])
+true
+```
+"""
 function boundary_edges(graph::AbstractGraph, subgraph_vertices; dir = :out)
     E = edgetype(graph)
     subgraph_vertices_set = Set(subgraph_vertices)

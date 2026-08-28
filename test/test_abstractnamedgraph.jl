@@ -5,11 +5,10 @@ using Graphs: Graphs, AbstractGraph, DiGraph, Graph, SimpleDiGraph, SimpleEdge, 
     floyd_warshall_shortest_paths, grid, has_edge, has_path, has_vertex,
     johnson_shortest_paths, ne, nv, path_graph, rem_edge!, spfa_shortest_paths,
     steiner_tree, vertices, weights, yen_k_shortest_paths
-using NamedGraphs.GraphsExtensions: GraphsExtensions, add_vertices, eccentricities,
-    edgeless_graph, empty_graph, rem_vertices, similar_dataless_graph, similar_graph,
-    subgraph
+using NamedGraphs.GraphsExtensions: GraphsExtensions, eccentricities, similar_dataless_graph
 using NamedGraphs: NamedGraphs, AbstractNamedGraph, NamedDiGraph, NamedEdge, NamedGraph,
-    encoded_graph, named_grid, named_path_graph, rename_vertices
+    add_vertices, edgeless_graph, empty_graph, encoded_graph, named_grid, named_path_graph,
+    rem_vertices, rename_vertices, similar_graph, subgraph
 using Test: @test, @test_throws, @testset
 
 # A callable that is not a `Function`, to check that heuristics are not
@@ -256,9 +255,8 @@ end
     # so the two must agree.
     @test issetequal(common_neighbors(named, "a", "c"), ["b"])
     @test eccentricity(named, "a") == eccentricity(g, 1)
-    # A vector of sources, since a scalar non-integer vertex is currently read
-    # as a collection of sources: see the `dijkstra_shortest_paths` scalar-source
-    # gap in the v0.14 plan.
+    # A one-element collection, since `dijkstra_shortest_paths` reads its second
+    # argument as a collection of sources.
     @test dijkstra_shortest_paths(named, ["a"]).dists["d"] ==
         dijkstra_shortest_paths(g, 1).dists[4]
 end
@@ -286,6 +284,26 @@ end
     bounded = dijkstra_shortest_paths(g, 1; maxdist = 1)
     @test unbounded.dists[4] == 3
     @test bounded.dists[4] == typemax(Int)
+end
+
+@testset "AbstractNamedGraph dijkstra sources" begin
+    g = named_grid((2, 2))
+
+    single = dijkstra_shortest_paths(g, [(1, 1)])
+    @test single.dists == Dictionary(vertices(g), [0, 1, 1, 2])
+
+    multiple = dijkstra_shortest_paths(g, [(1, 1), (2, 2)])
+    @test multiple.dists == Dictionary(vertices(g), [0, 1, 1, 0])
+
+    # An integer in a vertex position is a vertex name, and means one source.
+    h = NamedGraph(path_graph(4))
+    @test dijkstra_shortest_paths(h, 1).dists == dijkstra_shortest_paths(h, [1]).dists
+
+    # A bare tuple vertex is read as the two sources `1` and `1`, neither of
+    # which is a vertex of this graph, and the error names the offending source.
+    @test_throws ArgumentError dijkstra_shortest_paths(g, (1, 1))
+    @test_throws "1 is not a vertex of the graph" dijkstra_shortest_paths(g, (1, 1))
+    @test_throws ArgumentError dijkstra_shortest_paths(g, [(1, 1), (5, 5)])
 end
 
 @testset "AbstractNamedGraph eccentricity is singular" begin

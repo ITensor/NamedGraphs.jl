@@ -1,4 +1,4 @@
-using .GraphsExtensions: add_edges!, comb_tree
+using .GraphsExtensions: comb_tree
 using Graphs.SimpleGraphs: AbstractSimpleGraph
 using Graphs: IsDirected, bfs_tree, binary_tree, cycle_graph, grid, inneighbors,
     merge_vertices, nv, outneighbors, path_digraph, path_graph, rem_vertex!, rem_vertices!

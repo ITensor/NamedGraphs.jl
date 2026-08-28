@@ -1,21 +1,13 @@
 using Dictionaries: Dictionary, Indices, dictionary
 using Graphs: Graphs, AbstractEdge, AbstractGraph, AbstractSimpleGraph, IsDirected,
-    SimpleDiGraph, SimpleGraph, a_star, add_edge!, add_vertex!, degree, dfs_tree,
-    eccentricity, edges, edgetype, has_edge, has_vertex, indegree, induced_subgraph,
-    inneighbors, is_connected, is_cyclic, is_directed, is_tree, ne, neighbors, nv,
-    outdegree, outneighbors, rem_edge!, rem_vertex!, vertices, weights, Δ
+    SimpleDiGraph, SimpleGraph, a_star, add_edge!, degree, dfs_tree, eccentricity, edges,
+    edgetype, has_edge, has_vertex, indegree, induced_subgraph, inneighbors, is_connected,
+    is_cyclic, is_directed, is_tree, ne, neighbors, nv, outdegree, outneighbors, vertices,
+    weights, Δ
 using SimpleTraits: SimpleTraits, @traitfn, Not
 using SplitApplyCombine: groupfind
 
 not_implemented() = error("Not implemented")
-
-# Only meaningful for named graphs, so the methods live in NamedGraphs proper.
-# `Graphs.add_vertices!` takes a count rather than a collection, and
-# `Graphs.rem_vertices!` throws for an unknown vertex where a named graph
-# forgives, so neither of these is generic over `AbstractGraph`.
-function add_vertices end
-function rem_vertices end
-function empty_graph end
 
 is_self_loop(e::AbstractEdge) = src(e) == dst(e)
 is_self_loop(e::Pair) = first(e) == last(e)
@@ -28,6 +20,16 @@ undirected_graph_type(::Type{<:AbstractGraph}) = not_implemented()
 directed_graph_type(g::AbstractGraph) = directed_graph_type(typeof(g))
 undirected_graph_type(g::AbstractGraph) = undirected_graph_type(typeof(g))
 
+"""
+    convert_vertextype(V::Type, graph::AbstractGraph)
+    convert_vertextype(V::Type, G::Type{<:AbstractGraph})
+
+`graph` with its vertices converted to type `V`, or the graph type `G` with its
+vertex type set to `V`. A graph or type that already has vertex type `V` is
+returned unchanged; any other case needs a method from the graph type.
+
+See also [`vertextype`](@ref).
+"""
 convert_vertextype(::Type{V}, G::AbstractGraph{V}) where {V} = G
 convert_vertextype(::Type, ::AbstractGraph) = not_implemented()
 
@@ -36,12 +38,17 @@ convert_vertextype(::Type, ::Type{<:AbstractGraph}) = not_implemented()
 
 # ==================================== similar_graph ===================================== #
 
-# Generic for any `AbstractGraph`.
-function similar_graph(graph::AbstractGraph)
-    newgraph = similar_graph(graph, vertices(graph))
-    add_edges!(newgraph, edges(graph))
-    return newgraph
-end
+"""
+    similar_graph(graph::AbstractNamedGraph)
+    similar_graph(graph::AbstractGraph, vertices)
+    similar_graph(G::Type{<:AbstractGraph})
+    similar_graph(G::Type{<:AbstractGraph}, vertices)
+
+A new graph like `graph`, or of type `G`, with vertices `vertices` and no edges.
+Given a graph and no vertices, the result has the same vertices and edges as
+`graph`; given a type and no vertices, it is empty.
+"""
+function similar_graph end
 
 similar_graph(graph::AbstractGraph, vertices) = similar_simplegraph(graph, vertices)
 
@@ -84,12 +91,6 @@ similar_graph(T::Type{<:AbstractSimpleGraph}) = similar_graph(T, 0)
 # This function behaves much the same as `similar_graph`, but should strictly return a
 # a similar graph type that has no notion of data (in the abstract sense).
 
-function similar_dataless_graph(graph::AbstractGraph)
-    dataless_graph = similar_dataless_graph(graph, vertices(graph))
-    add_edges!(dataless_graph, edges(graph))
-    return dataless_graph
-end
-
 function similar_dataless_graph(graph::AbstractGraph, vertices)
     return similar_dataless_simplegraph(graph, vertices)
 end
@@ -107,26 +108,29 @@ end
     return SimpleDiGraph(nv)
 end
 
-edgeless_graph(graph::AbstractGraph) = rem_edges(graph, edges(graph))
+"""
+    vertextype(graph::AbstractGraph)
+    vertextype(G::Type{<:AbstractGraph})
+    vertextype(edge::AbstractEdge)
+    vertextype(E::Type{<:AbstractEdge})
 
-@traitfn directed_graph(graph::::IsDirected) = graph
-@traitfn undirected_graph(graph::::(!IsDirected)) = graph
+The type of the vertices of a graph, or of the source and destination of an
+edge. Works in the type domain as well as on instances.
 
-@traitfn function directed_graph(graph::AbstractGraph::(!IsDirected))
-    digraph = similar_graph(directed_graph_type(graph), vertices(graph))
-    add_edges!(digraph, all_edges(graph))
-    return digraph
-end
-@traitfn function undirected_graph(graph::AbstractGraph::IsDirected)
-    undigraph = similar_graph(undirected_graph_type(graph), vertices(graph))
-    for e in edges(graph)
-        has_edge(undigraph, e) && continue
-        add_edge!(undigraph, e)
-    end
-    return undigraph
-end
+# Examples
 
-# Similar to `eltype`, but `eltype` doesn't work on types
+```jldoctest
+julia> using Graphs: SimpleGraph
+
+julia> using NamedGraphs: named_grid, vertextype
+
+julia> vertextype(named_grid((2, 2)))
+Tuple{Int64, Int64}
+
+julia> vertextype(SimpleGraph{Int})
+Int64
+```
+"""
 vertextype(::Type{<:AbstractGraph{V}}) where {V} = V
 vertextype(graph::AbstractGraph) = vertextype(typeof(graph))
 
@@ -176,6 +180,26 @@ end
 
 The subgraph of `graph` induced by the given vertices, or by the vertices
 selected by the filter function `f`. Vertex names are preserved.
+
+# Examples
+
+```jldoctest
+julia> using Graphs: edges, vertices
+
+julia> using NamedGraphs: NamedEdge, named_grid, subgraph
+
+julia> g = named_grid((2, 2));
+
+julia> collect(edges(subgraph(g, [(1, 1), (2, 1), (2, 2)])))
+2-element Vector{NamedEdge{Tuple{Int64, Int64}}}:
+ (1, 1) => (2, 1)
+ (2, 1) => (2, 2)
+
+julia> collect(vertices(subgraph(v -> first(v) == 1, g)))
+2-element Vector{Tuple{Int64, Int64}}:
+ (1, 1)
+ (1, 2)
+```
 """
 function subgraph(graph::AbstractGraph, vertices)
     subgraph, _ = induced_subgraph(graph, vertices)
@@ -186,13 +210,6 @@ end
 # converting to `NamedGraph`?
 function subgraph(f::Function, graph::AbstractGraph)
     return subgraph(graph, filter(f, vertices(graph)))
-end
-
-function edge_subgraph(graph::AbstractGraph, edgelist::Vector{<:AbstractEdge})
-    vs = unique(vcat(src.(edgelist), dst.(edgelist)))
-    g = subgraph(graph, vs)
-    rem_edges!(g, setdiff(edges(g), edgelist))
-    return g
 end
 
 function degrees(graph::AbstractGraph, vertices = vertices(graph))
@@ -255,6 +272,14 @@ function out_incident_edges(graph::AbstractGraph, vertex)
     ]
 end
 
+"""
+    in_incident_edges(graph::AbstractGraph, vertex)
+
+Edges of `graph` pointing into `vertex`, one for each in-neighbor. Equivalent to
+[`incident_edges`](@ref) with `dir = :in`, and carrying the same caveats: the
+output may be a read-only view into `graph`, is invalidated by mutating `graph`,
+and is only promised to be an `AbstractVector`.
+"""
 function in_incident_edges(graph::AbstractGraph, vertex)
     return [
         edgetype(graph)(neighbor_vertex, vertex) for
@@ -274,11 +299,27 @@ end
 
 Edges incident to the vertex `vertex`.
 
-`dir ∈ (:in, :out, :both)`, defaults to `:out`.
+`dir ∈ (:in, :out, :both)`, defaults to `:out`. The interface is similar to
+[Graphs.adjacency_matrix](https://juliagraphs.org/Graphs.jl/v1.7/algorithms/linalg/#Graphs.LinAlg.adjacency_matrix).
 
 For undirected graphs, returns all incident edges.
 
-Like: https://juliagraphs.org/Graphs.jl/v1.7/algorithms/linalg/#Graphs.LinAlg.adjacency_matrix
+The output may be a view into the graph's own data, so treat it as read-only and
+discard it before mutating `graph`. Only its `AbstractVector` interface is
+promised; the concrete type may change.
+
+# Examples
+
+```jldoctest
+julia> using NamedGraphs: NamedEdge, incident_edges, named_grid
+
+julia> g = named_grid((2, 2));
+
+julia> incident_edges(g, (1, 1))
+2-element Vector{NamedEdge{Tuple{Int64, Int64}}}:
+ (1, 1) => (2, 1)
+ (1, 1) => (1, 2)
+```
 """
 function incident_edges(graph::AbstractGraph, vertex; dir = :out)
     if dir == :out
@@ -290,6 +331,16 @@ function incident_edges(graph::AbstractGraph, vertex; dir = :out)
     end
     return error("dir = $dir not supported.")
 end
+
+"""
+    is_leaf_vertex(graph::AbstractGraph, vertex)
+
+Whether `vertex` is a leaf of `graph`: for an undirected graph, that it has
+exactly one neighbor; for a directed graph, that it has no children.
+
+See also [`leaf_vertices`](@ref).
+"""
+function is_leaf_vertex end
 
 # Get the leaf vertices of a tree-like graph
 #
@@ -325,6 +376,23 @@ end
     return map(child -> edgetype(graph)(vertex, child), child_vertices(graph, vertex))
 end
 
+"""
+    leaf_vertices(graph::AbstractGraph)
+
+The vertices of `graph` that are leaves in the sense of
+[`is_leaf_vertex`](@ref).
+
+# Examples
+
+```jldoctest
+julia> using NamedGraphs: leaf_vertices, named_comb_tree
+
+julia> g = named_comb_tree((3, 2));
+
+julia> issetequal(leaf_vertices(g), [(1, 2), (2, 2), (3, 2)])
+true
+```
+"""
 function leaf_vertices(graph::AbstractGraph)
     # @assert !is_cyclic(graph)
     return filter(v -> is_leaf_vertex(graph, v), vertices(graph))
@@ -404,6 +472,19 @@ end
 # Graph iteration
 #
 
+"""
+    post_order_dfs_vertices(graph::AbstractGraph, root_vertex)
+
+The vertices of the tree `graph` in
+[post-order depth-first](https://en.wikipedia.org/wiki/Tree_traversal#Depth-first_search)
+order, so each vertex comes after its children and `root_vertex` comes last. An
+undirected `graph` is first oriented away from `root_vertex` with
+`Graphs.dfs_tree`.
+
+See also [`post_order_dfs_edges`](@ref).
+"""
+function post_order_dfs_vertices end
+
 @traitfn function post_order_dfs_vertices(graph::::(!IsDirected), root_vertex)
     dfs_tree_graph = dfs_tree(graph, root_vertex)
     return post_order_dfs_vertices(dfs_tree_graph, root_vertex)
@@ -426,6 +507,26 @@ end
     # @assert is_tree(graph)
     return map(nodevalue, PreOrderDFS(tree_graph_node(graph, root_vertex)))
 end
+
+"""
+    post_order_dfs_edges(graph::AbstractGraph, root_vertex)
+
+One edge of the tree `graph` for each vertex besides `root_vertex`, ordered by
+[`post_order_dfs_vertices`](@ref) and directed from that vertex towards its
+parent, so the sequence sweeps inwards to `root_vertex`.
+
+# Examples
+
+```jldoctest
+julia> using NamedGraphs: NamedEdge, named_path_graph, post_order_dfs_edges
+
+julia> post_order_dfs_edges(named_path_graph(3), 3)
+2-element Vector{NamedEdge{Int64}}:
+ 1 => 2
+ 2 => 3
+```
+"""
+function post_order_dfs_edges end
 
 @traitfn function post_order_dfs_edges(graph::::(!IsDirected), root_vertex)
     dfs_tree_graph = dfs_tree(graph, root_vertex)
@@ -524,79 +625,6 @@ end
 function mincut_partitions(graph::AbstractGraph, distmx = weights(graph))
     parts = groupfind(first(Graphs.mincut(graph, distmx)))
     return parts[1], parts[2]
-end
-
-function add_vertex(g::AbstractGraph, vs)
-    g = copy(g)
-    add_vertex!(g, vs)
-    return g
-end
-
-function rem_vertex(g::AbstractGraph, vs)
-    g = copy(g)
-    rem_vertex!(g, vs)
-    return g
-end
-
-function add_edge(g::AbstractGraph, edge)
-    g = copy(g)
-    add_edge!(g, edgetype(g)(edge))
-    return g
-end
-
-"""
-    add_edges!(graph::AbstractGraph, edges)
-
-Add `edges` to `graph` in place, returning how many were added. An edge already
-in `graph`, or one naming a vertex `graph` does not have, is not added and does
-not count, following `Graphs.add_edge!`.
-
-See also [`add_edges`](@ref) for the non-mutating form.
-"""
-function add_edges!(g::AbstractGraph, edges)
-    return count(e -> add_edge!(g, edgetype(g)(e)), edges)
-end
-
-"""
-    add_edges(graph::AbstractGraph, edges)
-
-A copy of `graph` with `edges` added. See also [`add_edges!`](@ref).
-"""
-function add_edges(g::AbstractGraph, edges)
-    g = copy(g)
-    add_edges!(g, edges)
-    return g
-end
-
-function rem_edge(g::AbstractGraph, edge)
-    g = copy(g)
-    rem_edge!(g, edgetype(g)(edge))
-    return g
-end
-
-"""
-    rem_edges!(graph::AbstractGraph, edges)
-
-Remove `edges` from `graph` in place, leaving its vertices alone and returning
-how many were removed. An edge not in `graph` does not count, following
-`Graphs.rem_edge!`.
-
-See also [`rem_edges`](@ref) for the non-mutating form.
-"""
-function rem_edges!(g::AbstractGraph, edges)
-    return count(e -> rem_edge!(g, edgetype(g)(e)), edges)
-end
-
-"""
-    rem_edges(graph::AbstractGraph, edges)
-
-A copy of `graph` with `edges` removed. See also
-[`rem_edges!`](@ref rem_edges!(::AbstractGraph, ::Any)).
-"""
-function rem_edges(g::AbstractGraph, edges)
-    g = copy(g)
-    rem_edges!(g, edges)
-    return g
 end
 
 eccentricities(graph::AbstractGraph) = eccentricities(graph, vertices(graph))

@@ -1,7 +1,6 @@
-using ..NamedGraphs.GraphsExtensions:
-    GraphsExtensions, not_implemented, rem_edge, rem_edges!
+using ..NamedGraphs.GraphsExtensions: GraphsExtensions, not_implemented
 using ..NamedGraphs: AbstractEdges, AbstractNamedEdge, AbstractNamedGraph, Edges,
-    NamedGraphs, parent_graph_indices, to_edges
+    NamedGraphs, parent_graph_indices, rem_edges!, to_edges
 using Graphs: Graphs, AbstractEdge, AbstractGraph, dst, has_edge, ne, src
 
 struct QuotientEdgeSlice{V, E, GI <: AbstractEdges{V, E}} <: AbstractEdges{V, E}
@@ -48,6 +47,14 @@ function quotientedge(g::AbstractGraph, edge::AbstractEdge)
     return QuotientEdge(quotient_graph_edgetype(g)(qv_src => qv_dst))
 end
 
+"""
+    QuotientEdges(edges)
+    QuotientEdges(graph::AbstractGraph)
+
+A collection of quotient edges, which iterates [`QuotientEdge`](@ref)s.
+`QuotientEdges(graph)` holds every quotient edge of `graph`, and
+[`quotientedges`](@ref) returns one of these.
+"""
 struct QuotientEdges{V, E, Es} <: AbstractEdges{V, E}
     edges::Es
     function QuotientEdges(edges::Es) where {Es}
@@ -93,6 +100,10 @@ end
 
 Return the set of edges in the graph `g` that correspond to a single quotient edge or
 a list of quotient edges.
+
+As with `vertices(g, ::QuotientVertex)`, the result can alias the
+partitioning stored in `g`: treat it as read-only, discard it when `g` changes,
+and rely only on it being an `AbstractVector` of edges.
 """
 function Graphs.edges(pg::AbstractGraph, quotientedge::QuotientEdge)
     pes = partitioned_edges(pg)
@@ -111,11 +122,6 @@ function Graphs.edges(pg::AbstractGraph, quotientedges::QuotientEdges)
     return unique(reduce(vcat, [edges(pg, qe) for qe in quotientedges]))
 end
 
-"""
-    has_quotientedge(g::AbstractGraph, qe::QuotientEdge) -> Bool
-
-Returns true if the quotient edge `qe` exists in the quotient graph of `g`.
-"""
 function has_quotientedge(g::AbstractGraph, se::QuotientEdge)
     return has_edge(quotient_graph(g), parent(se))
 end
@@ -130,28 +136,18 @@ See also: `nv`.
 Graphs.ne(g::AbstractGraph, se::QuotientEdge) = length(edges(g, se))
 
 """
-    rem_edges!(g::AbstractGraph, qe::QuotientEdge)
+    rem_edges!(g::AbstractNamedGraph, qe::QuotientEdge)
 
 Remove, in place, all the edges of `g` that correspond to the quotient edge `qe`.
 Returns the number of edges removed.
 """
-function GraphsExtensions.rem_edges!(g::AbstractGraph, sv::QuotientEdge)
+function NamedGraphs.rem_edges!(g::AbstractNamedGraph, sv::QuotientEdge)
     return rem_edges!(g, edges(g, sv))
 end
 
-"""
-    rem_quotientedge!(g::AbstractGraph, quotientedge::QuotientEdge)
-
-Remove, in place, all of the edges of `g` that correspond to the quotient edge
-`quotientedge`, which also removes `quotientedge` from the quotient graph of
-`g`. The vertices of `g` are left alone.
-
-Returns the number of edges removed, like `rem_edges!`. A quotient edge always
-corresponds to at least one edge, so `0` means `quotientedge` was not in the
-quotient graph.
-
-See also: [`rem_quotientvertex!`](@ref), [`has_quotientedge`](@ref).
-"""
+# Returns the number of edges removed, like `rem_edges!`. A quotient edge always
+# corresponds to at least one edge, so `0` unambiguously means `se` was not in
+# the quotient graph.
 function rem_quotientedge!(g::AbstractGraph, se::QuotientEdge)
     has_quotientedge(g, se) || return 0
     return rem_edges!(g, se)

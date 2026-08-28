@@ -1,9 +1,9 @@
 using Dictionaries: AbstractDictionary, AbstractIndices, Dictionary
-using Graphs: AbstractEdgeIter, add_edge!, add_vertex!, edges, has_edge, has_vertex, ne,
-    neighbors, nv, path_graph, rem_vertex!, vertices
+using Graphs: AbstractEdgeIter, add_edge!, add_vertex!, eccentricity, edges, has_edge,
+    has_vertex, ne, neighbors, nv, path_graph, rem_vertex!, vertices, weights
 using NamedGraphs: NamedGraphs, NamedEdge, NamedGraph, NamedGridGraph, decode_edge,
     decode_vertex, encode_edge, encode_vertex, encoded_graph
-using Test: @test, @testset
+using Test: @test, @test_throws, @testset
 
 @testset "Vertex codes" begin
     @testset "encode_vertex and decode_vertex are inverse bijections" begin
@@ -11,6 +11,28 @@ using Test: @test, @testset
         @test all(c -> encode_vertex(g, decode_vertex(g, c)) == c, 1:nv(g))
         @test all(v -> decode_vertex(g, encode_vertex(g, v)) == v, vertices(g))
         @test sort(map(v -> encode_vertex(g, v), collect(vertices(g)))) == 1:nv(g)
+    end
+    @testset "encode_vertex reports values that aren't vertices" begin
+        g = NamedGraph(path_graph(3), ["a", "b", "c"])
+        @test_throws ArgumentError encode_vertex(g, "z")
+        @test_throws "\"z\" is not a vertex of the graph" encode_vertex(g, "z")
+        # A value of the wrong type entirely, which is the case that reaches
+        # `encode_vertex` when an argument Graphs.jl would reinterpret by type stays
+        # a vertex here.
+        gi = NamedGraph(path_graph(3))
+        @test_throws "(1, 1) is not a vertex of the graph" encode_vertex(gi, (1, 1))
+        @test_throws "\"z\" is not a vertex of the graph" encode_vertex(gi, "z")
+        @test_throws ArgumentError encode_vertex(gi, weights(gi))
+        # `weights(g)` sits in the vertex position of `eccentricity`, so this has to
+        # name the offending value rather than fail converting it to a vertex.
+        @test_throws "is not a vertex of the graph" eccentricity(gi, weights(gi))
+        # The same report from a graph type that computes codes rather than storing
+        # them, including for a coordinate that is outside the grid.
+        gg = NamedGridGraph((2, 2))
+        @test_throws ArgumentError encode_vertex(gg, "z")
+        @test_throws "\"z\" is not a vertex of the graph" encode_vertex(gg, "z")
+        @test_throws ArgumentError encode_vertex(gg, (3, 1))
+        @test_throws "(3, 1) is not a vertex of the graph" encode_vertex(gg, (3, 1))
     end
     @testset "Edge codes" begin
         g = NamedGraph(path_graph(3), ["a", "b", "c"])

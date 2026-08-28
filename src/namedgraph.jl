@@ -39,7 +39,15 @@ end
 for T in (:NamedGraph, :NamedDiGraph)
     @eval begin
         encoded_graph(graph::$T) = graph.encoded_graph
-        encode_vertex(graph::$T, vertex) = graph.encoded_vertices[vertex]
+        function encode_vertex(graph::$T, vertex)
+            # A single lookup, so that checking membership costs nothing when the
+            # vertex is there. Indexing directly would report a missing vertex as a
+            # `convert` error from inside Dictionaries.jl.
+            code = get(graph.encoded_vertices, vertex, nothing)
+            isnothing(code) &&
+                throw(ArgumentError("$(repr(vertex)) is not a vertex of the graph."))
+            return code
+        end
         decode_vertex(graph::$T, code::Integer) = graph.decoded_vertices[code]
 
         Graphs.vertices(graph::$T) = keys(graph.encoded_vertices)
