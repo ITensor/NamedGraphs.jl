@@ -1,7 +1,5 @@
-using ..NamedGraphs.GraphsExtensions:
-    GraphsExtensions, convert_vertextype, not_implemented, subgraph
-using ..NamedGraphs:
-    AbstractNamedGraph, NamedDiGraph, NamedGraph, NamedGraphs, get_graph_index
+using ..NamedGraphs: AbstractNamedGraph, NamedDiGraph, NamedGraph, NamedGraphs,
+    convert_vertextype, get_graph_index, not_implemented, subgraph
 using Dictionaries: Dictionary
 using Graphs: Graphs, AbstractEdge, AbstractGraph, AbstractSimpleGraph, add_vertex!, dst,
     edgetype, has_vertex, is_directed, rem_vertex!, src, vertices
@@ -133,7 +131,7 @@ of [`QuotientEdge`](@ref)s; the concrete type is not part of the interface, and
 the result may be a view into `graph`, so do not modify it or use it after
 mutating `graph`.
 
-Keyword arguments are forwarded to `GraphsExtensions.boundary_edges`, in
+Keyword arguments are forwarded to `boundary_edges`, in
 particular `dir`, which selects the edge direction to consider in a directed
 graph.
 """
@@ -263,10 +261,10 @@ Base.copy(::AbstractPartitionedGraph) = not_implemented()
 function unpartitioned_graph_type(::Type{<:AbstractPartitionedGraph})
     return not_implemented()
 end
-function GraphsExtensions.directed_graph_type(::Type{<:AbstractPartitionedGraph})
+function NamedGraphs.directed_graph_type(::Type{<:AbstractPartitionedGraph})
     return not_implemented()
 end
-function GraphsExtensions.undirected_graph_type(::Type{<:AbstractPartitionedGraph})
+function NamedGraphs.undirected_graph_type(::Type{<:AbstractPartitionedGraph})
     return not_implemented()
 end
 

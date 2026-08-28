@@ -98,6 +98,10 @@ and edges used internally.
   override these hooks rather than the Graphs.jl functions themselves, which
   means a subtype no longer needs its own `::Integer` disambiguator
   ([#187](https://github.com/ITensor/NamedGraphs.jl/pull/187)).
+- The `GraphsExtensions` submodule is removed. Its contents are in `NamedGraphs`
+  directly, so `using NamedGraphs.GraphsExtensions: boundary_edges` becomes
+  `using NamedGraphs: boundary_edges`
+  ([#190](https://github.com/ITensor/NamedGraphs.jl/pull/190)).
 
 ### Non-breaking changes
 

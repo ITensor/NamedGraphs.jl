@@ -15,9 +15,3 @@ Modules = [NamedGraphs]
 ```@autodocs
 Modules = [NamedGraphs.PartitionedGraphs]
 ```
-
-## GraphsExtensions
-
-```@autodocs
-Modules = [NamedGraphs.GraphsExtensions]
-```

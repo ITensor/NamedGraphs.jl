@@ -1,4 +1,3 @@
-using .GraphsExtensions: GraphsExtensions, convert_vertextype
 using Graphs: Graphs, AbstractEdge, dst, src
 
 abstract type AbstractNamedEdge{V} <: AbstractEdge{V} end
@@ -10,12 +9,12 @@ Graphs.dst(e::AbstractNamedEdge) = not_implemented()
 
 AbstractNamedEdge(e::AbstractNamedEdge) = e
 
-function GraphsExtensions.convert_vertextype(
+function convert_vertextype(
         ::Type{V}, E::Type{<:AbstractNamedEdge{V}}
     ) where {V}
     return E
 end
-function GraphsExtensions.convert_vertextype(::Type, E::Type{<:AbstractNamedEdge})
+function convert_vertextype(::Type, E::Type{<:AbstractNamedEdge})
     return not_implemented()
 end
 
@@ -39,15 +38,15 @@ function Base.:(==)(e1::AbstractNamedEdge, e2::AbstractNamedEdge)
 end
 Base.hash(e::AbstractNamedEdge, h::UInt) = hash(src(e), hash(dst(e), h))
 
-# TODO: Define generic version in `GraphsExtensions`.
-# TODO: Define generic `set_vertices` in `GraphsExtensions`.
+# TODO: Define generic version.
+# TODO: Define generic `set_vertices`.
 set_src(e::AbstractNamedEdge, src) = set_vertices(e, src, dst(e))
-# TODO: Define generic version in `GraphsExtensions`.
-# TODO: Define generic `set_vertices` in `GraphsExtensions`.
+# TODO: Define generic version.
+# TODO: Define generic `set_vertices`.
 set_dst(e::AbstractNamedEdge, dst) = set_vertices(e, src(e), dst)
 
 function rename_vertices(f::Function, e::AbstractNamedEdge)
-    # TODO: Define generic `set_vertices` in `GraphsExtensions`.
+    # TODO: Define generic `set_vertices`.
     return set_vertices(e, f(src(e)), f(dst(e)))
 end
 

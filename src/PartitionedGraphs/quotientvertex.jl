@@ -1,6 +1,5 @@
-using ..NamedGraphs.GraphsExtensions: GraphsExtensions, subgraph
 using ..NamedGraphs: AbstractNamedGraph, AbstractVertices, Edges, NamedGraphs, Vertices,
-    parent_graph_indices, to_graph_index, to_vertices
+    parent_graph_indices, subgraph, to_graph_index, to_vertices
 using Graphs: Graphs, AbstractGraph, induced_subgraph, nv
 
 struct QuotientVertexSlice{V, GI <: AbstractVertices{V}} <: AbstractVertices{V}
@@ -128,8 +127,8 @@ function Base.getindex(qv::QuotientVertex, v::Vertices)
     return QuotientVertexVertices(qv.vertex, v.vertices)
 end
 
-GraphsExtensions.vertextype(::Type{<:QuotientVertexVertex{V}}) where {V} = V
-GraphsExtensions.vertextype(::Type{<:QuotientVertexVertex}) = Any
+NamedGraphs.vertextype(::Type{<:QuotientVertexVertex{V}}) where {V} = V
+NamedGraphs.vertextype(::Type{<:QuotientVertexVertex}) = Any
 
 quotient_vertextype(::Type{<:QuotientVertexVertex{V, QV}}) where {V, QV} = QV
 

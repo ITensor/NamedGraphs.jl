@@ -1,5 +1,3 @@
-using .GraphsExtensions: GraphsExtensions, all_edges, directed_graph_type, incident_edges,
-    partition_vertices, similar_graph, subgraph, undirected_graph_type
 using Dictionaries: Dictionary, set!
 using Graphs: Graphs, AbstractGraph, AbstractSimpleGraph, IsDirected, SimpleDiGraph,
     SimpleEdge, SimpleGraph, a_star, add_edge!, adjacency_matrix, bfs_parents, blockdiag,
@@ -180,7 +178,7 @@ julia> [decode_vertex(g, c) for c in 1:nv(g)]
 Graphs.vertices(graph::AbstractNamedGraph) = NamedVerticesView(graph)
 
 # TODO: Is this a good definition? Maybe make it generic to any graph?
-function GraphsExtensions.permute_vertices(graph::AbstractNamedGraph, permutation)
+function permute_vertices(graph::AbstractNamedGraph, permutation)
     return subgraph(graph, map(c -> decode_vertex(graph, c), permutation))
 end
 
@@ -192,8 +190,8 @@ end
 # In terms of `encoded_graph_type`
 # is_directed(::Type{<:AbstractNamedGraph}) = not_implemented()
 
-GraphsExtensions.convert_vertextype(::Type{V}, g::AbstractNamedGraph{V}) where {V} = g
-function GraphsExtensions.convert_vertextype(vertextype::Type, graph::AbstractNamedGraph)
+convert_vertextype(::Type{V}, g::AbstractNamedGraph{V}) where {V} = g
+function convert_vertextype(vertextype::Type, graph::AbstractNamedGraph)
     new_vertices = map(c -> decode_vertex(graph, c), vertices(encoded_graph(graph)))
     return namedgraph(copy(encoded_graph(graph)), convert(Vector{vertextype}, new_vertices))
 end
@@ -491,7 +489,7 @@ function Graphs.mincut(graph::AbstractNamedGraph, distmx::AbstractMatrix{<:Numbe
 end
 
 # TODO: Make this more generic?
-function GraphsExtensions.partition_vertices(
+function partition_vertices(
         graph::AbstractNamedGraph; npartitions = nothing, nvertices_per_partition = nothing,
         kwargs...
     )

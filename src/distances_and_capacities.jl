@@ -4,12 +4,12 @@ using LinearAlgebra: Symmetric
 using SimpleTraits: SimpleTraits, @traitfn, Not
 using SparseArrays: sparse, spzeros
 
-# TODO: Move to `GraphsExtensions`.
+# TODO: Generalize to any `Graphs.AbstractGraph`.
 function _symmetrize(dist::AbstractMatrix)
     return sparse(Symmetric(dist))
 end
 
-# TODO: Move to `GraphsExtensions`.
+# TODO: Generalize to any `Graphs.AbstractGraph`.
 function _symmetrize(dist)
     symmetrized_dist = copy(dist)
     for k in keys(dist)
@@ -18,7 +18,7 @@ function _symmetrize(dist)
     return symmetrized_dist
 end
 
-# TODO: Move to `GraphsExtensions`.
+# TODO: Generalize to any `Graphs.AbstractGraph`.
 function _symmetrize(dist::AbstractDictionary)
     symmetrized_dist = copy(dist)
     for k in keys(dist)

@@ -7,8 +7,6 @@ using Graphs: Graphs, AbstractEdge, AbstractGraph, AbstractSimpleGraph, IsDirect
 using SimpleTraits: SimpleTraits, @traitfn, Not
 using SplitApplyCombine: groupfind
 
-not_implemented() = error("Not implemented")
-
 is_self_loop(e::AbstractEdge) = src(e) == dst(e)
 is_self_loop(e::Pair) = first(e) == last(e)
 

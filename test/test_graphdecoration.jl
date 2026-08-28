@@ -1,6 +1,6 @@
 using Graphs: a_star, edges, vertices
-using NamedGraphs.GraphsExtensions: decorate_graph_edges, decorate_graph_vertices
-using NamedGraphs: named_grid, named_hexagonal_lattice_graph
+using NamedGraphs:
+    decorate_graph_edges, decorate_graph_vertices, named_grid, named_hexagonal_lattice_graph
 using Test: @test, @testset
 
 @testset "Decorated Graphs" begin
