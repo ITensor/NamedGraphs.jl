@@ -1,21 +1,15 @@
-using .GraphsExtensions: comb_tree
 using Graphs.SimpleGraphs: AbstractSimpleGraph
 using Graphs: IsDirected, bfs_tree, binary_tree, cycle_graph, grid, inneighbors,
-    merge_vertices, nv, outneighbors, path_digraph, path_graph, rem_vertex!, rem_vertices!
+    merge_vertices, nv, path_digraph, path_graph, rem_vertex!, rem_vertices!
 using SimpleTraits: SimpleTraits, @traitfn, Not
 
 ## TODO: Bring this back in some form?
-## TODO: Move to `GraphsExtensions`?
+## TODO: Generalize to any `Graphs.AbstractGraph`?
 ## @traitfn function parent(tree::AbstractSimpleGraph::IsDirected, v::Integer)
 ##   return only(inneighbors(tree, v))
 ## end
 
-## TODO: Move to `GraphsExtensions`?
-@traitfn function children(tree::AbstractSimpleGraph::IsDirected, v::Integer)
-    return outneighbors(tree, v)
-end
-
-## TODO: Move to `GraphsExtensions`?
+## TODO: Generalize to any `Graphs.AbstractGraph`?
 @traitfn function set_named_vertices!(
         vertex_names::AbstractVector,
         tree::AbstractSimpleGraph::IsDirected,
@@ -23,7 +17,7 @@ end
         named_parent;
         child_name = identity
     )
-    simple_children = children(tree, simple_parent)
+    simple_children = child_vertices(tree, simple_parent)
     for n in 1:length(simple_children)
         simple_child = simple_children[n]
         named_child = [named_parent; child_name(n)]

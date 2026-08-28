@@ -30,6 +30,7 @@ decode_edge
 
 ## Graphs.jl interface extensions
 
-```@docs; canonical=false
-GraphsExtensions
-```
+NamedGraphs also defines generic extensions of the Graphs.jl interface. Many of
+them are written against `Graphs.AbstractGraph` rather than against named graphs,
+so they work for any graph type, including `Graphs.SimpleGraph`. The rest need
+vertices that carry names and are only defined for [`AbstractNamedGraph`](@ref).

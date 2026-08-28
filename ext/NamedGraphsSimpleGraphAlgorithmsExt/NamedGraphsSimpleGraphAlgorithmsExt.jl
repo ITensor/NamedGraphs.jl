@@ -1,6 +1,5 @@
 module NamedGraphsSimpleGraphAlgorithmsExt
 using Graphs: AbstractGraph, dst, edges, edgetype, src, vertices
-using NamedGraphs.GraphsExtensions: GraphsExtensions
 using NamedGraphs: AbstractNamedGraph, decode_vertex, encoded_graph
 using SimpleGraphAlgorithms: SimpleGraphAlgorithms
 using SimpleGraphs: UndirectedGraph, add!

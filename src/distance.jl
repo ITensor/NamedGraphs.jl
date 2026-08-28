@@ -1,4 +1,3 @@
-using .GraphsExtensions: eccentricities
 using Graphs: Graphs, dijkstra_shortest_paths, weights
 
 function eccentricity_namedgraph(graph::AbstractNamedGraph, vertex, distmx)

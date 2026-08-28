@@ -33,7 +33,7 @@ export ⊔, AbstractNamedGraph, NamedDiGraph, NamedEdge, NamedGraph,
     similar_graph, spanning_forest, spanning_tree, subgraph, undirected_graph,
     vertextype
 if VERSION >= v"1.11.0-DEV.469"
-    eval(Meta.parse("public GraphsExtensions, PartitionedGraphs"))
+    eval(Meta.parse("public PartitionedGraphs"))
     # The encode and decode interface is what a new `AbstractNamedGraph` overloads,
     # so it is public rather than exported.
     # `to_graph_index` is an indexing extension point that graph and index types
@@ -46,12 +46,17 @@ if VERSION >= v"1.11.0-DEV.469"
 end
 
 include("similartype.jl")
-include("GraphsExtensions/GraphsExtensions.jl")
-# The `GraphsExtensions` names re-exported below, listed here rather than relying
-# on the per-file imports that happen to bring them into scope.
-using .GraphsExtensions: boundary_edges, convert_vertextype, default_root_vertex,
-    in_incident_edges, incident_edges, is_leaf_vertex, leaf_vertices, post_order_dfs_edges,
-    post_order_dfs_vertices, similar_graph, subgraph, vertextype
+include("graphsextensions/graphgenerators.jl")
+include("graphsextensions/abstractgraph.jl")
+include("graphsextensions/abstracttrees.jl")
+include("graphsextensions/boundary.jl")
+include("graphsextensions/neighbors.jl")
+include("graphsextensions/shortestpaths.jl")
+include("graphsextensions/symrcm.jl")
+include("graphsextensions/partitioning.jl")
+include("graphsextensions/trees_and_forests.jl")
+include("graphsextensions/simplegraph.jl")
+include("graphsextensions/arrange_edges.jl")
 include("utils.jl")
 include("abstractnamededge.jl")
 include("namededge.jl")

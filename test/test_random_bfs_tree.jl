@@ -1,6 +1,5 @@
 using Graphs: bfs_tree, edges, is_connected, vertices
-using NamedGraphs.GraphsExtensions: random_bfs_tree
-using NamedGraphs: named_grid
+using NamedGraphs: named_grid, random_bfs_tree
 using Random: Random
 using Test: @test, @testset
 

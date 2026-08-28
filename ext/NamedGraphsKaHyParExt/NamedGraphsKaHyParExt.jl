@@ -1,10 +1,10 @@
 module NamedGraphsKaHyParExt
 using Graphs: AbstractSimpleGraph, incidence_matrix
 using KaHyPar: KaHyPar
-using NamedGraphs.GraphsExtensions: @Backend_str, GraphsExtensions
+using NamedGraphs: NamedGraphs, @Backend_str
 using SplitApplyCombine: groupfind
 
-GraphsExtensions.set_partitioning_backend!(Backend"kahypar"())
+NamedGraphs.set_partitioning_backend!(Backend"kahypar"())
 
 # KaHyPar configuration options
 #
@@ -33,7 +33,7 @@ const KAHYPAR_ALGS = Dict(
   - :connectivity => "km1_kKaHyPar_sea20.ini"
   - imbalance::Number=0.03
 """
-function GraphsExtensions.partition_vertices(
+function NamedGraphs.partition_vertices(
         ::Backend"kahypar",
         g::AbstractSimpleGraph,
         npartitions::Integer;

@@ -13,12 +13,12 @@ macro Backend_str(s)
     return :(Backend{$(Expr(:quote, Symbol(s)))})
 end
 
-# Process-wide default backend for `partition_vertices`, and dead in practice:
-# the `ext/` packages call `set_partitioning_backend!` at module top level, which
-# runs at precompile time and writes to a `Ref` in this package's image, so the
-# write is not replayed when the cached extension loads. It stays `missing` even
-# after `using Metis`, which is why `partition_vertices` needs an explicit
-# `backend`.
+# Process-wide default backend for `partition_vertices`. Setting it with
+# `set_partitioning_backend!` works, but nothing populates it automatically: the
+# `ext/` packages call the setter at module top level, which runs at precompile
+# time and writes to a `Ref` in this package's image, so the write is not replayed
+# when the cached extension loads. It is still `missing` after `using Metis`, so a
+# caller either sets the backend first or passes `backend` explicitly.
 const CURRENT_PARTITIONING_BACKEND = Ref{Union{Missing, Backend}}(missing)
 
 current_partitioning_backend() = CURRENT_PARTITIONING_BACKEND[]

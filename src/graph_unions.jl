@@ -2,8 +2,8 @@ using Dictionaries: Dictionary, dictionary
 using Graphs: AbstractGraph
 
 # Renaming vertices and taking disjoint unions only make sense for graphs whose
-# vertices are names, so they live here rather than in `GraphsExtensions`, which
-# holds extensions that apply to any `Graphs.AbstractGraph`.
+# vertices are names, unlike the Graphs.jl extensions here that apply to any
+# `Graphs.AbstractGraph`.
 
 """
     rename_vertices(f, graph::AbstractGraph)

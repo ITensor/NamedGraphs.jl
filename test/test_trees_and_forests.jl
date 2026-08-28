@@ -1,7 +1,7 @@
 using Graphs: connected_components, edges, is_tree, vertices
-using NamedGraphs.GraphsExtensions: GraphsExtensions, all_edges
-using NamedGraphs: NamedGraph, Vertices, forest_cover, named_comb_tree, named_grid,
-    named_hexagonal_lattice_graph, named_triangular_lattice_graph, spanning_tree, vertextype
+using NamedGraphs: BFS, DFS, NamedGraph, RandomBFS, Vertices, all_edges, forest_cover,
+    named_comb_tree, named_grid, named_hexagonal_lattice_graph,
+    named_triangular_lattice_graph, spanning_tree, vertextype
 using Test: @test, @testset
 
 gs = [
@@ -12,7 +12,7 @@ gs = [
     ("Square lattice", named_grid((10, 10))),
     ("Triangular Grid", named_triangular_lattice_graph(5, 5; periodic = true)),
 ]
-algs = (GraphsExtensions.BFS(), GraphsExtensions.DFS(), GraphsExtensions.RandomBFS())
+algs = (BFS(), DFS(), RandomBFS())
 
 @testset "Test Spanning Trees $g_string, $alg" for (g_string, g) in gs, alg in algs
     s_tree = spanning_tree(g; alg)

@@ -1,4 +1,3 @@
-using .GraphsExtensions: vertextype
 using Dictionaries: Dictionaries, AbstractDictionary, AbstractIndices
 using Graphs: AbstractEdge, AbstractEdgeIter, AbstractGraph, Edge, edges, edgetype,
     has_edge, has_vertex, ne, nv

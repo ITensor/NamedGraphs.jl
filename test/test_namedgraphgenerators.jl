@@ -1,9 +1,9 @@
 using Graphs: a_star, add_edge!, add_vertex!, degree, dst, edges, edgetype, has_edge,
     has_vertex, is_directed, ne, neighbors, nv, rem_edge!, rem_vertex!, src, vertices
-using NamedGraphs.GraphsExtensions: is_cycle_graph
 using NamedGraphs: NamedEdge, NamedGridGraph, decode_vertex, encode_vertex, grid_ndims,
-    grid_size, is_directed_grid, ishypertorus, named_binary_tree, named_cycle_graph,
-    named_grid, named_hexagonal_lattice_graph, named_triangular_lattice_graph, vertextype
+    grid_size, is_cycle_graph, is_directed_grid, ishypertorus, named_binary_tree,
+    named_cycle_graph, named_grid, named_hexagonal_lattice_graph,
+    named_triangular_lattice_graph, vertextype
 using Test: @test, @test_throws, @testset
 
 @testset "Named Graph Generators" begin

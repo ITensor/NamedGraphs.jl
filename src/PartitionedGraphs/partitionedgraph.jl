@@ -1,6 +1,5 @@
-using ..NamedGraphs.GraphsExtensions: GraphsExtensions, boundary_edges, directed_graph_type,
-    is_self_loop, partition_vertices, undirected_graph_type, vertextype
-using ..NamedGraphs: NamedEdge, NamedGraph, NamedGraphs
+using ..NamedGraphs: NamedEdge, NamedGraph, NamedGraphs, boundary_edges,
+    directed_graph_type, is_self_loop, partition_vertices, undirected_graph_type, vertextype
 using Dictionaries: Dictionary
 using Graphs: AbstractEdge, AbstractGraph, add_edge!, dst, edges, edgetype, has_edge,
     induced_subgraph, src, vertices
@@ -25,7 +24,7 @@ land in exactly one quotient vertex.
 
 Passing `partitioned_vertices` alone gives the discrete partitioning of an
 edgeless graph. Passing `graph` alone partitions with
-`GraphsExtensions.partition_vertices`, which the keyword arguments go to: it
+`partition_vertices`, which the keyword arguments go to: it
 needs either `npartitions` or `nvertices_per_partition`, and a backend such as
 Metis.jl loaded.
 
@@ -249,7 +248,7 @@ function NamedGraphs.directed_graph(g::PartitionedGraph)
     dg = NamedGraphs.directed_graph(unpartitioned_graph(g))
     return PartitionedGraph(dg, partitioned_vertices(g))
 end
-function GraphsExtensions.undirected_graph_type(
+function NamedGraphs.undirected_graph_type(
         type::Type{<:PartitionedGraph{V, PV}}
     ) where {V, PV}
     UG = undirected_graph_type(unpartitioned_graph_type(type))
@@ -257,7 +256,7 @@ function GraphsExtensions.undirected_graph_type(
     P = fieldtype(type, :partitioned_vertices)
     return PartitionedGraph{V, PV, UG, QG, P}
 end
-function GraphsExtensions.directed_graph_type(
+function NamedGraphs.directed_graph_type(
         type::Type{<:PartitionedGraph{V, PV}}
     ) where {V, PV}
     DG = directed_graph_type(unpartitioned_graph_type(type))

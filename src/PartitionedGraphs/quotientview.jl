@@ -1,6 +1,5 @@
-using ..NamedGraphs:
-    NamedGraph, encoded_graph_type, induced_subgraph_from_vertices, similar_type
-using .GraphsExtensions: directed_graph_type, undirected_graph_type
+using ..NamedGraphs: NamedGraph, directed_graph_type, encoded_graph_type,
+    induced_subgraph_from_vertices, similar_type, undirected_graph_type
 using Graphs: AbstractGraph, edges, has_edge, rem_edge!, rem_vertex!, vertices
 
 """
@@ -71,10 +70,10 @@ function NamedGraphs.encoded_graph_type(type::Type{<:QuotientView})
     return encoded_graph_type(quotient_graph_type(parent_graph_type(type)))
 end
 
-function NamedGraphs.GraphsExtensions.directed_graph_type(type::Type{<:QuotientView})
+function NamedGraphs.directed_graph_type(type::Type{<:QuotientView})
     return directed_graph_type(quotient_graph_type(parent_graph_type(type)))
 end
-function NamedGraphs.GraphsExtensions.undirected_graph_type(type::Type{<:QuotientView})
+function NamedGraphs.undirected_graph_type(type::Type{<:QuotientView})
     return undirected_graph_type(quotient_graph_type(parent_graph_type(type)))
 end
 

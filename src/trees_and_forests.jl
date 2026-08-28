@@ -1,6 +1,3 @@
-using .GraphsExtensions: BFS, DFS, RandomBFS, default_root_vertex,
-    default_spanning_tree_alg, post_order_dfs_edges, random_bfs_tree,
-    similar_dataless_graph, subgraph
 using Graphs: IsDirected, bfs_tree, connected_components, dfs_tree, edges, edgetype
 using SimpleTraits: SimpleTraits, @traitfn, Not
 

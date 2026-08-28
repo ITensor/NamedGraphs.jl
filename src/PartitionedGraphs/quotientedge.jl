@@ -1,6 +1,5 @@
-using ..NamedGraphs.GraphsExtensions: GraphsExtensions, not_implemented
 using ..NamedGraphs: AbstractEdges, AbstractNamedEdge, AbstractNamedGraph, Edges,
-    NamedGraphs, parent_graph_indices, rem_edges!, to_edges
+    NamedGraphs, not_implemented, parent_graph_indices, rem_edges!, to_edges
 using Graphs: Graphs, AbstractEdge, AbstractGraph, dst, has_edge, ne, src
 
 struct QuotientEdgeSlice{V, E, GI <: AbstractEdges{V, E}} <: AbstractEdges{V, E}
@@ -177,7 +176,7 @@ Graphs.edgetype(::Type{<:QuotientEdgeEdge{V, E}}) where {V, E} = E
 Graphs.edgetype(::Type{<:QuotientEdgeEdge{V}}) where {V} = AbstractNamedEdge{V}
 Graphs.edgetype(::Type{<:QuotientEdgeEdge}) = AbstractNamedEdge
 
-GraphsExtensions.vertextype(::Type{<:QuotientEdgeEdge{V, E}}) where {V, E} = V
+NamedGraphs.vertextype(::Type{<:QuotientEdgeEdge{V, E}}) where {V, E} = V
 
 quotient_edgetype(::Type{<:QuotientEdgeEdge{V, E, QE}}) where {V, E, QE} = QE
 

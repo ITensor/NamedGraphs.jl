@@ -11,14 +11,13 @@ using Graphs: Edge, a_star, add_edge!, add_vertex!, adjacency_matrix,
     prim_mst, radius, rem_edge!, rem_vertex!, spfa_shortest_paths, src, steiner_tree,
     topological_sort_by_dfs, vertices, yen_k_shortest_paths, Δ, δ
 using GraphsFlows: GraphsFlows
-using NamedGraphs.GraphsExtensions: GraphsExtensions, boundary_vertices, degrees,
-    dijkstra_mst, dijkstra_parents, dijkstra_tree, eccentricities, has_vertices, indegrees,
-    inner_boundary_vertices, mincut_partitions, outdegrees, outer_boundary_vertices,
-    permute_vertices, symrcm_perm, symrcm_permute
 using NamedGraphs: AbstractNamedEdge, NamedDiGraph, NamedEdge, NamedGraph, Vertices,
-    boundary_edges, convert_vertextype, edge_subgraph, incident_edges, named_binary_tree,
-    named_grid, named_hexagonal_lattice_graph, named_path_graph, rename_vertices, subgraph,
-    vertextype, ⊔
+    boundary_edges, boundary_vertices, convert_vertextype, degrees, dijkstra_mst,
+    dijkstra_parents, dijkstra_tree, eccentricities, edge_subgraph, has_vertices,
+    incident_edges, indegrees, inner_boundary_vertices, mincut_partitions,
+    named_binary_tree, named_grid, named_hexagonal_lattice_graph, named_path_graph,
+    outdegrees, outer_boundary_vertices, permute_vertices, rename_vertices, subgraph,
+    symrcm_perm, symrcm_permute, vertextype, ⊔
 using SymRCM: SymRCM
 using Test: @test, @test_broken, @testset
 

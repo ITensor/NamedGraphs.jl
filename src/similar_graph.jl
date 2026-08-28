@@ -1,16 +1,15 @@
-using .GraphsExtensions: similar_dataless_graph, similar_graph, similar_simplegraph
 using Graphs: edges, vertices
 using SimpleTraits: SimpleTraits, @traitfn, Not
 
 # =================================== `similar_graph` ==================================== #
 
-function GraphsExtensions.similar_graph(graph::AbstractNamedGraph)
+function similar_graph(graph::AbstractNamedGraph)
     newgraph = similar_graph(graph, vertices(graph))
     add_edges!(newgraph, edges(graph))
     return newgraph
 end
 
-function GraphsExtensions.similar_graph(graph::AbstractNamedGraph, vertices)
+function similar_graph(graph::AbstractNamedGraph, vertices)
     return similar_namedgraph(graph, vertices)
 end
 
@@ -34,7 +33,7 @@ similar_namedgraph(g::AbstractGraph, ::Base.OneTo) = similar_graph(g, collect(ve
 
 # Passing a type as a first argument attempts to call a constructor. Should be overloaded
 # if the constructor doesnt exist for a given `AbstractGraph` concrete type.
-function GraphsExtensions.similar_graph(T::Type{<:AbstractNamedGraph})
+function similar_graph(T::Type{<:AbstractNamedGraph})
     return similar_graph(T, vertextype(T)[])
 end
 
@@ -42,13 +41,13 @@ end
 # This function behaves much the same as `similar_graph`, but should strictly return a
 # a similar graph type that has no notion of data (in the abstract sense).
 
-function GraphsExtensions.similar_dataless_graph(graph::AbstractNamedGraph)
+function similar_dataless_graph(graph::AbstractNamedGraph)
     dataless_graph = similar_dataless_graph(graph, vertices(graph))
     add_edges!(dataless_graph, edges(graph))
     return dataless_graph
 end
 
-function GraphsExtensions.similar_dataless_graph(graph::AbstractNamedGraph, vertices)
+function similar_dataless_graph(graph::AbstractNamedGraph, vertices)
     return similar_dataless_namedgraph(graph, vertices)
 end
 
@@ -67,5 +66,5 @@ end
 end
 
 function similar_dataless_namedgraph(graph::AbstractNamedGraph, nv::Int)
-    return GraphsExtensions.similar_dataless_simplegraph(graph, nv)
+    return similar_dataless_simplegraph(graph, nv)
 end

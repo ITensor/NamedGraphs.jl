@@ -1,7 +1,6 @@
 module NamedGraphsGraphsFlowsExt
 using Graphs: AbstractGraph, IsDirected
 using GraphsFlows: GraphsFlows
-using NamedGraphs.GraphsExtensions: GraphsExtensions
 using NamedGraphs: NamedGraphs, AbstractNamedGraph, DefaultNamedCapacity, _symmetrize,
     decode_vertex, directed_graph, encode_dist_matrix, encode_vertex, encoded_graph
 using SimpleTraits: SimpleTraits, @traitfn
@@ -44,7 +43,7 @@ end
     )
 end
 
-function GraphsExtensions.mincut_partitions(
+function NamedGraphs.mincut_partitions(
         graph::AbstractGraph,
         source,
         target,

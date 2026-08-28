@@ -1,4 +1,3 @@
-using .GraphsExtensions: GraphsExtensions
 using Graphs: Graphs
 
 """
@@ -16,7 +15,7 @@ end
 NamedEdge(src::V, dst::V) where {V} = NamedEdge{V}(src, dst)
 NamedEdge(src, dst) = NamedEdge{promote_type(typeof(src), typeof(dst))}(src, dst)
 
-function GraphsExtensions.convert_vertextype(vertextype::Type, ::Type{<:NamedEdge})
+function convert_vertextype(vertextype::Type, ::Type{<:NamedEdge})
     return NamedEdge{vertextype}
 end
 
@@ -38,5 +37,5 @@ NamedEdge(p::Pair) = NamedEdge(p...)
 NamedEdge{V}(p::Pair) where {V} = NamedEdge{V}(p...)
 NamedEdge{V}(p::Tuple) where {V} = NamedEdge{V}(p...)
 
-# TODO: Define generic `set_vertices` in `GraphsExtensions`.
+# TODO: Define generic `set_vertices`.
 set_vertices(e::NamedEdge, src, dst) = NamedEdge(src, dst)

@@ -1,6 +1,5 @@
 using Graphs: ne, neighbors, nv, vertices
-using NamedGraphs.GraphsExtensions: comb_tree
-using NamedGraphs: named_comb_tree
+using NamedGraphs: comb_tree, named_comb_tree
 using Random: Random
 using Test: @test, @testset
 

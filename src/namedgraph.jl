@@ -1,4 +1,3 @@
-using .GraphsExtensions: GraphsExtensions, similar_graph, similar_simplegraph, vertextype
 using Dictionaries: Dictionary
 using Graphs.SimpleGraphs: AbstractSimpleGraph, SimpleDiGraph, SimpleGraph
 using Graphs: Graphs, AbstractGraph, IsDirected, add_edge!, add_vertex!, edgetype, has_edge,
@@ -186,10 +185,10 @@ function rename_vertices(f::Function, g::AbstractSimpleGraph)
     )
 end
 
-GraphsExtensions.directed_graph_type(::Type{<:NamedGraph{V}}) where {V} = NamedDiGraph{V}
-GraphsExtensions.directed_graph_type(::Type{<:NamedDiGraph{V}}) where {V} = NamedDiGraph{V}
-GraphsExtensions.undirected_graph_type(::Type{<:NamedGraph{V}}) where {V} = NamedGraph{V}
-GraphsExtensions.undirected_graph_type(::Type{<:NamedDiGraph{V}}) where {V} = NamedGraph{V}
+directed_graph_type(::Type{<:NamedGraph{V}}) where {V} = NamedDiGraph{V}
+directed_graph_type(::Type{<:NamedDiGraph{V}}) where {V} = NamedDiGraph{V}
+undirected_graph_type(::Type{<:NamedGraph{V}}) where {V} = NamedGraph{V}
+undirected_graph_type(::Type{<:NamedDiGraph{V}}) where {V} = NamedGraph{V}
 
 function edge_subgraph_namedgraph(graph::NamedDiGraph, edgelist)
     vs = unique(vcat(src.(edgelist), dst.(edgelist)))
