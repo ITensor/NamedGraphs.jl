@@ -326,10 +326,6 @@ are the out-neighbors, following the Graphs.jl convention. `inneighbors`,
 `outneighbors`, and `all_neighbors` select the other directions and behave the
 same way in every other respect, including the caveat below.
 
-The output may be a view into the graph's own data, so treat it as read-only and
-discard it before mutating `graph`. Only its `AbstractVector` interface is
-promised; the concrete type may change.
-
 # Examples
 
 ```jldoctest

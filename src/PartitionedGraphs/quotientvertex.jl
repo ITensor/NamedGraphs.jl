@@ -71,14 +71,12 @@ end
 
 """
     vertices(g::AbstractGraph, quotientvertex::QuotientVertex)
-    vertices(g::AbstractGraph, quotientvertices::Vector{QuotientVertex})
+    vertices(g::AbstractGraph, quotientvertices::QuotientVertices)
 
 Return the set of vertices in the graph `g` associated with the quotient vertex
 `quotientvertex` or set of quotient vertices `quotientvertices`.
 
-The result can alias the partitioning stored in `g`, so do not modify it and do
-not use it after mutating `g`. Rely only on it being an `AbstractVector` of
-vertices.
+The result can alias the partitioning stored in `g`, so do not modify it.
 """
 function Graphs.vertices(g::AbstractGraph, quotientvertex::QuotientVertex)
     qv = parent(quotientvertex)

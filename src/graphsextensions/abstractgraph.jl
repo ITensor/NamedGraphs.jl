@@ -274,9 +274,7 @@ end
     in_incident_edges(graph::AbstractGraph, vertex)
 
 Edges of `graph` pointing into `vertex`, one for each in-neighbor. Equivalent to
-[`incident_edges`](@ref) with `dir = :in`, and carrying the same caveats: the
-output may be a read-only view into `graph`, is invalidated by mutating `graph`,
-and is only promised to be an `AbstractVector`.
+[`incident_edges`](@ref) with `dir = :in`.
 """
 function in_incident_edges(graph::AbstractGraph, vertex)
     return [
@@ -301,10 +299,6 @@ Edges incident to the vertex `vertex`.
 [Graphs.adjacency_matrix](https://juliagraphs.org/Graphs.jl/v1.7/algorithms/linalg/#Graphs.LinAlg.adjacency_matrix).
 
 For undirected graphs, returns all incident edges.
-
-The output may be a view into the graph's own data, so treat it as read-only and
-discard it before mutating `graph`. Only its `AbstractVector` interface is
-promised; the concrete type may change.
 
 # Examples
 

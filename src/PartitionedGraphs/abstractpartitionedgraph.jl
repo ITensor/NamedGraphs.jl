@@ -126,10 +126,7 @@ end
 
 The [`QuotientEdge`](@ref)s of `graph` that connect the given quotient vertices
 to the quotient vertices outside of them, i.e. the boundary edges of
-`quotientvertices` in the quotient graph of `graph`. Returns an `AbstractVector`
-of [`QuotientEdge`](@ref)s; the concrete type is not part of the interface, and
-the result may be a view into `graph`, so do not modify it or use it after
-mutating `graph`.
+`quotientvertices` in the quotient graph of `graph`.
 
 Keyword arguments are forwarded to `boundary_edges`, in
 particular `dir`, which selects the edge direction to consider in a directed
