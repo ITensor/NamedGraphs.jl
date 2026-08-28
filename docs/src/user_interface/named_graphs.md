@@ -28,6 +28,7 @@ section will grow over time.
 vertices(::AbstractNamedGraph)
 edges(::AbstractNamedGraph)
 neighbors(::AbstractNamedGraph, ::Any)
+Graphs.dijkstra_shortest_paths(::AbstractNamedGraph, ::Any, ::Any)
 subgraph
 incident_edges
 Graphs.add_vertices!(::AbstractNamedGraph, ::Any)
