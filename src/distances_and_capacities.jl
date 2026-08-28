@@ -35,7 +35,7 @@ function encode_dist_matrix_namedgraph(
     )
     encoded_dist_matrix = spzeros(valtype(dist_matrix), nv(graph), nv(graph))
     for e in edges(graph)
-        encoded_e = encode_edge(graph, e)
+        encoded_e = encoded_edge(graph, e)
         encoded_dist_matrix[src(encoded_e), dst(encoded_e)] = getindex_dist_matrix(
             dist_matrix, src(e), dst(e)
         )

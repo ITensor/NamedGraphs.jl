@@ -2,7 +2,7 @@ module NamedGraphsITensorVisualizationBaseExt
 
 using Graphs: vertices
 using ITensorVisualizationBase: ITensorVisualizationBase
-using NamedGraphs: AbstractNamedGraph, decode_vertex, encoded_graph
+using NamedGraphs: AbstractNamedGraph, decoded_vertex, encoded_graph
 
 function ITensorVisualizationBase.visualize(
         graph::AbstractNamedGraph,
@@ -14,7 +14,7 @@ function ITensorVisualizationBase.visualize(
     if !isnothing(vertex_labels_prefix)
         # In code order, to align with the vertices of `encoded_graph(graph)`.
         vertex_labels = [
-            vertex_labels_prefix * string(decode_vertex(graph, c)) for
+            vertex_labels_prefix * string(decoded_vertex(graph, c)) for
                 c in vertices(encoded_graph(graph))
         ]
     end

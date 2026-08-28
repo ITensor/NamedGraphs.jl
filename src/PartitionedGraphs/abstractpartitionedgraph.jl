@@ -126,10 +126,7 @@ end
 
 The [`QuotientEdge`](@ref)s of `graph` that connect the given quotient vertices
 to the quotient vertices outside of them, i.e. the boundary edges of
-`quotientvertices` in the quotient graph of `graph`. Returns an `AbstractVector`
-of [`QuotientEdge`](@ref)s; the concrete type is not part of the interface, and
-the result may be a view into `graph`, so do not modify it or use it after
-mutating `graph`.
+`quotientvertices` in the quotient graph of `graph`.
 
 Keyword arguments are forwarded to `boundary_edges`, in
 particular `dir`, which selects the edge direction to consider in a directed
@@ -283,11 +280,11 @@ Graphs.edges(pg::AbstractPartitionedGraph) = edges(unpartitioned_graph(pg))
 function NamedGraphs.encoded_graph(pg::AbstractPartitionedGraph)
     return NamedGraphs.encoded_graph(unpartitioned_graph(pg))
 end
-function NamedGraphs.encode_vertex(pg::AbstractPartitionedGraph, vertex)
-    return NamedGraphs.encode_vertex(unpartitioned_graph(pg), vertex)
+function NamedGraphs.encoded_vertex(pg::AbstractPartitionedGraph, vertex)
+    return NamedGraphs.encoded_vertex(unpartitioned_graph(pg), vertex)
 end
-function NamedGraphs.decode_vertex(pg::AbstractPartitionedGraph, code::Integer)
-    return NamedGraphs.decode_vertex(unpartitioned_graph(pg), code)
+function NamedGraphs.decoded_vertex(pg::AbstractPartitionedGraph, code::Integer)
+    return NamedGraphs.decoded_vertex(unpartitioned_graph(pg), code)
 end
 Graphs.edgetype(pg::AbstractPartitionedGraph) = edgetype(unpartitioned_graph(pg))
 

@@ -1,5 +1,5 @@
 using ..NamedGraphs: NamedGraph, directed_graph_type, encoded_graph_type,
-    induced_subgraph_from_vertices, similar_type, undirected_graph_type
+    induced_subgraph_from_vertices, parent_graph_type, similar_type, undirected_graph_type
 using Graphs: AbstractGraph, edges, has_edge, rem_edge!, rem_vertex!, vertices
 
 """
@@ -54,8 +54,7 @@ struct QuotientView{V, G <: AbstractGraph} <: AbstractNamedGraph{V}
 end
 
 Base.parent(qg::QuotientView) = qg.graph
-parent_graph_type(g::AbstractGraph) = parent_graph_type(typeof(g))
-parent_graph_type(::Type{<:QuotientView{V, G}}) where {V, G} = G
+NamedGraphs.parent_graph_type(::Type{<:QuotientView{V, G}}) where {V, G} = G
 
 Base.copy(qv::QuotientView) = copy(quotient_graph(parent(qv)))
 
@@ -90,11 +89,11 @@ function Graphs.rem_edge!(qg::QuotientView, e)
 end
 
 NamedGraphs.encoded_graph(g::QuotientView) = NamedGraphs.encoded_graph(copy(g))
-function NamedGraphs.encode_vertex(g::QuotientView, vertex)
-    return NamedGraphs.encode_vertex(copy(g), vertex)
+function NamedGraphs.encoded_vertex(g::QuotientView, vertex)
+    return NamedGraphs.encoded_vertex(copy(g), vertex)
 end
-function NamedGraphs.decode_vertex(g::QuotientView, code::Integer)
-    return NamedGraphs.decode_vertex(copy(g), code)
+function NamedGraphs.decoded_vertex(g::QuotientView, code::Integer)
+    return NamedGraphs.decoded_vertex(copy(g), code)
 end
 
 function NamedGraphs.similar_type(type::Type{<:QuotientView})

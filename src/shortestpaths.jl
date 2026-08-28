@@ -29,7 +29,7 @@ function encoded_path_state_to_path_state(
         pᵢ = encoded_path_state.parents[i]
         return iszero(pᵢ) ? i : pᵢ
     end
-    decode(c) = decode_vertex(graph, c)
+    decode(c) = decoded_vertex(graph, c)
     # Keys in code order, to align with the code-indexed path state.
     graph_vertices = map(decode, vertices(encoded_graph(graph)))
     return NamedDijkstraState(
@@ -52,7 +52,7 @@ function dijkstra_shortest_paths_namedgraph(
     )
     encoded_path_state = dijkstra_shortest_paths(
         encoded_graph(graph),
-        map(v -> encode_vertex(graph, v), srcs),
+        map(v -> encoded_vertex(graph, v), srcs),
         encode_dist_matrix(graph, distmx);
         allpaths,
         trackvertices,

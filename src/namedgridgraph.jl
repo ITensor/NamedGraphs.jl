@@ -115,14 +115,14 @@ function NamedGridGraph(grid_size::NTuple{N, Int}, ishypertorus::Bool = false) w
 end
 # Minimal interface functions
 # `encoded_graph` uses the generic `EncodedGraphView` fallback.
-function encode_vertex(g::NamedGridGraph, vertex)
+function encoded_vertex(g::NamedGridGraph, vertex)
     # Membership is just a bounds check here, unlike the dictionary lookup in
     # `NamedGraph`, so checking it up front costs nothing worth avoiding.
     has_vertex(g, vertex) ||
         throw(ArgumentError("$(repr(vertex)) is not a vertex of the graph."))
     return LinearIndices(grid_size(g))[CartesianIndex(vertex)]
 end
-function decode_vertex(g::NamedGridGraph, code::Integer)
+function decoded_vertex(g::NamedGridGraph, code::Integer)
     return Tuple(CartesianIndices(grid_size(g))[code])
 end
 ishypertorus(g::NamedGridGraph{<:Any, istorus}) where {istorus} = istorus

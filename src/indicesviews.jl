@@ -19,7 +19,7 @@ function Dictionaries.iterate(vs::NamedVerticesView, state...)
     next = iterate(Base.OneTo(nv(vs.graph)), state...)
     isnothing(next) && return nothing
     code, new_state = next
-    return decode_vertex(vs.graph, code), new_state
+    return decoded_vertex(vs.graph, code), new_state
 end
 Base.in(vertex::V, vs::NamedVerticesView{V}) where {V} = has_vertex(vs.graph, vertex)
 
@@ -34,9 +34,9 @@ function Dictionaries.iteratetoken_reverse(vs::NamedVerticesView, state...)
 end
 function Dictionaries.gettoken(vs::NamedVerticesView, vertex)
     has_vertex(vs.graph, vertex) || return (false, 0)
-    return (true, encode_vertex(vs.graph, vertex))
+    return (true, encoded_vertex(vs.graph, vertex))
 end
-Dictionaries.gettokenvalue(vs::NamedVerticesView, token) = decode_vertex(vs.graph, token)
+Dictionaries.gettokenvalue(vs::NamedVerticesView, token) = decoded_vertex(vs.graph, token)
 
 # Lazy iterator over the edges of a named graph, in the style of
 # `Graphs.SimpleGraphs.SimpleEdgeIter`: iterates by decoding the edges of
@@ -55,7 +55,7 @@ function Base.iterate(es::NamedEdgeIter, state...)
     next = iterate(edges(encoded_graph(es.graph)), state...)
     isnothing(next) && return nothing
     encoded_edge, new_state = next
-    return decode_edge(es.graph, encoded_edge), new_state
+    return decoded_edge(es.graph, encoded_edge), new_state
 end
 Base.in(edge, es::NamedEdgeIter) = has_edge(es.graph, edge)
 

@@ -11,12 +11,12 @@ and edges used internally.
   terminology. The overloads for implementing a new `AbstractNamedGraph` are
   `encoded_graph(g)` (replaces `position_graph`, with a generic
   `EncodedGraphView` fallback so a graph type does not need to store an
-  integer graph), `encode_vertex(g, v)` (replaces `vertex_positions`), and
-  `decode_vertex(g, c)` (replaces `ordered_vertices`). Codes are not stable
+  integer graph), `encoded_vertex(g, v)` (replaces `vertex_positions`), and
+  `decoded_vertex(g, c)` (replaces `ordered_vertices`). Codes are not stable
   across mutation
   ([#178](https://github.com/ITensor/NamedGraphs.jl/pull/178)).
 - The `OrdinalIndexing` submodule is removed, so `vertices(g)[4th]` becomes
-  `decode_vertex(g, 4)`
+  `decoded_vertex(g, 4)`
   ([#178](https://github.com/ITensor/NamedGraphs.jl/pull/178)).
 - `vertices(g::Named[Di]Graph)` outputs a
   `Dictionaries.Indices` instead of the internal `OrderedIndices` type, which
@@ -25,7 +25,7 @@ and edges used internally.
   Vertices iterate in insertion order, which is stable under removals and
   therefore no longer matches the integer codes after removals, so code that
   aligns `vertices(g)` with results computed on the integer graph should
-  translate through `decode_vertex`
+  translate through `decoded_vertex`
   ([#178](https://github.com/ITensor/NamedGraphs.jl/pull/178)).
 - `edges(g)` outputs a lazy iterator instead of a `Vector`, like
   `edges(::SimpleGraph)` in Graphs.jl. Membership (`in`) matches `has_edge`,

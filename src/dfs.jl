@@ -3,7 +3,7 @@ using Graphs: Graphs, dfs_parents, dfs_tree, topological_sort_by_dfs
 using SimpleTraits: SimpleTraits, @traitfn, Not
 
 @traitfn function Graphs.topological_sort_by_dfs(g::AbstractNamedGraph::IsDirected)
-    return map(c -> decode_vertex(g, c), topological_sort_by_dfs(encoded_graph(g)))
+    return map(c -> decoded_vertex(g, c), topological_sort_by_dfs(encoded_graph(g)))
 end
 
 function dfs_tree_namedgraph(graph::AbstractNamedGraph, vertex; kwargs...)
@@ -20,14 +20,14 @@ end
 # vertex in the traversal/spanning tree.
 function dfs_parents_namedgraph(graph::AbstractNamedGraph, vertex; kwargs...)
     encoded_dfs_parents = dfs_parents(
-        encoded_graph(graph), encode_vertex(graph, vertex); kwargs...
+        encoded_graph(graph), encoded_vertex(graph, vertex); kwargs...
     )
-    graph_vertices = map(c -> decode_vertex(graph, c), vertices(encoded_graph(graph)))
+    graph_vertices = map(c -> decoded_vertex(graph, c), vertices(encoded_graph(graph)))
     # Unreachable vertices have parent code 0; map them to themselves like
     # `dijkstra_shortest_paths` does.
     parents = map(eachindex(encoded_dfs_parents)) do c
         p = encoded_dfs_parents[c]
-        return decode_vertex(graph, iszero(p) ? c : p)
+        return decoded_vertex(graph, iszero(p) ? c : p)
     end
     return Dictionary(graph_vertices, parents)
 end

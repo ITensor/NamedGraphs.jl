@@ -99,10 +99,6 @@ end
 
 Return the set of edges in the graph `g` that correspond to a single quotient edge or
 a list of quotient edges.
-
-As with `vertices(g, ::QuotientVertex)`, the result can alias the
-partitioning stored in `g`: treat it as read-only, discard it when `g` changes,
-and rely only on it being an `AbstractVector` of edges.
 """
 function Graphs.edges(pg::AbstractGraph, quotientedge::QuotientEdge)
     pes = partitioned_edges(pg)
