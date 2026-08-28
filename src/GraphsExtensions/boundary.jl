@@ -15,9 +15,7 @@ do not modify it, and do not use it after mutating `graph`. Its concrete
 # Examples
 
 ```jldoctest
-julia> using NamedGraphs: NamedEdge, named_grid
-
-julia> using NamedGraphs.GraphsExtensions: boundary_edges
+julia> using NamedGraphs: NamedEdge, boundary_edges, named_grid
 
 julia> g = named_grid((2, 2));
 

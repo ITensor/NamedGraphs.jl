@@ -1,4 +1,3 @@
-using .GraphsExtensions: directed_graph
 using Dictionaries: AbstractDictionary
 using Graphs: Graphs, IsDirected, dst, edges, nv, src
 using LinearAlgebra: Symmetric

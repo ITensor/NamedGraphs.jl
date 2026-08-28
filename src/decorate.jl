@@ -1,4 +1,4 @@
-using .GraphsExtensions: GraphsExtensions, add_edges!
+using .GraphsExtensions: GraphsExtensions
 using Graphs.SimpleGraphs: SimpleGraph
 using Graphs: add_edge!, dst, edges, neighbors, rem_edge!, rem_vertex!, src, vertices
 

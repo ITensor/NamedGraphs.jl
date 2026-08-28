@@ -5,19 +5,19 @@ using Graphs.SimpleGraphs: SimpleDiGraph, SimpleEdge, SimpleGraph, binary_tree,
     cycle_digraph, cycle_graph, grid, path_digraph, path_graph
 using Graphs: AbstractGraph, add_edge!, add_vertex!, dst, edges, edgetype, has_edge,
     inneighbors, is_cyclic, is_directed, ne, nv, outneighbors, rem_edge!, src, vertices
-using NamedGraphs.GraphsExtensions: TreeGraph, add_edge, add_edges, add_edges!, all_edges,
-    arrange_edge, arranged_edges, binary_arborescence, child_edges, child_vertices,
-    convert_vertextype, degrees, directed_graph, directed_graph_type, distance_to_leaves,
-    forest_cover_edge_sequence, has_edges, has_leaf_neighbor, has_vertices, incident_edges,
-    indegrees, is_arborescence, is_arranged, is_binary_arborescence, is_cycle_graph,
-    is_ditree, is_edge_arranged, is_leaf_edge, is_leaf_vertex, is_path_graph,
-    is_root_vertex, is_rooted, is_self_loop, leaf_vertices, minimum_distance_to_leaves,
-    next_nearest_neighbors, non_leaf_edges, outdegrees, permute_vertices, rem_edge,
-    rem_edges, rem_edges!, root_vertex, similar_dataless_graph, similar_graph, subgraph,
-    tree_graph_node, undirected_graph, undirected_graph_type, vertextype,
-    vertices_at_distance
-using NamedGraphs: NamedDiGraph, NamedEdge, NamedGraph, disjoint_union, named_path_digraph,
-    named_path_graph, rename_vertices, ⊔
+using NamedGraphs.GraphsExtensions: TreeGraph, all_edges, arrange_edge, arranged_edges,
+    binary_arborescence, child_edges, child_vertices, degrees, directed_graph_type,
+    distance_to_leaves, has_edges, has_leaf_neighbor, has_vertices, indegrees,
+    is_arborescence, is_arranged, is_binary_arborescence, is_cycle_graph, is_ditree,
+    is_edge_arranged, is_leaf_edge, is_path_graph, is_root_vertex, is_rooted, is_self_loop,
+    minimum_distance_to_leaves, next_nearest_neighbors, non_leaf_edges, outdegrees,
+    permute_vertices, root_vertex, similar_dataless_graph, tree_graph_node,
+    undirected_graph_type, vertices_at_distance
+using NamedGraphs: NamedDiGraph, NamedEdge, NamedGraph, add_edge, add_edges, add_edges!,
+    convert_vertextype, directed_graph, disjoint_union, forest_cover_edge_sequence,
+    incident_edges, is_leaf_vertex, leaf_vertices, named_path_digraph, named_path_graph,
+    rem_edge, rem_edges, rem_edges!, rename_vertices, similar_graph, subgraph,
+    undirected_graph, vertextype, ⊔
 using Test: @test, @test_broken, @test_throws, @testset
 
 # TODO: Still need to test:

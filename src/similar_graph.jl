@@ -1,5 +1,4 @@
-using .GraphsExtensions: add_edges!, rem_edges, rem_vertices, similar_dataless_graph,
-    similar_graph, similar_simplegraph
+using .GraphsExtensions: similar_dataless_graph, similar_graph, similar_simplegraph
 using Graphs: edges, vertices
 using SimpleTraits: SimpleTraits, @traitfn, Not
 

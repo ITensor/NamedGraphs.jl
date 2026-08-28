@@ -1,7 +1,5 @@
-using .GraphsExtensions: GraphsExtensions, add_edges!, all_edges, directed_graph,
-    directed_graph_type, empty_graph, incident_edges, partition_vertices, rem_edges,
-    rem_edges!, rem_vertices, similar_graph, subgraph, undirected_graph,
-    undirected_graph_type
+using .GraphsExtensions: GraphsExtensions, all_edges, directed_graph_type, incident_edges,
+    partition_vertices, similar_graph, subgraph, undirected_graph_type
 using Dictionaries: Dictionary, set!
 using Graphs: Graphs, AbstractGraph, AbstractSimpleGraph, IsDirected, SimpleDiGraph,
     SimpleEdge, SimpleGraph, a_star, add_edge!, adjacency_matrix, bfs_parents, blockdiag,
@@ -615,7 +613,7 @@ function Graphs.add_edge!(graph::AbstractNamedGraph, edge)
 end
 Graphs.add_edge!(g::AbstractNamedGraph, src, dst) = add_edge!(g, edgetype(g)(src, dst))
 
-function GraphsExtensions.add_edge(g::AbstractNamedGraph, edge)
+function add_edge(g::AbstractNamedGraph, edge)
     g = copy(g)
     add_edge!(g, edgetype(g)(edge))
     return g
@@ -649,7 +647,7 @@ julia> ne(g)
 2
 ```
 """
-function GraphsExtensions.add_edges!(g::AbstractNamedGraph, edges)
+function add_edges!(g::AbstractNamedGraph, edges)
     return count(e -> add_edge!(g, edgetype(g)(e)), edges)
 end
 
@@ -673,7 +671,7 @@ julia> (ne(g), ne(h))
 (0, 2)
 ```
 """
-function GraphsExtensions.add_edges(g::AbstractNamedGraph, edges)
+function add_edges(g::AbstractNamedGraph, edges)
     g = copy(g)
     add_edges!(g, edges)
     return g
@@ -766,13 +764,13 @@ function Graphs.rem_vertices!(graph::AbstractNamedGraph, vs)
     return count(v -> rem_vertex!(graph, v), collect(vs))
 end
 
-function GraphsExtensions.add_vertex(g::AbstractNamedGraph, vs)
+function add_vertex(g::AbstractNamedGraph, vs)
     g = copy(g)
     add_vertex!(g, vs)
     return g
 end
 
-function GraphsExtensions.rem_vertex(g::AbstractNamedGraph, vs)
+function rem_vertex(g::AbstractNamedGraph, vs)
     g = copy(g)
     rem_vertex!(g, vs)
     return g
@@ -798,7 +796,7 @@ julia> (nv(g), nv(h))
 (2, 4)
 ```
 """
-function GraphsExtensions.add_vertices(graph::AbstractNamedGraph, vs)
+function add_vertices(graph::AbstractNamedGraph, vs)
     graph = copy(graph)
     Graphs.add_vertices!(graph, vs)
     return graph
@@ -824,14 +822,14 @@ julia> (nv(g), nv(h))
 (3, 2)
 ```
 """
-function GraphsExtensions.rem_vertices(graph::AbstractNamedGraph, vs)
+function rem_vertices(graph::AbstractNamedGraph, vs)
     graph = copy(graph)
     Graphs.rem_vertices!(graph, vs)
     return graph
 end
 
-function GraphsExtensions.empty_graph(graph::AbstractNamedGraph)
-    return GraphsExtensions.rem_vertices(graph, vertices(graph))
+function empty_graph(graph::AbstractNamedGraph)
+    return rem_vertices(graph, vertices(graph))
 end
 
 function Graphs.rem_edge!(graph::AbstractNamedGraph, edge)
@@ -841,7 +839,7 @@ function Graphs.rem_edge!(graph::AbstractNamedGraph, edge)
     return rem_edge!(encoded_graph(graph), encode_edge(graph, e))
 end
 
-function GraphsExtensions.rem_edge(g::AbstractNamedGraph, edge)
+function rem_edge(g::AbstractNamedGraph, edge)
     g = copy(g)
     rem_edge!(g, edgetype(g)(edge))
     return g
@@ -872,7 +870,7 @@ julia> ne(g)
 1
 ```
 """
-function GraphsExtensions.rem_edges!(g::AbstractNamedGraph, edges)
+function rem_edges!(g::AbstractNamedGraph, edges)
     return count(e -> rem_edge!(g, edgetype(g)(e)), edges)
 end
 
@@ -897,13 +895,13 @@ julia> (ne(g), ne(h))
 (2, 1)
 ```
 """
-function GraphsExtensions.rem_edges(g::AbstractNamedGraph, edges)
+function rem_edges(g::AbstractNamedGraph, edges)
     g = copy(g)
     rem_edges!(g, edges)
     return g
 end
 
-function GraphsExtensions.edgeless_graph(graph::AbstractNamedGraph)
+function edgeless_graph(graph::AbstractNamedGraph)
     return rem_edges(graph, edges(graph))
 end
 
@@ -920,9 +918,7 @@ See also [`undirected_graph`](@ref).
 ```jldoctest
 julia> using Graphs: ne
 
-julia> using NamedGraphs: named_path_graph
-
-julia> using NamedGraphs.GraphsExtensions: directed_graph, undirected_graph
+julia> using NamedGraphs: directed_graph, named_path_graph, undirected_graph
 
 julia> g = named_path_graph(3);
 
@@ -933,7 +929,7 @@ julia> ne(undirected_graph(directed_graph(g)))
 2
 ```
 """
-GraphsExtensions.directed_graph(graph::AbstractNamedGraph) = directed_namedgraph(graph)
+directed_graph(graph::AbstractNamedGraph) = directed_namedgraph(graph)
 
 """
     undirected_graph(graph::AbstractNamedGraph)
@@ -944,7 +940,7 @@ already undirected `graph` is returned as-is.
 
 See also [`directed_graph`](@ref).
 """
-GraphsExtensions.undirected_graph(graph::AbstractNamedGraph) = undirected_namedgraph(graph)
+undirected_graph(graph::AbstractNamedGraph) = undirected_namedgraph(graph)
 
 # The trait dispatch happens in these hooks so that the two documented methods
 # above are plain ones, like `similar_namedgraph` in `similar_graph.jl`.
@@ -1228,10 +1224,10 @@ function subgraph_edges(graph::AbstractGraph, subvertices)
     end
 end
 
-function GraphsExtensions.edge_subgraph(graph::AbstractNamedGraph, edges)
+function edge_subgraph(graph::AbstractNamedGraph, edges)
     return edge_subgraph_namedgraph(graph, to_edges(graph, edges))
 end
-function GraphsExtensions.edge_subgraph(
+function edge_subgraph(
         graph::AbstractNamedGraph,
         edges::Vector{<:AbstractEdge}
     )

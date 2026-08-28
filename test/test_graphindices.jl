@@ -1,7 +1,6 @@
 using Dictionaries: Dictionaries, Dictionary
 using Graphs: Edge, ne, nv, path_graph, vertices
-using NamedGraphs.GraphsExtensions: vertextype
-using NamedGraphs: Edges, NamedEdge, NamedGraph, Vertices, to_graph_index
+using NamedGraphs: Edges, NamedEdge, NamedGraph, Vertices, to_graph_index, vertextype
 using Test
 
 @testset "Graph indices" begin

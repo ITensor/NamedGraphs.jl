@@ -1,30 +1,30 @@
-using .GraphsExtensions: BFS, DFS, GraphsExtensions, RandomBFS, default_root_vertex,
-    default_spanning_tree_alg, post_order_dfs_edges, random_bfs_tree, rem_edges,
-    similar_dataless_graph, spanning_forest, spanning_tree, subgraph, undirected_graph
+using .GraphsExtensions: BFS, DFS, RandomBFS, default_root_vertex,
+    default_spanning_tree_alg, post_order_dfs_edges, random_bfs_tree,
+    similar_dataless_graph, subgraph
 using Graphs: IsDirected, bfs_tree, connected_components, dfs_tree, edges, edgetype
 using SimpleTraits: SimpleTraits, @traitfn, Not
 
-function GraphsExtensions.spanning_tree(
+function spanning_tree(
         g::AbstractNamedGraph; alg = default_spanning_tree_alg(),
         root_vertex = default_root_vertex(g)
     )
     return spanning_tree(alg, g; root_vertex)
 end
 
-@traitfn function GraphsExtensions.spanning_tree(
+@traitfn function spanning_tree(
         ::BFS, g::AbstractNamedGraph::(!IsDirected); root_vertex = default_root_vertex(g)
     )
     return undirected_graph(bfs_tree(g, root_vertex))
 end
 
-@traitfn function GraphsExtensions.spanning_tree(
+@traitfn function spanning_tree(
         ::RandomBFS, g::AbstractNamedGraph::(!IsDirected);
         root_vertex = default_root_vertex(g)
     )
     return undirected_graph(random_bfs_tree(g, root_vertex))
 end
 
-@traitfn function GraphsExtensions.spanning_tree(
+@traitfn function spanning_tree(
         ::DFS, g::AbstractNamedGraph::(!IsDirected); root_vertex = default_root_vertex(g)
     )
     return undirected_graph(dfs_tree(g, root_vertex))
@@ -32,7 +32,7 @@ end
 
 # Split the graph into its connected components, build a spanning tree over each
 # of them with `spanning_tree`, and take the union.
-function GraphsExtensions.spanning_forest(
+function spanning_forest(
         g::AbstractNamedGraph; spanning_tree = spanning_tree
     )
     return reduce(union, (spanning_tree(subgraph(g, vs)) for vs in connected_components(g)))
@@ -46,7 +46,7 @@ whose edge sets partition the edges of `graph`. The forests are collected
 greedily, so their number is an upper bound on the
 [arboricity](https://en.wikipedia.org/wiki/Arboricity) rather than the minimum.
 """
-function GraphsExtensions.forest_cover(g::AbstractNamedGraph; spanning_tree = spanning_tree)
+function forest_cover(g::AbstractNamedGraph; spanning_tree = spanning_tree)
     g = similar_dataless_graph(g)
     g_reduced = g
 
@@ -74,7 +74,7 @@ its root in [`post_order_dfs_edges`](@ref) order and then back outwards.
 `root_vertex` is a function picking the root of each tree, such as
 [`default_root_vertex`](@ref).
 """
-function GraphsExtensions.forest_cover_edge_sequence(
+function forest_cover_edge_sequence(
         g::AbstractNamedGraph; root_vertex = default_root_vertex
     )
     forests = forest_cover(g)
@@ -88,6 +88,3 @@ function GraphsExtensions.forest_cover_edge_sequence(
     end
     return rv
 end
-
-# TODO: Define in `NamedGraphs.PartitionedGraphs`.
-# forest_cover(g::PartitionedGraph; kwargs...) = not_implemented()

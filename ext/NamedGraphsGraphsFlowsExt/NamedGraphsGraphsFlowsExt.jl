@@ -1,9 +1,9 @@
 module NamedGraphsGraphsFlowsExt
 using Graphs: AbstractGraph, IsDirected
 using GraphsFlows: GraphsFlows
-using NamedGraphs.GraphsExtensions: GraphsExtensions, directed_graph
+using NamedGraphs.GraphsExtensions: GraphsExtensions
 using NamedGraphs: NamedGraphs, AbstractNamedGraph, DefaultNamedCapacity, _symmetrize,
-    decode_vertex, encode_dist_matrix, encode_vertex, encoded_graph
+    decode_vertex, directed_graph, encode_dist_matrix, encode_vertex, encoded_graph
 using SimpleTraits: SimpleTraits, @traitfn
 
 @traitfn function NamedGraphs.encode_dist_matrix(

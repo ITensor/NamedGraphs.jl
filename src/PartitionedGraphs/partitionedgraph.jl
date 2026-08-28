@@ -241,12 +241,12 @@ function NamedGraphs.induced_subgraph_from_vertices(
     return PartitionedGraph(sub_pg_graph, sub_partitioned_vertices), nothing
 end
 
-function GraphsExtensions.undirected_graph(g::PartitionedGraph)
-    dg = GraphsExtensions.undirected_graph(unpartitioned_graph(g))
+function NamedGraphs.undirected_graph(g::PartitionedGraph)
+    dg = NamedGraphs.undirected_graph(unpartitioned_graph(g))
     return PartitionedGraph(dg, partitioned_vertices(g))
 end
-function GraphsExtensions.directed_graph(g::PartitionedGraph)
-    dg = GraphsExtensions.directed_graph(unpartitioned_graph(g))
+function NamedGraphs.directed_graph(g::PartitionedGraph)
+    dg = NamedGraphs.directed_graph(unpartitioned_graph(g))
     return PartitionedGraph(dg, partitioned_vertices(g))
 end
 function GraphsExtensions.undirected_graph_type(

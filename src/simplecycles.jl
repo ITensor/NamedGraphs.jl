@@ -1,4 +1,3 @@
-using .GraphsExtensions: GraphsExtensions, edge_subgraph
 using Graphs: AbstractGraph, dst, edges, src, vertices
 
 # Enumeration of all connected edge-induced subgraphs with no leaf vertices up to a given number of edges (the "generalized

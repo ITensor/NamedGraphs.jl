@@ -1,7 +1,8 @@
 using Graphs: binary_tree, dfs_tree, edgetype, grid, path_graph
-using NamedGraphs.GraphsExtensions: comb_tree, edge_path, is_leaf_vertex, is_path_graph,
-    leaf_vertices, post_order_dfs_vertices, pre_order_dfs_vertices, vertex_path
-using NamedGraphs: named_binary_tree, named_comb_tree, named_grid, named_path_graph
+using NamedGraphs.GraphsExtensions:
+    comb_tree, edge_path, is_path_graph, pre_order_dfs_vertices, vertex_path
+using NamedGraphs: is_leaf_vertex, leaf_vertices, named_binary_tree, named_comb_tree,
+    named_grid, named_path_graph, post_order_dfs_vertices
 using Test: @test, @testset
 
 @testset "Tree graph paths" begin

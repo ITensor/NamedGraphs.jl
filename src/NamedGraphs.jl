@@ -47,11 +47,9 @@ include("similartype.jl")
 include("GraphsExtensions/GraphsExtensions.jl")
 # The `GraphsExtensions` names re-exported below, listed here rather than relying
 # on the per-file imports that happen to bring them into scope.
-using .GraphsExtensions: add_edges, add_edges!, add_vertices, boundary_edges,
-    convert_vertextype, default_root_vertex, directed_graph, forest_cover,
-    forest_cover_edge_sequence, in_incident_edges, incident_edges, is_leaf_vertex,
-    leaf_vertices, post_order_dfs_edges, post_order_dfs_vertices, rem_edges, rem_edges!,
-    rem_vertices, similar_graph, subgraph, undirected_graph, vertextype
+using .GraphsExtensions: boundary_edges, convert_vertextype, default_root_vertex,
+    in_incident_edges, incident_edges, is_leaf_vertex, leaf_vertices, post_order_dfs_edges,
+    post_order_dfs_vertices, similar_graph, subgraph, vertextype
 include("utils.jl")
 include("abstractnamededge.jl")
 include("namededge.jl")

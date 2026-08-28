@@ -78,6 +78,15 @@ and edges used internally.
   graphs whose vertices are names, while `GraphsExtensions` holds extensions
   valid for any `Graphs.AbstractGraph`
   ([#187](https://github.com/ITensor/NamedGraphs.jl/pull/187)).
+- `add_vertex`, `add_vertices`, `rem_vertex`, `rem_vertices`, `add_edge`,
+  `add_edges`, `add_edges!`, `rem_edge`, `rem_edges`, `rem_edges!`,
+  `empty_graph`, `edgeless_graph`, `edge_subgraph`, `directed_graph`,
+  `undirected_graph`, `spanning_tree`, `spanning_forest`, `forest_cover`, and
+  `forest_cover_edge_sequence` move from `NamedGraphs.GraphsExtensions` to
+  `NamedGraphs` for the same reason, so
+  `using NamedGraphs.GraphsExtensions: add_edges!` becomes
+  `using NamedGraphs: add_edges!`
+  ([#189](https://github.com/ITensor/NamedGraphs.jl/pull/189)).
 - Considerably more names are exported, where previously only the four graph and
   edge types were, so `using NamedGraphs` can collide with names another package
   exports. `NamedGraphs.GraphsExtensions` also exports its documented names now,

@@ -1,8 +1,7 @@
 using Graphs: connected_components, edges, is_tree, vertices
-using NamedGraphs.GraphsExtensions:
-    GraphsExtensions, all_edges, forest_cover, spanning_tree, vertextype
-using NamedGraphs: NamedGraph, Vertices, named_comb_tree, named_grid,
-    named_hexagonal_lattice_graph, named_triangular_lattice_graph
+using NamedGraphs.GraphsExtensions: GraphsExtensions, all_edges
+using NamedGraphs: NamedGraph, Vertices, forest_cover, named_comb_tree, named_grid,
+    named_hexagonal_lattice_graph, named_triangular_lattice_graph, spanning_tree, vertextype
 using Test: @test, @testset
 
 gs = [

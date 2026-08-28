@@ -9,32 +9,6 @@ using SplitApplyCombine: groupfind
 
 not_implemented() = error("Not implemented")
 
-# Only meaningful for named graphs, so the methods live in NamedGraphs proper.
-# `Graphs.add_vertices!` takes a count rather than a collection, and
-# `Graphs.rem_vertices!` throws for an unknown vertex where a named graph
-# forgives, so neither of these is generic over `AbstractGraph`.
-function add_vertices end
-function rem_vertices end
-function empty_graph end
-
-# Also named-graph only, with the methods in NamedGraphs proper. These name the
-# vertex or edge to add or remove and hand back the graph with the rest of the
-# names left where they were, which the `1:nv(graph)` vertices of a
-# `Graphs.SimpleGraph` cannot express.
-function add_vertex end
-function rem_vertex end
-function add_edge end
-function add_edges end
-function add_edges! end
-function rem_edge end
-function rem_edges end
-function rem_edges! end
-
-# Built from the functions above, so named-graph only as well, with the methods
-# in NamedGraphs proper.
-function edgeless_graph end
-function edge_subgraph end
-
 is_self_loop(e::AbstractEdge) = src(e) == dst(e)
 is_self_loop(e::Pair) = first(e) == last(e)
 
@@ -134,11 +108,6 @@ end
     return SimpleDiGraph(nv)
 end
 
-# Named-graph only, with the methods in NamedGraphs proper, since they are built
-# from the edge functions above.
-function directed_graph end
-function undirected_graph end
-
 """
     vertextype(graph::AbstractGraph)
     vertextype(G::Type{<:AbstractGraph})
@@ -153,9 +122,7 @@ edge. Works in the type domain as well as on instances.
 ```jldoctest
 julia> using Graphs: SimpleGraph
 
-julia> using NamedGraphs: named_grid
-
-julia> using NamedGraphs.GraphsExtensions: vertextype
+julia> using NamedGraphs: named_grid, vertextype
 
 julia> vertextype(named_grid((2, 2)))
 Tuple{Int64, Int64}
@@ -418,9 +385,7 @@ The vertices of `graph` that are leaves in the sense of
 # Examples
 
 ```jldoctest
-julia> using NamedGraphs: named_comb_tree
-
-julia> using NamedGraphs.GraphsExtensions: leaf_vertices
+julia> using NamedGraphs: leaf_vertices, named_comb_tree
 
 julia> g = named_comb_tree((3, 2));
 
@@ -553,9 +518,7 @@ parent, so the sequence sweeps inwards to `root_vertex`.
 # Examples
 
 ```jldoctest
-julia> using NamedGraphs: NamedEdge, named_path_graph
-
-julia> using NamedGraphs.GraphsExtensions: post_order_dfs_edges
+julia> using NamedGraphs: NamedEdge, named_path_graph, post_order_dfs_edges
 
 julia> post_order_dfs_edges(named_path_graph(3), 3)
 2-element Vector{NamedEdge{Int64}}:

@@ -1,6 +1,5 @@
 using Graphs: grid, has_edge, has_vertex, ne, nv
-using NamedGraphs.GraphsExtensions: subgraph
-using NamedGraphs: NamedGraph, ⊔
+using NamedGraphs: NamedGraph, subgraph, ⊔
 
 simple_graph = grid((4,))
 vs = ["A", "B", "C", "D"]

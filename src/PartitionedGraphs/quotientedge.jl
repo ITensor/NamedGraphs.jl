@@ -1,7 +1,6 @@
-using ..NamedGraphs.GraphsExtensions:
-    GraphsExtensions, not_implemented, rem_edge, rem_edges!
+using ..NamedGraphs.GraphsExtensions: GraphsExtensions, not_implemented
 using ..NamedGraphs: AbstractEdges, AbstractNamedEdge, AbstractNamedGraph, Edges,
-    NamedGraphs, parent_graph_indices, to_edges
+    NamedGraphs, parent_graph_indices, rem_edges!, to_edges
 using Graphs: Graphs, AbstractEdge, AbstractGraph, dst, has_edge, ne, src
 
 struct QuotientEdgeSlice{V, E, GI <: AbstractEdges{V, E}} <: AbstractEdges{V, E}
@@ -142,7 +141,7 @@ Graphs.ne(g::AbstractGraph, se::QuotientEdge) = length(edges(g, se))
 Remove, in place, all the edges of `g` that correspond to the quotient edge `qe`.
 Returns the number of edges removed.
 """
-function GraphsExtensions.rem_edges!(g::AbstractNamedGraph, sv::QuotientEdge)
+function NamedGraphs.rem_edges!(g::AbstractNamedGraph, sv::QuotientEdge)
     return rem_edges!(g, edges(g, sv))
 end
 

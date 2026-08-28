@@ -5,11 +5,10 @@ using Graphs: Graphs, AbstractGraph, DiGraph, Graph, SimpleDiGraph, SimpleEdge, 
     floyd_warshall_shortest_paths, grid, has_edge, has_path, has_vertex,
     johnson_shortest_paths, ne, nv, path_graph, rem_edge!, spfa_shortest_paths,
     steiner_tree, vertices, weights, yen_k_shortest_paths
-using NamedGraphs.GraphsExtensions: GraphsExtensions, add_vertices, eccentricities,
-    edgeless_graph, empty_graph, rem_vertices, similar_dataless_graph, similar_graph,
-    subgraph
+using NamedGraphs.GraphsExtensions: GraphsExtensions, eccentricities, similar_dataless_graph
 using NamedGraphs: NamedGraphs, AbstractNamedGraph, NamedDiGraph, NamedEdge, NamedGraph,
-    encoded_graph, named_grid, named_path_graph, rename_vertices
+    add_vertices, edgeless_graph, empty_graph, encoded_graph, named_grid, named_path_graph,
+    rem_vertices, rename_vertices, similar_graph, subgraph
 using Test: @test, @test_throws, @testset
 
 # A callable that is not a `Function`, to check that heuristics are not
