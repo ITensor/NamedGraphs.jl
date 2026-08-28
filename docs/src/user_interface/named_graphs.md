@@ -30,15 +30,34 @@ edges(::AbstractNamedGraph)
 neighbors(::AbstractNamedGraph, ::Any)
 Graphs.dijkstra_shortest_paths(::AbstractNamedGraph, ::Any, ::Any)
 subgraph
+edge_subgraph
 incident_edges
 Graphs.add_vertices!(::AbstractNamedGraph, ::Any)
+add_vertex
 add_vertices
 Graphs.rem_vertices!(::AbstractNamedGraph, ::Any)
+rem_vertex
 rem_vertices
 add_edges!
+add_edge
 add_edges
 rem_edges!(::AbstractNamedGraph, ::Any)
+rem_edge
 rem_edges
+empty_graph
+edgeless_graph
+```
+
+## Trees and forests
+
+Spanning trees and forests of a named graph, and the forest covers built from
+them.
+
+```@docs; canonical=false
+spanning_tree
+spanning_forest
+forest_cover
+forest_cover_edge_sequence
 ```
 
 ## Generators

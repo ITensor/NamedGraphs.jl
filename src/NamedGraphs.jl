@@ -22,14 +22,16 @@ module NamedGraphs
 # exports its own, different, generic functions under those names, so exporting
 # ours would leave both dead after `using Graphs, NamedGraphs`.
 export ⊔, AbstractNamedGraph, NamedDiGraph, NamedEdge, NamedGraph,
-    add_edges, add_edges!, add_vertices, boundary_edges, convert_vertextype,
-    default_root_vertex, directed_graph, disjoint_union, forest_cover,
+    add_edge, add_edges, add_edges!, add_vertex, add_vertices, boundary_edges,
+    convert_vertextype, default_root_vertex, directed_graph, disjoint_union,
+    edge_subgraph, edgeless_graph, empty_graph, forest_cover,
     forest_cover_edge_sequence, in_incident_edges, incident_edges, is_leaf_vertex,
     leaf_vertices, named_binary_tree, named_comb_tree, named_cycle_graph, named_grid,
     named_hexagonal_lattice_graph, named_path_digraph, named_path_graph,
     named_triangular_lattice_graph, post_order_dfs_edges, post_order_dfs_vertices,
-    rem_edges, rem_edges!, rem_vertices, rename_vertices, similar_graph, subgraph,
-    undirected_graph, vertextype
+    rem_edge, rem_edges, rem_edges!, rem_vertex, rem_vertices, rename_vertices,
+    similar_graph, spanning_forest, spanning_tree, subgraph, undirected_graph,
+    vertextype
 if VERSION >= v"1.11.0-DEV.469"
     eval(Meta.parse("public GraphsExtensions, PartitionedGraphs"))
     # The encode and decode interface is what a new `AbstractNamedGraph` overloads,

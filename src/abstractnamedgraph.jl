@@ -613,6 +613,29 @@ function Graphs.add_edge!(graph::AbstractNamedGraph, edge)
 end
 Graphs.add_edge!(g::AbstractNamedGraph, src, dst) = add_edge!(g, edgetype(g)(src, dst))
 
+"""
+    add_edge(graph::AbstractNamedGraph, edge)
+
+A copy of `graph` with `edge` added, leaving `graph` itself alone. An edge naming
+a vertex that `graph` does not have is not added.
+
+See also [`add_edges`](@ref) and `Graphs.add_edge!` for the in-place form.
+
+# Examples
+
+```jldoctest
+julia> using Graphs: ne
+
+julia> using NamedGraphs: NamedGraph, add_edge
+
+julia> g = NamedGraph(["a", "b"]);
+
+julia> h = add_edge(g, "a" => "b");
+
+julia> (ne(g), ne(h))
+(0, 1)
+```
+"""
 function add_edge(g::AbstractNamedGraph, edge)
     g = copy(g)
     add_edge!(g, edgetype(g)(edge))
@@ -764,15 +787,61 @@ function Graphs.rem_vertices!(graph::AbstractNamedGraph, vs)
     return count(v -> rem_vertex!(graph, v), collect(vs))
 end
 
-function add_vertex(g::AbstractNamedGraph, vs)
+"""
+    add_vertex(graph::AbstractNamedGraph, vertex)
+
+A copy of `graph` with `vertex` added, leaving `graph` itself alone. A vertex
+already in `graph` is not added again.
+
+See also [`add_vertices`](@ref) and `Graphs.add_vertex!` for the in-place form.
+
+# Examples
+
+```jldoctest
+julia> using Graphs: nv
+
+julia> using NamedGraphs: NamedGraph, add_vertex
+
+julia> g = NamedGraph(["a", "b"]);
+
+julia> h = add_vertex(g, "c");
+
+julia> (nv(g), nv(h))
+(2, 3)
+```
+"""
+function add_vertex(g::AbstractNamedGraph, vertex)
     g = copy(g)
-    add_vertex!(g, vs)
+    add_vertex!(g, vertex)
     return g
 end
 
-function rem_vertex(g::AbstractNamedGraph, vs)
+"""
+    rem_vertex(graph::AbstractNamedGraph, vertex)
+
+A copy of `graph` with `vertex` removed along with its incident edges, leaving
+`graph` itself alone.
+
+See also [`rem_vertices`](@ref) and `Graphs.rem_vertex!` for the in-place form.
+
+# Examples
+
+```jldoctest
+julia> using Graphs: nv
+
+julia> using NamedGraphs: named_path_graph, rem_vertex
+
+julia> g = named_path_graph(3);
+
+julia> h = rem_vertex(g, 2);
+
+julia> (nv(g), nv(h))
+(3, 2)
+```
+"""
+function rem_vertex(g::AbstractNamedGraph, vertex)
     g = copy(g)
-    rem_vertex!(g, vs)
+    rem_vertex!(g, vertex)
     return g
 end
 
@@ -828,6 +897,25 @@ function rem_vertices(graph::AbstractNamedGraph, vs)
     return graph
 end
 
+"""
+    empty_graph(graph::AbstractNamedGraph)
+
+A copy of `graph` with all of its vertices and edges removed. See also
+[`edgeless_graph`](@ref), which keeps the vertices.
+
+# Examples
+
+```jldoctest
+julia> using Graphs: ne, nv
+
+julia> using NamedGraphs: empty_graph, named_path_graph
+
+julia> g = empty_graph(named_path_graph(3));
+
+julia> (nv(g), ne(g))
+(0, 0)
+```
+"""
 function empty_graph(graph::AbstractNamedGraph)
     return rem_vertices(graph, vertices(graph))
 end
@@ -839,6 +927,29 @@ function Graphs.rem_edge!(graph::AbstractNamedGraph, edge)
     return rem_edge!(encoded_graph(graph), encode_edge(graph, e))
 end
 
+"""
+    rem_edge(graph::AbstractNamedGraph, edge)
+
+A copy of `graph` with `edge` removed, leaving the vertices and `graph` itself
+alone.
+
+See also [`rem_edges`](@ref) and `Graphs.rem_edge!` for the in-place form.
+
+# Examples
+
+```jldoctest
+julia> using Graphs: ne
+
+julia> using NamedGraphs: named_path_graph, rem_edge
+
+julia> g = named_path_graph(3);
+
+julia> h = rem_edge(g, 1 => 2);
+
+julia> (ne(g), ne(h))
+(2, 1)
+```
+"""
 function rem_edge(g::AbstractNamedGraph, edge)
     g = copy(g)
     rem_edge!(g, edgetype(g)(edge))
@@ -901,6 +1012,25 @@ function rem_edges(g::AbstractNamedGraph, edges)
     return g
 end
 
+"""
+    edgeless_graph(graph::AbstractNamedGraph)
+
+A copy of `graph` with all of its edges removed, keeping its vertices. See also
+[`empty_graph`](@ref), which removes the vertices as well.
+
+# Examples
+
+```jldoctest
+julia> using Graphs: ne, nv
+
+julia> using NamedGraphs: edgeless_graph, named_path_graph
+
+julia> g = edgeless_graph(named_path_graph(3));
+
+julia> (nv(g), ne(g))
+(3, 0)
+```
+"""
 function edgeless_graph(graph::AbstractNamedGraph)
     return rem_edges(graph, edges(graph))
 end
@@ -1224,6 +1354,35 @@ function subgraph_edges(graph::AbstractGraph, subvertices)
     end
 end
 
+"""
+    edge_subgraph(graph::AbstractNamedGraph, edges)
+
+The subgraph of `graph` spanned by `edges`, holding the vertices those edges touch
+and no edges besides `edges` themselves. See also [`subgraph`](@ref), which is
+induced by a set of vertices and keeps every edge of `graph` between them.
+
+# Examples
+
+```jldoctest
+julia> using Graphs: edges, vertices
+
+julia> using NamedGraphs: edge_subgraph, named_grid
+
+julia> g = edge_subgraph(named_grid((2, 2)), [(1, 1) => (2, 1), (1, 2) => (2, 2)]);
+
+julia> collect(vertices(g))
+4-element Vector{Tuple{Int64, Int64}}:
+ (1, 1)
+ (1, 2)
+ (2, 1)
+ (2, 2)
+
+julia> collect(edges(g))
+2-element Vector{NamedEdge{Tuple{Int64, Int64}}}:
+ (1, 1) => (2, 1)
+ (1, 2) => (2, 2)
+```
+"""
 function edge_subgraph(graph::AbstractNamedGraph, edges)
     return edge_subgraph_namedgraph(graph, to_edges(graph, edges))
 end
