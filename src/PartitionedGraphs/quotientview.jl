@@ -1,5 +1,5 @@
 using ..NamedGraphs: NamedGraph, directed_graph_type, encoded_graph_type,
-    induced_subgraph_from_vertices, similar_type, undirected_graph_type
+    induced_subgraph_from_vertices, parent_graph_type, similar_type, undirected_graph_type
 using Graphs: AbstractGraph, edges, has_edge, rem_edge!, rem_vertex!, vertices
 
 """
@@ -54,8 +54,7 @@ struct QuotientView{V, G <: AbstractGraph} <: AbstractNamedGraph{V}
 end
 
 Base.parent(qg::QuotientView) = qg.graph
-parent_graph_type(g::AbstractGraph) = parent_graph_type(typeof(g))
-parent_graph_type(::Type{<:QuotientView{V, G}}) where {V, G} = G
+NamedGraphs.parent_graph_type(::Type{<:QuotientView{V, G}}) where {V, G} = G
 
 Base.copy(qv::QuotientView) = copy(quotient_graph(parent(qv)))
 

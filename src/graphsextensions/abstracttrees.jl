@@ -1,3 +1,5 @@
+parent_graph_type(graph::AbstractGraph) = parent_graph_type(typeof(graph))
+
 # AbstractTreeGraph
 # Tree view of a graph.
 abstract type AbstractTreeGraph{V} <: AbstractGraph{V} end
