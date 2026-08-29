@@ -140,7 +140,16 @@ end
         )
         @test all([e in edges(g) for e in es])
         eg = edge_subgraph(g, es)
-        @test length(edges(eg)) == length(es)
+        # Compare edge sets rather than counts: `has_edge` ignores orientation on
+        # an undirected graph, so a count check passes even if the wrong edge was
+        # removed and another kept.
+        unordered(e) = Set((src(e), dst(e)))
+        @test Set(unordered.(edges(eg))) == Set(unordered.(es))
+        # `subgraph` can store an edge in the opposite orientation to the request,
+        # so requesting one reversed must give the same subgraph.
+        es_reversed = [i == 2 ? reverse(e) : e for (i, e) in enumerate(es)]
+        @test Set(unordered.(edges(edge_subgraph(g, es_reversed)))) ==
+            Set(unordered.(es))
 
         g = NamedGraph(["A", "B", "C", "D", "E"])
         add_edge!(g, "A" => "B")
