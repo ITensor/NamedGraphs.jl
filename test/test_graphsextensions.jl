@@ -139,7 +139,7 @@ using Test: @test, @test_broken, @test_throws, @testset
     @test !has_edge(g_perm, 3 => 4)
 
     # all_edges
-    g = path_graph(4)
+    g = named_path_graph(4)
     @test issetequal(
         all_edges(g), edgetype(g).([1 => 2, 2 => 1, 2 => 3, 3 => 2, 3 => 4, 4 => 3])
     )
@@ -148,7 +148,7 @@ using Test: @test, @test_broken, @test_throws, @testset
     @test eltype(all_edges(g)) === edgetype(g)
     @test length(all_edges(g)) == 2 * ne(g)
     @test collect(all_edges(g)) == [e for edge in edges(g) for e in (edge, reverse(edge))]
-    g = path_digraph(4)
+    g = named_path_digraph(4)
     @test issetequal(all_edges(g), edgetype(g).([1 => 2, 2 => 3, 3 => 4]))
     @test eltype(all_edges(g)) === edgetype(g)
     @test length(all_edges(g)) == ne(g)

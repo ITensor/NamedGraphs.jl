@@ -14,6 +14,7 @@ using Test: @test, @testset
             :add_edges!,
             :add_vertex,
             :add_vertices,
+            :all_edges,
             :boundary_edges,
             :convert_vertextype,
             :default_root_vertex,

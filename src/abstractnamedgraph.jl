@@ -1349,6 +1349,42 @@ function subgraph_edges(graph::AbstractGraph, subvertices)
 end
 
 """
+    all_edges(graph::AbstractNamedGraph)
+
+Both directions of each edge of an undirected `graph`, each edge immediately
+followed by its reverse, or just the edges of a directed one. Useful where a
+value belongs to a direction rather than to an edge, such as a message on each
+directed edge.
+
+# Examples
+
+```jldoctest
+julia> using NamedGraphs: all_edges, named_path_digraph, named_path_graph
+
+julia> collect(all_edges(named_path_graph(3)))
+4-element Vector{NamedEdge{Int64}}:
+ 1 => 2
+ 2 => 1
+ 2 => 3
+ 3 => 2
+
+julia> collect(all_edges(named_path_digraph(3)))
+2-element Vector{NamedEdge{Int64}}:
+ 1 => 2
+ 2 => 3
+```
+"""
+function all_edges end
+
+@traitfn function all_edges(g::AbstractNamedGraph::IsDirected)
+    return edges(g)
+end
+
+@traitfn function all_edges(g::AbstractNamedGraph::(!IsDirected))
+    return NamedAllEdgeIter(g)
+end
+
+"""
     edge_subgraph(graph::AbstractNamedGraph, edges)
 
 The subgraph of `graph` spanned by `edges`, holding the vertices those edges touch
