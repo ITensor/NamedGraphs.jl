@@ -42,10 +42,11 @@ Dictionaries.gettokenvalue(vs::NamedVerticesView, token) = decoded_vertex(vs.gra
 # `Graphs.SimpleGraphs.SimpleEdgeIter`: iterates by decoding the edges of
 # `encoded_graph(graph)` and tests membership through `has_edge`.
 # Output of `edges(graph::AbstractNamedGraph)`.
-struct NamedEdgeIter{V, E <: AbstractEdge{V}, G <: AbstractGraph{V}} <: AbstractEdgeIter
+struct NamedEdgeIter{V, E <: AbstractNamedEdge{V}, G <: AbstractNamedGraph{V}} <:
+    AbstractEdgeIter
     graph::G
 end
-function NamedEdgeIter(graph::AbstractGraph)
+function NamedEdgeIter(graph::AbstractNamedGraph)
     return NamedEdgeIter{vertextype(graph), edgetype(graph), typeof(graph)}(graph)
 end
 
@@ -66,3 +67,36 @@ function Base.:(==)(es1::NamedEdgeIter, es2::NamedEdgeIter)
     return all(e -> e in es2, es1)
 end
 Base.show(io::IO, es::NamedEdgeIter) = show(io, collect(es))
+
+# Lazy iterator over both directions of each edge of an undirected named graph.
+# Output of `all_edges(graph)` there. Built as an iterator rather than a
+# `Iterators.flatten` so that `eltype` and `length` survive: flattening drops
+# both, which breaks callers that dispatch on the element type.
+struct NamedAllEdgeIter{V, E <: AbstractNamedEdge{V}, G <: AbstractNamedGraph{V}} <:
+    AbstractEdgeIter
+    graph::G
+end
+function NamedAllEdgeIter(graph::AbstractNamedGraph)
+    return NamedAllEdgeIter{vertextype(graph), edgetype(graph), typeof(graph)}(graph)
+end
+
+Base.eltype(::Type{<:NamedAllEdgeIter{<:Any, E}}) where {E} = E
+Base.length(es::NamedAllEdgeIter) = 2 * ne(es.graph)
+# The state carries the reversed edge still owed for the current forward edge,
+# so each edge is emitted immediately before its reverse.
+function Base.iterate(es::NamedAllEdgeIter)
+    next = iterate(edges(es.graph))
+    isnothing(next) && return nothing
+    edge, edges_state = next
+    return edge, (edges_state, reverse(edge))
+end
+function Base.iterate(es::NamedAllEdgeIter, state)
+    edges_state, owed = state
+    isnothing(owed) || return owed, (edges_state, nothing)
+    next = iterate(edges(es.graph), edges_state)
+    isnothing(next) && return nothing
+    edge, new_state = next
+    return edge, (new_state, reverse(edge))
+end
+Base.in(edge, es::NamedAllEdgeIter) = has_edge(es.graph, edge)
+Base.show(io::IO, es::NamedAllEdgeIter) = show(io, collect(es))

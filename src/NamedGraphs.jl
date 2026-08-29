@@ -22,7 +22,7 @@ module NamedGraphs
 # exports its own, different, generic functions under those names, so exporting
 # ours would leave both dead after `using Graphs, NamedGraphs`.
 export ⊔, AbstractNamedGraph, NamedDiGraph, NamedEdge, NamedGraph,
-    add_edge, add_edges, add_edges!, add_vertex, add_vertices, boundary_edges,
+    add_edge, add_edges, add_edges!, add_vertex, add_vertices, all_edges, boundary_edges,
     convert_vertextype, default_root_vertex, directed_graph, disjoint_union,
     edge_subgraph, edgeless_graph, empty_graph, forest_cover,
     forest_cover_edge_sequence, in_incident_edges, incident_edges, is_leaf_vertex,

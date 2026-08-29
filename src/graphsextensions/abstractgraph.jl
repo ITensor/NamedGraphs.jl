@@ -157,17 +157,6 @@ function _neighbors(graph::AbstractGraph, vertex; dir = :out)
     )
 end
 
-# Returns just the edges of a directed graph,
-# but both edge directions of an undirected graph.
-# TODO: Move to NamedGraphs.jl
-@traitfn function all_edges(g::::IsDirected)
-    return edges(g)
-end
-
-@traitfn function all_edges(g::::(!IsDirected))
-    return Iterators.flatten(Iterators.map(e -> (e, reverse(e)), edges(g)))
-end
-
 # Alternative syntax to `getindex` for getting a subgraph
 # TODO: Should this preserve vertex names by
 # converting to `NamedGraph` if indexed by

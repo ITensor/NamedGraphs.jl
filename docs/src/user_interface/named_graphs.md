@@ -27,6 +27,7 @@ section will grow over time.
 ```@docs; canonical=false
 vertices(::AbstractNamedGraph)
 edges(::AbstractNamedGraph)
+all_edges
 neighbors(::AbstractNamedGraph, ::Any)
 Graphs.dijkstra_shortest_paths(::AbstractNamedGraph, ::Any, ::Any)
 subgraph
