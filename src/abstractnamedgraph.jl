@@ -266,12 +266,15 @@ function decoded_edge(graph::AbstractNamedGraph, encoded_edge::AbstractEdge)
 end
 
 """
-    edges(graph::AbstractNamedGraph) -> AbstractEdgeIter
+    edges(graph::AbstractNamedGraph) -> Graphs.AbstractEdgeIter
 
-A Graphs.jl `AbstractEdgeIter` over the edges of `graph`, yielding each edge
+A `Graphs.AbstractEdgeIter` over the edges of `graph`, yielding each edge
 exactly once, with membership testing (`in`) matching `has_edge` (in particular,
 on undirected graphs an edge and its reverse are both members while iteration
 yields each edge once). The iteration order is unspecified.
+
+Only the `Graphs.AbstractEdgeIter` interface is promised. The concrete type is
+currently `NamedGraphs.NamedEdgeIter`, which may change.
 
 The output is a live view of the graph: do not rely on it across mutations of
 the graph.
@@ -284,6 +287,15 @@ julia> using Graphs: edges, path_graph
 julia> using NamedGraphs: NamedEdge, NamedGraph
 
 julia> g = NamedGraph(path_graph(3), ["a", "b", "c"]);
+
+julia> for e in edges(g)
+           println(e)
+       end
+"a" => "b"
+"b" => "c"
+
+julia> length(edges(g))
+2
 
 julia> collect(edges(g))
 2-element Vector{NamedEdge{String}}:
