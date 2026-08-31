@@ -10,7 +10,9 @@ and edges used internally.
 - The `NamedGraphGenerators`, `GraphsExtensions`, `GraphGenerators`, and
   `SimilarType` submodules are removed and their contents moved into
   `NamedGraphs`, so `using NamedGraphs.GraphsExtensions: boundary_edges` becomes
-  `using NamedGraphs: boundary_edges`
+  `using NamedGraphs: boundary_edges`,
+  `using NamedGraphs.NamedGraphGenerators: named_grid` becomes
+  `using NamedGraphs: named_grid`, and so on
   ([#183](https://github.com/ITensor/NamedGraphs.jl/pull/183),
   [#187](https://github.com/ITensor/NamedGraphs.jl/pull/187),
   [#189](https://github.com/ITensor/NamedGraphs.jl/pull/189),
@@ -75,6 +77,10 @@ and edges used internally.
 - The `Keys` submodule and its `Key` type are removed with no replacement. Code
   that used `Key` needs its own equivalent
   ([#183](https://github.com/ITensor/NamedGraphs.jl/pull/183)).
+- `all_edges` takes an `AbstractNamedGraph`, where it previously took any
+  `Graphs.AbstractGraph`, and outputs a lazy iterator, so on a directed graph it
+  no longer returns an allocated `Vector`
+  ([#192](https://github.com/ITensor/NamedGraphs.jl/pull/192)).
 - `GenericNamedGraph{V, G}` is removed (it was not exported, so this only
   affects code that imported it explicitly). `NamedGraph{V}` and
   `NamedDiGraph{V}` are now separately defined concrete types, hardcoded to
@@ -82,14 +88,12 @@ and edges used internally.
   ([#179](https://github.com/ITensor/NamedGraphs.jl/pull/179)).
 - The wrappers around Graphs.jl functions mirror the upstream positional
   signatures instead of taking `args...` or untyped arguments, so some argument
-  types that were previously accepted no longer are
-  ([#186](https://github.com/ITensor/NamedGraphs.jl/pull/186)).
-- `eccentricity(graph, x)` is always the eccentricity of the single vertex `x`.
-  The every-vertex form is `eccentricities`
-  ([#186](https://github.com/ITensor/NamedGraphs.jl/pull/186)).
-- A `Vector{Bool}` passed to `induced_subgraph` is a list of vertex names, not a
-  mask over `1:nv(graph)`, and `induced_subgraph` throws for vertices the graph
-  does not have, where it previously returned a graph built on them
+  types that were previously accepted no longer are. In particular,
+  `eccentricity(graph, x)` is always the eccentricity of the single vertex `x`,
+  with `eccentricities` as the every-vertex form, and a `Vector{Bool}` passed to
+  `induced_subgraph` is a list of vertex names rather than a mask over
+  `1:nv(graph)`. `induced_subgraph` also throws for vertices the graph does not
+  have, where it previously returned a graph built on them
   ([#186](https://github.com/ITensor/NamedGraphs.jl/pull/186)).
 - `rename_vertices(edge, name_map)` is removed. Write
   `rename_vertices(v -> name_map[v], edge)`
@@ -111,9 +115,7 @@ and edges used internally.
   [#187](https://github.com/ITensor/NamedGraphs.jl/pull/187)).
   Indexing a `QuotientView` by a collection of vertices or edges was broken the
   same way and also works now.
-- `all_edges` is documented and exported, and reports its `eltype` and `length`
-  correctly. It previously advertised an `eltype` of `Any` and threw from
-  `length` on undirected graphs
+- `all_edges` is documented and exported
   ([#192](https://github.com/ITensor/NamedGraphs.jl/pull/192)).
 - `Combinatorics`, `Random`, `Suppressor`, `SimpleGraphConverter`, and
   `PackageExtensionCompat` are no longer dependencies, so installing
