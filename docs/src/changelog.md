@@ -7,24 +7,14 @@ and edges used internally.
 
 ### Breaking changes
 
-- The `GraphsExtensions`, `SimilarType`, `GraphGenerators`, and
-  `NamedGraphGenerators` submodules are removed and their contents moved into
+- The `NamedGraphGenerators`, `GraphsExtensions`, `GraphGenerators`, and
+  `SimilarType` submodules are removed and their contents moved into
   `NamedGraphs`, so `using NamedGraphs.GraphsExtensions: boundary_edges` becomes
   `using NamedGraphs: boundary_edges`
   ([#183](https://github.com/ITensor/NamedGraphs.jl/pull/183),
   [#187](https://github.com/ITensor/NamedGraphs.jl/pull/187),
   [#189](https://github.com/ITensor/NamedGraphs.jl/pull/189),
   [#190](https://github.com/ITensor/NamedGraphs.jl/pull/190)).
-- The `Keys`, `OrdinalIndexing`, and `OrderedDictionaries` submodules are removed
-  along with their contents, which are not available elsewhere, leaving
-  `PartitionedGraphs` as the only submodule. See the entry below on the output
-  type of `vertices` for what replaces `OrderedIndices`
-  ([#178](https://github.com/ITensor/NamedGraphs.jl/pull/178),
-  [#183](https://github.com/ITensor/NamedGraphs.jl/pull/183)).
-- The `Key` type is deleted with no replacement. Code that used it needs its own
-  equivalent ([#183](https://github.com/ITensor/NamedGraphs.jl/pull/183)).
-- `vertices(g)[4th]` becomes `decoded_vertex(g, 4)`
-  ([#178](https://github.com/ITensor/NamedGraphs.jl/pull/178)).
 - `edges(g)` outputs a lazy iterator instead of a `Vector`, like
   `edges(::SimpleGraph)` in Graphs.jl. Membership (`in`) matches `has_edge`, and
   `==` between two edge iterators compares the edge sets. Code that indexed,
@@ -32,15 +22,16 @@ and edges used internally.
   takes the iterator as a single element rather than a collection, so it
   silently returns a nested `Vector{Any}` where it previously combined the edges.
   Iteration, `length`, `first`, `issetequal`, `union`, `setdiff`, broadcasting,
-  and building a `Dictionary` or `Indices` all work directly
-  ([#178](https://github.com/ITensor/NamedGraphs.jl/pull/178)).
-- `edges(g)` is a live view of the graph rather than a snapshot, so holding on to
-  it across a mutation of the graph now sees the mutation
+  and building a `Dictionary` or `Indices` all work directly. The output is a
+  live view of the graph rather than a snapshot, so holding on to it across a
+  mutation of the graph now sees the mutation
   ([#178](https://github.com/ITensor/NamedGraphs.jl/pull/178)).
 - `vertices(g::Named[Di]Graph)` outputs a `Dictionaries.Indices` instead of the
-  internal `OrderedIndices` type, which is removed along with the
-  `OrderedDictionaries` submodule. Other `AbstractNamedGraph` types can output
-  other `AbstractIndices` set views. Indexing is by vertex name, not position
+  internal `OrderedIndices` type, and the `OrderedDictionaries` and
+  `OrdinalIndexing` submodules are removed along with their contents. Other
+  `AbstractNamedGraph` types can output other `AbstractIndices` set views.
+  Indexing is by vertex name, not position, and `vertices(g)[4th]` becomes
+  `decoded_vertex(g, 4)`
   ([#178](https://github.com/ITensor/NamedGraphs.jl/pull/178)).
 - Vertices iterate in insertion order, which no longer matches the integer codes
   after a removal, where v0.13 kept the two in agreement. Nothing errors, so code
@@ -81,6 +72,9 @@ and edges used internally.
 - Considerably more names are exported, where previously only the four graph and
   edge types were, so `using NamedGraphs` can collide with names another package
   exports ([#188](https://github.com/ITensor/NamedGraphs.jl/pull/188)).
+- The `Keys` submodule and its `Key` type are removed with no replacement. Code
+  that used `Key` needs its own equivalent
+  ([#183](https://github.com/ITensor/NamedGraphs.jl/pull/183)).
 - `GenericNamedGraph{V, G}` is removed (it was not exported, so this only
   affects code that imported it explicitly). `NamedGraph{V}` and
   `NamedDiGraph{V}` are now separately defined concrete types, hardcoded to
