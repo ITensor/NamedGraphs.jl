@@ -28,13 +28,11 @@ and edges used internally.
 - `edges(g)` outputs a lazy iterator instead of a `Vector`, like
   `edges(::SimpleGraph)` in Graphs.jl. Membership (`in`) matches `has_edge`, and
   `==` between two edge iterators compares the edge sets. Code that indexed,
-  `filter`ed, or `findfirst`ed the result should `collect` it first. Iteration,
-  `length`, `first`, `issetequal`, `union`, `setdiff`, broadcasting, and building
-  a `Dictionary` or `Indices` all work directly
-  ([#178](https://github.com/ITensor/NamedGraphs.jl/pull/178)).
-- `vcat` treats the edge iterator as a single element rather than a collection,
-  so `vcat(edges(g), reverse.(edges(g)))` returns a nested `Vector{Any}` instead
-  of the combined edges, without erroring. `collect` the first argument
+  `filter`ed, or `findfirst`ed the result should `collect` it first, and `vcat`
+  takes the iterator as a single element rather than a collection, so it
+  silently returns a nested `Vector{Any}` where it previously combined the edges.
+  Iteration, `length`, `first`, `issetequal`, `union`, `setdiff`, broadcasting,
+  and building a `Dictionary` or `Indices` all work directly
   ([#178](https://github.com/ITensor/NamedGraphs.jl/pull/178)).
 - `edges(g)` is a live view of the graph rather than a snapshot, so holding on to
   it across a mutation of the graph now sees the mutation
