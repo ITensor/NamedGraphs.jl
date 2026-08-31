@@ -266,12 +266,21 @@ function decoded_edge(graph::AbstractNamedGraph, encoded_edge::AbstractEdge)
 end
 
 """
-    edges(graph::AbstractNamedGraph) -> AbstractEdgeIter
+    edges(graph::AbstractNamedGraph) -> Graphs.AbstractEdgeIter
 
-A Graphs.jl `AbstractEdgeIter` over the edges of `graph`, yielding each edge
-exactly once, with membership testing (`in`) matching `has_edge` (in particular,
-on undirected graphs an edge and its reverse are both members while iteration
-yields each edge once). The iteration order is unspecified.
+A `Graphs.AbstractEdgeIter` over the edges of `graph`, yielding each edge
+exactly once.
+
+It can be iterated, so it works in a `for` loop and with `collect`. `length`
+gives the number of edges and `eltype` gives the edge type of the graph,
+generally `NamedEdge{V}` for a graph with vertex type `V`. Membership testing
+with `in` matches `has_edge`, so on an undirected graph an edge and its reverse
+are both members even though iteration yields each edge once.
+
+The iteration order is an implementation detail of how the graph stores its
+edges and is not part of the interface.
+
+The concrete type is currently `NamedGraphs.NamedEdgeIter`, which may change.
 
 The output is a live view of the graph: do not rely on it across mutations of
 the graph.
@@ -284,6 +293,18 @@ julia> using Graphs: edges, path_graph
 julia> using NamedGraphs: NamedEdge, NamedGraph
 
 julia> g = NamedGraph(path_graph(3), ["a", "b", "c"]);
+
+julia> for e in edges(g)
+           println(e)
+       end
+"a" => "b"
+"b" => "c"
+
+julia> length(edges(g))
+2
+
+julia> eltype(edges(g))
+NamedEdge{String}
 
 julia> collect(edges(g))
 2-element Vector{NamedEdge{String}}:
