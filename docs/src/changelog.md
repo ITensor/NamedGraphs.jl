@@ -7,21 +7,24 @@ and edges used internally.
 
 ### Breaking changes
 
-- The `GraphsExtensions`, `Keys`, `SimilarType`, `GraphGenerators`,
-  `NamedGraphGenerators`, `OrdinalIndexing`, and `OrderedDictionaries`
-  submodules are removed, leaving `PartitionedGraphs` as the only submodule.
-  Their contents are available directly from `NamedGraphs`, so
-  `using NamedGraphs.GraphsExtensions: boundary_edges` becomes
+- The `GraphsExtensions`, `SimilarType`, `GraphGenerators`, and
+  `NamedGraphGenerators` submodules are removed and their contents moved into
+  `NamedGraphs`, so `using NamedGraphs.GraphsExtensions: boundary_edges` becomes
   `using NamedGraphs: boundary_edges`
   ([#183](https://github.com/ITensor/NamedGraphs.jl/pull/183),
   [#187](https://github.com/ITensor/NamedGraphs.jl/pull/187),
   [#189](https://github.com/ITensor/NamedGraphs.jl/pull/189),
   [#190](https://github.com/ITensor/NamedGraphs.jl/pull/190)).
-- The `Key` type is deleted rather than moved. Code that used it needs its own
+- The `Keys`, `OrdinalIndexing`, and `OrderedDictionaries` submodules are removed
+  along with their contents, which are not available elsewhere. That leaves
+  `PartitionedGraphs` as the only submodule
+  ([#178](https://github.com/ITensor/NamedGraphs.jl/pull/178),
+  [#183](https://github.com/ITensor/NamedGraphs.jl/pull/183)).
+- The `Key` type is deleted with no replacement. Code that used it needs its own
   equivalent, along with a `NamedGraphs.to_graph_index(graph, key::Key)` method
   ([#183](https://github.com/ITensor/NamedGraphs.jl/pull/183)).
-- `vertices(g)[4th]` becomes `decoded_vertex(g, 4)`, since `OrdinalIndexing` is
-  removed ([#178](https://github.com/ITensor/NamedGraphs.jl/pull/178)).
+- `vertices(g)[4th]` becomes `decoded_vertex(g, 4)`
+  ([#178](https://github.com/ITensor/NamedGraphs.jl/pull/178)).
 - `edges(g)` outputs a lazy iterator instead of a `Vector`, like
   `edges(::SimpleGraph)` in Graphs.jl. Membership (`in`) matches `has_edge`, and
   `==` between two edge iterators compares the edge sets. Code that indexed,
