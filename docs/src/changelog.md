@@ -16,8 +16,9 @@ and edges used internally.
   [#189](https://github.com/ITensor/NamedGraphs.jl/pull/189),
   [#190](https://github.com/ITensor/NamedGraphs.jl/pull/190)).
 - The `Keys`, `OrdinalIndexing`, and `OrderedDictionaries` submodules are removed
-  along with their contents, which are not available elsewhere. That leaves
-  `PartitionedGraphs` as the only submodule
+  along with their contents, which are not available elsewhere, leaving
+  `PartitionedGraphs` as the only submodule. See the entry below on the output
+  type of `vertices` for what replaces `OrderedIndices`
   ([#178](https://github.com/ITensor/NamedGraphs.jl/pull/178),
   [#183](https://github.com/ITensor/NamedGraphs.jl/pull/183)).
 - The `Key` type is deleted with no replacement. Code that used it needs its own
