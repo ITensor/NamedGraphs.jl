@@ -21,8 +21,7 @@ and edges used internally.
   ([#178](https://github.com/ITensor/NamedGraphs.jl/pull/178),
   [#183](https://github.com/ITensor/NamedGraphs.jl/pull/183)).
 - The `Key` type is deleted with no replacement. Code that used it needs its own
-  equivalent, along with a `NamedGraphs.to_graph_index(graph, key::Key)` method
-  ([#183](https://github.com/ITensor/NamedGraphs.jl/pull/183)).
+  equivalent ([#183](https://github.com/ITensor/NamedGraphs.jl/pull/183)).
 - `vertices(g)[4th]` becomes `decoded_vertex(g, 4)`
   ([#178](https://github.com/ITensor/NamedGraphs.jl/pull/178)).
 - `edges(g)` outputs a lazy iterator instead of a `Vector`, like
