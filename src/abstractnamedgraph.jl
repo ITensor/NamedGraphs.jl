@@ -11,8 +11,9 @@ using SimpleTraits: SimpleTraits, @traitfn, Not
 
 Abstract type for graphs whose vertices are names of type `V` rather than
 contiguous integers. Subtypes implement the Graphs.jl interface in terms of a
-graph on integer vertex codes through the minimal interface
-[`encoded_graph`](@ref), [`encoded_vertex`](@ref), and [`decoded_vertex`](@ref).
+graph on integer vertex codes through [`encoded_graph`](@ref),
+[`encoded_vertex`](@ref), and [`decoded_vertex`](@ref). The developer interface
+page of the documentation covers what a subtype has to define.
 """
 abstract type AbstractNamedGraph{V} <: AbstractGraph{V} end
 
@@ -345,7 +346,7 @@ end
 The neighbors of `vertex` in `graph`, as vertex names. On a directed graph these
 are the out-neighbors, following the Graphs.jl convention. `inneighbors`,
 `outneighbors`, and `all_neighbors` select the other directions and behave the
-same way in every other respect, including the caveat below.
+same way in every other respect.
 
 # Examples
 

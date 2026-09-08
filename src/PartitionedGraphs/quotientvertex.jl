@@ -61,8 +61,8 @@ Base.getindex(qvs::QuotientVertices, i) = QuotientVertices(qvs.vertices[i])
 """
     quotientvertices(g::AbstractGraph, vs = vertices(g))
 
-Return an iterator over unique quotient vertices corresponding to the set vertices `vs`
-of the graph `pg`.
+Return an iterator over unique quotient vertices corresponding to the vertices `vs`
+of the graph `g`.
 """
 quotientvertices(g) = QuotientVertices(g)
 function quotientvertices(g::AbstractGraph, vs)
