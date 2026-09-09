@@ -7,10 +7,9 @@ using Graphs: Graphs, AbstractGraph, Edge, SimpleDiGraph, SimpleGraph, add_edge!
 
 An `AbstractGraph{Int}` presenting `graph` on its vertex codes `1:nv(graph)`, for
 graph types that compute their topology directly rather than storing an integer
-graph. Such a type returns `EncodedGraphView(graph)` from [`encoded_graph`](@ref)
-and must define `nv`, `ne`, `has_vertex`, `has_edge`, `edges`, and the neighbor
+graph. Such a type can return `EncodedGraphView(graph)` from [`encoded_graph`](@ref)
+and must then define `nv`, `ne`, `has_vertex`, `has_edge`, `edges`, and the neighbor
 hooks itself, since the view answers every query by asking `graph`.
-`NamedGridGraph` is an example.
 """
 struct EncodedGraphView{G <: AbstractGraph} <: AbstractGraph{Int}
     graph::G

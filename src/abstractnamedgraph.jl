@@ -89,7 +89,7 @@ May be a stored field or a view of `graph`; mutate the graph only through
 `graph`.
 
 A type that computes its topology directly rather than storing an integer graph
-returns [`EncodedGraphView(graph)`](@ref EncodedGraphView), and must then define
+can return [`EncodedGraphView(graph)`](@ref EncodedGraphView), and must then define
 `nv`, `ne`, `has_vertex`, `has_edge`, `edges`, and the neighbor hooks itself,
 since the view answers those by asking `graph`.
 

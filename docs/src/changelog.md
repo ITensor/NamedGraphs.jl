@@ -43,7 +43,7 @@ and edges used internally.
   ([#178](https://github.com/ITensor/NamedGraphs.jl/pull/178)).
 - The "position graph" terminology is replaced with encode and decode
   terminology. The overloads for implementing a new `AbstractNamedGraph` are
-  `encoded_graph(g)` (replaces `position_graph`, and returns
+  `encoded_graph(g)` (replaces `position_graph`, and can return
   `EncodedGraphView(g)` for a type that does not store an integer graph),
   `encoded_vertex(g, v)` (replaces `vertex_positions`), and
   `decoded_vertex(g, c)` (replaces `ordered_vertices`). Codes are not stable

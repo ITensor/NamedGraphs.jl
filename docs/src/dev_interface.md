@@ -12,12 +12,10 @@ the graph on integer vertex codes and the translation between names and codes.
 Everything else in the Graphs.jl interface has generic fallbacks in terms of
 these.
 
-A graph type that does not store an integer graph returns
+A graph type that does not store an integer graph can return
 [`EncodedGraphView(g)`](@ref EncodedGraphView) from `encoded_graph`. The view
 answers `nv`, `ne`, `has_vertex`, `has_edge`, `edges`, and the neighbor queries
 by asking the named graph itself, so such a type defines those directly.
-`NamedGridGraph` is the model: it computes its topology from the grid size and
-uses the view only to present it on integer codes.
 
 Rather than overloading a Graphs.jl function on your subtype, overload the hook
 it forwards to, named `f_namedgraph` for a Graphs.jl function `f`
