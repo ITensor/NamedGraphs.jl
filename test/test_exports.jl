@@ -20,6 +20,7 @@ using Test: @test, @testset
             :default_root_vertex,
             :directed_graph,
             :disjoint_union,
+            :eccentricities,
             :edge_subgraph,
             :edgeless_graph,
             :empty_graph,
@@ -56,6 +57,7 @@ using Test: @test, @testset
         # `names` includes `public` names as well as exported ones.
         public_names = if VERSION >= v"1.11.0-DEV.469"
             [
+                :EncodedGraphView,
                 :PartitionedGraphs,
                 :decoded_edge,
                 :decoded_vertex,

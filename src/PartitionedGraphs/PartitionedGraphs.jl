@@ -7,7 +7,7 @@ This module provides data structures and functionalities to work with partitione
 including quotient vertices and edges, as well as views of partitioned graphs.
 It defines an abstract supertype `AbstractPartitionedGraph` for graphs that have
 some notion of a non-trivial partitioning of their vertices. It also provides
-a interface of functions that can be overloaded on any subtype of `Graphs.AbstractGraph` to
+an interface of functions that can be overloaded on any subtype of `Graphs.AbstractGraph` to
 make this subtype behave like a partitioned graph, without itself subtyping `AbstractPartitionedGraph`.
 
 It defines the following concrete types:
@@ -18,7 +18,9 @@ It defines the following concrete types:
   - `PartitionedGraph`: An implementation of a partitioned graph with extra caching
     not provided by `PartitionedView`.
   - `QuotientView`: A view of the quotient graph derived from a partitioned graph.
-    It provides the following functions:
+
+It provides the following functions:
+
   - `partitionedgraph`: Partitions an `AbstractGraph`.
   - `departition`: Removes a single layer of partitioning from a partitioned graph.
   - `unpartition`: Recursively removes all layers of partitioning from a partitioned graph.
@@ -81,7 +83,11 @@ is not supported for partitioned graphs as it is ambiguous which quotient vertex
 should belong to. To add a vertex to a partitioned graph, one should define the method:
 
 ```julia
-Graphs.add_subquotientvertex!(g::MyGraphType, quotientvertex::QuotientVertex, vertex)
+PartitionedGraphs.add_subquotientvertex!(
+    g::MyGraphType,
+    quotientvertex::QuotientVertex,
+    vertex
+)
 ```
 
 Doing so enables the syntax:

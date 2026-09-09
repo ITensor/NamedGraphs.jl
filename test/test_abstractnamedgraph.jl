@@ -400,3 +400,16 @@ end
     @test Graphs.rem_vertices!(h, vertices(h)) == 4
     @test nv(h) == 0
 end
+
+# Defines only the vertex translation, to check that the rest of the required
+# interface fails loudly rather than recursing through `EncodedGraphView`.
+struct IncompleteNamedGraph <: AbstractNamedGraph{String} end
+NamedGraphs.encoded_vertex(::IncompleteNamedGraph, vertex) = 1
+NamedGraphs.decoded_vertex(::IncompleteNamedGraph, code::Integer) = "a"
+Graphs.is_directed(::Type{IncompleteNamedGraph}) = false
+
+@testset "AbstractNamedGraph incomplete subtype" begin
+    g = IncompleteNamedGraph()
+    @test_throws ErrorException nv(g)
+    @test_throws ErrorException collect(edges(g))
+end

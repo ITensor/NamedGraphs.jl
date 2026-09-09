@@ -31,10 +31,10 @@ to_quotient_index(edge::AbstractEdge) = QuotientEdge(edge)
 """
     quotientedge(g::AbstractGraph{V}, edge) -> QuotientEdge{V}
 
-Return the the quotient edge corresponding to `edge` of the graph `g`. Note,
+Return the quotient edge corresponding to `edge` of the graph `g`. Note,
 the returned quotient edge may be a self-loop.
 
-See also: `quotientedges`, `quotienttvertex`.
+See also: `quotientedges`, `quotientvertex`.
 """
 quotientedge(g::AbstractGraph, edge::Pair) = quotientedge(g, edgetype(g)(edge))
 function quotientedge(g::AbstractGraph, edge::AbstractEdge)

@@ -10,9 +10,12 @@ CollapsedDocStrings = true
 Subtype [`AbstractNamedGraph`](@ref) and overload the minimal interface below,
 the graph on integer vertex codes and the translation between names and codes.
 Everything else in the Graphs.jl interface has generic fallbacks in terms of
-these. Graph types that do not store an integer graph get a generic
-`EncodedGraphView` fallback for `encoded_graph` and only need `encoded_vertex`
-and `decoded_vertex`.
+these.
+
+A graph type that does not store an integer graph can return
+[`EncodedGraphView(g)`](@ref EncodedGraphView) from `encoded_graph`. The view
+answers `nv`, `ne`, `has_vertex`, `has_edge`, `edges`, and the neighbor queries
+by asking the named graph itself, so such a type defines those directly.
 
 Vertex codes are not stable across mutation: adding or removing vertices may
 reassign the codes of other vertices.
@@ -26,6 +29,7 @@ encoded_vertex
 decoded_vertex
 encoded_edge
 decoded_edge
+EncodedGraphView
 ```
 
 ## Graphs.jl interface extensions
