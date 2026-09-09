@@ -17,14 +17,6 @@ A graph type that does not store an integer graph can return
 answers `nv`, `ne`, `has_vertex`, `has_edge`, `edges`, and the neighbor queries
 by asking the named graph itself, so such a type defines those directly.
 
-Rather than overloading a Graphs.jl function on your subtype, overload the hook
-it forwards to, named `f_namedgraph` for a Graphs.jl function `f`
-(`neighbors_namedgraph`, `dijkstra_shortest_paths_namedgraph`, and so on). The
-Graphs.jl functions are defined once on `AbstractNamedGraph`, in both the untyped
-and `::Integer` vertex forms, and forward to the hook. Overloading the hook keeps
-a subtype's methods unambiguous with Graphs.jl's own `::Integer` methods on a
-graph whose vertex names are integers, with no disambiguator of its own.
-
 Vertex codes are not stable across mutation: adding or removing vertices may
 reassign the codes of other vertices.
 
