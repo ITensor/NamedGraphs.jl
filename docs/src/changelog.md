@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.14.0](https://github.com/ITensor/NamedGraphs.jl/compare/v0.13.0...main) - Unreleased
+## [0.14.0](https://github.com/ITensor/NamedGraphs.jl/compare/v0.13.0...v0.14.0) - 2026-09-09
 
 Reworks how named vertices and edges are translated to the integer vertices
 and edges used internally.
