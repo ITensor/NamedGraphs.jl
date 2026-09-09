@@ -29,5 +29,6 @@ jobs:
               "DataGraphs",
               "ITensorNetworks",
               "ITensorNetworksNext",
-              "https://github.com/ITensor/Tennis.jl"
+              "https://github.com/ITensor/Tennis.jl",
+              "https://github.com/JoeyT1994/TensorNetworkQuantumSimulator.jl"
             ]
