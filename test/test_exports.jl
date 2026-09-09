@@ -57,6 +57,7 @@ using Test: @test, @testset
         # `names` includes `public` names as well as exported ones.
         public_names = if VERSION >= v"1.11.0-DEV.469"
             [
+                :EncodedGraphView,
                 :PartitionedGraphs,
                 :decoded_edge,
                 :decoded_vertex,
