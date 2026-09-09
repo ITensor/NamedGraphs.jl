@@ -20,6 +20,7 @@ using Test: @test, @testset
             :default_root_vertex,
             :directed_graph,
             :disjoint_union,
+            :eccentricities,
             :edge_subgraph,
             :edgeless_graph,
             :empty_graph,

@@ -24,7 +24,7 @@ module NamedGraphs
 export ⊔, AbstractNamedGraph, NamedDiGraph, NamedEdge, NamedGraph,
     add_edge, add_edges, add_edges!, add_vertex, add_vertices, all_edges, boundary_edges,
     convert_vertextype, default_root_vertex, directed_graph, disjoint_union,
-    edge_subgraph, edgeless_graph, empty_graph, forest_cover,
+    eccentricities, edge_subgraph, edgeless_graph, empty_graph, forest_cover,
     forest_cover_edge_sequence, in_incident_edges, incident_edges, is_leaf_vertex,
     leaf_vertices, named_binary_tree, named_comb_tree, named_cycle_graph, named_grid,
     named_hexagonal_lattice_graph, named_path_digraph, named_path_graph,

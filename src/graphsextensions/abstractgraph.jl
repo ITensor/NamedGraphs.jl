@@ -608,6 +608,36 @@ function mincut_partitions(graph::AbstractGraph, distmx = weights(graph))
     return parts[1], parts[2]
 end
 
+"""
+    eccentricities(graph::AbstractGraph, vs = vertices(graph), distmx = weights(graph))
+
+The eccentricity of each vertex in `vs`, that is, the length of the longest
+shortest path from it to any other vertex, as `eccentricity(graph, v, distmx)`
+gives for one vertex. The output has one entry per element of `vs`, keyed the
+same way, so for the default `vertices(graph)` it is a `Dictionary` from vertex
+to eccentricity.
+
+# Examples
+
+```jldoctest
+julia> using Graphs: path_graph
+
+julia> using NamedGraphs: NamedGraph, eccentricities
+
+julia> g = NamedGraph(path_graph(3), ["a", "b", "c"]);
+
+julia> eccentricities(g)
+3-element Dictionaries.Dictionary{String, Int64}:
+ "a" │ 2
+ "b" │ 1
+ "c" │ 2
+
+julia> eccentricities(g, ["a", "c"])
+2-element Vector{Int64}:
+ 2
+ 2
+```
+"""
 eccentricities(graph::AbstractGraph) = eccentricities(graph, vertices(graph))
 
 function eccentricities(graph::AbstractGraph, vs, distmx = weights(graph))
