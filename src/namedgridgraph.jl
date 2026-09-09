@@ -114,7 +114,7 @@ function NamedGridGraph(grid_size::NTuple{N, Int}, ishypertorus::Bool = false) w
     return NamedGridGraph{N, ishypertorus}(grid_size)
 end
 # Minimal interface functions
-# `encoded_graph` uses the generic `EncodedGraphView` fallback.
+encoded_graph(g::NamedGridGraph) = EncodedGraphView(g)
 function encoded_vertex(g::NamedGridGraph, vertex)
     # Membership is just a bounds check here, unlike the dictionary lookup in
     # `NamedGraph`, so checking it up front costs nothing worth avoiding.

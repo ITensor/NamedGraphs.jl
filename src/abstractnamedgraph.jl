@@ -77,18 +77,6 @@ julia> [decoded_vertex(g, c) for c in 1:nv(g)]
 decoded_vertex(graph::AbstractNamedGraph, code::Integer) = not_implemented()
 decoded_vertex(graph::AbstractSimpleGraph, code::Integer) = code
 
-Graphs.rem_vertex!(graph::AbstractNamedGraph, vertex) = not_implemented()
-Graphs.add_vertex!(graph::AbstractNamedGraph, vertex) = not_implemented()
-
-function rename_vertices(f::Function, graph::AbstractNamedGraph)
-    new_vertices = map(c -> f(decoded_vertex(graph, c)), vertices(encoded_graph(graph)))
-    return namedgraph(copy(encoded_graph(graph)), new_vertices)
-end
-
-#
-# Derived interface (overload for performance)
-#
-
 """
     encoded_graph(graph::AbstractNamedGraph) -> AbstractGraph{Int}
 
@@ -99,6 +87,11 @@ the edge `encoded_vertex(graph, u) => encoded_vertex(graph, v)` if and only if
 
 May be a stored field or a view of `graph`; mutate the graph only through
 `graph`.
+
+A type that computes its topology directly rather than storing an integer graph
+returns [`EncodedGraphView(graph)`](@ref EncodedGraphView), and must then define
+`nv`, `ne`, `has_vertex`, `has_edge`, `edges`, and the neighbor hooks itself,
+since the view answers those by asking `graph`.
 
 # Examples
 
@@ -127,8 +120,20 @@ julia> has_edge(cg, 1, 2)
 true
 ```
 """
-encoded_graph(graph::AbstractNamedGraph) = EncodedGraphView(graph)
+encoded_graph(graph::AbstractNamedGraph) = not_implemented()
 encoded_graph(graph::AbstractSimpleGraph) = graph
+
+Graphs.rem_vertex!(graph::AbstractNamedGraph, vertex) = not_implemented()
+Graphs.add_vertex!(graph::AbstractNamedGraph, vertex) = not_implemented()
+
+function rename_vertices(f::Function, graph::AbstractNamedGraph)
+    new_vertices = map(c -> f(decoded_vertex(graph, c)), vertices(encoded_graph(graph)))
+    return namedgraph(copy(encoded_graph(graph)), new_vertices)
+end
+
+#
+# Derived interface (overload for performance)
+#
 
 """
     vertices(graph::AbstractNamedGraph) -> Dictionaries.AbstractIndices

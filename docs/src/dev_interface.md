@@ -12,11 +12,10 @@ the graph on integer vertex codes and the translation between names and codes.
 Everything else in the Graphs.jl interface has generic fallbacks in terms of
 these.
 
-A graph type that does not store an integer graph can leave `encoded_graph` to
-its generic `EncodedGraphView` fallback and define only `encoded_vertex` and
-`decoded_vertex` for the translation. The view answers `nv`, `ne`, `has_vertex`,
-`has_edge`, `edges`, and the neighbor queries by asking the named graph itself,
-so such a type must also define those directly, or every one of them recurses.
+A graph type that does not store an integer graph returns
+[`EncodedGraphView(g)`](@ref EncodedGraphView) from `encoded_graph`. The view
+answers `nv`, `ne`, `has_vertex`, `has_edge`, `edges`, and the neighbor queries
+by asking the named graph itself, so such a type defines those directly.
 `NamedGridGraph` is the model: it computes its topology from the grid size and
 uses the view only to present it on integer codes.
 
@@ -40,6 +39,7 @@ encoded_vertex
 decoded_vertex
 encoded_edge
 decoded_edge
+EncodedGraphView
 ```
 
 ## Graphs.jl interface extensions

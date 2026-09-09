@@ -40,7 +40,7 @@ if VERSION >= v"1.11.0-DEV.469"
     # overload, so it is public rather than exported.
     eval(
         Meta.parse(
-            "public decoded_edge, decoded_vertex, encoded_edge, encoded_graph, encoded_vertex, to_graph_index"
+            "public EncodedGraphView, decoded_edge, decoded_vertex, encoded_edge, encoded_graph, encoded_vertex, to_graph_index"
         )
     )
 end
